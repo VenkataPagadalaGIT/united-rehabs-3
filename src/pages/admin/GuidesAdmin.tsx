@@ -1,0 +1,344 @@
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+
+interface GuideRecord {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  icon_name: string | null;
+  read_time: string | null;
+  content: string | null;
+  sort_order: number | null;
+  is_active: boolean | null;
+}
+
+const GuidesAdmin = () => {
+  const queryClient = useQueryClient();
+  const [isOpen, setIsOpen] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<GuideRecord | null>(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    category: "",
+    icon_name: "BookOpen",
+    read_time: "5 min read",
+    content: "",
+    sort_order: 0,
+    is_active: true,
+  });
+
+  const { data: guides, isLoading } = useQuery({
+    queryKey: ["admin-guides"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("rehab_guides")
+        .select("*")
+        .order("sort_order");
+
+      if (error) throw error;
+      return data as GuideRecord[];
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (data: Record<string, unknown>) => {
+      const { error } = await supabase
+        .from("rehab_guides")
+        .insert([data as any]);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-guides"] });
+      toast.success("Guide created successfully");
+      setIsOpen(false);
+      resetForm();
+    },
+    onError: (error) => {
+      toast.error("Failed to create guide: " + error.message);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<GuideRecord> }) => {
+      const { error } = await supabase
+        .from("rehab_guides")
+        .update(data)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-guides"] });
+      toast.success("Guide updated successfully");
+      setIsOpen(false);
+      resetForm();
+    },
+    onError: (error) => {
+      toast.error("Failed to update guide: " + error.message);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("rehab_guides")
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-guides"] });
+      toast.success("Guide deleted successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to delete guide: " + error.message);
+    },
+  });
+
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      description: "",
+      category: "",
+      icon_name: "BookOpen",
+      read_time: "5 min read",
+      content: "",
+      sort_order: 0,
+      is_active: true,
+    });
+    setEditingRecord(null);
+  };
+
+  const handleEdit = (record: GuideRecord) => {
+    setEditingRecord(record);
+    setFormData({
+      title: record.title,
+      description: record.description,
+      category: record.category,
+      icon_name: record.icon_name || "BookOpen",
+      read_time: record.read_time || "5 min read",
+      content: record.content || "",
+      sort_order: record.sort_order || 0,
+      is_active: record.is_active ?? true,
+    });
+    setIsOpen(true);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const data = {
+      title: formData.title,
+      description: formData.description,
+      category: formData.category,
+      icon_name: formData.icon_name,
+      read_time: formData.read_time,
+      content: formData.content || null,
+      sort_order: formData.sort_order,
+      is_active: formData.is_active,
+    };
+
+    if (editingRecord) {
+      updateMutation.mutate({ id: editingRecord.id, data });
+    } else {
+      createMutation.mutate(data);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold">Rehab Guides</h2>
+          <p className="text-muted-foreground">
+            Manage educational guides for the website.
+          </p>
+        </div>
+        <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetForm(); }}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Guide
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                {editingRecord ? "Edit Guide" : "Add Guide"}
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label>Title</Label>
+                <Input
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="Signs You May Need Rehab"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Brief description of the guide..."
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Category</Label>
+                  <Input
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    placeholder="Identification"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Icon Name</Label>
+                  <Input
+                    value={formData.icon_name}
+                    onChange={(e) => setFormData({ ...formData, icon_name: e.target.value })}
+                    placeholder="BookOpen"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Read Time</Label>
+                  <Input
+                    value={formData.read_time}
+                    onChange={(e) => setFormData({ ...formData, read_time: e.target.value })}
+                    placeholder="5 min read"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Sort Order</Label>
+                  <Input
+                    type="number"
+                    value={formData.sort_order}
+                    onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) })}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Content (Full Guide Text)</Label>
+                <Textarea
+                  value={formData.content}
+                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                  placeholder="Full guide content..."
+                  rows={6}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={formData.is_active}
+                  onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                />
+                <Label>Active</Label>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+                  {(createMutation.isPending || updateMutation.isPending) && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  {editingRecord ? "Update" : "Create"}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="border rounded-lg">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Title</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Read Time</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="w-24">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {guides?.map((record) => (
+              <TableRow key={record.id}>
+                <TableCell className="font-medium">{record.title}</TableCell>
+                <TableCell>{record.category}</TableCell>
+                <TableCell>{record.read_time}</TableCell>
+                <TableCell>
+                  <span className={`px-2 py-1 rounded-full text-xs ${record.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}`}>
+                    {record.is_active ? "Active" : "Inactive"}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-1">
+                    <Button size="icon" variant="ghost" onClick={() => handleEdit(record)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => {
+                        if (confirm("Delete this guide?")) {
+                          deleteMutation.mutate(record.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+            {guides?.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                  No guides yet. Click "Add Guide" to create one.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+};
+
+export default GuidesAdmin;
