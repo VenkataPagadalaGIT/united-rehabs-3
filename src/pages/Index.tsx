@@ -2,8 +2,6 @@ import { Header } from "@/components/listing/Header";
 import { Footer } from "@/components/listing/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
 import { TrustIndicators } from "@/components/home/TrustIndicators";
-import { CTACards } from "@/components/home/CTACards";
-import { ConditionsSection } from "@/components/home/ConditionsSection";
 import { LocationsSection } from "@/components/home/LocationsSection";
 import { StatisticsSection } from "@/components/home/StatisticsSection";
 import { FeaturedCenters } from "@/components/home/FeaturedCenters";
@@ -24,8 +22,6 @@ const Index = () => {
         <HeroSection />
         <TrustIndicators />
         <BrowseTabsSection />
-        <CTACards />
-        <ConditionsSection />
         <LocationsSection />
         <StatisticsSection />
         <FeaturedCenters />
