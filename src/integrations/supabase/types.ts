@@ -14,7 +14,138 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      free_resources: {
+        Row: {
+          address: string | null
+          created_at: string
+          description: string | null
+          featured: boolean | null
+          id: string
+          is_free: boolean | null
+          is_nationwide: boolean | null
+          phone: string | null
+          resource_type: string
+          sort_order: number | null
+          state_id: string | null
+          title: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          is_free?: boolean | null
+          is_nationwide?: boolean | null
+          phone?: string | null
+          resource_type: string
+          sort_order?: number | null
+          state_id?: string | null
+          title: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          is_free?: boolean | null
+          is_nationwide?: boolean | null
+          phone?: string | null
+          resource_type?: string
+          sort_order?: number | null
+          state_id?: string | null
+          title?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      state_addiction_statistics: {
+        Row: {
+          affected_age_12_17: number | null
+          affected_age_18_25: number | null
+          affected_age_26_34: number | null
+          affected_age_35_plus: number | null
+          alcohol_abuse_rate: number | null
+          created_at: string
+          data_source: string | null
+          drug_abuse_rate: number | null
+          economic_cost_billions: number | null
+          id: string
+          inpatient_facilities: number | null
+          opioid_deaths: number | null
+          outpatient_facilities: number | null
+          overdose_deaths: number | null
+          recovery_rate: number | null
+          relapse_rate: number | null
+          source_url: string | null
+          state_id: string
+          state_name: string
+          total_affected: number | null
+          total_treatment_centers: number | null
+          treatment_admissions: number | null
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          affected_age_12_17?: number | null
+          affected_age_18_25?: number | null
+          affected_age_26_34?: number | null
+          affected_age_35_plus?: number | null
+          alcohol_abuse_rate?: number | null
+          created_at?: string
+          data_source?: string | null
+          drug_abuse_rate?: number | null
+          economic_cost_billions?: number | null
+          id?: string
+          inpatient_facilities?: number | null
+          opioid_deaths?: number | null
+          outpatient_facilities?: number | null
+          overdose_deaths?: number | null
+          recovery_rate?: number | null
+          relapse_rate?: number | null
+          source_url?: string | null
+          state_id: string
+          state_name: string
+          total_affected?: number | null
+          total_treatment_centers?: number | null
+          treatment_admissions?: number | null
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          affected_age_12_17?: number | null
+          affected_age_18_25?: number | null
+          affected_age_26_34?: number | null
+          affected_age_35_plus?: number | null
+          alcohol_abuse_rate?: number | null
+          created_at?: string
+          data_source?: string | null
+          drug_abuse_rate?: number | null
+          economic_cost_billions?: number | null
+          id?: string
+          inpatient_facilities?: number | null
+          opioid_deaths?: number | null
+          outpatient_facilities?: number | null
+          overdose_deaths?: number | null
+          recovery_rate?: number | null
+          relapse_rate?: number | null
+          source_url?: string | null
+          state_id?: string
+          state_name?: string
+          total_affected?: number | null
+          total_treatment_centers?: number | null
+          treatment_admissions?: number | null
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
