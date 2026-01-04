@@ -10,6 +10,7 @@ import { FeaturedCenters } from "@/components/home/FeaturedCenters";
 import { HowItWorks } from "@/components/home/HowItWorks";
 import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { BrowseBySection } from "@/components/home/BrowseBySection";
+import { BrowseTabsSection } from "@/components/home/BrowseTabsSection";
 import { SupportCTA } from "@/components/home/SupportCTA";
 import { FAQ } from "@/components/listing/FAQ";
 import { mockNavItems, mockFooterLinks, mockFAQs } from "@/data/mockData";
@@ -22,6 +23,7 @@ const Index = () => {
       <main>
         <HeroSection />
         <TrustIndicators />
+        <BrowseTabsSection />
         <CTACards />
         <ConditionsSection />
         <LocationsSection />
