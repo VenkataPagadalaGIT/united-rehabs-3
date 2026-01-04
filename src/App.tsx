@@ -18,6 +18,7 @@ import SourcesAdmin from "./pages/admin/SourcesAdmin";
 import GuidesAdmin from "./pages/admin/GuidesAdmin";
 import FAQsAdmin from "./pages/admin/FAQsAdmin";
 import ContentAdmin from "./pages/admin/ContentAdmin";
+import SEOAdmin from "./pages/admin/SEOAdmin";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => (
             <Route path="guides" element={<GuidesAdmin />} />
             <Route path="faqs" element={<FAQsAdmin />} />
             <Route path="content" element={<ContentAdmin />} />
+            <Route path="seo" element={<SEOAdmin />} />
           </Route>
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

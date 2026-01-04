@@ -5,6 +5,7 @@ import { PageHero } from "@/components/listing/PageHero";
 import { StatisticsTab } from "@/components/listing/tabs/StatisticsTab";
 import { FAQ } from "@/components/listing/FAQ";
 import { Footer } from "@/components/listing/Footer";
+import { SEOHead } from "@/components/SEOHead";
 import { mockNavItems, mockFooterLinks, mockFAQs, mockState } from "@/data/mockData";
 
 // Map slug to state ID - will be expanded with more states
@@ -31,6 +32,11 @@ const StateStatsPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        pageSlug={slug || ""} 
+        fallbackTitle={`${state.name} Addiction Statistics`}
+        fallbackDescription={`Comprehensive addiction statistics for ${state.name}`}
+      />
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4">

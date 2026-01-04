@@ -182,6 +182,69 @@ export type Database = {
         }
         Relationships: []
       }
+      page_seo: {
+        Row: {
+          canonical_url: string | null
+          created_at: string
+          h1_title: string | null
+          id: string
+          intro_text: string | null
+          is_active: boolean | null
+          meta_description: string | null
+          meta_keywords: string[] | null
+          meta_title: string
+          og_description: string | null
+          og_image_url: string | null
+          og_title: string | null
+          page_slug: string
+          page_type: string
+          robots: string | null
+          state_id: string | null
+          structured_data: Json | null
+          updated_at: string
+        }
+        Insert: {
+          canonical_url?: string | null
+          created_at?: string
+          h1_title?: string | null
+          id?: string
+          intro_text?: string | null
+          is_active?: boolean | null
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          meta_title: string
+          og_description?: string | null
+          og_image_url?: string | null
+          og_title?: string | null
+          page_slug: string
+          page_type?: string
+          robots?: string | null
+          state_id?: string | null
+          structured_data?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          canonical_url?: string | null
+          created_at?: string
+          h1_title?: string | null
+          id?: string
+          intro_text?: string | null
+          is_active?: boolean | null
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          meta_title?: string
+          og_description?: string | null
+          og_image_url?: string | null
+          og_title?: string | null
+          page_slug?: string
+          page_type?: string
+          robots?: string | null
+          state_id?: string | null
+          structured_data?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       rehab_guides: {
         Row: {
           category: string
