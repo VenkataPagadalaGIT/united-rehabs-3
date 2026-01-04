@@ -49,13 +49,23 @@ export function Footer({ linkGroups }: FooterProps) {
           ))}
         </div>
 
+        {/* Legal Disclaimer */}
+        <div className="mt-12 pt-8 border-t border-sidebar-border">
+          <div className="bg-sidebar-accent/30 rounded-lg p-4 mb-8">
+            <h5 className="text-sm font-semibold text-sidebar-foreground mb-2">Legal Disclaimer</h5>
+            <p className="text-sidebar-foreground/60 text-xs leading-relaxed">
+              The information provided on this website is for general informational and educational purposes only and is not intended as a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of a qualified healthcare provider with any questions you may have regarding a medical condition or treatment options. We make no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, or suitability of the information contained herein. Any reliance you place on such information is strictly at your own risk. We are not responsible for any errors or omissions, or for any actions taken based on the information provided. Statistics and data are sourced from publicly available government databases and may be subject to reporting delays or revisions. This website does not endorse any specific treatment center, program, or service.
+            </p>
+          </div>
+        </div>
+
         {/* Bottom Section */}
-        <div className="flex flex-col md:flex-row items-center justify-between mt-12 pt-8 border-t border-sidebar-border">
+        <div className="flex flex-col md:flex-row items-center justify-between pt-4 border-t border-sidebar-border">
           <Button className="bg-primary hover:bg-primary/90 mb-4 md:mb-0">
             Get Help Now
           </Button>
           <p className="text-sidebar-foreground/60 text-sm">
-            © 2024. All rights reserved.
+            © 2024 United Rehabs. All rights reserved.
           </p>
         </div>
       </div>
