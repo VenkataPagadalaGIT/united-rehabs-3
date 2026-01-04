@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TrendingUp, TrendingDown, Users, Activity, DollarSign, Building2, AlertTriangle, Heart } from "lucide-react";
+import { TrendingUp, TrendingDown, Users, Activity, DollarSign, AlertTriangle, Heart } from "lucide-react";
 import { useState } from "react";
 import {
   LineChart,
@@ -21,6 +21,8 @@ import {
   AreaChart,
   Area,
 } from "recharts";
+import { SubstanceCharts } from "./SubstanceCharts";
+import { DataSourcesSection } from "./DataSourcesSection";
 
 interface StatisticsTabProps {
   stateId: string;
@@ -82,6 +84,20 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
 
       if (error) throw error;
       return data as StateStatistics[];
+    },
+  });
+
+  const { data: substanceStats } = useQuery({
+    queryKey: ["substance-statistics", stateId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("substance_statistics")
+        .select("*")
+        .eq("state_id", stateId)
+        .order("year", { ascending: true });
+
+      if (error) throw error;
+      return data;
     },
   });
 
@@ -470,15 +486,15 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
         </CardContent>
       </Card>
 
-      {/* Data Source */}
-      {currentYearData.source_url && (
-        <p className="text-xs text-muted-foreground text-center">
-          Data sources: {currentYearData.data_source}.{" "}
-          <a href={currentYearData.source_url} target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
-            View source
-          </a>
-        </p>
-      )}
+      {/* Substance-Specific Statistics */}
+      <SubstanceCharts 
+        data={substanceStats || []} 
+        selectedYear={selectedYear} 
+        stateName={stateName} 
+      />
+
+      {/* Data Sources Section */}
+      <DataSourcesSection />
     </div>
   );
 };
