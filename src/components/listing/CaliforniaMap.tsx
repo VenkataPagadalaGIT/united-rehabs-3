@@ -11,8 +11,8 @@ interface StateMapProps {
   stateAbbreviation?: string;
 }
 
-// USA center
-const usaCenter: L.LatLngExpression = [39, -98];
+// USA center - shifted to show California in center
+const usaCenter: L.LatLngExpression = [38, -115];
 
 // Simplified state boundaries for highlighting (approximate polygons)
 const stateBoundaries: Record<string, L.LatLngExpression[]> = {
@@ -62,8 +62,23 @@ export function StateMap({
     }).addTo(map);
 
     if (!showUSA) {
-      // Add a marker for the state
-      L.marker([latitude, longitude])
+      // Add a custom marker for the state (fixes broken default icon)
+      const customIcon = L.divIcon({
+        className: 'custom-marker',
+        html: `<div style="
+          width: 24px;
+          height: 24px;
+          background: #f97316;
+          border-radius: 50% 50% 50% 0;
+          transform: rotate(-45deg);
+          border: 2px solid white;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        "></div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 24],
+      });
+      
+      L.marker([latitude, longitude], { icon: customIcon })
         .addTo(map)
         .bindPopup(`${stateName} - Rehab Centers`);
     } else {
