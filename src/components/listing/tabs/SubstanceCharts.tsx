@@ -168,6 +168,76 @@ export const SubstanceCharts = ({ data, selectedYear, stateName }: SubstanceChar
       ]
     : [];
 
+  // Drug type breakdown summary data
+  const drugTypeSummary = currentYearData
+    ? [
+        { 
+          name: "Alcohol", 
+          icon: "🍺", 
+          users: currentYearData.alcohol_use_disorder || 0,
+          deaths: currentYearData.alcohol_related_deaths || 0,
+          color: CHART_COLORS.alcohol,
+          description: "Alcohol Use Disorder"
+        },
+        { 
+          name: "Opioids", 
+          icon: "💊", 
+          users: currentYearData.opioid_use_disorder || 0,
+          deaths: currentYearData.fentanyl_deaths || 0,
+          color: CHART_COLORS.opioid,
+          description: "Opioid Use Disorder (incl. Fentanyl, Heroin, Rx)"
+        },
+        { 
+          name: "Fentanyl", 
+          icon: "⚠️", 
+          users: currentYearData.fentanyl_involved_overdoses || 0,
+          deaths: currentYearData.fentanyl_deaths || 0,
+          color: CHART_COLORS.fentanyl,
+          description: "Synthetic Opioid - Primary Driver of Overdose Deaths"
+        },
+        { 
+          name: "Cocaine", 
+          icon: "❄️", 
+          users: currentYearData.cocaine_use_past_year || 0,
+          deaths: currentYearData.cocaine_related_deaths || 0,
+          color: CHART_COLORS.cocaine,
+          description: "Past Year Cocaine Use"
+        },
+        { 
+          name: "Methamphetamine", 
+          icon: "⚡", 
+          users: currentYearData.meth_use_past_year || 0,
+          deaths: currentYearData.meth_related_deaths || 0,
+          color: CHART_COLORS.meth,
+          description: "Psychostimulant with Abuse Potential"
+        },
+        { 
+          name: "Cannabis", 
+          icon: "🌿", 
+          users: currentYearData.marijuana_use_past_year || 0,
+          deaths: 0, // Cannabis rarely causes direct overdose deaths
+          color: CHART_COLORS.marijuana,
+          description: "Past Year Marijuana/Cannabis Use"
+        },
+        { 
+          name: "Rx Opioids", 
+          icon: "💉", 
+          users: currentYearData.prescription_opioid_misuse || 0,
+          deaths: 0,
+          color: "#f87171",
+          description: "Prescription Opioid Misuse"
+        },
+        { 
+          name: "Heroin", 
+          icon: "🔴", 
+          users: currentYearData.heroin_use || 0,
+          deaths: 0,
+          color: "#b91c1c",
+          description: "Heroin Use"
+        },
+      ]
+    : [];
+
   return (
     <div className="space-y-6">
       {/* Section Header */}
@@ -176,6 +246,38 @@ export const SubstanceCharts = ({ data, selectedYear, stateName }: SubstanceChar
         <h3 className="text-xl font-bold">Substance-Specific Statistics</h3>
         <Badge variant="secondary">{selectedYear}</Badge>
       </div>
+
+      {/* Drug Type Breakdown Summary Grid */}
+      {currentYearData && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          {drugTypeSummary.map((drug) => (
+            <Card key={drug.name} className="relative overflow-hidden">
+              <div 
+                className="absolute top-0 left-0 w-1 h-full" 
+                style={{ backgroundColor: drug.color }} 
+              />
+              <CardContent className="p-4 pl-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg">{drug.icon}</span>
+                  <span className="font-semibold text-sm">{drug.name}</span>
+                </div>
+                <div className="space-y-1">
+                  <div>
+                    <p className="text-xl font-bold">{formatCompactNumber(drug.users)}</p>
+                    <p className="text-xs text-muted-foreground">Affected</p>
+                  </div>
+                  {drug.deaths > 0 && (
+                    <div className="pt-1 border-t">
+                      <p className="text-sm font-semibold text-destructive">{formatNumber(drug.deaths)}</p>
+                      <p className="text-xs text-muted-foreground">Deaths</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Drug-Related Deaths Comparison */}
       <Card>
