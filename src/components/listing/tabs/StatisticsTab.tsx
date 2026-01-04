@@ -213,21 +213,21 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
       : "text-red-500";
 
     return (
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-          <Icon className="h-4 w-4 text-muted-foreground" />
+      <Card className="overflow-hidden">
+        <CardHeader className="flex flex-row items-center justify-between pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
+          <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground truncate pr-2">{title}</CardTitle>
+          <Icon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
+        <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+          <div className="text-lg sm:text-2xl font-bold truncate">
             {prefix}
             {typeof value === "number" ? formatNumber(value) : "N/A"}
             {suffix}
           </div>
           {change !== null && (
-            <p className={`text-xs flex items-center gap-1 mt-1 ${changeColor}`}>
+            <p className={`text-[10px] sm:text-xs flex items-center gap-1 mt-1 ${changeColor}`}>
               {isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-              {Math.abs(change).toFixed(1)}% from {parseInt(selectedYear) - 1}
+              <span className="truncate">{Math.abs(change).toFixed(1)}% from {parseInt(selectedYear) - 1}</span>
             </p>
           )}
         </CardContent>
@@ -238,16 +238,16 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
   return (
     <div className="space-y-6">
       {/* Header with Year Selector */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold">{stateName} Addiction Statistics</h2>
-          <p className="text-muted-foreground">
-            Data sourced from {currentYearData.data_source || "government agencies"}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-xl sm:text-2xl font-bold truncate">{stateName} Addiction Statistics</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Data sourced from {currentYearData.data_source || "SAMHSA, CDC, NIDA"}
           </p>
         </div>
         <Select value={selectedYear} onValueChange={setSelectedYear}>
-          <SelectTrigger className="w-[120px]">
-            <SelectValue placeholder="Select Year" />
+          <SelectTrigger className="w-[100px] sm:w-[120px] flex-shrink-0">
+            <SelectValue placeholder="Year" />
           </SelectTrigger>
           <SelectContent>
             {availableYears.map((year) => (
@@ -262,8 +262,8 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
       {/* Data Disclaimer */}
       {parseInt(selectedYear) >= 2024 && (
         <Alert className="border-amber-500/50 bg-amber-500/10">
-          <Info className="h-4 w-4 text-amber-600" />
-          <AlertDescription className="text-amber-700 dark:text-amber-400">
+          <Info className="h-4 w-4 text-amber-600 flex-shrink-0" />
+          <AlertDescription className="text-amber-700 dark:text-amber-400 text-xs sm:text-sm">
             <strong>Note:</strong> {selectedYear} data is provisional and subject to revision. 
             Final figures from CDC and SAMHSA may differ once official reports are published.
           </AlertDescription>
@@ -272,8 +272,8 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
 
       {/* Estimated Data Notice */}
       <Alert className="border-blue-500/50 bg-blue-500/10">
-        <Info className="h-4 w-4 text-blue-600" />
-        <AlertDescription className="text-blue-700 dark:text-blue-400 text-sm">
+        <Info className="h-4 w-4 text-blue-600 flex-shrink-0" />
+        <AlertDescription className="text-blue-700 dark:text-blue-400 text-xs sm:text-sm">
           <strong>Data Notes:</strong> "Total Affected" and "Treatment Admissions" are estimates based on SAMHSA NSDUH surveys. 
           "Recovery Rate" is a derived metric not officially tracked by CDC/SAMHSA. 
           Overdose deaths are from CDC WONDER and CDPH vital statistics.
@@ -281,7 +281,7 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
       </Alert>
 
       {/* Key Statistics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         <StatCard
           title="Total Affected"
           value={currentYearData.total_affected}
@@ -312,14 +312,14 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
       </div>
 
       {/* Trend Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Total Affected Trend */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">People Affected Over Time</CardTitle>
+          <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6 pb-2 sm:pb-4">
+            <CardTitle className="text-sm sm:text-lg">People Affected Over Time</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
+          <CardContent className="px-2 sm:px-6 pb-3 sm:pb-6">
+            <ResponsiveContainer width="100%" height={180} className="sm:!h-[250px]">
               <AreaChart data={trendData}>
                 <defs>
                   <linearGradient id="colorAffected" x1="0" y1="0" x2="0" y2="1">
@@ -328,11 +328,11 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey="year" className="text-xs" />
-                <YAxis tickFormatter={formatCompactNumber} className="text-xs" />
+                <XAxis dataKey="year" className="text-xs" tick={{ fontSize: 10 }} />
+                <YAxis tickFormatter={formatCompactNumber} className="text-xs" tick={{ fontSize: 10 }} width={40} />
                 <Tooltip
                   formatter={(value: number) => [formatNumber(value), "Affected"]}
-                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 12 }}
                 />
                 <Area
                   type="monotone"
@@ -349,38 +349,38 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
 
         {/* Deaths Trend */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Overdose & Opioid Deaths</CardTitle>
+          <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6 pb-2 sm:pb-4">
+            <CardTitle className="text-sm sm:text-lg">Overdose & Opioid Deaths</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
+          <CardContent className="px-2 sm:px-6 pb-3 sm:pb-6">
+            <ResponsiveContainer width="100%" height={180} className="sm:!h-[250px]">
               <LineChart data={trendData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey="year" className="text-xs" />
-                <YAxis tickFormatter={formatCompactNumber} className="text-xs" />
+                <XAxis dataKey="year" className="text-xs" tick={{ fontSize: 10 }} />
+                <YAxis tickFormatter={formatCompactNumber} className="text-xs" tick={{ fontSize: 10 }} width={40} />
                 <Tooltip
                   formatter={(value: number, name: string) => [
                     formatNumber(value),
                     name === "overdoseDeaths" ? "Overdose Deaths" : "Opioid Deaths",
                   ]}
-                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 12 }}
                 />
-                <Legend />
+                <Legend wrapperStyle={{ fontSize: 10 }} />
                 <Line
                   type="monotone"
                   dataKey="overdoseDeaths"
-                  name="Overdose Deaths"
+                  name="Overdose"
                   stroke={CHART_COLORS.red}
                   strokeWidth={2}
-                  dot={{ fill: CHART_COLORS.red }}
+                  dot={{ fill: CHART_COLORS.red, r: 2 }}
                 />
                 <Line
                   type="monotone"
                   dataKey="opioidDeaths"
-                  name="Opioid Deaths"
+                  name="Opioid"
                   stroke={CHART_COLORS.orange}
                   strokeWidth={2}
-                  dot={{ fill: CHART_COLORS.orange }}
+                  dot={{ fill: CHART_COLORS.orange, r: 2 }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -390,15 +390,15 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
 
       {/* Substance Abuse Rates Chart */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Substance Abuse & Recovery Rates (%)</CardTitle>
+        <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6 pb-2 sm:pb-4">
+          <CardTitle className="text-sm sm:text-lg">Substance Abuse & Recovery Rates (%)</CardTitle>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={250}>
+        <CardContent className="px-2 sm:px-6 pb-3 sm:pb-6">
+          <ResponsiveContainer width="100%" height={180} className="sm:!h-[250px]">
             <BarChart data={ratesData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis dataKey="year" className="text-xs" />
-              <YAxis className="text-xs" />
+              <XAxis dataKey="year" className="text-xs" tick={{ fontSize: 10 }} />
+              <YAxis className="text-xs" tick={{ fontSize: 10 }} width={30} />
               <Tooltip
                 formatter={(value: number, name: string) => {
                   const labels: Record<string, string> = {
@@ -408,36 +408,37 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
                   };
                   return [`${value}%`, labels[name] || name];
                 }}
-                contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+                contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 12 }}
               />
-              <Legend />
-              <Bar dataKey="alcoholRate" name="Alcohol Abuse" fill={CHART_COLORS.purple} radius={[4, 4, 0, 0]} />
-              <Bar dataKey="drugRate" name="Drug Abuse" fill={CHART_COLORS.red} radius={[4, 4, 0, 0]} />
-              <Bar dataKey="recoveryRate" name="Recovery Rate" fill={CHART_COLORS.green} radius={[4, 4, 0, 0]} />
+              <Legend wrapperStyle={{ fontSize: 10 }} />
+              <Bar dataKey="alcoholRate" name="Alcohol" fill={CHART_COLORS.purple} radius={[4, 4, 0, 0]} />
+              <Bar dataKey="drugRate" name="Drug" fill={CHART_COLORS.red} radius={[4, 4, 0, 0]} />
+              <Bar dataKey="recoveryRate" name="Recovery" fill={CHART_COLORS.green} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
 
       {/* Demographics and Facilities Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Age Distribution Pie Chart */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Affected by Age Group ({selectedYear})</CardTitle>
+          <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6 pb-2 sm:pb-4">
+            <CardTitle className="text-sm sm:text-lg">Affected by Age Group ({selectedYear})</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
+          <CardContent className="px-2 sm:px-6 pb-3 sm:pb-6">
+            <ResponsiveContainer width="100%" height={200} className="sm:!h-[280px]">
               <PieChart>
                 <Pie
                   data={ageData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
+                  innerRadius={40}
+                  outerRadius={70}
                   paddingAngle={2}
                   dataKey="value"
                   label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  labelLine={{ strokeWidth: 1 }}
                 >
                   {ageData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
@@ -445,7 +446,7 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
                 </Pie>
                 <Tooltip
                   formatter={(value: number) => [formatNumber(value), "People"]}
-                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 12 }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -454,17 +455,17 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
 
         {/* Treatment Facilities */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Treatment Facilities ({selectedYear})</CardTitle>
+          <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6 pb-2 sm:pb-4">
+            <CardTitle className="text-sm sm:text-lg">Treatment Facilities ({selectedYear})</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <ResponsiveContainer width="100%" height={150}>
+          <CardContent className="space-y-3 sm:space-y-4 px-2 sm:px-6 pb-3 sm:pb-6">
+            <ResponsiveContainer width="100%" height={120} className="sm:!h-[150px]">
               <PieChart>
                 <Pie
                   data={facilityData}
                   cx="50%"
                   cy="50%"
-                  outerRadius={60}
+                  outerRadius={45}
                   dataKey="value"
                   label={({ name, value }) => `${name}: ${formatNumber(value)}`}
                 >
@@ -473,13 +474,13 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
                 </Pie>
                 <Tooltip
                   formatter={(value: number) => [formatNumber(value), "Facilities"]}
-                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 12 }}
                 />
               </PieChart>
             </ResponsiveContainer>
             <div className="text-center">
-              <div className="text-3xl font-bold">{formatNumber(currentYearData.total_treatment_centers)}</div>
-              <p className="text-muted-foreground">Total Treatment Centers</p>
+              <div className="text-2xl sm:text-3xl font-bold">{formatNumber(currentYearData.total_treatment_centers)}</div>
+              <p className="text-xs sm:text-base text-muted-foreground">Total Treatment Centers</p>
             </div>
           </CardContent>
         </Card>
@@ -487,21 +488,21 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
 
       {/* Economic Impact Chart */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <DollarSign className="h-5 w-5" />
-            Economic Impact Over Time (Billions USD)
+        <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6 pb-2 sm:pb-4">
+          <CardTitle className="flex items-center gap-1 sm:gap-2 text-sm sm:text-base">
+            <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+            <span className="truncate">Economic Impact (Billions USD)</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={200}>
+        <CardContent className="px-2 sm:px-6 pb-3 sm:pb-6">
+          <ResponsiveContainer width="100%" height={160} className="sm:!h-[200px]">
             <BarChart data={economicData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis dataKey="year" className="text-xs" />
-              <YAxis className="text-xs" tickFormatter={(v) => `$${v}B`} />
+              <XAxis dataKey="year" className="text-xs" tick={{ fontSize: 10 }} />
+              <YAxis className="text-xs" tickFormatter={(v) => `$${v}B`} tick={{ fontSize: 10 }} width={40} />
               <Tooltip
                 formatter={(value: number) => [`$${value.toFixed(1)} Billion`, "Economic Cost"]}
-                contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+                contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 12 }}
               />
               <Bar dataKey="cost" fill={CHART_COLORS.orange} radius={[4, 4, 0, 0]} />
             </BarChart>
