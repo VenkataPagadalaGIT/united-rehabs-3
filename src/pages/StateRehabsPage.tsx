@@ -6,6 +6,7 @@ import { PageHero } from "@/components/listing/PageHero";
 import { RehabListingsTab } from "@/components/listing/tabs/RehabListingsTab";
 import { FAQ } from "@/components/listing/FAQ";
 import { Footer } from "@/components/listing/Footer";
+import { SEOHead } from "@/components/SEOHead";
 import { useFilters } from "@/hooks/useFilters";
 import { mockNavItems, mockFooterLinks, mockFAQs, mockCities, mockState } from "@/data/mockData";
 
@@ -48,6 +49,11 @@ const StateRehabsPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        pageSlug={slug || ""} 
+        fallbackTitle={`${state.name} Rehab Centers`}
+        fallbackDescription={`Find addiction treatment and rehab centers in ${state.name}`}
+      />
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4">

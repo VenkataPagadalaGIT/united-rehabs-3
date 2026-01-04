@@ -26,6 +26,7 @@ import {
   Home,
   Loader2,
   Settings,
+  Search,
 } from "lucide-react";
 
 const menuItems = [
@@ -37,6 +38,7 @@ const menuItems = [
   { title: "Rehab Guides", url: "/admin/guides", icon: BookOpen },
   { title: "FAQs", url: "/admin/faqs", icon: HelpCircle },
   { title: "Page Content", url: "/admin/content", icon: Settings },
+  { title: "Page SEO", url: "/admin/seo", icon: Search },
 ];
 
 const Admin = () => {
