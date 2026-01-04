@@ -1,26 +1,37 @@
 import { ChevronRight, Home } from "lucide-react";
+import { Link } from "react-router-dom";
 
-const breadcrumbItems = [
-  { label: "Home", href: "/" },
-  { label: "Rehab Centers", href: "/rehab-centers" },
-  { label: "California", href: "/california" },
-];
+interface BreadcrumbItem {
+  label: string;
+  href: string;
+}
 
-export function Breadcrumb() {
+interface BreadcrumbProps {
+  items?: BreadcrumbItem[];
+}
+
+export function Breadcrumb({ items }: BreadcrumbProps) {
+  // Don't render on homepage
+  if (!items || items.length === 0) {
+    return null;
+  }
+
   return (
     <nav className="flex items-center gap-2 text-sm text-muted-foreground py-4">
-      <Home className="h-4 w-4" />
-      {breadcrumbItems.map((item, index) => (
+      <Link to="/" className="hover:text-primary transition-colors">
+        <Home className="h-4 w-4" />
+      </Link>
+      {items.map((item, index) => (
         <div key={item.label} className="flex items-center gap-2">
           <ChevronRight className="h-4 w-4" />
-          <a
-            href={item.href}
+          <Link
+            to={item.href}
             className={`hover:text-primary transition-colors ${
-              index === breadcrumbItems.length - 1 ? "text-foreground font-medium" : ""
+              index === items.length - 1 ? "text-foreground font-medium" : ""
             }`}
           >
             {item.label}
-          </a>
+          </Link>
         </div>
       ))}
     </nav>

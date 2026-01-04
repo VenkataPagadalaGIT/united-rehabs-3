@@ -11,19 +11,19 @@ import { useFilters } from "@/hooks/useFilters";
 import { mockNavItems, mockFooterLinks, mockFAQs, mockCities, mockState } from "@/data/mockData";
 
 // Map slug to state ID - will be expanded with more states
-const stateSlugMap: Record<string, string> = {
-  california: "ca",
-  texas: "tx",
-  florida: "fl",
-  "new-york": "ny",
+const stateSlugMap: Record<string, { id: string; name: string }> = {
+  california: { id: "ca", name: "California" },
+  texas: { id: "tx", name: "Texas" },
+  florida: { id: "fl", name: "Florida" },
+  "new-york": { id: "ny", name: "New York" },
 };
 
 const StateRehabsPage = () => {
   const { slug } = useParams();
   
-  // Extract the state part from the URL
-  const stateKey = slug?.replace(/-addiction-rehab-centers$/, "") || "";
-  const stateId = stateSlugMap[stateKey];
+  // Extract the state part from the URL - support both patterns
+  const stateKey = slug?.replace(/-addiction-rehab-centers$/, "").replace(/-addiction-rehabs$/, "") || "";
+  const stateInfo = stateSlugMap[stateKey];
   
   const {
     setCity,
@@ -40,12 +40,22 @@ const StateRehabsPage = () => {
     setCity(cityId);
   };
   
-  if (!stateId) {
+  if (!stateInfo) {
     return <Navigate to="/" replace />;
   }
 
-  // For now, use mockState for California, will expand later with DB
-  const state = stateId === "ca" ? mockState : mockState;
+  // Create dynamic state object
+  const state = {
+    ...mockState,
+    id: stateInfo.id,
+    name: stateInfo.name,
+  };
+
+  // Dynamic breadcrumb items
+  const breadcrumbItems = [
+    { label: "Rehab Centers", href: "/rehab-centers" },
+    { label: stateInfo.name, href: `/${stateKey}-addiction-rehabs` },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -57,7 +67,7 @@ const StateRehabsPage = () => {
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4">
-        <Breadcrumb />
+        <Breadcrumb items={breadcrumbItems} />
         <PageHero state={state} />
         
         <div className="py-8">
