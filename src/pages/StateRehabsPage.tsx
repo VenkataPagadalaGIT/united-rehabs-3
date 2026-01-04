@@ -3,7 +3,10 @@ import { useParams, Navigate } from "react-router-dom";
 import { Header } from "@/components/listing/Header";
 import { Breadcrumb } from "@/components/listing/Breadcrumb";
 import { PageHero } from "@/components/listing/PageHero";
-import { RehabListingsTab } from "@/components/listing/tabs/RehabListingsTab";
+import { FilterTabs } from "@/components/listing/FilterTabs";
+import { ImageGallery } from "@/components/listing/ImageGallery";
+import { StateTabs } from "@/components/listing/StateTabs";
+import { Categories } from "@/components/listing/Categories";
 import { FAQ } from "@/components/listing/FAQ";
 import { Footer } from "@/components/listing/Footer";
 import { SEOHead } from "@/components/SEOHead";
@@ -26,6 +29,9 @@ const StateRehabsPage = () => {
   const stateInfo = stateSlugMap[stateKey];
   
   const {
+    filters,
+    activeFilters,
+    toggleFilter,
     setCity,
     loadMore,
     centers,
@@ -69,9 +75,18 @@ const StateRehabsPage = () => {
       <main className="container mx-auto px-4">
         <Breadcrumb items={breadcrumbItems} />
         <PageHero state={state} />
+        <FilterTabs
+          filters={filters}
+          activeFilters={activeFilters}
+          onFilterChange={toggleFilter}
+        />
+        <ImageGallery state={state} />
         
+        {/* Main Content with Tabs */}
         <div className="py-8">
-          <RehabListingsTab
+          <StateTabs
+            stateId={stateInfo.id}
+            stateName={state.name}
             centers={centers}
             conditions={conditions}
             hasMore={hasMore}
@@ -83,6 +98,7 @@ const StateRehabsPage = () => {
         </div>
       </main>
 
+      <Categories />
       <FAQ faqs={mockFAQs} />
       <Footer linkGroups={mockFooterLinks} />
     </div>
