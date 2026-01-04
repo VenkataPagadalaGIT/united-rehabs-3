@@ -5,8 +5,7 @@ import { PageHero } from "@/components/listing/PageHero";
 import { FilterTabs } from "@/components/listing/FilterTabs";
 import { ImageGallery } from "@/components/listing/ImageGallery";
 import { LocationTags } from "@/components/listing/LocationTags";
-import { TreatmentGrid } from "@/components/listing/TreatmentGrid";
-import { Sidebar } from "@/components/listing/Sidebar";
+import { StateTabs } from "@/components/listing/StateTabs";
 import { Categories } from "@/components/listing/Categories";
 import { FAQ } from "@/components/listing/FAQ";
 import { RelatedRehabs } from "@/components/listing/RelatedRehabs";
@@ -16,8 +15,6 @@ import {
   mockState,
   mockCities,
   mockFAQs,
-  mockHealthResources,
-  mockStatisticsCards,
   mockTreatmentCenters,
   mockNavItems,
   mockFooterLinks,
@@ -61,22 +58,16 @@ const Index = () => {
           onCityClick={handleCityClick}
         />
         
-        {/* Main Content with Sidebar */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 py-8">
-          <div className="lg:col-span-2">
-            <TreatmentGrid
-              centers={centers}
-              conditions={conditions}
-              hasMore={hasMore}
-              onLoadMore={loadMore}
-            />
-          </div>
-          <div className="lg:col-span-1">
-            <Sidebar
-              healthResources={mockHealthResources}
-              statisticsCards={mockStatisticsCards}
-            />
-          </div>
+        {/* Main Content with Tabs */}
+        <div className="py-8">
+          <StateTabs
+            stateId={mockState.id}
+            stateName={mockState.name}
+            centers={centers}
+            conditions={conditions}
+            hasMore={hasMore}
+            onLoadMore={loadMore}
+          />
         </div>
       </main>
 
