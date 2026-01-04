@@ -28,6 +28,7 @@ import {
   Settings,
   Search,
   Newspaper,
+  Link2,
 } from "lucide-react";
 
 const menuItems = [
@@ -41,6 +42,7 @@ const menuItems = [
   { title: "FAQs", url: "/admin/faqs", icon: HelpCircle },
   { title: "Page Content", url: "/admin/content", icon: Settings },
   { title: "Page SEO", url: "/admin/seo", icon: Search },
+  { title: "Site URLs", url: "/admin/urls", icon: Link2 },
 ];
 
 const Admin = () => {
