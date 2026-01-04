@@ -82,8 +82,8 @@ const StateRehabsPage = () => {
         />
         <ImageGallery state={state} />
         
-        {/* Main Content with Tabs */}
-        <div className="py-8">
+        {/* Main Content with Tabs - Added clear spacing */}
+        <div className="py-8 mt-4">
           <StateTabs
             stateId={stateInfo.id}
             stateName={state.name}

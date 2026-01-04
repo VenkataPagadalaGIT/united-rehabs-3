@@ -18,7 +18,7 @@ export function ImageGallery({ state }: ImageGalleryProps) {
       ];
 
   return (
-    <div className="py-4">
+    <div className="py-4 mb-4">
       {/* Mobile Layout */}
       <div className="block lg:hidden space-y-4">
         {/* Hero image with carousel - full width on mobile */}
