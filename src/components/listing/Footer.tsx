@@ -66,6 +66,13 @@ export function Footer({ linkGroups }: FooterProps) {
             >
               Privacy Policy
             </Link>
+            <span className="text-sidebar-foreground/30">|</span>
+            <Link
+              to="/admin"
+              className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
+            >
+              Admin
+            </Link>
           </div>
         </div>
 
