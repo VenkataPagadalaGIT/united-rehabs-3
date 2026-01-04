@@ -57,9 +57,9 @@ const StateRehabsPage = () => {
     name: stateInfo.name,
   };
 
-  // Dynamic breadcrumb items
+  // Dynamic breadcrumb items - geographic hierarchy
   const breadcrumbItems = [
-    { label: "Rehab Centers", href: "/rehab-centers" },
+    { label: "United States", href: "/united-states" },
     { label: stateInfo.name, href: `/${stateKey}-addiction-rehabs` },
   ];
 
