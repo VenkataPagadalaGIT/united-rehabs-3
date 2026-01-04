@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      articles: {
+        Row: {
+          author_name: string | null
+          category: string | null
+          content: string | null
+          content_type: string
+          created_at: string
+          excerpt: string | null
+          featured_image_url: string | null
+          id: string
+          is_featured: boolean | null
+          is_published: boolean | null
+          meta_description: string | null
+          meta_title: string | null
+          published_at: string | null
+          read_time: string | null
+          slug: string
+          sort_order: number | null
+          state_id: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          views_count: number | null
+        }
+        Insert: {
+          author_name?: string | null
+          category?: string | null
+          content?: string | null
+          content_type?: string
+          created_at?: string
+          excerpt?: string | null
+          featured_image_url?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          read_time?: string | null
+          slug: string
+          sort_order?: number | null
+          state_id?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          views_count?: number | null
+        }
+        Update: {
+          author_name?: string | null
+          category?: string | null
+          content?: string | null
+          content_type?: string
+          created_at?: string
+          excerpt?: string | null
+          featured_image_url?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          read_time?: string | null
+          slug?: string
+          sort_order?: number | null
+          state_id?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          views_count?: number | null
+        }
+        Relationships: []
+      }
       data_sources: {
         Row: {
           agency: string

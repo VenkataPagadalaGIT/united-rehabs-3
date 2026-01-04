@@ -19,6 +19,9 @@ import GuidesAdmin from "./pages/admin/GuidesAdmin";
 import FAQsAdmin from "./pages/admin/FAQsAdmin";
 import ContentAdmin from "./pages/admin/ContentAdmin";
 import SEOAdmin from "./pages/admin/SEOAdmin";
+import ArticlesAdmin from "./pages/admin/ArticlesAdmin";
+import ArticlesListPage from "./pages/ArticlesListPage";
+import ArticlePage from "./pages/ArticlePage";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +35,13 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          
+          {/* Blog, News, Articles routes */}
+          <Route path="/blog" element={<ArticlesListPage />} />
+          <Route path="/news" element={<ArticlesListPage />} />
+          <Route path="/article" element={<ArticlesListPage />} />
+          <Route path="/guide" element={<ArticlesListPage />} />
+          <Route path="/:type/:slug" element={<ArticlePage />} />
           
           {/* SEO-Optimized State Pages - must be before catch-all */}
           <Route path="/:slug" element={<StatePage />} />
@@ -49,6 +59,7 @@ const App = () => (
             <Route path="faqs" element={<FAQsAdmin />} />
             <Route path="content" element={<ContentAdmin />} />
             <Route path="seo" element={<SEOAdmin />} />
+            <Route path="articles" element={<ArticlesAdmin />} />
           </Route>
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
