@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      data_sources: {
+        Row: {
+          agency: string
+          created_at: string
+          data_types: string[] | null
+          description: string | null
+          id: string
+          last_updated_year: number | null
+          source_abbreviation: string
+          source_name: string
+          source_url: string
+        }
+        Insert: {
+          agency: string
+          created_at?: string
+          data_types?: string[] | null
+          description?: string | null
+          id?: string
+          last_updated_year?: number | null
+          source_abbreviation: string
+          source_name: string
+          source_url: string
+        }
+        Update: {
+          agency?: string
+          created_at?: string
+          data_types?: string[] | null
+          description?: string | null
+          id?: string
+          last_updated_year?: number | null
+          source_abbreviation?: string
+          source_name?: string
+          source_url?: string
+        }
+        Relationships: []
+      }
       free_resources: {
         Row: {
           address: string | null
@@ -141,6 +177,117 @@ export type Database = {
           total_affected?: number | null
           total_treatment_centers?: number | null
           treatment_admissions?: number | null
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      substance_statistics: {
+        Row: {
+          alcohol_binge_drinking_percent: number | null
+          alcohol_heavy_use_percent: number | null
+          alcohol_related_deaths: number | null
+          alcohol_use_disorder: number | null
+          alcohol_use_past_month_percent: number | null
+          cocaine_related_deaths: number | null
+          cocaine_use_disorder: number | null
+          cocaine_use_past_year: number | null
+          created_at: string
+          fentanyl_deaths: number | null
+          fentanyl_involved_overdoses: number | null
+          heroin_use: number | null
+          id: string
+          marijuana_use_disorder: number | null
+          marijuana_use_past_month: number | null
+          marijuana_use_past_year: number | null
+          mat_recipients: number | null
+          mental_illness_with_sud: number | null
+          meth_related_deaths: number | null
+          meth_use_disorder: number | null
+          meth_use_past_year: number | null
+          opioid_misuse_past_year: number | null
+          opioid_use_disorder: number | null
+          prescription_opioid_misuse: number | null
+          prescription_sedative_misuse: number | null
+          prescription_stimulant_misuse: number | null
+          prescription_tranquilizer_misuse: number | null
+          serious_mental_illness_with_sud: number | null
+          state_id: string
+          state_name: string
+          treatment_needed_not_received: number | null
+          treatment_received: number | null
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          alcohol_binge_drinking_percent?: number | null
+          alcohol_heavy_use_percent?: number | null
+          alcohol_related_deaths?: number | null
+          alcohol_use_disorder?: number | null
+          alcohol_use_past_month_percent?: number | null
+          cocaine_related_deaths?: number | null
+          cocaine_use_disorder?: number | null
+          cocaine_use_past_year?: number | null
+          created_at?: string
+          fentanyl_deaths?: number | null
+          fentanyl_involved_overdoses?: number | null
+          heroin_use?: number | null
+          id?: string
+          marijuana_use_disorder?: number | null
+          marijuana_use_past_month?: number | null
+          marijuana_use_past_year?: number | null
+          mat_recipients?: number | null
+          mental_illness_with_sud?: number | null
+          meth_related_deaths?: number | null
+          meth_use_disorder?: number | null
+          meth_use_past_year?: number | null
+          opioid_misuse_past_year?: number | null
+          opioid_use_disorder?: number | null
+          prescription_opioid_misuse?: number | null
+          prescription_sedative_misuse?: number | null
+          prescription_stimulant_misuse?: number | null
+          prescription_tranquilizer_misuse?: number | null
+          serious_mental_illness_with_sud?: number | null
+          state_id: string
+          state_name: string
+          treatment_needed_not_received?: number | null
+          treatment_received?: number | null
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          alcohol_binge_drinking_percent?: number | null
+          alcohol_heavy_use_percent?: number | null
+          alcohol_related_deaths?: number | null
+          alcohol_use_disorder?: number | null
+          alcohol_use_past_month_percent?: number | null
+          cocaine_related_deaths?: number | null
+          cocaine_use_disorder?: number | null
+          cocaine_use_past_year?: number | null
+          created_at?: string
+          fentanyl_deaths?: number | null
+          fentanyl_involved_overdoses?: number | null
+          heroin_use?: number | null
+          id?: string
+          marijuana_use_disorder?: number | null
+          marijuana_use_past_month?: number | null
+          marijuana_use_past_year?: number | null
+          mat_recipients?: number | null
+          mental_illness_with_sud?: number | null
+          meth_related_deaths?: number | null
+          meth_use_disorder?: number | null
+          meth_use_past_year?: number | null
+          opioid_misuse_past_year?: number | null
+          opioid_use_disorder?: number | null
+          prescription_opioid_misuse?: number | null
+          prescription_sedative_misuse?: number | null
+          prescription_stimulant_misuse?: number | null
+          prescription_tranquilizer_misuse?: number | null
+          serious_mental_illness_with_sud?: number | null
+          state_id?: string
+          state_name?: string
+          treatment_needed_not_received?: number | null
+          treatment_received?: number | null
           updated_at?: string
           year?: number
         }
