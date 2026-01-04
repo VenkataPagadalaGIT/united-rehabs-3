@@ -10,8 +10,8 @@ interface StateMapProps {
   stateName: string;
 }
 
-// USA center coordinates
-const usaCenter: L.LatLngExpression = [39.8283, -98.5795];
+// USA center - shifted west to show California better
+const usaCenter: L.LatLngExpression = [37.5, -96];
 
 export function StateMap({ 
   className = "", 
@@ -33,7 +33,7 @@ export function StateMap({
     }
 
     const center: L.LatLngExpression = showUSA ? usaCenter : [latitude, longitude];
-    const zoom = showUSA ? 4 : 6;
+    const zoom = showUSA ? 3 : 6;
 
     const map = L.map(mapRef.current, {
       center,
