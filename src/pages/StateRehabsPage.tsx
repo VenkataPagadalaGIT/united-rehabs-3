@@ -81,27 +81,25 @@ const StateRehabsPage = () => {
           onFilterChange={toggleFilter}
         />
         <ImageGallery state={state} />
-        
-        {/* Clear separator line with proper spacing */}
-        <div className="w-full py-8">
-          <hr className="border-t border-border" />
-        </div>
-        
-        {/* Main Content with Tabs */}
-        <div className="pb-12">
-          <StateTabs
-            stateId={stateInfo.id}
-            stateName={state.name}
-            centers={centers}
-            conditions={conditions}
-            hasMore={hasMore}
-            onLoadMore={loadMore}
-            cities={mockCities}
-            activeCityId={activeCityId}
-            onCityClick={handleCityClick}
-          />
-        </div>
       </main>
+      
+      {/* Full-width separator */}
+      <div className="border-t border-border mt-8" />
+      
+      {/* Tabs section with proper container */}
+      <section className="container mx-auto px-4 py-8">
+        <StateTabs
+          stateId={stateInfo.id}
+          stateName={state.name}
+          centers={centers}
+          conditions={conditions}
+          hasMore={hasMore}
+          onLoadMore={loadMore}
+          cities={mockCities}
+          activeCityId={activeCityId}
+          onCityClick={handleCityClick}
+        />
+      </section>
 
       <Categories />
       <FAQ faqs={mockFAQs} />
