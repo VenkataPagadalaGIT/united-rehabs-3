@@ -34,9 +34,9 @@ const StateStatsPage = () => {
     name: stateInfo.name,
   };
 
-  // Dynamic breadcrumb items
+  // Dynamic breadcrumb items - geographic hierarchy
   const breadcrumbItems = [
-    { label: "Statistics", href: "/statistics" },
+    { label: "United States", href: "/united-states" },
     { label: stateInfo.name, href: `/${stateKey}-addiction-stats` },
   ];
 

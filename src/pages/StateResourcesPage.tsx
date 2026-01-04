@@ -34,9 +34,9 @@ const StateResourcesPage = () => {
     name: stateInfo.name,
   };
 
-  // Dynamic breadcrumb items
+  // Dynamic breadcrumb items - geographic hierarchy
   const breadcrumbItems = [
-    { label: "Free Resources", href: "/free-resources" },
+    { label: "United States", href: "/united-states" },
     { label: stateInfo.name, href: `/${stateKey}-addiction-free-resources` },
   ];
 
