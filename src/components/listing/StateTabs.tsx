@@ -3,7 +3,7 @@ import { BarChart3, Building2, Gift } from "lucide-react";
 import { StatisticsTab } from "./tabs/StatisticsTab";
 import { RehabListingsTab } from "./tabs/RehabListingsTab";
 import { FreeResourcesTab } from "./tabs/FreeResourcesTab";
-import type { TreatmentCenter, FilterOption } from "@/types";
+import type { TreatmentCenter, FilterOption, City } from "@/types";
 
 interface StateTabsProps {
   stateId: string;
@@ -12,6 +12,9 @@ interface StateTabsProps {
   conditions: FilterOption[];
   hasMore: boolean;
   onLoadMore: () => void;
+  cities: City[];
+  activeCityId?: string;
+  onCityClick: (cityId: string) => void;
 }
 
 export const StateTabs = ({
@@ -21,6 +24,9 @@ export const StateTabs = ({
   conditions,
   hasMore,
   onLoadMore,
+  cities,
+  activeCityId,
+  onCityClick,
 }: StateTabsProps) => {
   return (
     <Tabs defaultValue="statistics" className="w-full">
@@ -49,6 +55,9 @@ export const StateTabs = ({
           conditions={conditions}
           hasMore={hasMore}
           onLoadMore={onLoadMore}
+          cities={cities}
+          activeCityId={activeCityId}
+          onCityClick={onCityClick}
         />
       </TabsContent>
 

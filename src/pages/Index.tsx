@@ -4,7 +4,6 @@ import { Breadcrumb } from "@/components/listing/Breadcrumb";
 import { PageHero } from "@/components/listing/PageHero";
 import { FilterTabs } from "@/components/listing/FilterTabs";
 import { ImageGallery } from "@/components/listing/ImageGallery";
-import { LocationTags } from "@/components/listing/LocationTags";
 import { StateTabs } from "@/components/listing/StateTabs";
 import { Categories } from "@/components/listing/Categories";
 import { FAQ } from "@/components/listing/FAQ";
@@ -52,11 +51,6 @@ const Index = () => {
           onFilterChange={toggleFilter}
         />
         <ImageGallery state={mockState} />
-        <LocationTags
-          cities={mockCities}
-          activeCityId={activeCityId}
-          onCityClick={handleCityClick}
-        />
         
         {/* Main Content with Tabs */}
         <div className="py-8">
@@ -67,6 +61,9 @@ const Index = () => {
             conditions={conditions}
             hasMore={hasMore}
             onLoadMore={loadMore}
+            cities={mockCities}
+            activeCityId={activeCityId}
+            onCityClick={handleCityClick}
           />
         </div>
       </main>
