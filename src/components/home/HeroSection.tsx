@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -223,8 +223,11 @@ export function HeroSection() {
                   onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
                 />
               </div>
-              <Button type="submit" className="m-1 bg-primary hover:bg-primary/90">
+              <Button type="submit" variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
                 <Search className="h-5 w-5" />
+              </Button>
+              <Button type="button" className="m-1 bg-primary hover:bg-primary/90">
+                <SlidersHorizontal className="h-5 w-5" />
               </Button>
             </form>
 
