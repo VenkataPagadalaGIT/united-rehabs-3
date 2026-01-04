@@ -1,23 +1,36 @@
-const locations = [
-  { name: "Orange County", color: "bg-gray-800" },
-  { name: "San Diego", color: "bg-gray-700" },
-  { name: "Palm Springs", color: "bg-gray-600" },
-  { name: "Los Angeles", color: "bg-gray-500" },
-  { name: "Bay Area", color: "bg-primary" },
-  { name: "Beverly Hills", color: "bg-accent" },
-];
+import type { City } from "@/types";
 
-export function LocationTags() {
+interface LocationTagsProps {
+  cities: City[];
+  activeCityId?: string;
+  onCityClick: (cityId: string) => void;
+}
+
+const cityColors: Record<number, string> = {
+  0: "bg-gray-800 hover:bg-gray-700",
+  1: "bg-gray-700 hover:bg-gray-600",
+  2: "bg-gray-600 hover:bg-gray-500",
+  3: "bg-gray-500 hover:bg-gray-400",
+  4: "bg-primary hover:bg-primary/90",
+  5: "bg-accent hover:bg-accent/90",
+};
+
+export function LocationTags({ cities, activeCityId, onCityClick }: LocationTagsProps) {
   return (
     <div className="py-6">
       <h3 className="text-primary text-sm font-medium mb-4">Top Treatment Locations</h3>
       <div className="flex flex-wrap gap-3">
-        {locations.map((location) => (
+        {cities.map((city, index) => (
           <button
-            key={location.name}
-            className={`${location.color} text-white px-4 py-2 rounded-full text-sm font-medium hover:opacity-90 transition-opacity`}
+            key={city.id}
+            onClick={() => onCityClick(city.id)}
+            className={`${
+              activeCityId === city.id
+                ? "ring-2 ring-primary ring-offset-2"
+                : ""
+            } ${cityColors[index] || "bg-gray-600 hover:bg-gray-500"} text-white px-4 py-2 rounded-full text-sm font-medium transition-all`}
           >
-            {location.name}
+            {city.name}
           </button>
         ))}
       </div>

@@ -1,69 +1,73 @@
+import type { GalleryImage } from "@/types";
 import { useState } from "react";
 
-const images = [
-  {
-    id: 1,
-    src: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=600&h=400&fit=crop",
-    alt: "Golden Gate Bridge",
-  },
-  {
-    id: 2,
-    src: "https://images.unsplash.com/photo-1449034446853-66c86144b0ad?w=600&h=400&fit=crop",
-    alt: "California Landscape",
-  },
-  {
-    id: 3,
-    src: "https://images.unsplash.com/photo-1534430480872-3498386e7856?w=300&h=200&fit=crop",
-    alt: "Beach View",
-  },
-];
+interface ImageGalleryProps {
+  images: GalleryImage[];
+}
 
-export function ImageGallery() {
+export function ImageGallery({ images }: ImageGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4">
-      {/* Main Image */}
-      <div className="md:col-span-2 relative rounded-xl overflow-hidden h-64 md:h-80">
-        <img
-          src={images[0].src}
-          alt={images[0].alt}
-          className="w-full h-full object-cover"
-        />
-        {/* Dots */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-          {[0, 1, 2, 3, 4].map((dot) => (
-            <button
-              key={dot}
-              onClick={() => setActiveIndex(dot)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                dot === activeIndex ? "bg-primary w-4" : "bg-white/60"
-              }`}
-            />
-          ))}
-        </div>
-      </div>
+  // Ensure we have at least 4 images for the grid
+  const displayImages = images.slice(0, 4);
 
-      {/* Side Images */}
-      <div className="flex md:flex-col gap-4">
-        <div className="flex-1 rounded-xl overflow-hidden h-32 md:h-[calc(50%-0.5rem)]">
+  return (
+    <div className="py-4">
+      <div className="grid grid-cols-12 gap-4 h-[400px]">
+        {/* Main large image - left side */}
+        <div className="col-span-12 md:col-span-5 relative rounded-xl overflow-hidden">
           <img
-            src={images[1].src}
-            alt={images[1].alt}
+            src={displayImages[0]?.url}
+            alt={displayImages[0]?.alt}
             className="w-full h-full object-cover"
           />
+          {/* Dots navigation */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+            {displayImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setActiveIndex(index)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  index === activeIndex ? "bg-primary w-4" : "bg-white/60"
+                }`}
+              />
+            ))}
+          </div>
         </div>
-        <div className="flex-1 rounded-xl overflow-hidden h-32 md:h-[calc(50%-0.5rem)] relative">
-          <img
-            src={images[2].src}
-            alt={images[2].alt}
-            className="w-full h-full object-cover"
-          />
-          {/* Map overlay indicator */}
-          <div className="absolute inset-0 bg-foreground/20 flex items-center justify-center">
-            <div className="bg-card px-3 py-1 rounded-full text-sm font-medium">
-              View Map
-            </div>
+
+        {/* Right side - 2x2 grid */}
+        <div className="col-span-12 md:col-span-7 grid grid-cols-2 gap-4">
+          {/* Top left - Map */}
+          <div className="rounded-xl overflow-hidden bg-secondary">
+            {displayImages[1] && (
+              <img
+                src={displayImages[1].url}
+                alt={displayImages[1].alt}
+                className="w-full h-full object-cover"
+              />
+            )}
+          </div>
+
+          {/* Top right - US Map with state highlight */}
+          <div className="rounded-xl overflow-hidden border-2 border-primary/20 bg-secondary">
+            {displayImages[2] && (
+              <img
+                src={displayImages[2].url}
+                alt={displayImages[2].alt}
+                className="w-full h-full object-cover"
+              />
+            )}
+          </div>
+
+          {/* Bottom - spans both columns */}
+          <div className="col-span-2 rounded-xl overflow-hidden">
+            {displayImages[3] && (
+              <img
+                src={displayImages[3].url}
+                alt={displayImages[3].alt}
+                className="w-full h-full object-cover"
+              />
+            )}
           </div>
         </div>
       </div>
