@@ -1,35 +1,57 @@
 import { ChevronDown } from "lucide-react";
-import { useState } from "react";
+import type { FilterGroup, FilterCategory } from "@/types";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const filters = [
-  { label: "California", active: true },
-  { label: "Conditions", hasDropdown: true },
-  { label: "Insurance", hasDropdown: true },
-  { label: "Therapies", hasDropdown: true },
-  { label: "Care", hasDropdown: true },
-  { label: "Approaches", hasDropdown: true },
-  { label: "Amenities", hasDropdown: true },
-  { label: "Prices", hasDropdown: true },
-];
+interface FilterTabsProps {
+  filters: FilterGroup[];
+  activeFilters: Record<FilterCategory, string[]>;
+  onFilterChange: (category: FilterCategory, optionId: string) => void;
+}
 
-export function FilterTabs() {
-  const [activeFilter, setActiveFilter] = useState("California");
+export function FilterTabs({ filters, activeFilters, onFilterChange }: FilterTabsProps) {
+  const isActive = (category: FilterCategory) => {
+    return activeFilters[category]?.length > 0;
+  };
 
   return (
     <div className="flex flex-wrap gap-2 py-6">
       {filters.map((filter) => (
-        <button
-          key={filter.label}
-          onClick={() => setActiveFilter(filter.label)}
-          className={`flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-            filter.label === activeFilter
-              ? "bg-primary text-primary-foreground"
-              : "bg-secondary text-foreground hover:bg-secondary/80"
-          }`}
-        >
-          {filter.label}
-          {filter.hasDropdown && <ChevronDown className="h-4 w-4" />}
-        </button>
+        <DropdownMenu key={filter.category}>
+          <DropdownMenuTrigger asChild>
+            <button
+              className={`flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium transition-all border ${
+                isActive(filter.category)
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-card text-foreground border-border hover:border-primary"
+              }`}
+            >
+              {filter.label}
+              {filter.hasDropdown && <ChevronDown className="h-4 w-4" />}
+            </button>
+          </DropdownMenuTrigger>
+          {filter.hasDropdown && filter.options.length > 0 && (
+            <DropdownMenuContent align="start" className="min-w-[200px]">
+              {filter.options.map((option) => (
+                <DropdownMenuItem
+                  key={option.id}
+                  onClick={() => onFilterChange(filter.category, option.id)}
+                  className={`cursor-pointer ${
+                    activeFilters[filter.category]?.includes(option.id)
+                      ? "bg-primary/10 text-primary"
+                      : ""
+                  }`}
+                >
+                  {option.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          )}
+        </DropdownMenu>
       ))}
     </div>
   );

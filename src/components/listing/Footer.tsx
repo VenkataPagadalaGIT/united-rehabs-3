@@ -1,14 +1,11 @@
 import { Button } from "@/components/ui/button";
+import type { FooterLinkGroup } from "@/types";
 
-const footerLinks = {
-  Locations: ["Link Six", "Link Seven", "Link Eight", "Link Nine", "Link Ten"],
-  Insurance: ["Link Six", "Link Seven", "Link Eight", "Link Nine", "Link Ten"],
-  Treatments: ["Link Six", "Link Seven", "Link Eight", "Link Nine", "Link Ten"],
-  Conditions: ["Link Six", "Link Seven", "Link Eight", "Link Nine", "Link Ten"],
-  More: ["Link Six", "Link Seven", "Link Eight", "Link Nine", "Link Ten"],
-};
+interface FooterProps {
+  linkGroups: FooterLinkGroup[];
+}
 
-export function Footer() {
+export function Footer({ linkGroups }: FooterProps) {
   return (
     <footer className="bg-sidebar text-sidebar-foreground">
       <div className="container mx-auto px-4 py-12">
@@ -33,17 +30,17 @@ export function Footer() {
           </div>
 
           {/* Link Columns */}
-          {Object.entries(footerLinks).map(([title, links]) => (
-            <div key={title}>
-              <h4 className="font-semibold mb-4">{title}</h4>
+          {linkGroups.map((group) => (
+            <div key={group.title}>
+              <h4 className="font-semibold mb-4">{group.title}</h4>
               <ul className="space-y-2">
-                {links.map((link, index) => (
+                {group.links.map((link, index) => (
                   <li key={index}>
                     <a
-                      href="#"
+                      href={link.href}
                       className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
                     >
-                      {link}
+                      {link.label}
                     </a>
                   </li>
                 ))}

@@ -1,16 +1,13 @@
 import { ChevronDown, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import type { NavItem } from "@/types";
 
-const navItems = [
-  { label: "Locations", hasDropdown: true },
-  { label: "Insurance", hasDropdown: true },
-  { label: "Conditions", hasDropdown: true },
-  { label: "Treatments", hasDropdown: true },
-  { label: "More", hasDropdown: true },
-];
+interface HeaderProps {
+  navItems: NavItem[];
+}
 
-export function Header() {
+export function Header({ navItems }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -29,7 +26,7 @@ export function Header() {
           <nav className="hidden lg:flex items-center gap-6">
             {navItems.map((item) => (
               <button
-                key={item.label}
+                key={item.id}
                 className="flex items-center gap-1 text-foreground hover:text-primary transition-colors text-sm font-medium"
               >
                 {item.label}
@@ -57,7 +54,7 @@ export function Header() {
           <div className="lg:hidden py-4 border-t border-border">
             {navItems.map((item) => (
               <button
-                key={item.label}
+                key={item.id}
                 className="flex items-center justify-between w-full py-3 text-foreground hover:text-primary transition-colors"
               >
                 {item.label}
