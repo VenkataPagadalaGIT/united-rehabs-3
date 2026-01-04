@@ -41,6 +41,11 @@ const StatePage = () => {
     }
   }
 
+  // Handle bare state names (e.g., /california) - redirect to rehabs page
+  if (stateSlugMap[slug]) {
+    return <Navigate to={`/${slug}-addiction-rehabs`} replace />;
+  }
+
   // Not a valid state page - let it fall through to 404
   return <Navigate to="/not-found" replace />;
 };
