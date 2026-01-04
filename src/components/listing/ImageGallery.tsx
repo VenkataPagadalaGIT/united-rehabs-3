@@ -60,6 +60,7 @@ export function ImageGallery({ state }: ImageGalleryProps) {
               latitude={state.latitude}
               longitude={state.longitude}
               stateName={state.name}
+              stateAbbreviation={state.abbreviation}
             />
           </div>
           {/* Secondary photo from state images */}
