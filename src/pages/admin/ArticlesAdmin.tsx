@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Pencil, Trash2, Eye, FileText, Newspaper, BookOpen } from "lucide-react";
 import { toast } from "sonner";
+import { RichContentEditor } from "@/components/article/RichContentEditor";
 import {
   Dialog,
   DialogContent,
@@ -279,14 +280,12 @@ export default function ArticlesAdmin() {
                     />
                   </div>
                   <div className="col-span-2">
-                    <Label>Content (Markdown supported)</Label>
-                    <Textarea
+                    <Label>Content (Rich Editor with Markdown)</Label>
+                    <RichContentEditor
                       value={editingArticle?.content || ""}
-                      onChange={(e) =>
-                        setEditingArticle((prev) => ({ ...prev, content: e.target.value }))
+                      onChange={(content) =>
+                        setEditingArticle((prev) => ({ ...prev, content }))
                       }
-                      rows={10}
-                      className="font-mono text-sm"
                     />
                   </div>
                   <div>

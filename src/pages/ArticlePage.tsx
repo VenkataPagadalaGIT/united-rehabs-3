@@ -1,4 +1,4 @@
-import { useParams, Navigate } from "react-router-dom";
+import { useParams, Navigate, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/listing/Header";
@@ -7,9 +7,10 @@ import { SEOHead } from "@/components/SEOHead";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { mockNavItems, mockFooterLinks } from "@/data/mockData";
-import { Calendar, Clock, User, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Calendar, Clock, User, ArrowLeft, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { TableOfContents, InlineTableOfContents } from "@/components/article/TableOfContents";
+import { toast } from "sonner";
 
 const ArticlePage = () => {
   const { type, slug } = useParams();
@@ -24,21 +25,33 @@ const ArticlePage = () => {
         .eq("content_type", type)
         .eq("is_published", true)
         .single();
-      
+
       if (error) throw error;
       return data;
     },
     enabled: !!slug && !!type,
   });
 
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      await navigator.share({ title: article?.title, url });
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied to clipboard!");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header navItems={mockNavItems} />
         <main className="container mx-auto px-4 py-12">
-          <Skeleton className="h-10 w-3/4 mb-4" />
-          <Skeleton className="h-6 w-1/2 mb-8" />
-          <Skeleton className="h-64 w-full" />
+          <div className="max-w-4xl mx-auto">
+            <Skeleton className="h-10 w-3/4 mb-4" />
+            <Skeleton className="h-6 w-1/2 mb-8" />
+            <Skeleton className="h-64 w-full" />
+          </div>
         </main>
         <Footer linkGroups={mockFooterLinks} />
       </div>
@@ -57,44 +70,130 @@ const ArticlePage = () => {
       })
     : null;
 
-  // Simple markdown-like rendering for content
+  // Enhanced markdown rendering with IDs for TOC
   const renderContent = (content: string) => {
-    return content
-      .split("\n\n")
-      .map((paragraph, index) => {
-        // Check for headers
-        if (paragraph.startsWith("## ")) {
-          return (
-            <h2 key={index} className="text-2xl font-bold mt-8 mb-4">
-              {paragraph.replace("## ", "")}
-            </h2>
-          );
-        }
-        if (paragraph.startsWith("### ")) {
-          return (
-            <h3 key={index} className="text-xl font-semibold mt-6 mb-3">
-              {paragraph.replace("### ", "")}
-            </h3>
-          );
-        }
-        // Check for lists
-        if (paragraph.startsWith("- ")) {
-          const items = paragraph.split("\n").filter((l) => l.startsWith("- "));
-          return (
-            <ul key={index} className="list-disc pl-6 my-4 space-y-2">
-              {items.map((item, i) => (
-                <li key={i}>{item.replace("- ", "")}</li>
-              ))}
-            </ul>
-          );
-        }
-        // Regular paragraph
+    const lines = content.split("\n");
+    const blocks: string[] = [];
+    let currentBlock = "";
+
+    lines.forEach((line) => {
+      if (line === "" && currentBlock) {
+        blocks.push(currentBlock);
+        currentBlock = "";
+      } else if (line !== "") {
+        currentBlock += (currentBlock ? "\n" : "") + line;
+      }
+    });
+    if (currentBlock) blocks.push(currentBlock);
+
+    let headingIndex = 0;
+
+    return blocks.map((block, index) => {
+      // Headers with IDs
+      if (block.startsWith("## ")) {
+        const id = `section-${lines.findIndex((l) => l === block)}`;
+        headingIndex++;
         return (
-          <p key={index} className="mb-4 leading-relaxed">
-            {paragraph}
-          </p>
+          <h2 key={index} id={id} className="text-2xl font-bold mt-10 mb-4 scroll-mt-24">
+            {block.replace("## ", "")}
+          </h2>
         );
-      });
+      }
+      if (block.startsWith("### ")) {
+        const id = `section-${lines.findIndex((l) => l === block)}`;
+        return (
+          <h3 key={index} id={id} className="text-xl font-semibold mt-8 mb-3 scroll-mt-24">
+            {block.replace("### ", "")}
+          </h3>
+        );
+      }
+      // Blockquote
+      if (block.startsWith("> ")) {
+        return (
+          <blockquote
+            key={index}
+            className="border-l-4 border-primary pl-4 my-6 italic text-muted-foreground bg-muted/30 py-3 pr-4 rounded-r-lg"
+          >
+            {block.replace("> ", "")}
+          </blockquote>
+        );
+      }
+      // Divider
+      if (block.trim() === "---") {
+        return <hr key={index} className="my-10 border-border" />;
+      }
+      // Lists
+      if (block.startsWith("- ")) {
+        const items = block.split("\n").filter((l) => l.startsWith("- "));
+        return (
+          <ul key={index} className="list-disc pl-6 my-4 space-y-2">
+            {items.map((item, i) => (
+              <li key={i} className="leading-relaxed">
+                {item.replace("- ", "")}
+              </li>
+            ))}
+          </ul>
+        );
+      }
+      // Numbered list
+      if (/^\d+\. /.test(block)) {
+        const items = block.split("\n").filter((l) => /^\d+\. /.test(l));
+        return (
+          <ol key={index} className="list-decimal pl-6 my-4 space-y-2">
+            {items.map((item, i) => (
+              <li key={i} className="leading-relaxed">
+                {item.replace(/^\d+\. /, "")}
+              </li>
+            ))}
+          </ol>
+        );
+      }
+      // Image
+      const imageMatch = block.match(/!\[([^\]]*)\]\(([^)]+)\)/);
+      if (imageMatch) {
+        return (
+          <figure key={index} className="my-8">
+            <img
+              src={imageMatch[2]}
+              alt={imageMatch[1]}
+              className="w-full rounded-lg shadow-lg"
+            />
+            {imageMatch[1] && (
+              <figcaption className="text-sm text-muted-foreground text-center mt-3">
+                {imageMatch[1]}
+              </figcaption>
+            )}
+          </figure>
+        );
+      }
+      // Video embed
+      if (block.includes("<video") || block.includes("<iframe")) {
+        return (
+          <div
+            key={index}
+            className="my-8 rounded-lg overflow-hidden"
+            dangerouslySetInnerHTML={{ __html: block }}
+          />
+        );
+      }
+      // Regular paragraph with inline formatting
+      let text = block;
+      text = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      text = text.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+      text = text.replace(/`([^`]+)`/g, '<code class="bg-muted px-1.5 py-0.5 rounded text-sm font-mono">$1</code>');
+      text = text.replace(
+        /\[([^\]]+)\]\(([^)]+)\)/g,
+        '<a href="$2" class="text-primary underline hover:no-underline" target="_blank" rel="noopener noreferrer">$1</a>'
+      );
+
+      return (
+        <p
+          key={index}
+          className="mb-5 leading-relaxed text-foreground/90"
+          dangerouslySetInnerHTML={{ __html: text }}
+        />
+      );
+    });
   };
 
   return (
@@ -115,73 +214,100 @@ const ArticlePage = () => {
           </Button>
         </Link>
 
-        <article className="max-w-3xl mx-auto">
-          {/* Category badge */}
-          {article.category && (
-            <Badge variant="secondary" className="mb-4">
-              {article.category}
-            </Badge>
-          )}
-
-          {/* Title */}
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">{article.title}</h1>
-
-          {/* Meta info */}
-          <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-6">
-            {article.author_name && (
-              <span className="flex items-center gap-1">
-                <User className="h-4 w-4" />
-                {article.author_name}
-              </span>
+        <div className="flex gap-8">
+          {/* Main content */}
+          <article className="flex-1 max-w-3xl">
+            {/* Category badge */}
+            {article.category && (
+              <Badge variant="secondary" className="mb-4">
+                {article.category}
+              </Badge>
             )}
-            {formattedDate && (
-              <span className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                {formattedDate}
-              </span>
-            )}
-            {article.read_time && (
-              <span className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                {article.read_time}
-              </span>
-            )}
-          </div>
 
-          {/* Featured image */}
-          {article.featured_image_url && (
-            <img
-              src={article.featured_image_url}
-              alt={article.title}
-              className="w-full h-64 md:h-96 object-cover rounded-lg mb-8"
-            />
-          )}
+            {/* Title */}
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
+              {article.title}
+            </h1>
 
-          {/* Excerpt */}
-          {article.excerpt && (
-            <p className="text-lg text-muted-foreground mb-8 font-medium">
-              {article.excerpt}
-            </p>
-          )}
-
-          {/* Content */}
-          <div className="prose prose-lg max-w-none">
-            {article.content && renderContent(article.content)}
-          </div>
-
-          {/* Tags */}
-          {article.tags && article.tags.length > 0 && (
-            <div className="mt-8 pt-6 border-t">
-              <div className="flex flex-wrap gap-2">
-                {article.tags.map((tag, index) => (
-                  <Badge key={index} variant="outline">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
+            {/* Meta info */}
+            <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-6">
+              {article.author_name && (
+                <span className="flex items-center gap-1.5">
+                  <User className="h-4 w-4" />
+                  {article.author_name}
+                </span>
+              )}
+              {formattedDate && (
+                <span className="flex items-center gap-1.5">
+                  <Calendar className="h-4 w-4" />
+                  {formattedDate}
+                </span>
+              )}
+              {article.read_time && (
+                <span className="flex items-center gap-1.5">
+                  <Clock className="h-4 w-4" />
+                  {article.read_time}
+                </span>
+              )}
+              <Button variant="ghost" size="sm" onClick={handleShare}>
+                <Share2 className="h-4 w-4 mr-1" />
+                Share
+              </Button>
             </div>
+
+            {/* Featured image */}
+            {article.featured_image_url && (
+              <img
+                src={article.featured_image_url}
+                alt={article.title}
+                className="w-full h-64 md:h-96 object-cover rounded-lg mb-8 shadow-lg"
+              />
+            )}
+
+            {/* Summary/Excerpt */}
+            {article.excerpt && (
+              <div className="bg-primary/5 border-l-4 border-primary p-4 rounded-r-lg mb-8">
+                <h2 className="font-semibold mb-2 text-primary">Summary</h2>
+                <p className="text-foreground/80 leading-relaxed">{article.excerpt}</p>
+              </div>
+            )}
+
+            {/* Inline Table of Contents (mobile) */}
+            {article.content && (
+              <div className="lg:hidden">
+                <InlineTableOfContents content={article.content} />
+              </div>
+            )}
+
+            {/* Content */}
+            <div className="prose prose-lg max-w-none">
+              {article.content && renderContent(article.content)}
+            </div>
+
+            {/* Tags */}
+            {article.tags && article.tags.length > 0 && (
+              <div className="mt-10 pt-6 border-t">
+                <h3 className="font-semibold mb-3">Related Topics</h3>
+                <div className="flex flex-wrap gap-2">
+                  {article.tags.map((tag, index) => (
+                    <Badge key={index} variant="outline">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </article>
+
+          {/* Sidebar TOC (desktop) */}
+          {article.content && (
+            <aside className="hidden lg:block w-64 shrink-0">
+              <div className="sticky top-24">
+                <TableOfContents content={article.content} />
+              </div>
+            </aside>
           )}
-        </article>
+        </div>
       </main>
 
       <Footer linkGroups={mockFooterLinks} />
