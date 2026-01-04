@@ -82,8 +82,8 @@ const StateRehabsPage = () => {
         />
         <ImageGallery state={state} />
         
-        {/* Separator with good spacing */}
-        <div className="h-px bg-border mt-8 mb-8" />
+        {/* Clear separator line */}
+        <hr className="border-t border-border mt-10 mb-10" />
         
         {/* Main Content with Tabs */}
         <div className="relative z-10 bg-background pb-12">
