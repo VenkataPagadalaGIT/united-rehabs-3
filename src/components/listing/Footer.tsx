@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import type { FooterLinkGroup } from "@/types";
 
@@ -47,6 +48,25 @@ export function Footer({ linkGroups }: FooterProps) {
               </ul>
             </div>
           ))}
+        </div>
+
+        {/* Legal Links */}
+        <div className="mt-8 pt-6 border-t border-sidebar-border">
+          <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+            <Link
+              to="/terms-of-service"
+              className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
+            >
+              Terms of Service
+            </Link>
+            <span className="text-sidebar-foreground/30">|</span>
+            <Link
+              to="/privacy-policy"
+              className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
+            >
+              Privacy Policy
+            </Link>
+          </div>
         </div>
 
         {/* Legal Disclaimer */}
