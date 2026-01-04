@@ -1,7 +1,6 @@
 import { TreatmentGrid } from "../TreatmentGrid";
 import { Sidebar } from "../Sidebar";
 import { LocationTags } from "../LocationTags";
-import { RehabGuides } from "../RehabGuides";
 import { RelatedRehabs } from "../RelatedRehabs";
 import { mockHealthResources, mockStatisticsCards, mockTreatmentCenters } from "@/data/mockData";
 import type { TreatmentCenter, FilterOption, City } from "@/types";
@@ -27,9 +26,6 @@ export const RehabListingsTab = ({
 }: RehabListingsTabProps) => {
   return (
     <div className="space-y-8">
-      {/* Rehab Guides Section */}
-      <RehabGuides />
-
       {/* Top Treatment Locations */}
       <LocationTags
         cities={cities}
