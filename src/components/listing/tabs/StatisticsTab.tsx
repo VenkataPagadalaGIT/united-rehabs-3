@@ -24,6 +24,7 @@ import {
 } from "recharts";
 import { SubstanceCharts } from "./SubstanceCharts";
 import { DataSourcesSection } from "./DataSourcesSection";
+import { RehabGuides } from "../RehabGuides";
 
 interface StatisticsTabProps {
   stateId: string;
@@ -517,6 +518,9 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
 
       {/* Data Sources Section */}
       <DataSourcesSection />
+
+      {/* Rehab Guides & Education */}
+      <RehabGuides />
     </div>
   );
 };
