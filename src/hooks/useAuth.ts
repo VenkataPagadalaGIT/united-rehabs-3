@@ -8,26 +8,25 @@ export const useAuth = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const checkAdminRole = async (userId: string): Promise<boolean> => {
-    const { data, error } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
-
-    if (error) {
-      console.error("Error checking admin role:", error);
-      return false;
-    }
-    return !!data;
-  };
-
   useEffect(() => {
     let mounted = true;
 
+    const checkAdminRole = async (userId: string): Promise<boolean> => {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error checking admin role:", error);
+        return false;
+      }
+      return !!data;
+    };
+
     const initAuth = async () => {
-      // Get existing session first
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!mounted) return;
@@ -49,20 +48,23 @@ export const useAuth = () => {
 
     initAuth();
 
-    // Set up auth state listener for future changes
+    // Set up auth state listener - use sync callback, defer async work
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (!mounted) return;
         
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Don't set loading here - just update admin status
-          const adminStatus = await checkAdminRole(session.user.id);
-          if (mounted) {
-            setIsAdmin(adminStatus);
-          }
+          // Defer async work with setTimeout
+          setTimeout(async () => {
+            if (!mounted) return;
+            const adminStatus = await checkAdminRole(session.user.id);
+            if (mounted) {
+              setIsAdmin(adminStatus);
+            }
+          }, 0);
         } else {
           setIsAdmin(false);
         }
@@ -76,18 +78,10 @@ export const useAuth = () => {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    setLoading(true);
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    
-    if (!error && data.user) {
-      const adminStatus = await checkAdminRole(data.user.id);
-      setIsAdmin(adminStatus);
-    }
-    
-    setLoading(false);
     return { error };
   };
 
