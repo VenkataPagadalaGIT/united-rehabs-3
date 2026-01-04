@@ -28,8 +28,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { PageTemplateGenerator } from "@/components/admin/PageTemplateGenerator";
+import { BulkImportExport } from "@/components/admin/BulkImportExport";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Loader2, Search, Filter, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Search, Filter, X, Wand2, Download, Upload } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface ContentRecord {
@@ -116,6 +118,11 @@ const ContentAdmin = () => {
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<ContentRecord | null>(null);
+  
+  // Dialog states for new features
+  const [showTemplateGenerator, setShowTemplateGenerator] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [showExport, setShowExport] = useState(false);
   
   // Filter states
   const [searchQuery, setSearchQuery] = useState("");
@@ -358,20 +365,33 @@ const ContentAdmin = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-start gap-4">
         <div>
           <h2 className="text-2xl font-bold">Page Content</h2>
           <p className="text-muted-foreground">
             Manage editable page content (hero text, headings, etc.).
           </p>
         </div>
-        <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetForm(); }}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Content
-            </Button>
-          </DialogTrigger>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => setShowTemplateGenerator(true)}>
+            <Wand2 className="mr-2 h-4 w-4" />
+            Generate
+          </Button>
+          <Button variant="outline" onClick={() => setShowImport(true)}>
+            <Upload className="mr-2 h-4 w-4" />
+            Import
+          </Button>
+          <Button variant="outline" onClick={() => setShowExport(true)}>
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
+          <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetForm(); }}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Content
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingRecord ? "Edit Content" : "Add Content"}</DialogTitle>
@@ -526,6 +546,7 @@ const ContentAdmin = () => {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Filters Section */}
@@ -660,6 +681,27 @@ const ContentAdmin = () => {
           </TableBody>
         </Table>
       </div>
+
+      {/* Template Generator Dialog */}
+      <PageTemplateGenerator
+        open={showTemplateGenerator}
+        onOpenChange={setShowTemplateGenerator}
+      />
+
+      {/* Import Dialog */}
+      <BulkImportExport
+        open={showImport}
+        onOpenChange={setShowImport}
+        mode="import"
+      />
+
+      {/* Export Dialog */}
+      <BulkImportExport
+        open={showExport}
+        onOpenChange={setShowExport}
+        mode="export"
+        content={content}
+      />
     </div>
   );
 };
