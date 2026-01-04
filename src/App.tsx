@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import StatePage from "./pages/StatePage";
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
 import Dashboard from "./pages/admin/Dashboard";
@@ -30,6 +31,10 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          
+          {/* SEO-Optimized State Pages - must be before catch-all */}
+          <Route path="/:slug" element={<StatePage />} />
+          
           
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
