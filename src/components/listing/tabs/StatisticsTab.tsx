@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TrendingUp, TrendingDown, Users, Activity, DollarSign, AlertTriangle, Heart } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { TrendingUp, TrendingDown, Users, Activity, DollarSign, AlertTriangle, Heart, Info } from "lucide-react";
 import { useState } from "react";
 import {
   LineChart,
@@ -256,6 +257,27 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
           </SelectContent>
         </Select>
       </div>
+
+      {/* Data Disclaimer */}
+      {parseInt(selectedYear) >= 2024 && (
+        <Alert className="border-amber-500/50 bg-amber-500/10">
+          <Info className="h-4 w-4 text-amber-600" />
+          <AlertDescription className="text-amber-700 dark:text-amber-400">
+            <strong>Note:</strong> {selectedYear} data is provisional and subject to revision. 
+            Final figures from CDC and SAMHSA may differ once official reports are published.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Estimated Data Notice */}
+      <Alert className="border-blue-500/50 bg-blue-500/10">
+        <Info className="h-4 w-4 text-blue-600" />
+        <AlertDescription className="text-blue-700 dark:text-blue-400 text-sm">
+          <strong>Data Notes:</strong> "Total Affected" and "Treatment Admissions" are estimates based on SAMHSA NSDUH surveys. 
+          "Recovery Rate" is a derived metric not officially tracked by CDC/SAMHSA. 
+          Overdose deaths are from CDC WONDER and CDPH vital statistics.
+        </AlertDescription>
+      </Alert>
 
       {/* Key Statistics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
