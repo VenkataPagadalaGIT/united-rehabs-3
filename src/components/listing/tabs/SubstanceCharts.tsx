@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   BarChart,
@@ -14,13 +14,21 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
 } from "recharts";
-import { Wine, Pill, Cannabis, Syringe, AlertTriangle, Activity } from "lucide-react";
+import { 
+  Wine, 
+  Pill, 
+  Syringe, 
+  AlertTriangle, 
+  Activity, 
+  Heart,
+  TrendingUp,
+  Users,
+  Skull,
+  Brain,
+  HelpCircle,
+  Info
+} from "lucide-react";
 
 interface SubstanceStatistics {
   id: string;
@@ -63,525 +71,609 @@ interface SubstanceChartsProps {
   stateName: string;
 }
 
-const CHART_COLORS = {
-  alcohol: "#8b5cf6",
-  opioid: "#ef4444",
-  fentanyl: "#dc2626",
-  cocaine: "#f97316",
-  meth: "#eab308",
-  marijuana: "#22c55e",
-  prescription: "#3b82f6",
-  treatment: "#06b6d4",
+// Harmonized color palette
+const COLORS = {
+  fentanyl: { main: "#dc2626", light: "#fecaca", bg: "bg-red-50 dark:bg-red-950" },
+  opioid: { main: "#ef4444", light: "#fee2e2", bg: "bg-red-50 dark:bg-red-950" },
+  alcohol: { main: "#7c3aed", light: "#ede9fe", bg: "bg-violet-50 dark:bg-violet-950" },
+  cocaine: { main: "#f97316", light: "#ffedd5", bg: "bg-orange-50 dark:bg-orange-950" },
+  meth: { main: "#eab308", light: "#fef9c3", bg: "bg-yellow-50 dark:bg-yellow-950" },
+  marijuana: { main: "#22c55e", light: "#dcfce7", bg: "bg-green-50 dark:bg-green-950" },
+  prescription: { main: "#3b82f6", light: "#dbeafe", bg: "bg-blue-50 dark:bg-blue-950" },
+  treatment: { main: "#06b6d4", light: "#cffafe", bg: "bg-cyan-50 dark:bg-cyan-950" },
+  mental: { main: "#8b5cf6", light: "#ede9fe", bg: "bg-purple-50 dark:bg-purple-950" },
 };
 
-const formatNumber = (num: number | null) => {
-  if (num === null || num === undefined) return "N/A";
+const formatNumber = (num: number | null | undefined): string => {
+  if (num === null || num === undefined || num === 0) return "N/A";
   return new Intl.NumberFormat("en-US").format(num);
 };
 
-const formatCompactNumber = (num: number) => {
+const formatCompact = (num: number): string => {
   if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
   if (num >= 1000) return `${(num / 1000).toFixed(0)}K`;
   return num.toString();
 };
 
+const hasData = (value: number | null | undefined): boolean => {
+  return value !== null && value !== undefined && value > 0;
+};
+
+// Section wrapper with summary
+const Section = ({ 
+  title, 
+  description, 
+  icon: Icon, 
+  iconColor, 
+  children,
+  isEmpty = false
+}: { 
+  title: string; 
+  description: string; 
+  icon: React.ElementType; 
+  iconColor: string;
+  children: React.ReactNode;
+  isEmpty?: boolean;
+}) => (
+  <div className="space-y-4">
+    <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/30 border">
+      <div className={`p-2 rounded-lg ${iconColor}`}>
+        <Icon className="h-5 w-5 text-white" />
+      </div>
+      <div className="flex-1">
+        <h3 className="font-semibold text-lg">{title}</h3>
+        <p className="text-sm text-muted-foreground mt-1">{description}</p>
+      </div>
+    </div>
+    {isEmpty ? (
+      <Card className="border-dashed">
+        <CardContent className="py-8 text-center">
+          <HelpCircle className="h-8 w-8 mx-auto text-muted-foreground/50 mb-2" />
+          <p className="text-muted-foreground">Data not yet available for this state.</p>
+          <p className="text-xs text-muted-foreground mt-1">Check back as we continue adding official government data.</p>
+        </CardContent>
+      </Card>
+    ) : children}
+  </div>
+);
+
+// Stat card component
+const StatCard = ({ 
+  label, 
+  value, 
+  subLabel, 
+  color, 
+  icon: Icon 
+}: { 
+  label: string; 
+  value: number | null; 
+  subLabel?: string; 
+  color: string;
+  icon?: React.ElementType;
+}) => (
+  <div className="p-4 rounded-lg border bg-card">
+    <div className="flex items-center gap-2 mb-2">
+      {Icon && <Icon className="h-4 w-4" style={{ color }} />}
+      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</span>
+    </div>
+    <p className="text-2xl font-bold" style={{ color: hasData(value) ? color : undefined }}>
+      {hasData(value) ? formatCompact(value!) : "—"}
+    </p>
+    {subLabel && <p className="text-xs text-muted-foreground mt-1">{subLabel}</p>}
+  </div>
+);
+
 export const SubstanceCharts = ({ data, selectedYear, stateName }: SubstanceChartsProps) => {
   const currentYearData = data?.find((s) => s.year === parseInt(selectedYear));
+  const hasAnyData = data?.length > 0 && currentYearData;
 
-  if (!data?.length) {
+  // No data state
+  if (!hasAnyData) {
     return (
-      <Card>
-        <CardContent className="py-8 text-center text-muted-foreground">
-          <p>Detailed substance statistics coming soon. Data will be populated from official government sources.</p>
+      <Card className="border-2 border-dashed">
+        <CardContent className="py-12 text-center">
+          <Info className="h-12 w-12 mx-auto text-muted-foreground/40 mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Substance Statistics Coming Soon</h3>
+          <p className="text-muted-foreground max-w-md mx-auto">
+            Detailed substance-specific data for {stateName} is being compiled from official 
+            SAMHSA NSDUH and CDC WONDER sources. This includes statistics on alcohol, opioids, 
+            fentanyl, cocaine, methamphetamine, and more.
+          </p>
         </CardContent>
       </Card>
     );
   }
 
-  // Prepare drug-related deaths comparison data
-  const deathsComparisonData = data.map((s) => ({
+  // Prepare chart data
+  const deathsData = data.map((s) => ({
     year: s.year.toString(),
     Fentanyl: s.fentanyl_deaths || 0,
-    Cocaine: s.cocaine_related_deaths || 0,
-    Meth: s.meth_related_deaths || 0,
     Alcohol: s.alcohol_related_deaths || 0,
+    Meth: s.meth_related_deaths || 0,
+    Cocaine: s.cocaine_related_deaths || 0,
   }));
 
-  // Substance use prevalence data (percentages)
-  const prevalenceData = currentYearData
-    ? [
-        { name: "Alcohol (Monthly)", value: currentYearData.alcohol_use_past_month_percent || 0, fill: CHART_COLORS.alcohol },
-        { name: "Binge Drinking", value: currentYearData.alcohol_binge_drinking_percent || 0, fill: "#a78bfa" },
-        { name: "Heavy Alcohol", value: currentYearData.alcohol_heavy_use_percent || 0, fill: "#7c3aed" },
-      ]
-    : [];
+  const opioidTrendData = data.map((s) => ({
+    year: s.year.toString(),
+    "Rx Opioids": s.prescription_opioid_misuse || 0,
+    Heroin: s.heroin_use || 0,
+    "Opioid Disorder": s.opioid_use_disorder || 0,
+  }));
 
-  // Opioid breakdown data
-  const opioidBreakdownData = currentYearData
-    ? [
-        { name: "Prescription Opioids", value: currentYearData.prescription_opioid_misuse || 0, fill: CHART_COLORS.opioid },
-        { name: "Heroin", value: currentYearData.heroin_use || 0, fill: "#b91c1c" },
-        { name: "Opioid Use Disorder", value: currentYearData.opioid_use_disorder || 0, fill: "#fca5a5" },
-      ]
-    : [];
-
-  // Stimulant comparison data
-  const stimulantData = data.map((s) => ({
+  const stimulantTrendData = data.map((s) => ({
     year: s.year.toString(),
     Cocaine: s.cocaine_use_past_year || 0,
     Meth: s.meth_use_past_year || 0,
-    PrescriptionStimulants: s.prescription_stimulant_misuse || 0,
   }));
 
-  // Marijuana trends
-  const marijuanaData = data.map((s) => ({
-    year: s.year.toString(),
-    Monthly: s.marijuana_use_past_month || 0,
-    Yearly: s.marijuana_use_past_year || 0,
-    Disorder: s.marijuana_use_disorder || 0,
-  }));
+  const treatmentData = [
+    { name: "Received Treatment", value: currentYearData.treatment_received || 0, fill: COLORS.treatment.main },
+    { name: "Needed, Not Received", value: currentYearData.treatment_needed_not_received || 0, fill: "#94a3b8" },
+  ].filter(d => d.value > 0);
 
-  // Treatment gap data
-  const treatmentGapData = currentYearData
-    ? [
-        { name: "Received Treatment", value: currentYearData.treatment_received || 0, fill: CHART_COLORS.treatment },
-        { name: "Needed but Didn't Receive", value: currentYearData.treatment_needed_not_received || 0, fill: "#94a3b8" },
-      ]
-    : [];
-
-  // Mental health co-occurring data
-  const mentalHealthData = currentYearData
-    ? [
-        { name: "Mental Illness with SUD", value: currentYearData.mental_illness_with_sud || 0 },
-        { name: "Serious Mental Illness with SUD", value: currentYearData.serious_mental_illness_with_sud || 0 },
-        { name: "MAT Recipients", value: currentYearData.mat_recipients || 0 },
-      ]
-    : [];
-
-  // Prescription drug misuse radar data
-  const prescriptionData = currentYearData
-    ? [
-        { subject: "Opioids", value: currentYearData.prescription_opioid_misuse || 0 },
-        { subject: "Stimulants", value: currentYearData.prescription_stimulant_misuse || 0 },
-        { subject: "Sedatives", value: currentYearData.prescription_sedative_misuse || 0 },
-        { subject: "Tranquilizers", value: currentYearData.prescription_tranquilizer_misuse || 0 },
-      ]
-    : [];
-
-  // Drug type breakdown summary data
-  const drugTypeSummary = currentYearData
-    ? [
-        { 
-          name: "Alcohol", 
-          icon: "🍺", 
-          users: currentYearData.alcohol_use_disorder || 0,
-          deaths: currentYearData.alcohol_related_deaths || 0,
-          color: CHART_COLORS.alcohol,
-          description: "Alcohol Use Disorder"
-        },
-        { 
-          name: "Opioids", 
-          icon: "💊", 
-          users: currentYearData.opioid_use_disorder || 0,
-          deaths: currentYearData.fentanyl_deaths || 0,
-          color: CHART_COLORS.opioid,
-          description: "Opioid Use Disorder (incl. Fentanyl, Heroin, Rx)"
-        },
-        { 
-          name: "Fentanyl", 
-          icon: "⚠️", 
-          users: currentYearData.fentanyl_involved_overdoses || 0,
-          deaths: currentYearData.fentanyl_deaths || 0,
-          color: CHART_COLORS.fentanyl,
-          description: "Synthetic Opioid - Primary Driver of Overdose Deaths"
-        },
-        { 
-          name: "Cocaine", 
-          icon: "❄️", 
-          users: currentYearData.cocaine_use_past_year || 0,
-          deaths: currentYearData.cocaine_related_deaths || 0,
-          color: CHART_COLORS.cocaine,
-          description: "Past Year Cocaine Use"
-        },
-        { 
-          name: "Methamphetamine", 
-          icon: "⚡", 
-          users: currentYearData.meth_use_past_year || 0,
-          deaths: currentYearData.meth_related_deaths || 0,
-          color: CHART_COLORS.meth,
-          description: "Psychostimulant with Abuse Potential"
-        },
-        { 
-          name: "Cannabis", 
-          icon: "🌿", 
-          users: currentYearData.marijuana_use_past_year || 0,
-          deaths: 0, // Cannabis rarely causes direct overdose deaths
-          color: CHART_COLORS.marijuana,
-          description: "Past Year Marijuana/Cannabis Use"
-        },
-        { 
-          name: "Rx Opioids", 
-          icon: "💉", 
-          users: currentYearData.prescription_opioid_misuse || 0,
-          deaths: 0,
-          color: "#f87171",
-          description: "Prescription Opioid Misuse"
-        },
-        { 
-          name: "Heroin", 
-          icon: "🔴", 
-          users: currentYearData.heroin_use || 0,
-          deaths: 0,
-          color: "#b91c1c",
-          description: "Heroin Use"
-        },
-      ]
-    : [];
+  // Check if sections have data
+  const hasDeathsData = deathsData.some(d => d.Fentanyl > 0 || d.Alcohol > 0 || d.Meth > 0 || d.Cocaine > 0);
+  const hasOpioidData = hasData(currentYearData.opioid_use_disorder) || hasData(currentYearData.fentanyl_deaths);
+  const hasAlcoholData = hasData(currentYearData.alcohol_use_disorder) || hasData(currentYearData.alcohol_use_past_month_percent);
+  const hasStimulantData = hasData(currentYearData.cocaine_use_past_year) || hasData(currentYearData.meth_use_past_year);
+  const hasTreatmentData = hasData(currentYearData.treatment_received) || hasData(currentYearData.treatment_needed_not_received);
 
   return (
-    <div className="space-y-6">
-      {/* Section Header */}
-      <div className="flex items-center gap-3 pb-2 border-b">
-        <Pill className="h-6 w-6 text-primary" />
-        <h3 className="text-xl font-bold">Substance-Specific Statistics</h3>
-        <Badge variant="secondary">{selectedYear}</Badge>
-      </div>
-
-      {/* Drug Type Breakdown Summary Grid */}
-      {currentYearData && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {drugTypeSummary.map((drug) => (
-            <Card key={drug.name} className="relative overflow-hidden">
-              <div 
-                className="absolute top-0 left-0 w-1 h-full" 
-                style={{ backgroundColor: drug.color }} 
-              />
-              <CardContent className="p-4 pl-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-lg">{drug.icon}</span>
-                  <span className="font-semibold text-sm">{drug.name}</span>
-                </div>
-                <div className="space-y-1">
-                  <div>
-                    <p className="text-xl font-bold">{formatCompactNumber(drug.users)}</p>
-                    <p className="text-xs text-muted-foreground">Affected</p>
-                  </div>
-                  {drug.deaths > 0 && (
-                    <div className="pt-1 border-t">
-                      <p className="text-sm font-semibold text-destructive">{formatNumber(drug.deaths)}</p>
-                      <p className="text-xs text-muted-foreground">Deaths</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+    <div className="space-y-8">
+      {/* Main Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b">
+        <div>
+          <div className="flex items-center gap-2">
+            <Pill className="h-6 w-6 text-primary" />
+            <h2 className="text-2xl font-bold">Substance-Specific Statistics</h2>
+          </div>
+          <p className="text-muted-foreground mt-1">
+            Detailed breakdown by drug type from official government sources
+          </p>
         </div>
-      )}
-
-      {/* Drug-Related Deaths Comparison */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <AlertTriangle className="h-5 w-5 text-destructive" />
-            Drug-Related Deaths by Substance Type
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Source: CDC WONDER Multiple Cause of Death Database
-          </p>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={deathsComparisonData}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis dataKey="year" className="text-xs" />
-              <YAxis tickFormatter={formatCompactNumber} className="text-xs" />
-              <Tooltip
-                formatter={(value: number, name: string) => [formatNumber(value), `${name} Deaths`]}
-                contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
-              />
-              <Legend />
-              <Bar dataKey="Fentanyl" fill={CHART_COLORS.fentanyl} radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Cocaine" fill={CHART_COLORS.cocaine} radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Meth" fill={CHART_COLORS.meth} radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Alcohol" fill={CHART_COLORS.alcohol} radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      {/* Alcohol & Opioid Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Alcohol Statistics */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Wine className="h-5 w-5 text-purple-500" />
-              Alcohol Use Patterns ({selectedYear})
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">Source: SAMHSA NSDUH</p>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={prevalenceData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis type="number" unit="%" className="text-xs" />
-                <YAxis type="category" dataKey="name" width={100} className="text-xs" />
-                <Tooltip
-                  formatter={(value: number) => [`${value.toFixed(1)}%`, "Rate"]}
-                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
-                />
-                <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-                  {prevalenceData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-            {currentYearData?.alcohol_use_disorder && (
-              <div className="mt-4 p-3 bg-purple-500/10 rounded-lg text-center">
-                <p className="text-2xl font-bold text-purple-600">{formatNumber(currentYearData.alcohol_use_disorder)}</p>
-                <p className="text-sm text-muted-foreground">People with Alcohol Use Disorder</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Opioid Breakdown */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Syringe className="h-5 w-5 text-red-500" />
-              Opioid Crisis Breakdown ({selectedYear})
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">Source: SAMHSA NSDUH & CDC</p>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
-              <PieChart>
-                <Pie
-                  data={opioidBreakdownData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={80}
-                  paddingAngle={2}
-                  dataKey="value"
-                  label={({ name, value }) => `${name}: ${formatCompactNumber(value)}`}
-                >
-                  {opioidBreakdownData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(value: number) => [formatNumber(value), "People"]}
-                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-            {currentYearData?.fentanyl_deaths && (
-              <div className="mt-2 p-3 bg-red-500/10 rounded-lg text-center">
-                <p className="text-2xl font-bold text-red-600">{formatNumber(currentYearData.fentanyl_deaths)}</p>
-                <p className="text-sm text-muted-foreground">Fentanyl-Related Deaths</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <Badge variant="outline" className="text-lg px-4 py-2">
+          {selectedYear}
+        </Badge>
       </div>
 
-      {/* Stimulants Trend */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Activity className="h-5 w-5 text-orange-500" />
-            Stimulant Use Trends Over Time
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Cocaine, Methamphetamine & Prescription Stimulants - Source: SAMHSA NSDUH
-          </p>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={280}>
-            <LineChart data={stimulantData}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis dataKey="year" className="text-xs" />
-              <YAxis tickFormatter={formatCompactNumber} className="text-xs" />
-              <Tooltip
-                formatter={(value: number, name: string) => {
-                  const labels: Record<string, string> = {
-                    Cocaine: "Cocaine Use",
-                    Meth: "Methamphetamine Use",
-                    PrescriptionStimulants: "Rx Stimulant Misuse",
-                  };
-                  return [formatNumber(value), labels[name] || name];
-                }}
-                contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
-              />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="Cocaine"
-                stroke={CHART_COLORS.cocaine}
-                strokeWidth={2}
-                dot={{ fill: CHART_COLORS.cocaine }}
-              />
-              <Line
-                type="monotone"
-                dataKey="Meth"
-                stroke={CHART_COLORS.meth}
-                strokeWidth={2}
-                dot={{ fill: CHART_COLORS.meth }}
-              />
-              <Line
-                type="monotone"
-                dataKey="PrescriptionStimulants"
-                name="Rx Stimulants"
-                stroke={CHART_COLORS.prescription}
-                strokeWidth={2}
-                dot={{ fill: CHART_COLORS.prescription }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+      {/* Quick Stats Overview */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <StatCard 
+          label="Fentanyl Deaths" 
+          value={currentYearData.fentanyl_deaths} 
+          subLabel="Synthetic Opioid"
+          color={COLORS.fentanyl.main}
+          icon={Skull}
+        />
+        <StatCard 
+          label="Opioid Disorder" 
+          value={currentYearData.opioid_use_disorder} 
+          subLabel="Use Disorder"
+          color={COLORS.opioid.main}
+          icon={Syringe}
+        />
+        <StatCard 
+          label="Alcohol Disorder" 
+          value={currentYearData.alcohol_use_disorder} 
+          subLabel="Use Disorder"
+          color={COLORS.alcohol.main}
+          icon={Wine}
+        />
+        <StatCard 
+          label="Cocaine Use" 
+          value={currentYearData.cocaine_use_past_year} 
+          subLabel="Past Year"
+          color={COLORS.cocaine.main}
+          icon={Activity}
+        />
+        <StatCard 
+          label="Meth Use" 
+          value={currentYearData.meth_use_past_year} 
+          subLabel="Past Year"
+          color={COLORS.meth.main}
+          icon={TrendingUp}
+        />
+        <StatCard 
+          label="Cannabis Use" 
+          value={currentYearData.marijuana_use_past_year} 
+          subLabel="Past Year"
+          color={COLORS.marijuana.main}
+          icon={Users}
+        />
+      </div>
 
-      {/* Marijuana & Prescription Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Marijuana Trends */}
+      {/* 1. OVERDOSE DEATHS - Most Critical */}
+      <Section
+        title="Drug Overdose Deaths by Substance"
+        description="Fatal overdoses categorized by the primary substance involved. Fentanyl (synthetic opioid) is now the leading cause of drug overdose deaths in the United States, often mixed with other substances."
+        icon={AlertTriangle}
+        iconColor="bg-red-600"
+        isEmpty={!hasDeathsData}
+      >
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Cannabis className="h-5 w-5 text-green-500" />
-              Cannabis/Marijuana Use Trends
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <span>Annual Deaths by Substance Type</span>
+              <Badge variant="destructive" className="text-xs">Critical Data</Badge>
             </CardTitle>
-            <p className="text-sm text-muted-foreground">Source: SAMHSA NSDUH</p>
+            <CardDescription>Source: CDC WONDER Multiple Cause of Death Database</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={marijuanaData}>
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={deathsData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis dataKey="year" className="text-xs" />
-                <YAxis tickFormatter={formatCompactNumber} className="text-xs" />
+                <YAxis tickFormatter={formatCompact} className="text-xs" />
                 <Tooltip
-                  formatter={(value: number, name: string) => {
-                    const labels: Record<string, string> = {
-                      Monthly: "Past Month Use",
-                      Yearly: "Past Year Use",
-                      Disorder: "Use Disorder",
-                    };
-                    return [formatNumber(value), labels[name] || name];
-                  }}
+                  formatter={(value: number, name: string) => [formatNumber(value), `${name} Deaths`]}
                   contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
                 />
                 <Legend />
-                <Line type="monotone" dataKey="Yearly" name="Past Year" stroke="#22c55e" strokeWidth={2} />
-                <Line type="monotone" dataKey="Monthly" name="Past Month" stroke="#16a34a" strokeWidth={2} />
-                <Line type="monotone" dataKey="Disorder" name="Use Disorder" stroke="#15803d" strokeWidth={2} strokeDasharray="5 5" />
-              </LineChart>
+                <Bar dataKey="Fentanyl" fill={COLORS.fentanyl.main} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Alcohol" fill={COLORS.alcohol.main} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Meth" fill={COLORS.meth.main} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Cocaine" fill={COLORS.cocaine.main} radius={[4, 4, 0, 0]} />
+              </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
+      </Section>
 
-        {/* Prescription Drug Misuse Radar */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Pill className="h-5 w-5 text-blue-500" />
-              Prescription Drug Misuse ({selectedYear})
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">Source: SAMHSA NSDUH</p>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <RadarChart cx="50%" cy="50%" outerRadius="70%" data={prescriptionData}>
-                <PolarGrid className="stroke-muted" />
-                <PolarAngleAxis dataKey="subject" className="text-xs" />
-                <PolarRadiusAxis tickFormatter={formatCompactNumber} className="text-xs" />
-                <Radar
-                  name="Misuse"
-                  dataKey="value"
-                  stroke={CHART_COLORS.prescription}
-                  fill={CHART_COLORS.prescription}
-                  fillOpacity={0.5}
-                />
-                <Tooltip
-                  formatter={(value: number) => [formatNumber(value), "People"]}
-                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
-                />
-              </RadarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Treatment Gap & Mental Health */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Treatment Gap */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Treatment Access Gap ({selectedYear})</CardTitle>
-            <p className="text-sm text-muted-foreground">Source: SAMHSA NSDUH</p>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
-              <PieChart>
-                <Pie
-                  data={treatmentGapData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={40}
-                  outerRadius={70}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {treatmentGapData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(value: number) => [formatNumber(value), "People"]}
-                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
-                />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-            {currentYearData?.mat_recipients && (
-              <div className="mt-2 text-center">
-                <p className="text-lg font-semibold">{formatNumber(currentYearData.mat_recipients)}</p>
-                <p className="text-xs text-muted-foreground">Medication-Assisted Treatment Recipients</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Mental Health Co-occurring */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Mental Health & Substance Use ({selectedYear})</CardTitle>
-            <p className="text-sm text-muted-foreground">Co-occurring Disorders - Source: SAMHSA NSDUH</p>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {mentalHealthData.map((item) => (
-                <div key={item.name} className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span>{item.name}</span>
-                    <span className="font-medium">{formatNumber(item.value)}</span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary transition-all duration-500"
-                      style={{
-                        width: `${Math.min((item.value / (mentalHealthData[0]?.value || 1)) * 100, 100)}%`,
-                      }}
-                    />
-                  </div>
+      {/* 2. OPIOID CRISIS */}
+      <Section
+        title="The Opioid Crisis"
+        description="Opioids include prescription pain relievers (oxycodone, hydrocodone), heroin, and synthetic opioids like fentanyl. The opioid epidemic has evolved from prescription drugs to illicit fentanyl as the primary driver of deaths."
+        icon={Syringe}
+        iconColor="bg-red-500"
+        isEmpty={!hasOpioidData}
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Opioid breakdown stats */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Opioid Use Breakdown ({selectedYear})</CardTitle>
+              <CardDescription>People affected by different opioid types</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className={`p-4 rounded-lg ${COLORS.opioid.bg} border`}>
+                  <p className="text-xs text-muted-foreground mb-1">Rx Opioid Misuse</p>
+                  <p className="text-xl font-bold" style={{ color: COLORS.opioid.main }}>
+                    {hasData(currentYearData.prescription_opioid_misuse) ? formatCompact(currentYearData.prescription_opioid_misuse!) : "—"}
+                  </p>
                 </div>
-              ))}
+                <div className={`p-4 rounded-lg ${COLORS.opioid.bg} border`}>
+                  <p className="text-xs text-muted-foreground mb-1">Heroin Use</p>
+                  <p className="text-xl font-bold" style={{ color: COLORS.opioid.main }}>
+                    {hasData(currentYearData.heroin_use) ? formatCompact(currentYearData.heroin_use!) : "—"}
+                  </p>
+                </div>
+                <div className={`p-4 rounded-lg ${COLORS.fentanyl.bg} border`}>
+                  <p className="text-xs text-muted-foreground mb-1">Fentanyl Deaths</p>
+                  <p className="text-xl font-bold" style={{ color: COLORS.fentanyl.main }}>
+                    {hasData(currentYearData.fentanyl_deaths) ? formatNumber(currentYearData.fentanyl_deaths) : "—"}
+                  </p>
+                </div>
+                <div className={`p-4 rounded-lg ${COLORS.opioid.bg} border`}>
+                  <p className="text-xs text-muted-foreground mb-1">Opioid Use Disorder</p>
+                  <p className="text-xl font-bold" style={{ color: COLORS.opioid.main }}>
+                    {hasData(currentYearData.opioid_use_disorder) ? formatCompact(currentYearData.opioid_use_disorder!) : "—"}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Opioid trend */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Opioid Use Trends</CardTitle>
+              <CardDescription>Year-over-year changes in opioid-related statistics</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={opioidTrendData}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="year" className="text-xs" />
+                  <YAxis tickFormatter={formatCompact} className="text-xs" />
+                  <Tooltip
+                    formatter={(value: number) => [formatNumber(value), "People"]}
+                    contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+                  />
+                  <Legend />
+                  <Line type="monotone" dataKey="Rx Opioids" stroke={COLORS.opioid.main} strokeWidth={2} dot={{ r: 3 }} />
+                  <Line type="monotone" dataKey="Heroin" stroke="#b91c1c" strokeWidth={2} dot={{ r: 3 }} />
+                  <Line type="monotone" dataKey="Opioid Disorder" stroke="#fca5a5" strokeWidth={2} strokeDasharray="5 5" dot={{ r: 3 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+      </Section>
+
+      {/* 3. ALCOHOL */}
+      <Section
+        title="Alcohol Use & Disorder"
+        description="Alcohol remains the most commonly used substance. Binge drinking is 5+ drinks for men or 4+ for women in about 2 hours. Heavy use is binge drinking 5+ days in the past month. Alcohol Use Disorder (AUD) is a medical condition."
+        icon={Wine}
+        iconColor="bg-violet-600"
+        isEmpty={!hasAlcoholData}
+      >
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Alcohol Statistics ({selectedYear})</CardTitle>
+            <CardDescription>Source: SAMHSA National Survey on Drug Use and Health</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className={`p-4 rounded-lg ${COLORS.alcohol.bg} border text-center`}>
+                <p className="text-3xl font-bold" style={{ color: COLORS.alcohol.main }}>
+                  {hasData(currentYearData.alcohol_use_past_month_percent) 
+                    ? `${currentYearData.alcohol_use_past_month_percent?.toFixed(1)}%` 
+                    : "—"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">Used Alcohol (Past Month)</p>
+              </div>
+              <div className={`p-4 rounded-lg ${COLORS.alcohol.bg} border text-center`}>
+                <p className="text-3xl font-bold" style={{ color: COLORS.alcohol.main }}>
+                  {hasData(currentYearData.alcohol_binge_drinking_percent) 
+                    ? `${currentYearData.alcohol_binge_drinking_percent?.toFixed(1)}%` 
+                    : "—"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">Binge Drinking</p>
+              </div>
+              <div className={`p-4 rounded-lg ${COLORS.alcohol.bg} border text-center`}>
+                <p className="text-3xl font-bold" style={{ color: COLORS.alcohol.main }}>
+                  {hasData(currentYearData.alcohol_use_disorder) 
+                    ? formatCompact(currentYearData.alcohol_use_disorder!) 
+                    : "—"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">Alcohol Use Disorder</p>
+              </div>
+              <div className={`p-4 rounded-lg ${COLORS.alcohol.bg} border text-center`}>
+                <p className="text-3xl font-bold" style={{ color: COLORS.alcohol.main }}>
+                  {hasData(currentYearData.alcohol_related_deaths) 
+                    ? formatNumber(currentYearData.alcohol_related_deaths) 
+                    : "—"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">Related Deaths</p>
+              </div>
             </div>
           </CardContent>
         </Card>
-      </div>
+      </Section>
+
+      {/* 4. STIMULANTS */}
+      <Section
+        title="Stimulants: Cocaine & Methamphetamine"
+        description="Stimulants increase alertness and energy. Cocaine is derived from coca plants, while methamphetamine is synthetically produced. Both carry high overdose risks, especially when mixed with fentanyl."
+        icon={Activity}
+        iconColor="bg-orange-500"
+        isEmpty={!hasStimulantData}
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Stimulant Use ({selectedYear})</CardTitle>
+              <CardDescription>Past year use and related deaths</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className={`p-4 rounded-lg ${COLORS.cocaine.bg} border`}>
+                  <p className="text-xs text-muted-foreground mb-1">Cocaine Use (Past Year)</p>
+                  <p className="text-xl font-bold" style={{ color: COLORS.cocaine.main }}>
+                    {hasData(currentYearData.cocaine_use_past_year) ? formatCompact(currentYearData.cocaine_use_past_year!) : "—"}
+                  </p>
+                </div>
+                <div className={`p-4 rounded-lg ${COLORS.cocaine.bg} border`}>
+                  <p className="text-xs text-muted-foreground mb-1">Cocaine Deaths</p>
+                  <p className="text-xl font-bold" style={{ color: COLORS.cocaine.main }}>
+                    {hasData(currentYearData.cocaine_related_deaths) ? formatNumber(currentYearData.cocaine_related_deaths) : "—"}
+                  </p>
+                </div>
+                <div className={`p-4 rounded-lg ${COLORS.meth.bg} border`}>
+                  <p className="text-xs text-muted-foreground mb-1">Meth Use (Past Year)</p>
+                  <p className="text-xl font-bold" style={{ color: COLORS.meth.main }}>
+                    {hasData(currentYearData.meth_use_past_year) ? formatCompact(currentYearData.meth_use_past_year!) : "—"}
+                  </p>
+                </div>
+                <div className={`p-4 rounded-lg ${COLORS.meth.bg} border`}>
+                  <p className="text-xs text-muted-foreground mb-1">Meth Deaths</p>
+                  <p className="text-xl font-bold" style={{ color: COLORS.meth.main }}>
+                    {hasData(currentYearData.meth_related_deaths) ? formatNumber(currentYearData.meth_related_deaths) : "—"}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Stimulant Use Trends</CardTitle>
+              <CardDescription>Cocaine vs Methamphetamine over time</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={stimulantTrendData}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="year" className="text-xs" />
+                  <YAxis tickFormatter={formatCompact} className="text-xs" />
+                  <Tooltip
+                    formatter={(value: number) => [formatNumber(value), "People"]}
+                    contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+                  />
+                  <Legend />
+                  <Line type="monotone" dataKey="Cocaine" stroke={COLORS.cocaine.main} strokeWidth={2} dot={{ r: 3 }} />
+                  <Line type="monotone" dataKey="Meth" stroke={COLORS.meth.main} strokeWidth={2} dot={{ r: 3 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+      </Section>
+
+      {/* 5. CANNABIS */}
+      <Section
+        title="Cannabis / Marijuana"
+        description="Cannabis is the most commonly used federally illegal drug. Cannabis Use Disorder affects those who cannot stop using despite negative consequences. While rarely directly fatal, it can impact mental health and daily functioning."
+        icon={Users}
+        iconColor="bg-green-600"
+        isEmpty={!hasData(currentYearData.marijuana_use_past_year)}
+      >
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Cannabis Statistics ({selectedYear})</CardTitle>
+            <CardDescription>Source: SAMHSA NSDUH</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-4">
+              <div className={`p-4 rounded-lg ${COLORS.marijuana.bg} border text-center`}>
+                <p className="text-3xl font-bold" style={{ color: COLORS.marijuana.main }}>
+                  {hasData(currentYearData.marijuana_use_past_year) 
+                    ? formatCompact(currentYearData.marijuana_use_past_year!) 
+                    : "—"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">Past Year Use</p>
+              </div>
+              <div className={`p-4 rounded-lg ${COLORS.marijuana.bg} border text-center`}>
+                <p className="text-3xl font-bold" style={{ color: COLORS.marijuana.main }}>
+                  {hasData(currentYearData.marijuana_use_past_month) 
+                    ? formatCompact(currentYearData.marijuana_use_past_month!) 
+                    : "—"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">Past Month Use</p>
+              </div>
+              <div className={`p-4 rounded-lg ${COLORS.marijuana.bg} border text-center`}>
+                <p className="text-3xl font-bold" style={{ color: COLORS.marijuana.main }}>
+                  {hasData(currentYearData.marijuana_use_disorder) 
+                    ? formatCompact(currentYearData.marijuana_use_disorder!) 
+                    : "—"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">Use Disorder</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </Section>
+
+      {/* 6. TREATMENT GAP */}
+      <Section
+        title="Treatment Access Gap"
+        description="Many people who need substance use treatment do not receive it. Barriers include cost, stigma, lack of available programs, and not recognizing the need for help. MAT (Medication-Assisted Treatment) uses FDA-approved medications with counseling."
+        icon={Heart}
+        iconColor="bg-cyan-600"
+        isEmpty={!hasTreatmentData}
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Treatment Statistics ({selectedYear})</CardTitle>
+              <CardDescription>Who received help vs who still needs it</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {treatmentData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie
+                      data={treatmentData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={50}
+                      outerRadius={80}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {treatmentData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value: number) => [formatNumber(value), "People"]}
+                      contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+                    />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+                  No treatment data available
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Key Treatment Metrics</CardTitle>
+              <CardDescription>Detailed breakdown of treatment access</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className={`p-4 rounded-lg ${COLORS.treatment.bg} border`}>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Received Treatment</span>
+                  <span className="font-bold" style={{ color: COLORS.treatment.main }}>
+                    {hasData(currentYearData.treatment_received) ? formatNumber(currentYearData.treatment_received) : "—"}
+                  </span>
+                </div>
+              </div>
+              <div className="p-4 rounded-lg bg-muted/50 border">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Needed But Did Not Receive</span>
+                  <span className="font-bold text-muted-foreground">
+                    {hasData(currentYearData.treatment_needed_not_received) ? formatNumber(currentYearData.treatment_needed_not_received) : "—"}
+                  </span>
+                </div>
+              </div>
+              <div className={`p-4 rounded-lg ${COLORS.treatment.bg} border`}>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">MAT Recipients</span>
+                  <span className="font-bold" style={{ color: COLORS.treatment.main }}>
+                    {hasData(currentYearData.mat_recipients) ? formatNumber(currentYearData.mat_recipients) : "—"}
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </Section>
+
+      {/* 7. MENTAL HEALTH CO-OCCURRING */}
+      <Section
+        title="Mental Health & Co-Occurring Disorders"
+        description="Many people with substance use disorders also have mental health conditions (co-occurring disorders). Treating both simultaneously leads to better outcomes. Serious Mental Illness (SMI) includes conditions like schizophrenia, bipolar disorder, and severe depression."
+        icon={Brain}
+        iconColor="bg-purple-600"
+        isEmpty={!hasData(currentYearData.mental_illness_with_sud)}
+      >
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Co-Occurring Disorders ({selectedYear})</CardTitle>
+            <CardDescription>Substance use disorder combined with mental illness</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className={`p-6 rounded-lg ${COLORS.mental.bg} border text-center`}>
+                <p className="text-4xl font-bold" style={{ color: COLORS.mental.main }}>
+                  {hasData(currentYearData.mental_illness_with_sud) 
+                    ? formatCompact(currentYearData.mental_illness_with_sud!) 
+                    : "—"}
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">Any Mental Illness + SUD</p>
+                <p className="text-xs text-muted-foreground">People with both conditions</p>
+              </div>
+              <div className={`p-6 rounded-lg ${COLORS.mental.bg} border text-center`}>
+                <p className="text-4xl font-bold" style={{ color: COLORS.mental.main }}>
+                  {hasData(currentYearData.serious_mental_illness_with_sud) 
+                    ? formatCompact(currentYearData.serious_mental_illness_with_sud!) 
+                    : "—"}
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">Serious Mental Illness + SUD</p>
+                <p className="text-xs text-muted-foreground">Severe cases requiring intensive care</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </Section>
     </div>
   );
 };
