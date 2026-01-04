@@ -33,15 +33,15 @@ export const StateTabs = ({
       <TabsList className="grid w-full grid-cols-3 mb-6">
         <TabsTrigger value="statistics" className="flex items-center gap-2">
           <BarChart3 className="h-4 w-4" />
-          <span className="hidden sm:inline">Statistics</span>
+          <span>Statistics</span>
         </TabsTrigger>
         <TabsTrigger value="listings" className="flex items-center gap-2">
           <Building2 className="h-4 w-4" />
-          <span className="hidden sm:inline">Rehab Listings</span>
+          <span>Rehab Listings</span>
         </TabsTrigger>
         <TabsTrigger value="resources" className="flex items-center gap-2">
           <Gift className="h-4 w-4" />
-          <span className="hidden sm:inline">Free Resources</span>
+          <span>Free Resources</span>
         </TabsTrigger>
       </TabsList>
 

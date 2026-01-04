@@ -91,23 +91,23 @@ export const FreeResourcesTab = ({ stateId, stateName }: FreeResourcesTabProps) 
         <TabsList className="grid w-full grid-cols-5 mb-6">
           <TabsTrigger value="all" className="flex items-center gap-1 text-xs sm:text-sm">
             <Star className="h-4 w-4" />
-            <span className="hidden sm:inline">All</span>
+            <span>All</span>
           </TabsTrigger>
           <TabsTrigger value="hotlines" className="flex items-center gap-1 text-xs sm:text-sm">
             <PhoneCall className="h-4 w-4" />
-            <span className="hidden sm:inline">Hotlines</span>
+            <span>Hotlines</span>
           </TabsTrigger>
           <TabsTrigger value="rehabs" className="flex items-center gap-1 text-xs sm:text-sm">
             <Building2 className="h-4 w-4" />
-            <span className="hidden sm:inline">Free Rehabs</span>
+            <span>Rehabs</span>
           </TabsTrigger>
           <TabsTrigger value="support" className="flex items-center gap-1 text-xs sm:text-sm">
             <HeartHandshake className="h-4 w-4" />
-            <span className="hidden sm:inline">Support</span>
+            <span>Support</span>
           </TabsTrigger>
           <TabsTrigger value="government" className="flex items-center gap-1 text-xs sm:text-sm">
             <Globe className="h-4 w-4" />
-            <span className="hidden sm:inline">Gov</span>
+            <span>Gov</span>
           </TabsTrigger>
         </TabsList>
 
