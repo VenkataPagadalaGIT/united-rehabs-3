@@ -7,47 +7,56 @@ interface ImageGalleryProps {
 
 export function ImageGallery({ images }: ImageGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const displayImages = images.slice(0, 4);
 
   return (
     <div className="py-4">
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-        {/* Main large image - left side */}
-        <div className="md:col-span-5 relative rounded-xl overflow-hidden h-64 md:h-[420px]">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 h-auto md:h-[380px]">
+        {/* Left - Large hero image */}
+        <div className="md:col-span-5 relative rounded-xl overflow-hidden h-64 md:h-full">
           <img
-            src={displayImages[0]?.url}
-            alt={displayImages[0]?.alt}
+            src="https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&h=600&fit=crop"
+            alt="Golden Gate Bridge"
             className="w-full h-full object-cover"
           />
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-            {displayImages.map((_, index) => (
+            {[0, 1, 2, 3, 4, 5].map((index) => (
               <button
                 key={index}
                 onClick={() => setActiveIndex(index)}
                 className={`w-2 h-2 rounded-full transition-all ${
-                  index === activeIndex ? "bg-primary w-4" : "bg-white/60"
+                  index === activeIndex ? "bg-primary" : "bg-white/60"
                 }`}
               />
             ))}
           </div>
         </div>
 
-        {/* Right side grid */}
-        <div className="md:col-span-7 grid grid-cols-2 grid-rows-2 gap-4 h-64 md:h-[420px]">
-          <div className="rounded-xl overflow-hidden">
-            {displayImages[1] && (
-              <img src={displayImages[1].url} alt={displayImages[1].alt} className="w-full h-full object-cover" />
-            )}
+        {/* Center - California county map */}
+        <div className="md:col-span-4 rounded-xl overflow-hidden border-4 border-blue-400 h-64 md:h-full bg-white">
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/California_population_map.png/400px-California_population_map.png"
+            alt="California Population Map"
+            className="w-full h-full object-contain p-2"
+          />
+        </div>
+
+        {/* Right column - 2 stacked images */}
+        <div className="md:col-span-3 grid grid-rows-2 gap-4 h-64 md:h-full">
+          {/* US Map with California highlighted */}
+          <div className="rounded-xl overflow-hidden bg-white border border-border">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/USA_California.svg/400px-USA_California.svg.png"
+              alt="USA Map with California"
+              className="w-full h-full object-contain p-2"
+            />
           </div>
+          {/* Palm trees photo */}
           <div className="rounded-xl overflow-hidden">
-            {displayImages[2] && (
-              <img src={displayImages[2].url} alt={displayImages[2].alt} className="w-full h-full object-cover" />
-            )}
-          </div>
-          <div className="col-span-2 rounded-xl overflow-hidden">
-            {displayImages[3] && (
-              <img src={displayImages[3].url} alt={displayImages[3].alt} className="w-full h-full object-cover" />
-            )}
+            <img
+              src="https://images.unsplash.com/photo-1534430480872-3498386e7856?w=400&h=300&fit=crop"
+              alt="California Palm Trees"
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
       </div>
