@@ -30,18 +30,18 @@ export const StateTabs = ({
 }: StateTabsProps) => {
   return (
     <Tabs defaultValue="statistics" className="w-full">
-      <TabsList className="grid w-full grid-cols-3 mb-8 h-14 bg-muted p-1.5 rounded-xl">
-        <TabsTrigger value="statistics" className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+      <TabsList className="grid w-full grid-cols-3 mb-10 h-14 bg-transparent p-0 gap-0 border border-border rounded-lg overflow-hidden">
+        <TabsTrigger value="statistics" className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium rounded-none border-r border-border bg-muted/50 data-[state=active]:bg-background data-[state=active]:shadow-none h-full">
           <BarChart3 className="h-4 w-4" />
           <span className="hidden sm:inline">Statistics</span>
           <span className="sm:hidden">Stats</span>
         </TabsTrigger>
-        <TabsTrigger value="listings" className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+        <TabsTrigger value="listings" className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium rounded-none border-r border-border bg-muted/50 data-[state=active]:bg-background data-[state=active]:shadow-none h-full">
           <Building2 className="h-4 w-4" />
           <span className="hidden sm:inline">Rehab Listings</span>
           <span className="sm:hidden">Rehabs</span>
         </TabsTrigger>
-        <TabsTrigger value="resources" className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+        <TabsTrigger value="resources" className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium rounded-none bg-muted/50 data-[state=active]:bg-background data-[state=active]:shadow-none h-full">
           <Gift className="h-4 w-4" />
           <span>Resources</span>
         </TabsTrigger>
