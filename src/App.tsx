@@ -22,6 +22,7 @@ import SEOAdmin from "./pages/admin/SEOAdmin";
 import ArticlesAdmin from "./pages/admin/ArticlesAdmin";
 import ArticlesListPage from "./pages/ArticlesListPage";
 import ArticlePage from "./pages/ArticlePage";
+import ShortcodeShowcase from "./pages/ShortcodeShowcase";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
           <Route path="/news" element={<ArticlesListPage />} />
           <Route path="/article" element={<ArticlesListPage />} />
           <Route path="/guide" element={<ArticlesListPage />} />
+          <Route path="/shortcodes" element={<ShortcodeShowcase />} />
           <Route path="/:type/:slug" element={<ArticlePage />} />
           
           {/* SEO-Optimized State Pages - must be before catch-all */}

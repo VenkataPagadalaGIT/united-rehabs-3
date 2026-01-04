@@ -9,8 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Eye, FileText, Newspaper, BookOpen } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, FileText, Newspaper, BookOpen, Blocks } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 import { RichContentEditor } from "@/components/article/RichContentEditor";
 import {
   Dialog,
@@ -195,7 +196,13 @@ export default function ArticlesAdmin() {
           <h2 className="text-2xl font-bold">Articles & Content</h2>
           <p className="text-muted-foreground">Manage blogs, news, and articles for SEO</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Link to="/shortcodes" target="_blank">
+            <Button variant="outline">
+              <Blocks className="h-4 w-4 mr-2" />
+              View Shortcodes
+            </Button>
+          </Link>
           <Select value={filterType} onValueChange={setFilterType}>
             <SelectTrigger className="w-[140px]">
               <SelectValue placeholder="Filter type" />
