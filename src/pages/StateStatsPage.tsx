@@ -9,11 +9,11 @@ import { SEOHead } from "@/components/SEOHead";
 import { mockNavItems, mockFooterLinks, mockFAQs, mockState } from "@/data/mockData";
 
 // Map slug to state ID - will be expanded with more states
-const stateSlugMap: Record<string, string> = {
-  california: "ca",
-  texas: "tx",
-  florida: "fl",
-  "new-york": "ny",
+const stateSlugMap: Record<string, { id: string; name: string }> = {
+  california: { id: "ca", name: "California" },
+  texas: { id: "tx", name: "Texas" },
+  florida: { id: "fl", name: "Florida" },
+  "new-york": { id: "ny", name: "New York" },
 };
 
 const StateStatsPage = () => {
@@ -21,14 +21,24 @@ const StateStatsPage = () => {
   
   // Extract the state part from the URL (e.g., "california" from "california-addiction-stats")
   const stateKey = slug?.replace(/-addiction-stats$/, "") || "";
-  const stateId = stateSlugMap[stateKey];
+  const stateInfo = stateSlugMap[stateKey];
   
-  if (!stateId) {
+  if (!stateInfo) {
     return <Navigate to="/" replace />;
   }
 
-  // For now, use mockState for California, will expand later with DB
-  const state = stateId === "ca" ? mockState : mockState;
+  // Create dynamic state object
+  const state = {
+    ...mockState,
+    id: stateInfo.id,
+    name: stateInfo.name,
+  };
+
+  // Dynamic breadcrumb items
+  const breadcrumbItems = [
+    { label: "Statistics", href: "/statistics" },
+    { label: stateInfo.name, href: `/${stateKey}-addiction-stats` },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -40,11 +50,11 @@ const StateStatsPage = () => {
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4">
-        <Breadcrumb />
+        <Breadcrumb items={breadcrumbItems} />
         <PageHero state={state} />
         
         <div className="py-8">
-          <StatisticsTab stateId={stateId} stateName={state.name} />
+          <StatisticsTab stateId={stateInfo.id} stateName={state.name} />
         </div>
       </main>
 

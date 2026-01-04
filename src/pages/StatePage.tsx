@@ -26,8 +26,9 @@ const StatePage = () => {
     }
   }
   
-  if (slug.endsWith("-addiction-rehab-centers")) {
-    const stateKey = slug.replace(/-addiction-rehab-centers$/, "");
+  // Support both -addiction-rehabs and -addiction-rehab-centers
+  if (slug.endsWith("-addiction-rehab-centers") || slug.endsWith("-addiction-rehabs")) {
+    const stateKey = slug.replace(/-addiction-rehab-centers$/, "").replace(/-addiction-rehabs$/, "");
     if (stateSlugMap[stateKey]) {
       return <StateRehabsPage />;
     }

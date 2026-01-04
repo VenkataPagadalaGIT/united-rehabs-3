@@ -1,75 +1,39 @@
-import { useState } from "react";
 import { Header } from "@/components/listing/Header";
-import { Breadcrumb } from "@/components/listing/Breadcrumb";
-import { PageHero } from "@/components/listing/PageHero";
-import { FilterTabs } from "@/components/listing/FilterTabs";
-import { ImageGallery } from "@/components/listing/ImageGallery";
-import { StateTabs } from "@/components/listing/StateTabs";
-import { Categories } from "@/components/listing/Categories";
-import { FAQ } from "@/components/listing/FAQ";
-
 import { Footer } from "@/components/listing/Footer";
-import { useFilters } from "@/hooks/useFilters";
-import {
-  mockState,
-  mockCities,
-  mockFAQs,
-  mockTreatmentCenters,
-  mockNavItems,
-  mockFooterLinks,
-} from "@/data/mockData";
+import { HeroSection } from "@/components/home/HeroSection";
+import { TrustIndicators } from "@/components/home/TrustIndicators";
+import { CTACards } from "@/components/home/CTACards";
+import { ConditionsSection } from "@/components/home/ConditionsSection";
+import { LocationsSection } from "@/components/home/LocationsSection";
+import { StatisticsSection } from "@/components/home/StatisticsSection";
+import { FeaturedCenters } from "@/components/home/FeaturedCenters";
+import { HowItWorks } from "@/components/home/HowItWorks";
+import { TestimonialsSection } from "@/components/home/TestimonialsSection";
+import { BrowseBySection } from "@/components/home/BrowseBySection";
+import { SupportCTA } from "@/components/home/SupportCTA";
+import { FAQ } from "@/components/listing/FAQ";
+import { mockNavItems, mockFooterLinks, mockFAQs } from "@/data/mockData";
 
 const Index = () => {
-  const {
-    filters,
-    activeFilters,
-    toggleFilter,
-    setCity,
-    loadMore,
-    centers,
-    hasMore,
-    conditions,
-  } = useFilters();
-
-  const [activeCityId, setActiveCityId] = useState<string>();
-
-  const handleCityClick = (cityId: string) => {
-    setActiveCityId(activeCityId === cityId ? undefined : cityId);
-    setCity(cityId);
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Header navItems={mockNavItems} />
       
-      <main className="container mx-auto px-4">
-        <Breadcrumb />
-        <PageHero state={mockState} />
-        <FilterTabs
-          filters={filters}
-          activeFilters={activeFilters}
-          onFilterChange={toggleFilter}
-        />
-        <ImageGallery state={mockState} />
-        
-        {/* Main Content with Tabs */}
-        <div className="py-8">
-          <StateTabs
-            stateId={mockState.id}
-            stateName={mockState.name}
-            centers={centers}
-            conditions={conditions}
-            hasMore={hasMore}
-            onLoadMore={loadMore}
-            cities={mockCities}
-            activeCityId={activeCityId}
-            onCityClick={handleCityClick}
-          />
-        </div>
+      <main>
+        <HeroSection />
+        <TrustIndicators />
+        <CTACards />
+        <ConditionsSection />
+        <LocationsSection />
+        <StatisticsSection />
+        <FeaturedCenters />
+        <HowItWorks />
+        <TestimonialsSection />
+        <FAQ faqs={mockFAQs} />
+        <SupportCTA />
+        <BrowseBySection />
       </main>
 
-      <Categories />
-      <FAQ faqs={mockFAQs} />
       <Footer linkGroups={mockFooterLinks} />
     </div>
   );
