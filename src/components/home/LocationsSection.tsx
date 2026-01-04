@@ -1,8 +1,9 @@
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, MapPin } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const countries = [
   { id: "all", name: "All" },
@@ -15,8 +16,19 @@ const countries = [
   { id: "lu", name: "Luxembourg" },
 ];
 
+const usStates = [
+  { name: "California", slug: "california", count: 1842 },
+  { name: "Texas", slug: "texas", count: 1256 },
+  { name: "Florida", slug: "florida", count: 1124 },
+  { name: "New York", slug: "new-york", count: 982 },
+  { name: "Pennsylvania", slug: "pennsylvania", count: 756 },
+  { name: "Ohio", slug: "ohio", count: 642 },
+  { name: "Illinois", slug: "illinois", count: 598 },
+  { name: "Arizona", slug: "arizona", count: 478 },
+];
+
 export function LocationsSection() {
-  const [activeCountry, setActiveCountry] = useState("all");
+  const [activeCountry, setActiveCountry] = useState("us");
 
   return (
     <section className="py-16 bg-muted/30">
@@ -67,23 +79,35 @@ export function LocationsSection() {
           </Button>
         </div>
 
-        {/* World Map Placeholder */}
-        <div className="max-w-4xl mx-auto">
-          <div className="relative aspect-[2/1] bg-muted/50 rounded-xl overflow-hidden">
-            {/* Dotted world map pattern */}
-            <div className="absolute inset-0 opacity-50" style={{
-              backgroundImage: `radial-gradient(circle, hsl(var(--primary) / 0.3) 1px, transparent 1px)`,
-              backgroundSize: '12px 12px',
-            }} />
-            
-            {/* Location markers */}
-            <div className="absolute top-[30%] left-[20%] w-3 h-3 bg-primary rounded-full animate-pulse" />
-            <div className="absolute top-[25%] left-[45%] w-4 h-4 bg-primary rounded-full animate-pulse" />
-            <div className="absolute top-[28%] left-[48%] w-3 h-3 bg-primary rounded-full animate-pulse" />
-            <div className="absolute top-[35%] left-[52%] w-3 h-3 bg-primary rounded-full animate-pulse" />
-            <div className="absolute top-[40%] left-[55%] w-2 h-2 bg-primary rounded-full animate-pulse" />
-            <div className="absolute top-[60%] left-[75%] w-3 h-3 bg-primary rounded-full animate-pulse" />
-          </div>
+        {/* State Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+          {usStates.map((state) => (
+            <Link
+              key={state.slug}
+              to={`/${state.slug}-addiction-rehabs`}
+              className="group p-4 rounded-xl border bg-card hover:shadow-lg hover:border-primary/50 transition-all"
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                      {state.name}
+                    </h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {state.count.toLocaleString()} centers
+                  </p>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        <div className="text-center mt-8">
+          <Button variant="outline" size="lg">
+            View All States
+          </Button>
         </div>
       </div>
     </section>
