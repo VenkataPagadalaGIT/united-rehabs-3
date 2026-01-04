@@ -1,5 +1,6 @@
 import type { GalleryImage } from "@/types";
 import { useState } from "react";
+import { CaliforniaMap } from "./CaliforniaMap";
 
 interface ImageGalleryProps {
   images: GalleryImage[];
@@ -8,47 +9,46 @@ interface ImageGalleryProps {
 export function ImageGallery({ images }: ImageGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
+  const heroImages = [
+    "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1449034446853-66c86144b0ad?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+  ];
+
   return (
     <div className="py-4">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 h-auto md:h-[380px]">
-        {/* Left - Large hero image */}
+        {/* Left - Large hero image with carousel */}
         <div className="md:col-span-5 relative rounded-xl overflow-hidden h-64 md:h-full">
           <img
-            src="https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&h=600&fit=crop"
-            alt="Golden Gate Bridge"
-            className="w-full h-full object-cover"
+            src={heroImages[activeIndex]}
+            alt="California scenery"
+            className="w-full h-full object-cover transition-opacity duration-300"
           />
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-            {[0, 1, 2, 3, 4, 5].map((index) => (
+            {heroImages.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setActiveIndex(index)}
                 className={`w-2 h-2 rounded-full transition-all ${
-                  index === activeIndex ? "bg-primary" : "bg-white/60"
+                  index === activeIndex ? "bg-primary w-4" : "bg-white/60"
                 }`}
               />
             ))}
           </div>
         </div>
 
-        {/* Center - California county map */}
-        <div className="md:col-span-4 rounded-xl overflow-hidden border-4 border-blue-400 h-64 md:h-full bg-white">
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/California_population_map.png/400px-California_population_map.png"
-            alt="California Population Map"
-            className="w-full h-full object-contain p-2"
-          />
+        {/* Center - Interactive California map */}
+        <div className="md:col-span-4 rounded-xl overflow-hidden border-4 border-blue-400 h-64 md:h-full">
+          <CaliforniaMap className="w-full h-full" />
         </div>
 
-        {/* Right column - 2 stacked images */}
+        {/* Right column - USA map + photo */}
         <div className="md:col-span-3 grid grid-rows-2 gap-4 h-64 md:h-full">
-          {/* US Map with California highlighted */}
-          <div className="rounded-xl overflow-hidden bg-white border border-border">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/USA_California.svg/400px-USA_California.svg.png"
-              alt="USA Map with California"
-              className="w-full h-full object-contain p-2"
-            />
+          {/* USA Map showing California location */}
+          <div className="rounded-xl overflow-hidden border border-border">
+            <CaliforniaMap className="w-full h-full" showUSA />
           </div>
           {/* Palm trees photo */}
           <div className="rounded-xl overflow-hidden">
