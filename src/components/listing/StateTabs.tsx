@@ -30,19 +30,19 @@ export const StateTabs = ({
 }: StateTabsProps) => {
   return (
     <Tabs defaultValue="statistics" className="w-full">
-      <TabsList className="grid w-full grid-cols-3 mb-6 h-auto bg-muted">
-        <TabsTrigger value="statistics" className="flex items-center gap-1 sm:gap-2 px-2 py-2.5 sm:py-3 text-xs sm:text-sm">
-          <BarChart3 className="h-4 w-4 flex-shrink-0" />
-          <span className="sm:hidden">Stats</span>
+      <TabsList className="grid w-full grid-cols-3 mb-6 h-12 bg-muted p-1 rounded-lg">
+        <TabsTrigger value="statistics" className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm">
+          <BarChart3 className="h-4 w-4" />
           <span className="hidden sm:inline">Statistics</span>
+          <span className="sm:hidden">Stats</span>
         </TabsTrigger>
-        <TabsTrigger value="listings" className="flex items-center gap-1 sm:gap-2 px-2 py-2.5 sm:py-3 text-xs sm:text-sm">
-          <Building2 className="h-4 w-4 flex-shrink-0" />
-          <span className="sm:hidden">Rehabs</span>
+        <TabsTrigger value="listings" className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm">
+          <Building2 className="h-4 w-4" />
           <span className="hidden sm:inline">Rehab Listings</span>
+          <span className="sm:hidden">Rehabs</span>
         </TabsTrigger>
-        <TabsTrigger value="resources" className="flex items-center gap-1 sm:gap-2 px-2 py-2.5 sm:py-3 text-xs sm:text-sm">
-          <Gift className="h-4 w-4 flex-shrink-0" />
+        <TabsTrigger value="resources" className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm">
+          <Gift className="h-4 w-4" />
           <span>Resources</span>
         </TabsTrigger>
       </TabsList>
