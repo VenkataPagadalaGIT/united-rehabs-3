@@ -8,17 +8,31 @@ interface StateMapProps {
   latitude: number;
   longitude: number;
   stateName: string;
+  stateAbbreviation?: string;
 }
 
-// USA center - shifted west to show California better
-const usaCenter: L.LatLngExpression = [37.5, -96];
+// USA center
+const usaCenter: L.LatLngExpression = [39, -98];
+
+// Simplified state boundaries for highlighting (approximate polygons)
+const stateBoundaries: Record<string, L.LatLngExpression[]> = {
+  CA: [
+    [42.0, -124.4], [42.0, -120.0], [39.0, -120.0], [35.0, -114.6],
+    [34.5, -114.6], [32.7, -114.7], [32.5, -117.1], [33.0, -117.3],
+    [33.5, -118.0], [34.0, -118.5], [34.5, -120.5], [35.8, -121.3],
+    [37.0, -122.4], [38.0, -123.0], [39.0, -123.7], [40.0, -124.1],
+    [41.0, -124.2], [42.0, -124.4]
+  ],
+  // Add more states as needed
+};
 
 export function StateMap({ 
   className = "", 
   showUSA = false, 
   latitude, 
   longitude, 
-  stateName 
+  stateName,
+  stateAbbreviation = "CA"
 }: StateMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -40,6 +54,7 @@ export function StateMap({
       zoom,
       scrollWheelZoom: false,
       zoomControl: !showUSA,
+      dragging: !showUSA,
     });
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -52,9 +67,33 @@ export function StateMap({
         .addTo(map)
         .bindPopup(`${stateName} - Rehab Centers`);
     } else {
-      // Add a marker for state location on USA map
-      L.marker([latitude, longitude])
-        .addTo(map);
+      // Add highlighted polygon for the state
+      const boundary = stateBoundaries[stateAbbreviation];
+      if (boundary) {
+        L.polygon(boundary, {
+          color: '#f97316', // Orange border
+          weight: 3,
+          fillColor: '#f97316',
+          fillOpacity: 0.4,
+        }).addTo(map);
+      }
+      
+      // Add a pulsing marker
+      const pulsingIcon = L.divIcon({
+        className: 'custom-pulsing-marker',
+        html: `<div style="
+          width: 12px;
+          height: 12px;
+          background: #f97316;
+          border-radius: 50%;
+          border: 2px solid white;
+          box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.3);
+        "></div>`,
+        iconSize: [12, 12],
+        iconAnchor: [6, 6],
+      });
+      
+      L.marker([latitude, longitude], { icon: pulsingIcon }).addTo(map);
     }
 
     mapInstanceRef.current = map;
@@ -65,18 +104,11 @@ export function StateMap({
         mapInstanceRef.current = null;
       }
     };
-  }, [showUSA, latitude, longitude, stateName]);
+  }, [showUSA, latitude, longitude, stateName, stateAbbreviation]);
 
   return (
     <div className={`relative ${className}`}>
       <div ref={mapRef} className="w-full h-full rounded-xl" style={{ minHeight: "100%" }} />
-      {showUSA && (
-        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-          <div className="bg-primary/20 border-2 border-primary rounded-lg px-3 py-1 text-sm font-medium text-primary">
-            {stateName}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
