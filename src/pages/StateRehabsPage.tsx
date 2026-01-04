@@ -83,11 +83,11 @@ const StateRehabsPage = () => {
         <ImageGallery state={state} />
       </main>
       
-      {/* Full-width separator */}
-      <div className="border-t border-border mt-8" />
+      {/* Clear visual separator between gallery and tabs */}
+      <div className="w-full bg-muted/30 py-6 my-8 border-y border-border" />
       
       {/* Tabs section with proper container */}
-      <section className="container mx-auto px-4 py-8">
+      <section className="container mx-auto px-4 pb-8">
         <StateTabs
           stateId={stateInfo.id}
           stateName={state.name}
