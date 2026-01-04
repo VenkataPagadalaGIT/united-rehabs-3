@@ -27,10 +27,12 @@ import {
   Loader2,
   Settings,
   Search,
+  Newspaper,
 } from "lucide-react";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: Home },
+  { title: "Articles", url: "/admin/articles", icon: Newspaper },
   { title: "Statistics", url: "/admin/statistics", icon: BarChart3 },
   { title: "Substance Stats", url: "/admin/substance", icon: Database },
   { title: "Free Resources", url: "/admin/resources", icon: Gift },
