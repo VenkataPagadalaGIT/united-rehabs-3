@@ -54,7 +54,7 @@ const Index = () => {
           activeFilters={activeFilters}
           onFilterChange={toggleFilter}
         />
-        <ImageGallery images={mockState.heroImages} />
+        <ImageGallery state={mockState} />
         <LocationTags
           cities={mockCities}
           activeCityId={activeCityId}

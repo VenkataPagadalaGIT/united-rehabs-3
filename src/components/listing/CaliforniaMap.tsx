@@ -2,23 +2,37 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-interface CaliforniaMapProps {
+interface StateMapProps {
   className?: string;
   showUSA?: boolean;
+  latitude: number;
+  longitude: number;
+  stateName: string;
 }
 
-// California center coordinates
-const californiaCenter: L.LatLngExpression = [36.7783, -119.4179];
+// USA center coordinates
 const usaCenter: L.LatLngExpression = [39.8283, -98.5795];
 
-export function CaliforniaMap({ className = "", showUSA = false }: CaliforniaMapProps) {
+export function StateMap({ 
+  className = "", 
+  showUSA = false, 
+  latitude, 
+  longitude, 
+  stateName 
+}: StateMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
 
   useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current) return;
+    if (!mapRef.current) return;
 
-    const center = showUSA ? usaCenter : californiaCenter;
+    // Clean up existing map
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
+      mapInstanceRef.current = null;
+    }
+
+    const center: L.LatLngExpression = showUSA ? usaCenter : [latitude, longitude];
     const zoom = showUSA ? 4 : 6;
 
     const map = L.map(mapRef.current, {
@@ -33,10 +47,14 @@ export function CaliforniaMap({ className = "", showUSA = false }: CaliforniaMap
     }).addTo(map);
 
     if (!showUSA) {
-      // Add a marker for California
-      L.marker(californiaCenter as L.LatLngExpression)
+      // Add a marker for the state
+      L.marker([latitude, longitude])
         .addTo(map)
-        .bindPopup("California - Rehab Centers");
+        .bindPopup(`${stateName} - Rehab Centers`);
+    } else {
+      // Add a marker for state location on USA map
+      L.marker([latitude, longitude])
+        .addTo(map);
     }
 
     mapInstanceRef.current = map;
@@ -47,7 +65,7 @@ export function CaliforniaMap({ className = "", showUSA = false }: CaliforniaMap
         mapInstanceRef.current = null;
       }
     };
-  }, [showUSA]);
+  }, [showUSA, latitude, longitude, stateName]);
 
   return (
     <div className={`relative ${className}`}>
@@ -55,7 +73,7 @@ export function CaliforniaMap({ className = "", showUSA = false }: CaliforniaMap
       {showUSA && (
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
           <div className="bg-primary/20 border-2 border-primary rounded-lg px-3 py-1 text-sm font-medium text-primary">
-            California
+            {stateName}
           </div>
         </div>
       )}
