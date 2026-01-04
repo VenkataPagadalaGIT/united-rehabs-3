@@ -30,18 +30,20 @@ export const StateTabs = ({
 }: StateTabsProps) => {
   return (
     <Tabs defaultValue="statistics" className="w-full">
-      <TabsList className="grid w-full grid-cols-3 mb-6">
-        <TabsTrigger value="statistics" className="flex items-center gap-2">
-          <BarChart3 className="h-4 w-4" />
-          <span>Statistics</span>
+      <TabsList className="grid w-full grid-cols-3 mb-6 h-auto">
+        <TabsTrigger value="statistics" className="flex items-center gap-1 sm:gap-2 px-2 py-2 sm:py-3 text-xs sm:text-sm">
+          <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+          <span className="hidden xs:inline sm:inline">Stats</span>
+          <span className="hidden sm:inline">istics</span>
         </TabsTrigger>
-        <TabsTrigger value="listings" className="flex items-center gap-2">
-          <Building2 className="h-4 w-4" />
-          <span>Rehab Listings</span>
+        <TabsTrigger value="listings" className="flex items-center gap-1 sm:gap-2 px-2 py-2 sm:py-3 text-xs sm:text-sm">
+          <Building2 className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+          <span className="hidden xs:inline">Rehabs</span>
+          <span className="hidden sm:inline"> Listings</span>
         </TabsTrigger>
-        <TabsTrigger value="resources" className="flex items-center gap-2">
-          <Gift className="h-4 w-4" />
-          <span>Free Resources</span>
+        <TabsTrigger value="resources" className="flex items-center gap-1 sm:gap-2 px-2 py-2 sm:py-3 text-xs sm:text-sm">
+          <Gift className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+          <span className="hidden xs:inline">Resources</span>
         </TabsTrigger>
       </TabsList>
 

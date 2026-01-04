@@ -20,15 +20,15 @@ export function PageHero({ state, pageKey }: PageHeroProps) {
   const displayBody = body || state.description;
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 items-start">
-      <div className="flex-1">
-        <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+    <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8 items-start py-4">
+      <div className="flex-1 min-w-0">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 leading-tight">
           {displayTitle}
         </h1>
         {subtitle && (
-          <p className="text-lg text-primary font-medium mb-2">{subtitle}</p>
+          <p className="text-base sm:text-lg text-primary font-medium mb-2">{subtitle}</p>
         )}
-        <p className="text-muted-foreground leading-relaxed">
+        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
           {displayBody}{" "}
           <a href="#" className="text-primary hover:underline">
             Know more about {state.name}
@@ -36,13 +36,13 @@ export function PageHero({ state, pageKey }: PageHeroProps) {
         </p>
       </div>
       
-      {/* State Flag */}
-      <div className="flex-shrink-0">
-        <div className="w-32 h-20 bg-secondary rounded-lg flex items-center justify-center overflow-hidden">
+      {/* State Flag - Hidden on small mobile, visible on sm+ */}
+      <div className="hidden sm:flex flex-shrink-0">
+        <div className="w-24 sm:w-32 h-16 sm:h-20 bg-secondary rounded-lg flex items-center justify-center overflow-hidden">
           <div className="text-center">
-            <div className="text-2xl mb-1">⭐</div>
-            <div className="text-xs font-bold text-foreground">{state.name.toUpperCase()}</div>
-            <div className="text-[8px] text-muted-foreground">REPUBLIC</div>
+            <div className="text-xl sm:text-2xl mb-1">⭐</div>
+            <div className="text-[10px] sm:text-xs font-bold text-foreground">{state.name.toUpperCase()}</div>
+            <div className="text-[7px] sm:text-[8px] text-muted-foreground">REPUBLIC</div>
           </div>
         </div>
       </div>
