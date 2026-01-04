@@ -4,6 +4,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TrendingUp, TrendingDown, Users, Activity, DollarSign, Building2, AlertTriangle, Heart } from "lucide-react";
 import { useState } from "react";
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+} from "recharts";
 
 interface StatisticsTabProps {
   stateId: string;
@@ -35,6 +52,22 @@ interface StateStatistics {
   source_url: string | null;
 }
 
+const CHART_COLORS = {
+  primary: "hsl(var(--primary))",
+  secondary: "hsl(var(--secondary))",
+  accent: "hsl(var(--accent))",
+  muted: "hsl(var(--muted))",
+  destructive: "hsl(var(--destructive))",
+  blue: "#3b82f6",
+  green: "#22c55e",
+  orange: "#f97316",
+  purple: "#8b5cf6",
+  red: "#ef4444",
+  cyan: "#06b6d4",
+};
+
+const PIE_COLORS = [CHART_COLORS.blue, CHART_COLORS.green, CHART_COLORS.orange, CHART_COLORS.purple];
+
 export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
   const [selectedYear, setSelectedYear] = useState<string>("2024");
 
@@ -45,7 +78,7 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
         .from("state_addiction_statistics")
         .select("*")
         .eq("state_id", stateId)
-        .order("year", { ascending: false });
+        .order("year", { ascending: true });
 
       if (error) throw error;
       return data as StateStatistics[];
@@ -65,7 +98,46 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
     return new Intl.NumberFormat("en-US").format(num);
   };
 
+  const formatCompactNumber = (num: number) => {
+    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+    if (num >= 1000) return `${(num / 1000).toFixed(0)}K`;
+    return num.toString();
+  };
+
   const availableYears = statistics?.map((s) => s.year) || [];
+
+  // Prepare chart data
+  const trendData = statistics?.map((s) => ({
+    year: s.year.toString(),
+    affected: s.total_affected,
+    overdoseDeaths: s.overdose_deaths,
+    opioidDeaths: s.opioid_deaths,
+    admissions: s.treatment_admissions,
+  })) || [];
+
+  const ratesData = statistics?.map((s) => ({
+    year: s.year.toString(),
+    alcoholRate: Number(s.alcohol_abuse_rate),
+    drugRate: Number(s.drug_abuse_rate),
+    recoveryRate: Number(s.recovery_rate),
+  })) || [];
+
+  const ageData = currentYearData ? [
+    { name: "12-17", value: currentYearData.affected_age_12_17 || 0 },
+    { name: "18-25", value: currentYearData.affected_age_18_25 || 0 },
+    { name: "26-34", value: currentYearData.affected_age_26_34 || 0 },
+    { name: "35+", value: currentYearData.affected_age_35_plus || 0 },
+  ] : [];
+
+  const facilityData = currentYearData ? [
+    { name: "Inpatient", value: currentYearData.inpatient_facilities || 0 },
+    { name: "Outpatient", value: currentYearData.outpatient_facilities || 0 },
+  ] : [];
+
+  const economicData = statistics?.map((s) => ({
+    year: s.year.toString(),
+    cost: Number(s.economic_cost_billions),
+  })) || [];
 
   if (isLoading) {
     return (
@@ -200,115 +272,201 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
         />
       </div>
 
-      {/* Substance Abuse Rates */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Substance Abuse Rates</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <StatCard
-            title="Alcohol Abuse Rate"
-            value={currentYearData.alcohol_abuse_rate ? Number(currentYearData.alcohol_abuse_rate) : null}
-            previousValue={previousYearData?.alcohol_abuse_rate ? Number(previousYearData.alcohol_abuse_rate) : null}
-            icon={Activity}
-            suffix="%"
-            inverseColor={true}
-          />
-          <StatCard
-            title="Drug Abuse Rate"
-            value={currentYearData.drug_abuse_rate ? Number(currentYearData.drug_abuse_rate) : null}
-            previousValue={previousYearData?.drug_abuse_rate ? Number(previousYearData.drug_abuse_rate) : null}
-            icon={Activity}
-            suffix="%"
-            inverseColor={true}
-          />
-          <StatCard
-            title="Opioid Deaths"
-            value={currentYearData.opioid_deaths}
-            previousValue={previousYearData?.opioid_deaths}
-            icon={AlertTriangle}
-            inverseColor={true}
-          />
-        </div>
+      {/* Trend Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Total Affected Trend */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">People Affected Over Time</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <AreaChart data={trendData}>
+                <defs>
+                  <linearGradient id="colorAffected" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={CHART_COLORS.blue} stopOpacity={0.3} />
+                    <stop offset="95%" stopColor={CHART_COLORS.blue} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis dataKey="year" className="text-xs" />
+                <YAxis tickFormatter={formatCompactNumber} className="text-xs" />
+                <Tooltip
+                  formatter={(value: number) => [formatNumber(value), "Affected"]}
+                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="affected"
+                  stroke={CHART_COLORS.blue}
+                  strokeWidth={2}
+                  fillOpacity={1}
+                  fill="url(#colorAffected)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Deaths Trend */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Overdose & Opioid Deaths</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={trendData}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis dataKey="year" className="text-xs" />
+                <YAxis tickFormatter={formatCompactNumber} className="text-xs" />
+                <Tooltip
+                  formatter={(value: number, name: string) => [
+                    formatNumber(value),
+                    name === "overdoseDeaths" ? "Overdose Deaths" : "Opioid Deaths",
+                  ]}
+                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+                />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="overdoseDeaths"
+                  name="Overdose Deaths"
+                  stroke={CHART_COLORS.red}
+                  strokeWidth={2}
+                  dot={{ fill: CHART_COLORS.red }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="opioidDeaths"
+                  name="Opioid Deaths"
+                  stroke={CHART_COLORS.orange}
+                  strokeWidth={2}
+                  dot={{ fill: CHART_COLORS.orange }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Age Demographics */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Affected by Age Group</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Ages 12-17</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatNumber(currentYearData.affected_age_12_17)}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Ages 18-25</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatNumber(currentYearData.affected_age_18_25)}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Ages 26-34</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatNumber(currentYearData.affected_age_26_34)}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Ages 35+</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatNumber(currentYearData.affected_age_35_plus)}</div>
-            </CardContent>
-          </Card>
-        </div>
+      {/* Substance Abuse Rates Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Substance Abuse & Recovery Rates (%)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={ratesData}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis dataKey="year" className="text-xs" />
+              <YAxis className="text-xs" />
+              <Tooltip
+                formatter={(value: number, name: string) => {
+                  const labels: Record<string, string> = {
+                    alcoholRate: "Alcohol Abuse",
+                    drugRate: "Drug Abuse",
+                    recoveryRate: "Recovery Rate",
+                  };
+                  return [`${value}%`, labels[name] || name];
+                }}
+                contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+              />
+              <Legend />
+              <Bar dataKey="alcoholRate" name="Alcohol Abuse" fill={CHART_COLORS.purple} radius={[4, 4, 0, 0]} />
+              <Bar dataKey="drugRate" name="Drug Abuse" fill={CHART_COLORS.red} radius={[4, 4, 0, 0]} />
+              <Bar dataKey="recoveryRate" name="Recovery Rate" fill={CHART_COLORS.green} radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      {/* Demographics and Facilities Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Age Distribution Pie Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Affected by Age Group ({selectedYear})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie
+                  data={ageData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={100}
+                  paddingAngle={2}
+                  dataKey="value"
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                >
+                  {ageData.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value: number) => [formatNumber(value), "People"]}
+                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Treatment Facilities */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Treatment Facilities ({selectedYear})</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <ResponsiveContainer width="100%" height={150}>
+              <PieChart>
+                <Pie
+                  data={facilityData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={60}
+                  dataKey="value"
+                  label={({ name, value }) => `${name}: ${formatNumber(value)}`}
+                >
+                  <Cell fill={CHART_COLORS.blue} />
+                  <Cell fill={CHART_COLORS.cyan} />
+                </Pie>
+                <Tooltip
+                  formatter={(value: number) => [formatNumber(value), "Facilities"]}
+                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="text-center">
+              <div className="text-3xl font-bold">{formatNumber(currentYearData.total_treatment_centers)}</div>
+              <p className="text-muted-foreground">Total Treatment Centers</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Treatment Facilities */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Treatment Facilities</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <StatCard
-            title="Total Centers"
-            value={currentYearData.total_treatment_centers}
-            previousValue={previousYearData?.total_treatment_centers}
-            icon={Building2}
-          />
-          <StatCard
-            title="Inpatient Facilities"
-            value={currentYearData.inpatient_facilities}
-            previousValue={previousYearData?.inpatient_facilities}
-            icon={Building2}
-          />
-          <StatCard
-            title="Outpatient Facilities"
-            value={currentYearData.outpatient_facilities}
-            previousValue={previousYearData?.outpatient_facilities}
-            icon={Building2}
-          />
-        </div>
-      </div>
-
-      {/* Economic Impact */}
+      {/* Economic Impact Chart */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <DollarSign className="h-5 w-5" />
-            Economic Impact
+            Economic Impact Over Time (Billions USD)
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold">
-            ${currentYearData.economic_cost_billions?.toFixed(1) || "N/A"} Billion
-          </div>
-          <p className="text-muted-foreground mt-2">
-            Annual economic cost of substance abuse in {stateName} ({selectedYear})
-          </p>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={economicData}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis dataKey="year" className="text-xs" />
+              <YAxis className="text-xs" tickFormatter={(v) => `$${v}B`} />
+              <Tooltip
+                formatter={(value: number) => [`$${value.toFixed(1)} Billion`, "Economic Cost"]}
+                contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+              />
+              <Bar dataKey="cost" fill={CHART_COLORS.orange} radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         </CardContent>
       </Card>
 
