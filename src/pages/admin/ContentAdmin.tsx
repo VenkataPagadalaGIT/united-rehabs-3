@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -22,7 +29,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Search, Filter, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface ContentRecord {
   id: string;
@@ -34,12 +42,87 @@ interface ContentRecord {
   body: string | null;
   is_active: boolean | null;
   sort_order: number | null;
+  country_code: string | null;
+  state_id: string | null;
+  city_id: string | null;
 }
+
+// Extensible location data - add more as you expand
+const COUNTRIES = [
+  { code: "us", name: "United States" },
+  { code: "ca", name: "Canada" },
+  { code: "uk", name: "United Kingdom" },
+  { code: "au", name: "Australia" },
+];
+
+const STATES: Record<string, { id: string; name: string }[]> = {
+  us: [
+    { id: "ca", name: "California" },
+    { id: "tx", name: "Texas" },
+    { id: "fl", name: "Florida" },
+    { id: "ny", name: "New York" },
+    { id: "il", name: "Illinois" },
+    { id: "pa", name: "Pennsylvania" },
+    { id: "oh", name: "Ohio" },
+    { id: "ga", name: "Georgia" },
+    { id: "nc", name: "North Carolina" },
+    { id: "mi", name: "Michigan" },
+  ],
+  ca: [
+    { id: "on", name: "Ontario" },
+    { id: "bc", name: "British Columbia" },
+    { id: "ab", name: "Alberta" },
+    { id: "qc", name: "Quebec" },
+  ],
+  uk: [
+    { id: "eng", name: "England" },
+    { id: "sco", name: "Scotland" },
+    { id: "wal", name: "Wales" },
+  ],
+  au: [
+    { id: "nsw", name: "New South Wales" },
+    { id: "vic", name: "Victoria" },
+    { id: "qld", name: "Queensland" },
+  ],
+};
+
+// Example cities - expand as needed
+const CITIES: Record<string, { id: string; name: string }[]> = {
+  ca: [
+    { id: "los-angeles", name: "Los Angeles" },
+    { id: "san-francisco", name: "San Francisco" },
+    { id: "san-diego", name: "San Diego" },
+    { id: "sacramento", name: "Sacramento" },
+  ],
+  tx: [
+    { id: "houston", name: "Houston" },
+    { id: "dallas", name: "Dallas" },
+    { id: "austin", name: "Austin" },
+    { id: "san-antonio", name: "San Antonio" },
+  ],
+  fl: [
+    { id: "miami", name: "Miami" },
+    { id: "orlando", name: "Orlando" },
+    { id: "tampa", name: "Tampa" },
+  ],
+  ny: [
+    { id: "new-york-city", name: "New York City" },
+    { id: "buffalo", name: "Buffalo" },
+    { id: "albany", name: "Albany" },
+  ],
+};
 
 const ContentAdmin = () => {
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<ContentRecord | null>(null);
+  
+  // Filter states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterCountry, setFilterCountry] = useState<string>("all");
+  const [filterState, setFilterState] = useState<string>("all");
+  const [filterCity, setFilterCity] = useState<string>("all");
+  
   const [formData, setFormData] = useState({
     page_key: "",
     section_key: "",
@@ -49,6 +132,9 @@ const ContentAdmin = () => {
     body: "",
     is_active: true,
     sort_order: 0,
+    country_code: "us",
+    state_id: "",
+    city_id: "",
   });
 
   const { data: content, isLoading } = useQuery({
@@ -57,6 +143,8 @@ const ContentAdmin = () => {
       const { data, error } = await supabase
         .from("page_content")
         .select("*")
+        .order("country_code")
+        .order("state_id")
         .order("page_key")
         .order("sort_order");
 
@@ -64,6 +152,77 @@ const ContentAdmin = () => {
       return data as ContentRecord[];
     },
   });
+
+  // Filter logic
+  const filteredContent = useMemo(() => {
+    if (!content) return [];
+    
+    return content.filter((record) => {
+      // Search filter
+      if (searchQuery) {
+        const search = searchQuery.toLowerCase();
+        const matchesSearch = 
+          record.page_key.toLowerCase().includes(search) ||
+          record.section_key.toLowerCase().includes(search) ||
+          record.title?.toLowerCase().includes(search) ||
+          record.body?.toLowerCase().includes(search);
+        if (!matchesSearch) return false;
+      }
+      
+      // Country filter
+      if (filterCountry !== "all" && record.country_code !== filterCountry) {
+        return false;
+      }
+      
+      // State filter
+      if (filterState !== "all" && record.state_id !== filterState) {
+        return false;
+      }
+      
+      // City filter
+      if (filterCity !== "all" && record.city_id !== filterCity) {
+        return false;
+      }
+      
+      return true;
+    });
+  }, [content, searchQuery, filterCountry, filterState, filterCity]);
+
+  // Get available states based on selected filter country
+  const availableFilterStates = useMemo(() => {
+    if (filterCountry === "all") {
+      // Get all unique states from content
+      const states = new Set<string>();
+      content?.forEach(r => { if (r.state_id) states.add(r.state_id); });
+      return Array.from(states).map(id => ({ id, name: id.toUpperCase() }));
+    }
+    return STATES[filterCountry] || [];
+  }, [filterCountry, content]);
+
+  // Get available cities based on selected filter state
+  const availableFilterCities = useMemo(() => {
+    if (filterState === "all") return [];
+    return CITIES[filterState] || [];
+  }, [filterState]);
+
+  // Get states for form based on selected country
+  const formStates = useMemo(() => {
+    return STATES[formData.country_code] || [];
+  }, [formData.country_code]);
+
+  // Get cities for form based on selected state
+  const formCities = useMemo(() => {
+    return CITIES[formData.state_id] || [];
+  }, [formData.state_id]);
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setFilterCountry("all");
+    setFilterState("all");
+    setFilterCity("all");
+  };
+
+  const hasActiveFilters = searchQuery || filterCountry !== "all" || filterState !== "all" || filterCity !== "all";
 
   const createMutation = useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
@@ -121,6 +280,9 @@ const ContentAdmin = () => {
       body: "",
       is_active: true,
       sort_order: 0,
+      country_code: "us",
+      state_id: "",
+      city_id: "",
     });
     setEditingRecord(null);
   };
@@ -136,6 +298,9 @@ const ContentAdmin = () => {
       body: record.body || "",
       is_active: record.is_active ?? true,
       sort_order: record.sort_order || 0,
+      country_code: record.country_code || "us",
+      state_id: record.state_id || "",
+      city_id: record.city_id || "",
     });
     setIsOpen(true);
   };
@@ -152,6 +317,9 @@ const ContentAdmin = () => {
       body: formData.body || null,
       is_active: formData.is_active,
       sort_order: formData.sort_order,
+      country_code: formData.country_code || null,
+      state_id: formData.state_id || null,
+      city_id: formData.city_id || null,
     };
 
     if (editingRecord) {
@@ -159,6 +327,25 @@ const ContentAdmin = () => {
     } else {
       createMutation.mutate(data);
     }
+  };
+
+  const getLocationLabel = (record: ContentRecord) => {
+    const parts: string[] = [];
+    if (record.country_code) {
+      const country = COUNTRIES.find(c => c.code === record.country_code);
+      parts.push(country?.name || record.country_code.toUpperCase());
+    }
+    if (record.state_id) {
+      const stateList = STATES[record.country_code || "us"] || [];
+      const state = stateList.find(s => s.id === record.state_id);
+      parts.push(state?.name || record.state_id.toUpperCase());
+    }
+    if (record.city_id) {
+      const cityList = CITIES[record.state_id || ""] || [];
+      const city = cityList.find(c => c.id === record.city_id);
+      parts.push(city?.name || record.city_id);
+    }
+    return parts.length > 0 ? parts.join(" › ") : "Global";
   };
 
   if (isLoading) {
@@ -190,13 +377,71 @@ const ContentAdmin = () => {
               <DialogTitle>{editingRecord ? "Edit Content" : "Add Content"}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Location Selection */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <Filter className="h-4 w-4" />
+                  Location (for filtering)
+                </Label>
+                <div className="grid grid-cols-3 gap-3">
+                  <Select
+                    value={formData.country_code}
+                    onValueChange={(value) => setFormData({ ...formData, country_code: value, state_id: "", city_id: "" })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Country" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COUNTRIES.map((country) => (
+                        <SelectItem key={country.code} value={country.code}>
+                          {country.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={formData.state_id || "none"}
+                    onValueChange={(value) => setFormData({ ...formData, state_id: value === "none" ? "" : value, city_id: "" })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="State/Region" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No State</SelectItem>
+                      {formStates.map((state) => (
+                        <SelectItem key={state.id} value={state.id}>
+                          {state.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={formData.city_id || "none"}
+                    onValueChange={(value) => setFormData({ ...formData, city_id: value === "none" ? "" : value })}
+                    disabled={!formData.state_id}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="City" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No City</SelectItem>
+                      {formCities.map((city) => (
+                        <SelectItem key={city.id} value={city.id}>
+                          {city.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Page Key</Label>
+                  <Label>Page Key (URL slug)</Label>
                   <Input
                     value={formData.page_key}
                     onChange={(e) => setFormData({ ...formData, page_key: e.target.value })}
-                    placeholder="home_hero"
+                    placeholder="california-addiction-rehabs"
                     required
                   />
                 </div>
@@ -211,11 +456,20 @@ const ContentAdmin = () => {
                 </div>
                 <div className="space-y-2">
                   <Label>Content Type</Label>
-                  <Input
+                  <Select
                     value={formData.content_type}
-                    onChange={(e) => setFormData({ ...formData, content_type: e.target.value })}
-                    placeholder="text"
-                  />
+                    onValueChange={(value) => setFormData({ ...formData, content_type: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="text">Text</SelectItem>
+                      <SelectItem value="hero">Hero</SelectItem>
+                      <SelectItem value="section">Section</SelectItem>
+                      <SelectItem value="cta">CTA</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>Sort Order</Label>
@@ -274,10 +528,80 @@ const ContentAdmin = () => {
         </Dialog>
       </div>
 
+      {/* Filters Section */}
+      <div className="bg-muted/50 rounded-lg p-4 space-y-4">
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium">Filters</span>
+          {hasActiveFilters && (
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="ml-auto">
+              <X className="h-4 w-4 mr-1" />
+              Clear
+            </Button>
+          )}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search content..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Select value={filterCountry} onValueChange={(v) => { setFilterCountry(v); setFilterState("all"); setFilterCity("all"); }}>
+            <SelectTrigger>
+              <SelectValue placeholder="All Countries" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Countries</SelectItem>
+              {COUNTRIES.map((country) => (
+                <SelectItem key={country.code} value={country.code}>
+                  {country.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filterState} onValueChange={(v) => { setFilterState(v); setFilterCity("all"); }}>
+            <SelectTrigger>
+              <SelectValue placeholder="All States" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All States</SelectItem>
+              {availableFilterStates.map((state) => (
+                <SelectItem key={state.id} value={state.id}>
+                  {state.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filterCity} onValueChange={setFilterCity} disabled={filterState === "all"}>
+            <SelectTrigger>
+              <SelectValue placeholder="All Cities" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Cities</SelectItem>
+              {availableFilterCities.map((city) => (
+                <SelectItem key={city.id} value={city.id}>
+                  {city.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {hasActiveFilters && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            Showing {filteredContent.length} of {content?.length || 0} entries
+          </div>
+        )}
+      </div>
+
       <div className="border rounded-lg">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Location</TableHead>
               <TableHead>Page Key</TableHead>
               <TableHead>Section</TableHead>
               <TableHead>Title</TableHead>
@@ -287,9 +611,14 @@ const ContentAdmin = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {content?.map((record) => (
+            {filteredContent.map((record) => (
               <TableRow key={record.id}>
-                <TableCell className="font-medium">{record.page_key}</TableCell>
+                <TableCell>
+                  <Badge variant="secondary" className="text-xs font-normal">
+                    {getLocationLabel(record)}
+                  </Badge>
+                </TableCell>
+                <TableCell className="font-medium font-mono text-sm">{record.page_key}</TableCell>
                 <TableCell>{record.section_key}</TableCell>
                 <TableCell className="max-w-32 truncate">{record.title || "-"}</TableCell>
                 <TableCell>{record.content_type}</TableCell>
@@ -319,10 +648,12 @@ const ContentAdmin = () => {
                 </TableCell>
               </TableRow>
             ))}
-            {content?.length === 0 && (
+            {filteredContent.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                  No content yet. Click "Add Content" to create page content.
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                  {hasActiveFilters 
+                    ? "No content matches your filters." 
+                    : "No content yet. Click \"Add Content\" to create page content."}
                 </TableCell>
               </TableRow>
             )}
