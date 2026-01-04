@@ -30,7 +30,7 @@ export const StateTabs = ({
 }: StateTabsProps) => {
   return (
     <Tabs defaultValue="statistics" className="w-full">
-      <TabsList className="grid w-full grid-cols-3 mb-6 h-auto sticky top-0 z-10 bg-muted">
+      <TabsList className="grid w-full grid-cols-3 mb-6 h-auto bg-muted">
         <TabsTrigger value="statistics" className="flex items-center gap-1 sm:gap-2 px-2 py-2.5 sm:py-3 text-xs sm:text-sm">
           <BarChart3 className="h-4 w-4 flex-shrink-0" />
           <span className="sm:hidden">Stats</span>
