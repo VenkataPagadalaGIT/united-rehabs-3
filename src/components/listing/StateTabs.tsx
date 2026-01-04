@@ -30,18 +30,18 @@ export const StateTabs = ({
 }: StateTabsProps) => {
   return (
     <Tabs defaultValue="statistics" className="w-full">
-      <TabsList className="grid w-full grid-cols-3 mb-6 h-12 bg-muted p-1 rounded-lg">
-        <TabsTrigger value="statistics" className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm">
+      <TabsList className="grid w-full grid-cols-3 mb-8 h-14 bg-muted p-1.5 rounded-xl">
+        <TabsTrigger value="statistics" className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
           <BarChart3 className="h-4 w-4" />
           <span className="hidden sm:inline">Statistics</span>
           <span className="sm:hidden">Stats</span>
         </TabsTrigger>
-        <TabsTrigger value="listings" className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm">
+        <TabsTrigger value="listings" className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
           <Building2 className="h-4 w-4" />
           <span className="hidden sm:inline">Rehab Listings</span>
           <span className="sm:hidden">Rehabs</span>
         </TabsTrigger>
-        <TabsTrigger value="resources" className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm">
+        <TabsTrigger value="resources" className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
           <Gift className="h-4 w-4" />
           <span>Resources</span>
         </TabsTrigger>
