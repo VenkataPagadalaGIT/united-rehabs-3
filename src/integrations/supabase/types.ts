@@ -140,7 +140,9 @@ export type Database = {
       page_content: {
         Row: {
           body: string | null
+          city_id: string | null
           content_type: string
+          country_code: string | null
           created_at: string
           id: string
           is_active: boolean | null
@@ -148,13 +150,16 @@ export type Database = {
           page_key: string
           section_key: string
           sort_order: number | null
+          state_id: string | null
           subtitle: string | null
           title: string | null
           updated_at: string
         }
         Insert: {
           body?: string | null
+          city_id?: string | null
           content_type?: string
+          country_code?: string | null
           created_at?: string
           id?: string
           is_active?: boolean | null
@@ -162,13 +167,16 @@ export type Database = {
           page_key: string
           section_key: string
           sort_order?: number | null
+          state_id?: string | null
           subtitle?: string | null
           title?: string | null
           updated_at?: string
         }
         Update: {
           body?: string | null
+          city_id?: string | null
           content_type?: string
+          country_code?: string | null
           created_at?: string
           id?: string
           is_active?: boolean | null
@@ -176,6 +184,7 @@ export type Database = {
           page_key?: string
           section_key?: string
           sort_order?: number | null
+          state_id?: string | null
           subtitle?: string | null
           title?: string | null
           updated_at?: string
