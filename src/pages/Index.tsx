@@ -7,7 +7,7 @@ import { ImageGallery } from "@/components/listing/ImageGallery";
 import { StateTabs } from "@/components/listing/StateTabs";
 import { Categories } from "@/components/listing/Categories";
 import { FAQ } from "@/components/listing/FAQ";
-import { RelatedRehabs } from "@/components/listing/RelatedRehabs";
+
 import { Footer } from "@/components/listing/Footer";
 import { useFilters } from "@/hooks/useFilters";
 import {
@@ -70,7 +70,6 @@ const Index = () => {
 
       <Categories />
       <FAQ faqs={mockFAQs} />
-      <RelatedRehabs centers={mockTreatmentCenters} />
       <Footer linkGroups={mockFooterLinks} />
     </div>
   );
