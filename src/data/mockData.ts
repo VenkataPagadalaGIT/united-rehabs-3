@@ -28,6 +28,8 @@ export const mockState: State = {
   obesityRate: 28.76,
   bingeDrinkingRate: 15.7,
   smokingRate: 11.47,
+  latitude: 36.7783,
+  longitude: -119.4179,
   heroImages: [
     {
       id: "1",
@@ -38,21 +40,21 @@ export const mockState: State = {
     },
     {
       id: "2",
-      url: "https://images.unsplash.com/photo-1449034446853-66c86144b0ad?w=400&h=300&fit=crop",
-      alt: "California Map",
-      type: "map",
+      url: "https://images.unsplash.com/photo-1449034446853-66c86144b0ad?w=800&h=600&fit=crop",
+      alt: "Los Angeles Skyline",
+      type: "photo",
       order: 2,
     },
     {
       id: "3",
-      url: "https://images.unsplash.com/photo-1506146332389-18140dc7b2fb?w=400&h=300&fit=crop",
-      alt: "USA Map with California",
-      type: "map",
+      url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+      alt: "California Mountains",
+      type: "photo",
       order: 3,
     },
     {
       id: "4",
-      url: "https://images.unsplash.com/photo-1534430480872-3498386e7856?w=400&h=300&fit=crop",
+      url: "https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&h=600&fit=crop",
       alt: "California Palm Trees",
       type: "photo",
       order: 4,

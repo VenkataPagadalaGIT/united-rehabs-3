@@ -20,6 +20,9 @@ export interface State {
   obesityRate: number;
   bingeDrinkingRate: number;
   smokingRate: number;
+  // Geographic coordinates for map centering
+  latitude: number;
+  longitude: number;
   flagImageUrl?: string;
   heroImages: GalleryImage[];
   createdAt: string;
