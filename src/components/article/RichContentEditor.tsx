@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { ImageUploader } from "./ImageUploader";
 import { ShortcodeLibrary, renderShortcodes } from "./ShortcodeRenderer";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 interface RichContentEditorProps {
   value: string;
@@ -183,7 +184,7 @@ export function RichContentEditor({ value, onChange }: RichContentEditorProps) {
           <p
             key={key}
             className="mb-4 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: text }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(text) }}
           />
         );
       });
