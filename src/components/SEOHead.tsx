@@ -64,8 +64,8 @@ export const SEOHead = ({ pageSlug, fallbackTitle, fallbackDescription }: SEOHea
       updateMeta("keywords", seo.meta_keywords.join(", "));
     }
     
-    // Robots
-    updateMeta("robots", seo?.robots || "index, follow");
+    // Robots - noindex, nofollow for staging
+    updateMeta("robots", "noindex, nofollow");
     
     // Open Graph
     updateMeta("og:title", seo?.og_title || seo?.meta_title || fallbackTitle || null, true);
