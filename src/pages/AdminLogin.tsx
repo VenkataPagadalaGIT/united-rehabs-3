@@ -7,13 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Lock, Mail, AlertCircle, Loader2 } from "lucide-react";
-import { z } from "zod";
-
-const authSchema = z.object({
-  email: z.string().email("Please enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
+import { Lock, Mail, AlertCircle, Loader2, ShieldAlert } from "lucide-react";
+import { loginSchema, authSchema, loginRateLimiter } from "@/lib/validation";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -23,6 +18,8 @@ const AdminLogin = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRateLimited, setIsRateLimited] = useState(false);
+  const [rateLimitSeconds, setRateLimitSeconds] = useState(0);
 
   useEffect(() => {
     if (!loading && user && isAdmin) {
@@ -30,12 +27,43 @@ const AdminLogin = () => {
     }
   }, [user, isAdmin, loading, navigate]);
 
+  // Rate limit countdown timer
+  useEffect(() => {
+    if (rateLimitSeconds > 0) {
+      const timer = setInterval(() => {
+        setRateLimitSeconds((prev) => {
+          if (prev <= 1) {
+            setIsRateLimited(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [rateLimitSeconds]);
+
+  const checkRateLimit = (): boolean => {
+    const rateLimitKey = email.toLowerCase().trim();
+    if (loginRateLimiter.isRateLimited(rateLimitKey)) {
+      const remaining = loginRateLimiter.getRemainingTime(rateLimitKey);
+      setRateLimitSeconds(remaining);
+      setIsRateLimited(true);
+      setError(`Too many login attempts. Please try again in ${Math.ceil(remaining / 60)} minutes.`);
+      return true;
+    }
+    return false;
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
 
-    const validation = authSchema.safeParse({ email, password });
+    // Check rate limiting first
+    if (checkRateLimit()) return;
+
+    const validation = loginSchema.safeParse({ email, password });
     if (!validation.success) {
       setError(validation.error.errors[0].message);
       return;
@@ -46,11 +74,17 @@ const AdminLogin = () => {
     setIsSubmitting(false);
 
     if (error) {
+      // Record failed attempt for rate limiting
+      loginRateLimiter.recordAttempt(email.toLowerCase().trim());
+      
       if (error.message.includes("Invalid login credentials")) {
         setError("Invalid email or password. Please try again.");
       } else {
         setError(error.message);
       }
+    } else {
+      // Reset rate limiter on successful login
+      loginRateLimiter.reset(email.toLowerCase().trim());
     }
   };
 
@@ -59,6 +93,7 @@ const AdminLogin = () => {
     setError(null);
     setSuccess(null);
 
+    // Use strong password validation for signup
     const validation = authSchema.safeParse({ email, password });
     if (!validation.success) {
       setError(validation.error.errors[0].message);
@@ -107,7 +142,16 @@ const AdminLogin = () => {
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
 
-            {error && (
+            {isRateLimited && (
+              <Alert variant="destructive" className="mb-4">
+                <ShieldAlert className="h-4 w-4" />
+                <AlertDescription>
+                  Too many failed attempts. Try again in {Math.ceil(rateLimitSeconds / 60)} minute(s).
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {error && !isRateLimited && (
               <Alert variant="destructive" className="mb-4">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
@@ -154,12 +198,14 @@ const AdminLogin = () => {
                     />
                   </div>
                 </div>
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                <Button type="submit" className="w-full" disabled={isSubmitting || isRateLimited}>
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Signing in...
                     </>
+                  ) : isRateLimited ? (
+                    `Locked (${Math.ceil(rateLimitSeconds / 60)}m)`
                   ) : (
                     "Sign In"
                   )}

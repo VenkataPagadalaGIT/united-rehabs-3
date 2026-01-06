@@ -13,6 +13,7 @@ import { TableOfContents, InlineTableOfContents } from "@/components/article/Tab
 import { RelatedArticles } from "@/components/article/RelatedArticles";
 import { renderShortcodes } from "@/components/article/ShortcodeRenderer";
 import { toast } from "sonner";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const ArticlePage = () => {
   const { type, slug } = useParams();
@@ -176,13 +177,13 @@ const ArticlePage = () => {
             </figure>
           );
         }
-        // Video embed
+        // Video embed - sanitize HTML before rendering
         if (block.includes("<video") || block.includes("<iframe")) {
           return (
             <div
               key={key}
               className="my-8 rounded-lg overflow-hidden"
-              dangerouslySetInnerHTML={{ __html: block }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(block) }}
             />
           );
         }
@@ -190,7 +191,7 @@ const ArticlePage = () => {
         // Skip empty blocks
         if (!block.trim()) return null;
 
-        // Regular paragraph with inline formatting
+        // Regular paragraph with inline formatting - sanitize before rendering
         let text = block;
         text = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
         text = text.replace(/\*([^*]+)\*/g, "<em>$1</em>");
@@ -204,7 +205,7 @@ const ArticlePage = () => {
           <p
             key={key}
             className="mb-5 leading-relaxed text-foreground/90"
-            dangerouslySetInnerHTML={{ __html: text }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(text) }}
           />
         );
       });
