@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useMFA } from "@/hooks/useMFA";
+import { TwoFactorVerify } from "@/components/auth/TwoFactorVerify";
 import { Button } from "@/components/ui/button";
 import {
   SidebarProvider,
@@ -29,6 +31,7 @@ import {
   Search,
   Newspaper,
   Link2,
+  Shield,
 } from "lucide-react";
 
 const menuItems = [
@@ -43,12 +46,14 @@ const menuItems = [
   { title: "Page Content", url: "/admin/content", icon: Settings },
   { title: "Page SEO", url: "/admin/seo", icon: Search },
   { title: "Site URLs", url: "/admin/urls", icon: Link2 },
+  { title: "Security", url: "/admin/security", icon: Shield },
 ];
 
 const Admin = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAdmin, loading, signOut } = useAuth();
+  const { mfaStatus, isLoading: mfaLoading, refreshMFAStatus } = useMFA();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -63,7 +68,16 @@ const Admin = () => {
     navigate("/admin/login");
   };
 
-  if (loading) {
+  const handleMFAVerified = () => {
+    refreshMFAStatus();
+  };
+
+  const handleMFACancel = async () => {
+    await signOut();
+    navigate("/admin/login");
+  };
+
+  if (loading || mfaLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -73,6 +87,11 @@ const Admin = () => {
 
   if (!user || !isAdmin) {
     return null;
+  }
+
+  // Show MFA verification screen if MFA is enabled but not verified this session
+  if (mfaStatus === "pending") {
+    return <TwoFactorVerify onVerified={handleMFAVerified} onCancel={handleMFACancel} />;
   }
 
   return (

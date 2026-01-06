@@ -244,6 +244,9 @@ const AdminLogin = () => {
                       required
                     />
                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    Must be 8+ chars with uppercase, lowercase, number, and special character
+                  </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? (

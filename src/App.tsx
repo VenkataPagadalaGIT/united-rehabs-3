@@ -24,6 +24,7 @@ import ArticlesListPage from "./pages/ArticlesListPage";
 import ArticlePage from "./pages/ArticlePage";
 import ShortcodeShowcase from "./pages/ShortcodeShowcase";
 import URLsAdmin from "./pages/admin/URLsAdmin";
+import SecurityAdmin from "./pages/admin/SecurityAdmin";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +65,7 @@ const App = () => (
             <Route path="seo" element={<SEOAdmin />} />
             <Route path="articles" element={<ArticlesAdmin />} />
             <Route path="urls" element={<URLsAdmin />} />
+            <Route path="security" element={<SecurityAdmin />} />
           </Route>
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
