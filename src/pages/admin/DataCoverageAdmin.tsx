@@ -16,7 +16,9 @@ import {
   BarChart3,
   FileText,
   HelpCircle,
-  Search
+  Search,
+  Clock,
+  Activity
 } from "lucide-react";
 
 // All 50 US States
@@ -92,6 +94,8 @@ export default function DataCoverageAdmin() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [coverage, setCoverage] = useState<StateCoverage[]>([]);
+  const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
+  const [previousTotals, setPreviousTotals] = useState<typeof totals | null>(null);
   const [totals, setTotals] = useState({
     statesWithStats: 0,
     statesWithSubstance: 0,
@@ -104,7 +108,50 @@ export default function DataCoverageAdmin() {
     totalResources: 0,
   });
 
+  // Target totals for 100% completion
+  const TARGET_STATS = 50 * ALL_YEARS.length; // 50 states × 28 years
+  const TARGET_SUBSTANCE = 50 * ALL_YEARS.length;
+  const TARGET_FAQS = 50; // 1 set per state  
+  const TARGET_RESOURCES = 50;
+  const TARGET_SEO = 50;
+
+  // Calculate if generation is active (records increasing)
+  const isGenerationActive = previousTotals !== null && (
+    totals.totalStatRecords > previousTotals.totalStatRecords ||
+    totals.totalSubstanceRecords > previousTotals.totalSubstanceRecords ||
+    totals.totalFaqs > previousTotals.totalFaqs ||
+    totals.totalResources > previousTotals.totalResources ||
+    totals.statesWithSeo > previousTotals.statesWithSeo
+  );
+
+  // Calculate total progress
+  const totalCompleted = 
+    totals.totalStatRecords + 
+    totals.totalSubstanceRecords + 
+    totals.totalFaqs + 
+    totals.totalResources + 
+    totals.statesWithSeo;
+  
+  const totalTarget = TARGET_STATS + TARGET_SUBSTANCE + TARGET_FAQS + TARGET_RESOURCES + TARGET_SEO;
+  const remainingItems = totalTarget - totalCompleted;
+
+  // Average time per item (based on observed ~13 seconds per research+generate+qa cycle)
+  const AVG_SECONDS_PER_ITEM = 13;
+  const estimatedSecondsRemaining = remainingItems * AVG_SECONDS_PER_ITEM;
+
+  const formatETA = (seconds: number) => {
+    if (seconds <= 0) return "Complete";
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (hours > 0) {
+      return `~${hours}h ${minutes}m remaining`;
+    }
+    return `~${minutes}m remaining`;
+  };
+
   const fetchCoverage = async () => {
+    // Store previous totals to detect active generation
+    setPreviousTotals(totals.totalStatRecords > 0 ? { ...totals } : null);
     setLoading(true);
     try {
       // Fetch all data in parallel
@@ -188,6 +235,7 @@ export default function DataCoverageAdmin() {
         totalFaqs: (faqsRes.data || []).length,
         totalResources: (resourcesRes.data || []).length,
       });
+      setLastRefreshTime(new Date());
     } catch (error) {
       console.error("Error fetching coverage:", error);
       toast({ title: "Error", description: "Failed to fetch data coverage", variant: "destructive" });
@@ -326,12 +374,84 @@ export default function DataCoverageAdmin() {
         </Card>
       </div>
 
-      {/* Overall Progress */}
+      {/* Generation Status & ETA */}
+      <Card className={isGenerationActive ? "border-green-500 bg-green-50/50 dark:bg-green-950/20" : ""}>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {isGenerationActive ? (
+                <Activity className="h-5 w-5 text-green-500 animate-pulse" />
+              ) : (
+                <Clock className="h-5 w-5 text-muted-foreground" />
+              )}
+              <CardTitle className="text-lg">Generation Status</CardTitle>
+              {isGenerationActive && (
+                <Badge variant="default" className="bg-green-500">Active</Badge>
+              )}
+            </div>
+            {lastRefreshTime && (
+              <span className="text-xs text-muted-foreground">
+                Last updated: {lastRefreshTime.toLocaleTimeString()}
+              </span>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-1">
+              <div className="text-sm text-muted-foreground">Total Progress</div>
+              <div className="text-2xl font-bold">{totalCompleted.toLocaleString()} / {totalTarget.toLocaleString()}</div>
+              <div className="text-xs text-muted-foreground">items completed</div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-sm text-muted-foreground">Remaining</div>
+              <div className="text-2xl font-bold">{remainingItems.toLocaleString()}</div>
+              <div className="text-xs text-muted-foreground">items to generate</div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-sm text-muted-foreground">Estimated Time</div>
+              <div className="text-2xl font-bold text-primary">{formatETA(estimatedSecondsRemaining)}</div>
+              <div className="text-xs text-muted-foreground">at ~13s per item</div>
+            </div>
+          </div>
+          <div className="mt-4 space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Overall Completion</span>
+              <span>{((totalCompleted / totalTarget) * 100).toFixed(1)}%</span>
+            </div>
+            <Progress value={(totalCompleted / totalTarget) * 100} className="h-2" />
+          </div>
+          <div className="mt-4 grid grid-cols-5 gap-2 text-center text-xs">
+            <div className="p-2 rounded bg-muted/50">
+              <div className="font-medium">{totals.totalStatRecords}/{TARGET_STATS}</div>
+              <div className="text-muted-foreground">Statistics</div>
+            </div>
+            <div className="p-2 rounded bg-muted/50">
+              <div className="font-medium">{totals.totalSubstanceRecords}/{TARGET_SUBSTANCE}</div>
+              <div className="text-muted-foreground">Substance</div>
+            </div>
+            <div className="p-2 rounded bg-muted/50">
+              <div className="font-medium">{totals.totalFaqs}/{TARGET_FAQS}</div>
+              <div className="text-muted-foreground">FAQs</div>
+            </div>
+            <div className="p-2 rounded bg-muted/50">
+              <div className="font-medium">{totals.totalResources}/{TARGET_RESOURCES}</div>
+              <div className="text-muted-foreground">Resources</div>
+            </div>
+            <div className="p-2 rounded bg-muted/50">
+              <div className="font-medium">{totals.statesWithSeo}/{TARGET_SEO}</div>
+              <div className="text-muted-foreground">SEO</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Overall Progress - States Coverage */}
       <Card>
         <CardHeader>
-          <CardTitle>Overall Data Completeness</CardTitle>
+          <CardTitle>States with Data</CardTitle>
           <CardDescription>
-            Combined progress across all content types
+            How many states have at least one record per category
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -344,23 +464,23 @@ export default function DataCoverageAdmin() {
           </div>
           <div className="mt-4 grid grid-cols-5 gap-4 text-center text-xs">
             <div>
-              <div className="font-medium">{((totals.statesWithStats / 50) * 100).toFixed(0)}%</div>
+              <div className="font-medium">{totals.statesWithStats}/50</div>
               <div className="text-muted-foreground">Statistics</div>
             </div>
             <div>
-              <div className="font-medium">{((totals.statesWithSubstance / 50) * 100).toFixed(0)}%</div>
+              <div className="font-medium">{totals.statesWithSubstance}/50</div>
               <div className="text-muted-foreground">Substance</div>
             </div>
             <div>
-              <div className="font-medium">{((totals.statesWithFaqs / 50) * 100).toFixed(0)}%</div>
+              <div className="font-medium">{totals.statesWithFaqs}/50</div>
               <div className="text-muted-foreground">FAQs</div>
             </div>
             <div>
-              <div className="font-medium">{((totals.statesWithResources / 50) * 100).toFixed(0)}%</div>
+              <div className="font-medium">{totals.statesWithResources}/50</div>
               <div className="text-muted-foreground">Resources</div>
             </div>
             <div>
-              <div className="font-medium">{((totals.statesWithSeo / 50) * 100).toFixed(0)}%</div>
+              <div className="font-medium">{totals.statesWithSeo}/50</div>
               <div className="text-muted-foreground">SEO</div>
             </div>
           </div>
