@@ -150,6 +150,163 @@ src/
 
 ## Database Schema
 
+### Entity Relationship Diagram
+
+```mermaid
+erDiagram
+    %% Authentication & Authorization
+    AUTH_USERS ||--o{ USER_ROLES : "has"
+    
+    %% State-related content
+    STATES ||--o{ ARTICLES : "has"
+    STATES ||--o{ FAQS : "has"
+    STATES ||--o{ FREE_RESOURCES : "has"
+    STATES ||--o{ PAGE_CONTENT : "has"
+    STATES ||--o{ PAGE_SEO : "has"
+    STATES ||--o{ STATE_ADDICTION_STATISTICS : "has"
+    STATES ||--o{ SUBSTANCE_STATISTICS : "has"
+    
+    AUTH_USERS {
+        uuid id PK
+        string email
+        timestamp created_at
+    }
+    
+    USER_ROLES {
+        uuid id PK
+        uuid user_id FK
+        app_role role
+        timestamp created_at
+    }
+    
+    ARTICLES {
+        uuid id PK
+        text slug UK
+        text title
+        text content
+        text content_type
+        text category
+        text state_id FK
+        boolean is_published
+        boolean is_featured
+        timestamp published_at
+        text[] tags
+        integer views_count
+    }
+    
+    FAQS {
+        uuid id PK
+        text question
+        text answer
+        text category
+        text state_id FK
+        integer sort_order
+        boolean is_active
+    }
+    
+    FREE_RESOURCES {
+        uuid id PK
+        text title
+        text description
+        text resource_type
+        text phone
+        text website
+        text state_id FK
+        boolean is_nationwide
+        boolean is_free
+        boolean featured
+    }
+    
+    PAGE_CONTENT {
+        uuid id PK
+        text page_key
+        text section_key
+        text content_type
+        text title
+        text body
+        text state_id FK
+        text city_id
+        jsonb metadata
+        boolean is_active
+    }
+    
+    PAGE_SEO {
+        uuid id PK
+        text page_slug UK
+        text page_type
+        text meta_title
+        text meta_description
+        text state_id FK
+        text robots
+        jsonb structured_data
+        boolean is_active
+    }
+    
+    REHAB_GUIDES {
+        uuid id PK
+        text title
+        text description
+        text category
+        text content
+        text icon_name
+        text read_time
+        boolean is_active
+    }
+    
+    DATA_SOURCES {
+        uuid id PK
+        text source_name
+        text source_abbreviation
+        text agency
+        text source_url
+        text description
+        text[] data_types
+    }
+    
+    STATE_ADDICTION_STATISTICS {
+        uuid id PK
+        text state_id FK
+        text state_name
+        integer year
+        integer total_affected
+        integer overdose_deaths
+        integer opioid_deaths
+        numeric alcohol_abuse_rate
+        numeric drug_abuse_rate
+        integer treatment_admissions
+        numeric recovery_rate
+    }
+    
+    SUBSTANCE_STATISTICS {
+        uuid id PK
+        text state_id FK
+        text state_name
+        integer year
+        numeric alcohol_use_past_month_percent
+        integer alcohol_use_disorder
+        integer opioid_use_disorder
+        integer fentanyl_deaths
+        integer cocaine_use_disorder
+        integer meth_use_disorder
+        integer marijuana_use_disorder
+    }
+```
+
+### Relationship Summary
+
+| Relationship | Type | Description |
+|--------------|------|-------------|
+| `auth.users` → `user_roles` | One-to-Many | User can have multiple roles |
+| `states` → `articles` | One-to-Many | State can have many articles |
+| `states` → `faqs` | One-to-Many | State can have many FAQs |
+| `states` → `free_resources` | One-to-Many | State can have many resources |
+| `states` → `page_content` | One-to-Many | State can have many content blocks |
+| `states` → `page_seo` | One-to-Many | State can have many SEO configs |
+| `states` → `state_addiction_statistics` | One-to-Many | State has yearly statistics |
+| `states` → `substance_statistics` | One-to-Many | State has substance data by year |
+
+> **Note:** The `states` table is conceptual - state data is stored via `state_id` text field (e.g., "ca", "tx") rather than a separate table. This allows flexibility for static state data in `mockData.ts`.
+
 ### Tables Overview
 
 | Table | Purpose |
