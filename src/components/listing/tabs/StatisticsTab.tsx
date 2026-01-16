@@ -73,7 +73,7 @@ const CHART_COLORS = {
 const PIE_COLORS = [CHART_COLORS.blue, CHART_COLORS.green, CHART_COLORS.orange, CHART_COLORS.purple];
 
 export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
-  const [selectedYear, setSelectedYear] = useState<string>("2024");
+  const [selectedYear, setSelectedYear] = useState<string | null>(null);
 
   const { data: statistics, isLoading } = useQuery({
     queryKey: ["state-statistics", stateId],
@@ -89,6 +89,10 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
     },
   });
 
+  // Set default year to most recent available data when statistics load
+  const mostRecentYear = statistics?.length ? Math.max(...statistics.map(s => s.year)).toString() : null;
+  const effectiveYear = selectedYear || mostRecentYear || "2023";
+
   const { data: substanceStats } = useQuery({
     queryKey: ["substance-statistics", stateId],
     queryFn: async () => {
@@ -103,8 +107,8 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
     },
   });
 
-  const currentYearData = statistics?.find((s) => s.year === parseInt(selectedYear));
-  const previousYearData = statistics?.find((s) => s.year === parseInt(selectedYear) - 1);
+  const currentYearData = statistics?.find((s) => s.year === parseInt(effectiveYear));
+  const previousYearData = statistics?.find((s) => s.year === parseInt(effectiveYear) - 1);
 
   const calculateChange = (current: number | null, previous: number | null) => {
     if (!current || !previous) return null;
@@ -227,7 +231,7 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
           {change !== null && (
             <p className={`text-[10px] sm:text-xs flex items-center gap-1 mt-1 ${changeColor}`}>
               {isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-              <span className="truncate">{Math.abs(change).toFixed(1)}% from {parseInt(selectedYear) - 1}</span>
+              <span className="truncate">{Math.abs(change).toFixed(1)}% from {parseInt(effectiveYear) - 1}</span>
             </p>
           )}
         </CardContent>
@@ -245,7 +249,7 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
             Data sourced from {currentYearData.data_source || "SAMHSA, CDC, NIDA"}
           </p>
         </div>
-        <Select value={selectedYear} onValueChange={setSelectedYear}>
+        <Select value={effectiveYear} onValueChange={setSelectedYear}>
           <SelectTrigger className="w-[100px] sm:w-[120px] flex-shrink-0">
             <SelectValue placeholder="Year" />
           </SelectTrigger>

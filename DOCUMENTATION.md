@@ -1110,33 +1110,48 @@ After adding a new state:
    - Breadcrumbs show correct state name
    - Page titles are dynamic
 
+### Common Issues & Lessons Learned
+
+When adding new states, watch out for these common pitfalls:
+
+#### 1. Year Selection Defaults
+**Problem:** The StatisticsTab defaults to the most recent available year dynamically. If a state only has data for 2021-2023 while another has 2024 data, the component automatically shows the most recent year for each state.
+
+**Solution:** The component now uses `effectiveYear` which:
+- Calculates the most recent year from available data
+- Falls back to 2023 if no data exists
+- Allows user selection to override the default
+
+```typescript
+// How year selection works
+const mostRecentYear = statistics?.length 
+  ? Math.max(...statistics.map(s => s.year)).toString() 
+  : null;
+const effectiveYear = selectedYear || mostRecentYear || "2023";
+```
+
+#### 2. Data Consistency Across Tables
+**Problem:** Statistics showing but substance charts empty, or vice versa.
+
+**Checklist:**
+- [ ] `state_addiction_statistics` has records for the state
+- [ ] `substance_statistics` has matching records with same `state_id` and overlapping years
+- [ ] Both tables use the **same `state_id`** format (lowercase abbreviation: "ca", "fl", "tx")
+
+#### 3. ImageGallery State Images
+**Problem:** ImageGallery shows California images for other states.
+
+**Current behavior:** The ImageGallery uses the state name dynamically but images are placeholder. Future improvement needed to add state-specific images.
+
+#### 4. FAQs Not Showing
+**Problem:** FAQ section is empty for new states.
+
+**Checklist:**
+- [ ] FAQs added with correct `state_id`
+- [ ] FAQs have `is_active = true`
+- [ ] FAQ component filters by state_id (verify it's not using mock data)
+
 ### Future Improvements
-
-To further scale, consider:
-
-1. **Extract state config to shared file:**
-   ```typescript
-   // src/data/stateConfig.ts
-   export const STATES: Record<string, StateInfo> = {
-     california: { id: "ca", name: "California", abbr: "CA" },
-     // ... all 50 states
-   };
-   ```
-
-2. **Create state seeding script:**
-   ```typescript
-   // scripts/seedState.ts
-   async function seedState(stateId: string, stateName: string) {
-     // Insert default stats, FAQs, SEO...
-   }
-   ```
-
-3. **Add state validation:**
-   ```typescript
-   const isValidState = (slug: string): boolean => {
-     return Object.keys(STATES).includes(slug);
-   };
-   ```
 
 ### Quick Reference: All 50 States
 
