@@ -31,127 +31,204 @@ serve(async (req) => {
     let query = "";
     let systemPrompt = "";
     const targetYear = year || new Date().getFullYear();
+    const currentYear = new Date().getFullYear();
+    const isFutureYear = targetYear > currentYear;
+    const isRecentYear = targetYear >= currentYear - 1;
 
     switch (researchType) {
       case "statistics":
-        query = `Find official addiction and substance abuse statistics for ${stateName} (${stateAbbreviation}) for the year ${targetYear}. 
-        Search for CDC WONDER database, SAMHSA NSDUH data, state health department reports.
-        I need these EXACT metrics for ${targetYear}:
-        1. Total drug overdose deaths in ${targetYear}
-        2. Opioid-involved overdose deaths in ${targetYear}
-        3. Drug abuse rate (% of population 12+) in ${targetYear}
-        4. Alcohol abuse rate (% of population 12+) in ${targetYear}
-        5. Estimated total people with substance use disorders in ${targetYear}
-        6. Number of treatment facilities in ${targetYear}
-        7. Treatment admissions in ${targetYear}
-        8. Age breakdown of affected population (12-17, 18-25, 26-34, 35+) if available
-        9. Recovery rate and relapse rate if available
-        10. Economic cost of addiction in billions if available
-        
-        Provide specific numbers. If ${targetYear} data unavailable, use closest year and note it.
-        Include CDC, SAMHSA, and state health department as sources.`;
-        systemPrompt = `You are a public health data researcher. Find exact statistics for ${stateName} for ${targetYear}. Use CDC, SAMHSA NSDUH, state health department sources. Provide specific numbers.`;
+        // Enhanced query targeting official federal sources
+        query = `Search for official ${stateName} (${stateAbbreviation}) addiction and substance abuse statistics for year ${targetYear}.
+
+PRIORITY DATA SOURCES (in order):
+1. CDC WONDER Database - Drug overdose deaths by state and year
+2. SAMHSA NSDUH (National Survey on Drug Use and Health) - State-level estimates
+3. SAMHSA TEDS (Treatment Episode Data Set) - Treatment admissions
+4. ${stateName} Department of Health official reports
+5. NIH/NIDA state-specific data
+6. DEA state drug threat assessments
+
+REQUIRED METRICS FOR ${stateName} ${targetYear}:
+- Total drug overdose deaths (from CDC WONDER)
+- Opioid-involved overdose deaths (from CDC WONDER)
+- Drug abuse rate as percentage of population 12+ (from NSDUH)
+- Alcohol abuse rate as percentage of population 12+ (from NSDUH)
+- Total people with substance use disorders (from NSDUH)
+- Number of SAMHSA-certified treatment facilities
+- Number of treatment admissions (from TEDS)
+- Breakdown by age groups: 12-17, 18-25, 26-34, 35+ (from NSDUH)
+- Recovery rate percentage if available
+- Relapse rate percentage if available
+- Economic cost of addiction in billions (from state reports)
+
+${isFutureYear ? `NOTE: ${targetYear} is a future year. Use the most recent available data and note the actual data year.` : ''}
+${isRecentYear ? `NOTE: ${targetYear} data may not be fully released. Use preliminary data if available or most recent year with complete data.` : ''}
+
+IMPORTANT: Provide EXACT numbers with source citations. If exact ${targetYear} data unavailable, use closest available year and specify which year the data is from.`;
+
+        systemPrompt = `You are a public health data analyst specializing in federal addiction statistics. Extract precise numerical data from CDC, SAMHSA, NSDUH, and state health department sources. Always cite the specific source (e.g., "CDC WONDER 2023", "NSDUH 2022-2023"). Provide actual numbers, not ranges.`;
         break;
 
       case "substance_statistics":
-        query = `Find detailed substance-specific statistics for ${stateName} (${stateAbbreviation}) for year ${targetYear}.
-        Search SAMHSA NSDUH, CDC, DEA reports.
-        
-        ALCOHOL DATA for ${targetYear}:
-        - Alcohol use past month (%)
-        - Binge drinking (%)
-        - Heavy alcohol use (%)
-        - Alcohol use disorder count
-        - Alcohol-related deaths
-        
-        OPIOID DATA for ${targetYear}:
-        - Opioid use disorder count
-        - Opioid misuse past year
-        - Prescription opioid misuse
-        - Heroin use
-        - Fentanyl deaths
-        - Fentanyl-involved overdoses
-        
-        MARIJUANA DATA for ${targetYear}:
-        - Marijuana use past month
-        - Marijuana use past year
-        - Marijuana use disorder count
-        
-        COCAINE DATA for ${targetYear}:
-        - Cocaine use past year
-        - Cocaine use disorder
-        - Cocaine-related deaths
-        
-        METHAMPHETAMINE DATA for ${targetYear}:
-        - Meth use past year
-        - Meth use disorder
-        - Meth-related deaths
-        
-        PRESCRIPTION DRUG DATA for ${targetYear}:
-        - Stimulant misuse
-        - Sedative misuse
-        - Tranquilizer misuse
-        
-        TREATMENT DATA for ${targetYear}:
-        - Treatment received
-        - Treatment needed not received
-        - MAT recipients
-        
-        MENTAL HEALTH CO-OCCURRENCE:
-        - Mental illness with SUD
-        - Serious mental illness with SUD
-        
-        Provide specific numbers with sources.`;
-        systemPrompt = `You are a substance abuse epidemiologist. Provide detailed substance-specific data for ${stateName} for ${targetYear}. Use SAMHSA NSDUH and CDC data.`;
+        query = `Search for detailed substance-specific statistics for ${stateName} (${stateAbbreviation}) for year ${targetYear}.
+
+PRIMARY SOURCES TO SEARCH:
+1. SAMHSA NSDUH State Estimates - substance use prevalence
+2. CDC NCHS - drug-specific mortality data
+3. DEA drug seizure and threat data for ${stateAbbreviation}
+4. ${stateName} substance monitoring program data
+
+ALCOHOL DATA REQUIRED:
+- Alcohol use past month (% of 12+)
+- Binge drinking rate (%)
+- Heavy alcohol use (%)
+- People with alcohol use disorder (number)
+- Alcohol-related deaths (number)
+
+OPIOID DATA REQUIRED:
+- People with opioid use disorder (number)
+- Opioid misuse past year (number)
+- Prescription opioid misuse (number)
+- Heroin users (number)
+- Fentanyl deaths (number)
+- Fentanyl-involved overdoses (number)
+
+MARIJUANA DATA REQUIRED:
+- Marijuana use past month (number)
+- Marijuana use past year (number)
+- Marijuana use disorder (number)
+
+COCAINE DATA REQUIRED:
+- Cocaine use past year (number)
+- Cocaine use disorder (number)
+- Cocaine-related deaths (number)
+
+METHAMPHETAMINE DATA REQUIRED:
+- Meth use past year (number)
+- Meth use disorder (number)
+- Meth-related deaths (number)
+
+PRESCRIPTION DRUG MISUSE:
+- Prescription stimulant misuse (number)
+- Prescription sedative misuse (number)
+- Prescription tranquilizer misuse (number)
+
+TREATMENT DATA:
+- People who received treatment (number)
+- People needing but not receiving treatment (number)
+- MAT (Medication-Assisted Treatment) recipients (number)
+
+MENTAL HEALTH CO-OCCURRENCE:
+- People with mental illness and SUD (number)
+- People with serious mental illness and SUD (number)
+
+${isFutureYear ? `NOTE: ${targetYear} is a future year. Use most recent available data and note actual year.` : ''}
+
+Provide exact numbers from NSDUH state estimates. Include source year if different from ${targetYear}.`;
+
+        systemPrompt = `You are a substance abuse epidemiologist. Extract precise substance-specific data from SAMHSA NSDUH state-level estimates. Provide actual numbers, not ranges or percentages alone. Cite data year and source.`;
         break;
 
       case "resources":
-        query = `What are the comprehensive free addiction treatment resources in ${stateName}? Include:
-        1. SAMHSA National Helpline (1-800-662-4357)
-        2. ${stateName} state drug and alcohol helpline
-        3. State-funded treatment centers
-        4. Free or sliding-scale rehab programs
-        5. ${stateName} Medicaid addiction treatment coverage
-        6. Veterans addiction resources in ${stateName}
-        7. Local AA and NA meeting directories
-        8. Crisis text lines and hotlines
-        9. Narcan/Naloxone distribution programs
-        10. Sober living homes with sliding scale
-        
-        Provide exact names, phone numbers, websites.`;
-        systemPrompt = "You are a healthcare navigator specializing in free addiction resources. Provide verified contact information.";
+        query = `Find comprehensive FREE addiction treatment and recovery resources available in ${stateName}:
+
+FEDERAL RESOURCES:
+1. SAMHSA National Helpline: 1-800-662-4357
+2. SAMHSA Treatment Locator results for ${stateName}
+3. Veterans Affairs addiction services in ${stateName}
+4. Medicare/Medicaid addiction treatment coverage in ${stateName}
+
+STATE RESOURCES:
+1. ${stateName} state substance abuse helpline
+2. ${stateName} Department of Health addiction services
+3. State-funded treatment programs
+4. ${stateName} Medicaid addiction treatment benefits
+5. State naloxone distribution programs
+
+LOCAL RESOURCES:
+1. County mental health centers with addiction services
+2. Free community health centers offering addiction treatment
+3. Faith-based recovery programs
+4. Sober living homes with sliding scale
+5. Free support group meetings (AA, NA, SMART Recovery)
+
+For each resource provide:
+- Official name
+- Phone number
+- Website URL
+- Physical address if applicable
+- What services they provide
+- Whether it's free or sliding scale`;
+
+        systemPrompt = "You are a healthcare navigator specializing in free addiction resources. Verify all contact information is current and accurate. Focus on truly free or government-funded programs.";
         break;
 
       case "faqs":
-        query = `What are the most important questions about addiction treatment in ${stateName}? Create FAQs about:
-        1. Does ${stateName} Medicaid cover rehab?
-        2. What are ${stateName} drug laws and consequences?
-        3. How do I find free treatment in ${stateName}?
-        4. What are the best rehab centers in ${stateName}?
-        5. How long is rehab typically in ${stateName}?
-        6. Can I be forced into treatment in ${stateName}?
-        7. What insurance is accepted for treatment?
-        8. Are there gender-specific programs?
-        9. What about treatment for teens?
-        10. How do I stage an intervention?
-        
-        Provide detailed, state-specific answers.`;
-        systemPrompt = "You are an addiction treatment counselor familiar with ${stateName} laws and resources. Provide accurate, helpful answers.";
+        query = `Create comprehensive FAQs about addiction treatment specific to ${stateName}:
+
+INSURANCE & COST QUESTIONS:
+1. Does ${stateName} Medicaid cover addiction treatment?
+2. What insurance is accepted at ${stateName} rehab centers?
+3. Are there free rehab centers in ${stateName}?
+4. What does outpatient treatment cost in ${stateName}?
+
+LEGAL QUESTIONS:
+1. What are ${stateName}'s drug possession laws?
+2. Can someone be court-ordered to treatment in ${stateName}?
+3. Does ${stateName} have Good Samaritan laws for overdoses?
+4. What are ${stateName}'s drunk driving penalties?
+
+TREATMENT OPTIONS:
+1. What types of rehab programs exist in ${stateName}?
+2. How long is inpatient rehab typically in ${stateName}?
+3. Are there gender-specific programs in ${stateName}?
+4. What about treatment for adolescents in ${stateName}?
+
+GETTING HELP:
+1. How do I find a rehab center in ${stateName}?
+2. What should I look for in a ${stateName} treatment center?
+3. How do I stage an intervention in ${stateName}?
+4. What's the first step to getting help in ${stateName}?
+
+Provide detailed, accurate answers specific to ${stateName} laws and programs.`;
+
+        systemPrompt = `You are an addiction treatment counselor and legal expert familiar with ${stateName} laws, regulations, and resources. Provide accurate, state-specific answers with current information.`;
         break;
 
       case "seo":
-        query = `What makes ${stateName} unique for addiction treatment? Include:
-        1. ${stateName}'s addiction crisis - key statistics
-        2. Types of substances most abused in ${stateName}
-        3. Notable treatment centers and programs
-        4. State regulations affecting treatment
-        5. ${stateName}'s approach to harm reduction
-        6. Success stories or notable programs
-        7. Geographic challenges (rural vs urban)
-        8. Insurance landscape in ${stateName}
-        
-        Focus on what someone searching for "${stateName} rehab centers" needs to know.`;
-        systemPrompt = "You are a healthcare SEO specialist. Provide accurate, helpful content for people seeking treatment in ${stateName}.";
+        query = `Research ${stateName}'s addiction landscape for SEO content:
+
+CRISIS STATISTICS:
+- Current overdose death rate in ${stateName}
+- How ${stateName} compares to national averages
+- Trending substances in ${stateName}
+- ${stateName}'s most affected populations
+
+TREATMENT LANDSCAPE:
+- Number of treatment facilities in ${stateName}
+- Notable treatment centers in ${stateName}
+- ${stateName}'s treatment capacity
+- Wait times for treatment in ${stateName}
+
+STATE INITIATIVES:
+- ${stateName}'s approach to the opioid crisis
+- Harm reduction programs in ${stateName}
+- State funding for addiction treatment
+- Recent legislation affecting treatment
+
+GEOGRAPHIC FACTORS:
+- Urban vs rural treatment access in ${stateName}
+- Major cities with treatment concentration
+- Underserved areas in ${stateName}
+
+UNIQUE ASPECTS:
+- What makes ${stateName}'s addiction crisis unique
+- Success stories or model programs
+- Challenges specific to ${stateName}
+
+Focus on what someone searching "rehab in ${stateName}" or "${stateName} addiction treatment" needs to know.`;
+
+        systemPrompt = `You are a healthcare SEO specialist and public health communicator. Provide accurate, helpful content that addresses search intent for people seeking addiction treatment in ${stateName}.`;
         break;
     }
 
@@ -170,6 +247,13 @@ serve(async (req) => {
           { role: "user", content: query },
         ],
         search_recency_filter: "year",
+        search_domain_filter: [
+          "cdc.gov",
+          "samhsa.gov",
+          "nida.nih.gov",
+          "dea.gov",
+          ".gov",
+        ],
       }),
     });
 
