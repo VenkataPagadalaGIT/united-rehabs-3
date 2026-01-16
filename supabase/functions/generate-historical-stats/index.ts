@@ -107,8 +107,28 @@ ONLY return valid JSON, no explanation.`
       if (jsonMatch) {
         try {
           const parsed = JSON.parse(jsonMatch[0]);
-          if (parsed.statistics) allStatistics.push(...parsed.statistics);
-          if (parsed.substance_statistics) allSubstanceStats.push(...parsed.substance_statistics);
+          
+          // Round all numeric values to integers (except rates which can be decimals)
+          const roundIntegers = (obj: any) => {
+            const integerFields = ['total_affected', 'overdose_deaths', 'opioid_deaths', 'treatment_admissions',
+              'affected_age_12_17', 'affected_age_18_25', 'affected_age_26_34', 'affected_age_35_plus',
+              'total_treatment_centers', 'inpatient_facilities', 'outpatient_facilities',
+              'alcohol_use_disorder', 'opioid_use_disorder', 'fentanyl_deaths', 'cocaine_related_deaths',
+              'meth_related_deaths', 'marijuana_use_past_year', 'treatment_received'];
+            for (const key of integerFields) {
+              if (obj[key] !== undefined && obj[key] !== null) {
+                obj[key] = Math.round(obj[key]);
+              }
+            }
+            return obj;
+          };
+          
+          if (parsed.statistics) {
+            allStatistics.push(...parsed.statistics.map(roundIntegers));
+          }
+          if (parsed.substance_statistics) {
+            allSubstanceStats.push(...parsed.substance_statistics.map(roundIntegers));
+          }
         } catch (e) {
           console.error(`[${stateAbbreviation}] JSON parse error for chunk:`, e);
         }
