@@ -2,7 +2,7 @@ import { TreatmentGrid } from "../TreatmentGrid";
 import { Sidebar } from "../Sidebar";
 import { LocationTags } from "../LocationTags";
 import { RelatedRehabs } from "../RelatedRehabs";
-import { mockStatisticsCards, mockTreatmentCenters } from "@/data/mockData";
+import { mockStatisticsCards } from "@/data/mockData";
 import type { TreatmentCenter, FilterOption, City } from "@/types";
 
 interface RehabListingsTabProps {
@@ -53,8 +53,8 @@ export const RehabListingsTab = ({
         </div>
       </div>
 
-      {/* Related Rehabs */}
-      <RelatedRehabs centers={mockTreatmentCenters} />
+      {/* Related Rehabs - uses the same state-specific centers */}
+      <RelatedRehabs centers={centers} />
     </div>
   );
 };
