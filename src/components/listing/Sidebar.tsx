@@ -26,12 +26,12 @@ export function Sidebar({ statisticsCards, phoneNumber = "111-234-3333", stateNa
         <h3 className="text-primary text-sm font-medium mb-4">
           Health Behaviors in {stateName}
         </h3>
-        <ul className="space-y-3">
+        <ul className="space-y-3" role="list">
           {healthResources.map((resource) => (
             <li key={resource.id}>
               <a
                 href={resource.url}
-                className="text-foreground hover:text-primary transition-colors text-sm"
+                className="text-foreground hover:text-primary transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
               >
                 {resource.title}
               </a>
@@ -45,13 +45,16 @@ export function Sidebar({ statisticsCards, phoneNumber = "111-234-3333", stateNa
         <h3 className="text-foreground font-semibold mb-4">
           Health Outcomes in {stateName}
         </h3>
-        <Button className="w-full bg-primary hover:bg-primary/90 gap-2 mb-3">
-          <Phone className="h-4 w-4" />
+        <Button 
+          className="w-full bg-primary hover:bg-primary/90 gap-2 mb-3"
+          aria-label={`Call for help at ${phoneNumber}`}
+        >
+          <Phone className="h-4 w-4" aria-hidden="true" />
           Get Help Now ({phoneNumber})
         </Button>
         <a
           href="#"
-          className="block text-center text-primary hover:underline text-sm"
+          className="block text-center text-primary hover:underline text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
         >
           Insurance
         </a>

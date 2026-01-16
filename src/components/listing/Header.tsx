@@ -12,25 +12,35 @@ export function Header({ navItems }: HeaderProps) {
 
   return (
     <header className="bg-card border-b border-border sticky top-0 z-50">
+      {/* Skip to main content link */}
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-md focus:outline-none"
+      >
+        Skip to main content
+      </a>
+      
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center gap-2">
+          <a href="/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded" aria-label="United Rehabs Home">
             <div className="flex flex-col">
               <span className="text-primary font-bold text-lg leading-tight">united</span>
               <span className="text-foreground font-bold text-lg leading-tight">rehabs</span>
             </div>
-          </div>
+          </a>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-6">
+          <nav className="hidden lg:flex items-center gap-6" aria-label="Main navigation">
             {navItems.map((item) => (
               <button
                 key={item.id}
-                className="flex items-center gap-1 text-foreground hover:text-primary transition-colors text-sm font-medium"
+                className="flex items-center gap-1 text-foreground hover:text-primary transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-2 py-1"
+                aria-expanded={item.hasDropdown ? "false" : undefined}
+                aria-haspopup={item.hasDropdown ? "true" : undefined}
               >
                 {item.label}
-                {item.hasDropdown && <ChevronDown className="h-4 w-4" />}
+                {item.hasDropdown && <ChevronDown className="h-4 w-4" aria-hidden="true" />}
               </button>
             ))}
           </nav>
@@ -41,27 +51,34 @@ export function Header({ navItems }: HeaderProps) {
               Get Help Now
             </Button>
             <button
-              className="lg:hidden"
+              className="lg:hidden focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded p-1"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-menu"
             >
-              <Menu className="h-6 w-6" />
+              <Menu className="h-6 w-6" aria-hidden="true" />
             </button>
           </div>
         </div>
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-border">
+          <nav 
+            id="mobile-menu" 
+            className="lg:hidden py-4 border-t border-border"
+            aria-label="Mobile navigation"
+          >
             {navItems.map((item) => (
               <button
                 key={item.id}
-                className="flex items-center justify-between w-full py-3 text-foreground hover:text-primary transition-colors"
+                className="flex items-center justify-between w-full py-3 text-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-2"
               >
                 {item.label}
-                {item.hasDropdown && <ChevronDown className="h-4 w-4" />}
+                {item.hasDropdown && <ChevronDown className="h-4 w-4" aria-hidden="true" />}
               </button>
             ))}
-          </div>
+          </nav>
         )}
       </div>
     </header>
