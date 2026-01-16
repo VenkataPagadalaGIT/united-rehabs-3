@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export type ContentType = "statistics" | "resources" | "faqs" | "seo";
+export type ContentType = "statistics" | "substance_statistics" | "resources" | "faqs" | "seo";
 
 export interface ResearchResult {
   success: boolean;
@@ -8,6 +8,7 @@ export interface ResearchResult {
     stateName: string;
     stateAbbreviation: string;
     researchType: ContentType;
+    year?: number;
     content: string;
     citations: string[];
     timestamp: string;
@@ -21,6 +22,7 @@ export interface GeneratedContent {
     stateName: string;
     stateAbbreviation: string;
     contentType: ContentType;
+    year?: number;
     content: unknown;
     timestamp: string;
   };
@@ -211,16 +213,16 @@ export async function bulkGenerateContent(
   contentTypes: ContentType[],
   onProgress?: (completed: number, total: number, current: string) => void,
   skipQA = false,
-  delayMs = 2000, // Delay between API calls to avoid rate limiting
-  years?: number[] // For statistics, generate for multiple years
+  delayMs = 2000,
+  years?: number[]
 ): Promise<StateGenerationResult[]> {
   const results: StateGenerationResult[] = [];
   
-  // Calculate total: for statistics with years, multiply by year count
+  // Calculate total: for statistics/substance_statistics with years, multiply by year count
   const statsYears = years || [new Date().getFullYear()];
   let total = 0;
   for (const contentType of contentTypes) {
-    if (contentType === "statistics") {
+    if (contentType === "statistics" || contentType === "substance_statistics") {
       total += states.length * statsYears.length;
     } else {
       total += states.length;
@@ -231,8 +233,8 @@ export async function bulkGenerateContent(
 
   for (const state of states) {
     for (const contentType of contentTypes) {
-      if (contentType === "statistics" && years && years.length > 0) {
-        // For statistics, generate for each selected year
+      // Both statistics and substance_statistics are year-based
+      if ((contentType === "statistics" || contentType === "substance_statistics") && years && years.length > 0) {
         for (const year of years) {
           onProgress?.(completed, total, `${state.name} - ${contentType} (${year})`);
           
@@ -266,7 +268,7 @@ export async function bulkGenerateContent(
           }
         }
       } else {
-        // For non-statistics content types
+        // For non-year-based content types
         onProgress?.(completed, total, `${state.name} - ${contentType}`);
         
         try {

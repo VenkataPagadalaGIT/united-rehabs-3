@@ -8,8 +8,8 @@ const corsHeaders = {
 interface ResearchRequest {
   stateName: string;
   stateAbbreviation: string;
-  researchType: "statistics" | "resources" | "faqs" | "seo";
-  year?: number; // For statistics, specify the year to research
+  researchType: "statistics" | "substance_statistics" | "resources" | "faqs" | "seo";
+  year?: number;
 }
 
 serve(async (req) => {
@@ -28,62 +28,134 @@ serve(async (req) => {
       );
     }
 
-    // Build research query based on type
     let query = "";
     let systemPrompt = "";
+    const targetYear = year || new Date().getFullYear();
 
     switch (researchType) {
       case "statistics":
-        const targetYear = year || new Date().getFullYear();
-        query = `What are the addiction and substance abuse statistics for ${stateName} (${stateAbbreviation}) for the year ${targetYear}? Include: 
-        - Total overdose deaths in ${targetYear}
-        - Opioid-related deaths in ${targetYear}
-        - Drug abuse rate percentage in ${targetYear}
-        - Alcohol abuse rate percentage in ${targetYear}
-        - Number of treatment facilities in ${targetYear}
-        - Treatment admission numbers in ${targetYear}
-        - Recovery rates if available for ${targetYear}
-        If ${targetYear} data is not available, provide the closest available year's data and note the actual year.
+        query = `Find official addiction and substance abuse statistics for ${stateName} (${stateAbbreviation}) for the year ${targetYear}. 
+        Search for CDC WONDER database, SAMHSA NSDUH data, state health department reports.
+        I need these EXACT metrics for ${targetYear}:
+        1. Total drug overdose deaths in ${targetYear}
+        2. Opioid-involved overdose deaths in ${targetYear}
+        3. Drug abuse rate (% of population 12+) in ${targetYear}
+        4. Alcohol abuse rate (% of population 12+) in ${targetYear}
+        5. Estimated total people with substance use disorders in ${targetYear}
+        6. Number of treatment facilities in ${targetYear}
+        7. Treatment admissions in ${targetYear}
+        8. Age breakdown of affected population (12-17, 18-25, 26-34, 35+) if available
+        9. Recovery rate and relapse rate if available
+        10. Economic cost of addiction in billions if available
+        
+        Provide specific numbers. If ${targetYear} data unavailable, use closest year and note it.
+        Include CDC, SAMHSA, and state health department as sources.`;
+        systemPrompt = `You are a public health data researcher. Find exact statistics for ${stateName} for ${targetYear}. Use CDC, SAMHSA NSDUH, state health department sources. Provide specific numbers.`;
+        break;
+
+      case "substance_statistics":
+        query = `Find detailed substance-specific statistics for ${stateName} (${stateAbbreviation}) for year ${targetYear}.
+        Search SAMHSA NSDUH, CDC, DEA reports.
+        
+        ALCOHOL DATA for ${targetYear}:
+        - Alcohol use past month (%)
+        - Binge drinking (%)
+        - Heavy alcohol use (%)
+        - Alcohol use disorder count
+        - Alcohol-related deaths
+        
+        OPIOID DATA for ${targetYear}:
+        - Opioid use disorder count
+        - Opioid misuse past year
+        - Prescription opioid misuse
+        - Heroin use
+        - Fentanyl deaths
+        - Fentanyl-involved overdoses
+        
+        MARIJUANA DATA for ${targetYear}:
+        - Marijuana use past month
+        - Marijuana use past year
+        - Marijuana use disorder count
+        
+        COCAINE DATA for ${targetYear}:
+        - Cocaine use past year
+        - Cocaine use disorder
+        - Cocaine-related deaths
+        
+        METHAMPHETAMINE DATA for ${targetYear}:
+        - Meth use past year
+        - Meth use disorder
+        - Meth-related deaths
+        
+        PRESCRIPTION DRUG DATA for ${targetYear}:
+        - Stimulant misuse
+        - Sedative misuse
+        - Tranquilizer misuse
+        
+        TREATMENT DATA for ${targetYear}:
+        - Treatment received
+        - Treatment needed not received
+        - MAT recipients
+        
+        MENTAL HEALTH CO-OCCURRENCE:
+        - Mental illness with SUD
+        - Serious mental illness with SUD
+        
         Provide specific numbers with sources.`;
-        systemPrompt = `You are a research assistant specializing in addiction and public health statistics. Focus on finding data for ${targetYear} specifically. Provide accurate, cited data.`;
+        systemPrompt = `You are a substance abuse epidemiologist. Provide detailed substance-specific data for ${stateName} for ${targetYear}. Use SAMHSA NSDUH and CDC data.`;
         break;
 
       case "resources":
-        query = `What are the best free addiction treatment resources and helplines available in ${stateName}? Include:
-        - State-run treatment programs
-        - Free or low-cost rehab centers
-        - Crisis hotlines
-        - Support groups (AA, NA meetings)
-        - Mental health resources
-        - Government assistance programs
-        Provide names, phone numbers, and websites where available.`;
-        systemPrompt = "You are a healthcare resource specialist. Provide accurate contact information for addiction treatment resources.";
+        query = `What are the comprehensive free addiction treatment resources in ${stateName}? Include:
+        1. SAMHSA National Helpline (1-800-662-4357)
+        2. ${stateName} state drug and alcohol helpline
+        3. State-funded treatment centers
+        4. Free or sliding-scale rehab programs
+        5. ${stateName} Medicaid addiction treatment coverage
+        6. Veterans addiction resources in ${stateName}
+        7. Local AA and NA meeting directories
+        8. Crisis text lines and hotlines
+        9. Narcan/Naloxone distribution programs
+        10. Sober living homes with sliding scale
+        
+        Provide exact names, phone numbers, websites.`;
+        systemPrompt = "You are a healthcare navigator specializing in free addiction resources. Provide verified contact information.";
         break;
 
       case "faqs":
-        query = `What are the most common questions people ask about addiction treatment and rehab in ${stateName}? Consider:
-        - Insurance coverage for treatment
-        - State-specific laws about treatment
-        - How to find quality treatment centers
-        - Medicaid/Medicare coverage
-        - Court-ordered treatment options
-        - Family intervention resources
-        Provide 8-10 relevant FAQs with detailed answers.`;
-        systemPrompt = "You are an addiction treatment expert. Provide helpful, accurate answers to common questions about treatment in this state.";
+        query = `What are the most important questions about addiction treatment in ${stateName}? Create FAQs about:
+        1. Does ${stateName} Medicaid cover rehab?
+        2. What are ${stateName} drug laws and consequences?
+        3. How do I find free treatment in ${stateName}?
+        4. What are the best rehab centers in ${stateName}?
+        5. How long is rehab typically in ${stateName}?
+        6. Can I be forced into treatment in ${stateName}?
+        7. What insurance is accepted for treatment?
+        8. Are there gender-specific programs?
+        9. What about treatment for teens?
+        10. How do I stage an intervention?
+        
+        Provide detailed, state-specific answers.`;
+        systemPrompt = "You are an addiction treatment counselor familiar with ${stateName} laws and resources. Provide accurate, helpful answers.";
         break;
 
       case "seo":
-        query = `What are the key facts about ${stateName}'s addiction crisis that someone searching for "rehab centers in ${stateName}" or "drug treatment ${stateAbbreviation}" would need to know? Include:
-        - Unique challenges this state faces
-        - Types of addiction most prevalent
-        - Notable treatment options or programs
-        - State regulations affecting treatment
-        Provide information that would help someone choose treatment in this state.`;
-        systemPrompt = "You are an SEO content specialist focused on healthcare. Provide accurate, helpful information for people seeking treatment.";
+        query = `What makes ${stateName} unique for addiction treatment? Include:
+        1. ${stateName}'s addiction crisis - key statistics
+        2. Types of substances most abused in ${stateName}
+        3. Notable treatment centers and programs
+        4. State regulations affecting treatment
+        5. ${stateName}'s approach to harm reduction
+        6. Success stories or notable programs
+        7. Geographic challenges (rural vs urban)
+        8. Insurance landscape in ${stateName}
+        
+        Focus on what someone searching for "${stateName} rehab centers" needs to know.`;
+        systemPrompt = "You are a healthcare SEO specialist. Provide accurate, helpful content for people seeking treatment in ${stateName}.";
         break;
     }
 
-    console.log(`Researching ${researchType} for ${stateName}...`);
+    console.log(`Researching ${researchType} for ${stateName} (${targetYear})...`);
 
     const response = await fetch("https://api.perplexity.ai/chat/completions", {
       method: "POST",
@@ -114,7 +186,7 @@ serve(async (req) => {
     const content = data.choices?.[0]?.message?.content || "";
     const citations = data.citations || [];
 
-    console.log(`Research complete for ${stateName} - ${researchType}`);
+    console.log(`Research complete for ${stateName} - ${researchType} (${targetYear})`);
 
     return new Response(
       JSON.stringify({
@@ -123,6 +195,7 @@ serve(async (req) => {
           stateName,
           stateAbbreviation,
           researchType,
+          year: targetYear,
           content,
           citations,
           timestamp: new Date().toISOString(),
