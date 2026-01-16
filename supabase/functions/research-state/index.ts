@@ -16,24 +16,30 @@ interface ResearchRequest {
  * PERPLEXITY RESEARCH RULES:
  * 
  * 1. DATA AVAILABILITY BY SOURCE & YEAR:
+ *    - SAMHSA TEDS: 1992-present (treatment admissions - OLDEST SOURCE)
  *    - CDC WONDER: 1999-present (overdose deaths, drug-specific mortality)
  *    - SAMHSA NSDUH: 1999-present (reliable from 2002, substance use rates)
- *    - SAMHSA TEDS: 1992-present (treatment admissions)
  *    - DEA: Varies by report type
  * 
- * 2. NEVER SKIP - ALWAYS RETURN DATA:
+ * 2. YEAR RANGE: 1992-2026
+ *    - 1992-1998: Use TEDS data + historical state records, estimate other metrics
+ *    - 1999-2001: CDC WONDER available, early NSDUH data
+ *    - 2002-present: Full data availability from all sources
+ * 
+ * 3. NEVER SKIP - ALWAYS RETURN DATA:
  *    - If exact year unavailable, use closest available year
  *    - Always specify actual data year in response
  *    - Estimate using trends if necessary, clearly marked as estimates
  * 
- * 3. REQUIRED FEDERAL SOURCES (in priority order):
- *    - cdc.gov (CDC WONDER, NCHS)
- *    - samhsa.gov (NSDUH, TEDS, N-SSATS)
+ * 4. REQUIRED FEDERAL SOURCES (in priority order):
+ *    - samhsa.gov (TEDS 1992+, NSDUH 1999+, N-SSATS)
+ *    - cdc.gov (CDC WONDER 1999+, NCHS)
  *    - nida.nih.gov (NIH/NIDA research data)
  *    - dea.gov (Drug threat assessments)
  *    - State .gov health department sites
+ *    - NCBI/PubMed for historical research papers
  * 
- * 4. DATA EXTRACTION RULES:
+ * 5. DATA EXTRACTION RULES:
  *    - MUST return numerical values, not "N/A" or "unavailable"
  *    - If data doesn't exist, extrapolate from adjacent years
  *    - Always cite the actual source and year of data
@@ -61,18 +67,21 @@ serve(async (req) => {
     const currentYear = new Date().getFullYear();
     const isFutureYear = targetYear > currentYear;
     const isHistorical = targetYear < 2015;
-    const dataEra = targetYear < 2002 ? "early" : targetYear < 2010 ? "mid" : "recent";
+    const isPreCDC = targetYear < 1999; // Before CDC WONDER
+    const dataEra = targetYear < 1999 ? "pre-cdc" : targetYear < 2002 ? "early" : targetYear < 2010 ? "mid" : "recent";
 
     // Base system prompt with strict rules
     const baseRules = `
 CRITICAL RULES - YOU MUST FOLLOW:
 1. NEVER say "data not available" - always provide numbers
 2. If exact ${targetYear} data doesn't exist, use the closest available year and note it
-3. For years before 2002, use CDC WONDER and early NSDUH data
-4. For years 1999-2001, extrapolate from 2002 data with historical trends
-5. ALWAYS cite the actual source and year of each data point
-6. Return EXACT NUMBERS, not ranges or "approximately"
-7. If you must estimate, mark it clearly as "[ESTIMATED from YEAR data]"
+3. For years 1992-1998: Use SAMHSA TEDS for treatment data, historical state health records, and research papers
+4. For years 1999-2001: Use CDC WONDER + early NSDUH + TEDS
+5. For years 2002+: Full data available from NSDUH, CDC WONDER, TEDS
+6. ALWAYS cite the actual source and year of each data point
+7. Return EXACT NUMBERS, not ranges or "approximately"
+8. If you must estimate, mark it clearly as "[ESTIMATED from YEAR data]"
+9. For pre-1999 overdose deaths, search state vital statistics, NCHS reports, and published studies
 `;
 
     switch (researchType) {
@@ -81,40 +90,59 @@ CRITICAL RULES - YOU MUST FOLLOW:
 
 YOU MUST PROVIDE ALL OF THESE METRICS - NO EXCEPTIONS:
 
+${isPreCDC ? `
+*** PRE-1999 DATA INSTRUCTIONS ***
+For ${targetYear}, CDC WONDER is NOT available. Use these alternative sources:
+- SAMHSA TEDS (Treatment Episode Data Set) - available from 1992
+- State health department vital statistics archives
+- NCHS mortality data files
+- Published research papers and NIDA archives
+- National Drug Control Strategy reports from that era
+` : `
 PRIMARY SOURCE: CDC WONDER Multiple Cause of Death Database
 - Total drug overdose deaths in ${stateName} for ${targetYear} (ICD-10 codes X40-X44, X60-X64, X85, Y10-Y14)
 - Opioid-involved deaths (T40.0-T40.4, T40.6)
 ${isHistorical ? `NOTE: For ${targetYear}, search CDC WONDER archives for ${stateAbbreviation} mortality data` : ''}
+`}
 
 PRIMARY SOURCE: SAMHSA NSDUH State Estimates
 - Illicit drug use past month (% of population 12+) for ${stateName}
 - Alcohol use disorder past year (% of population 12+)
 - Any substance use disorder past year (number of people)
 - Age breakdown: 12-17, 18-25, 26-34, 35+ with SUD
-${dataEra === "early" ? `For ${targetYear}, use NSDUH data from 2002-2003 as baseline with CDC mortality trends to estimate` : ''}
+${dataEra === "pre-cdc" || dataEra === "early" ? `For ${targetYear}, use NSDUH data from 2002-2003 as baseline, adjust using historical treatment admission trends from TEDS` : ''}
 
-PRIMARY SOURCE: SAMHSA N-SSATS / TEDS
+PRIMARY SOURCE: SAMHSA TEDS (1992-present - KEY SOURCE FOR PRE-1999)
 - Total SAMHSA-certified treatment facilities in ${stateName}
 - Inpatient facilities count
 - Outpatient facilities count  
-- Treatment admissions for ${targetYear}
+- Treatment admissions for ${targetYear} (TEDS has this from 1992!)
 
 ADDITIONAL METRICS TO FIND:
 - Recovery rate (%) if any state or federal data exists
 - Relapse rate (%) if tracked
-- Economic cost of addiction in ${stateName} (billions)
+- Economic cost of addiction in ${stateName} (billions) - estimate based on prevalence if needed
 
 ${isFutureYear ? `FUTURE YEAR HANDLING: ${targetYear} is future. Use latest available data (likely 2022 or 2023) and note the actual year.` : ''}
-${isHistorical ? `HISTORICAL YEAR HANDLING: ${targetYear} is historical. Search CDC WONDER for mortality data back to 1999. For NSDUH, use 2002 baseline adjusted for trends.` : ''}
+${isPreCDC ? `PRE-1999 YEAR HANDLING: ${targetYear} is before CDC WONDER. Use SAMHSA TEDS, state vital stats, NCHS reports, and extrapolate from 1999 data using trends. TEDS treatment admissions are REQUIRED as they exist from 1992.` : ''}
+${isHistorical && !isPreCDC ? `HISTORICAL YEAR HANDLING: ${targetYear} is historical. Search CDC WONDER for mortality data. For NSDUH, use 2002 baseline adjusted for trends.` : ''}
 
 RESPONSE FORMAT: Provide each metric with its value, source, and actual data year.`;
 
-        systemPrompt = `You are a public health data analyst with access to federal databases. ${baseRules}
+        systemPrompt = `You are a public health data analyst with access to federal databases and historical archives. ${baseRules}
 
 For ${stateAbbreviation} ${targetYear}:
+${isPreCDC ? `
+- SAMHSA TEDS is your PRIMARY source (available 1992-present)
+- Use state health department historical records
+- Use NCHS mortality publications
+- Search PubMed/NCBI for research papers from that era
+- Extrapolate from 1999 CDC WONDER data using TEDS trends
+` : `
 - Use CDC WONDER for mortality data (available 1999-present)
 - Use SAMHSA NSDUH for prevalence (reliable from 2002, exists from 1999)
 - Use SAMHSA TEDS/N-SSATS for treatment data (available 1992-present)
+`}
 
 YOU MUST RETURN NUMERICAL DATA FOR EVERY METRIC. If exact year unavailable, use closest year and note it.`;
         break;
@@ -122,62 +150,80 @@ YOU MUST RETURN NUMERICAL DATA FOR EVERY METRIC. If exact year unavailable, use 
       case "substance_statistics":
         query = `MANDATORY SUBSTANCE-SPECIFIC DATA for ${stateName} (${stateAbbreviation}) - Year ${targetYear}
 
+${isPreCDC ? `
+*** PRE-1999 DATA INSTRUCTIONS ***
+For ${targetYear}, use SAMHSA TEDS by primary substance, state health records, DAWN (Drug Abuse Warning Network), and published research.
+Many specific substance metrics may need estimation from national trends applied to state population.
+` : ''}
+
 YOU MUST PROVIDE ALL CATEGORIES - NO SKIPPING:
 
-ALCOHOL (Source: NSDUH State Estimates, CDC BRFSS)
+ALCOHOL (Source: NSDUH State Estimates, CDC BRFSS, ${isPreCDC ? 'TEDS alcohol admissions' : ''})
 - Alcohol use past month (% of 12+): REQUIRED
 - Binge drinking rate (%): REQUIRED
 - Heavy alcohol use (%): REQUIRED
 - Alcohol use disorder count: REQUIRED
-- Alcohol-related deaths: REQUIRED (from CDC WONDER)
+- Alcohol-related deaths: REQUIRED ${isPreCDC ? '(use NCHS/state vital stats)' : '(from CDC WONDER)'}
 
-OPIOIDS (Source: NSDUH, CDC WONDER)
+OPIOIDS (Source: NSDUH, ${isPreCDC ? 'TEDS opioid admissions, DAWN' : 'CDC WONDER'})
 - Opioid use disorder count: REQUIRED
 - Opioid misuse past year: REQUIRED
 - Prescription opioid misuse: REQUIRED
-- Heroin use count: REQUIRED
-- Fentanyl deaths: REQUIRED (from CDC WONDER, available 2013+)
-- Fentanyl-involved overdoses: REQUIRED
+- Heroin use count: REQUIRED (TEDS has heroin admissions from 1992!)
+- Fentanyl deaths: ${targetYear < 2013 ? '0 (fentanyl crisis began ~2013, use 0 for earlier years)' : 'REQUIRED (from CDC WONDER)'}
+- Fentanyl-involved overdoses: ${targetYear < 2013 ? '0' : 'REQUIRED'}
 
-MARIJUANA (Source: NSDUH)
+MARIJUANA (Source: NSDUH, ${isPreCDC ? 'TEDS marijuana admissions' : ''})
 - Past month use: REQUIRED
 - Past year use: REQUIRED
 - Marijuana use disorder: REQUIRED
 
-COCAINE (Source: NSDUH, CDC WONDER)
+COCAINE (Source: NSDUH, ${isPreCDC ? 'TEDS cocaine admissions (prominent in 1992-1999!)' : 'CDC WONDER'})
 - Cocaine use past year: REQUIRED
 - Cocaine use disorder: REQUIRED
-- Cocaine-related deaths: REQUIRED
+- Cocaine-related deaths: REQUIRED ${isPreCDC ? '(crack/cocaine epidemic era - use state records)' : ''}
 
-METHAMPHETAMINE (Source: NSDUH, CDC WONDER)
+METHAMPHETAMINE (Source: NSDUH, ${isPreCDC ? 'TEDS stimulant admissions' : 'CDC WONDER'})
 - Meth use past year: REQUIRED
 - Meth use disorder: REQUIRED
 - Meth-related deaths: REQUIRED
 
-PRESCRIPTION DRUGS (Source: NSDUH)
+PRESCRIPTION DRUGS (Source: NSDUH, ${isPreCDC ? 'DEA ARCOS data' : ''})
 - Stimulant misuse: REQUIRED
 - Sedative misuse: REQUIRED
 - Tranquilizer misuse: REQUIRED
 
-TREATMENT (Source: NSDUH, TEDS)
-- Received treatment: REQUIRED
-- Needed but didn't receive: REQUIRED
-- MAT recipients: REQUIRED (if available, else estimate)
+TREATMENT (Source: TEDS - available from 1992!)
+- Received treatment: REQUIRED (TEDS has this!)
+- Needed but didn't receive: REQUIRED (estimate from treatment gap)
+- MAT recipients: ${targetYear < 2000 ? 'N/A or 0 (MAT tracking began ~2000)' : 'REQUIRED'}
 
-MENTAL HEALTH CO-OCCURRENCE (Source: NSDUH)
+MENTAL HEALTH CO-OCCURRENCE (Source: NSDUH, ${isPreCDC ? 'estimate from national studies' : ''})
 - Mental illness with SUD: REQUIRED
 - Serious mental illness with SUD: REQUIRED
 
-${isHistorical ? `HISTORICAL NOTE: For ${targetYear}, fentanyl data may not exist (tracking began ~2013). Use zero or earliest available. All other substances have NSDUH data from 2002+.` : ''}
+${isPreCDC ? `PRE-1999 NOTE: TEDS by substance is your primary source. Use DAWN for ER data. Fentanyl=0. Cocaine was prominent. Estimate prevalence from treatment admission rates applied to population.` : ''}
+${isHistorical && !isPreCDC ? `HISTORICAL NOTE: For ${targetYear}, fentanyl data may not exist (tracking began ~2013). Use zero or earliest available.` : ''}
 ${isFutureYear ? `FUTURE NOTE: Use most recent available year and note it.` : ''}`;
 
-        systemPrompt = `You are a substance abuse epidemiologist specializing in NSDUH and CDC data extraction. ${baseRules}
+        systemPrompt = `You are a substance abuse epidemiologist specializing in NSDUH, TEDS, and CDC data extraction. ${baseRules}
 
-DATA AVAILABILITY BY SUBSTANCE:
+DATA AVAILABILITY BY SUBSTANCE AND YEAR:
+${isPreCDC ? `
+FOR 1992-1998:
+- SAMHSA TEDS: Available! Has treatment admissions BY SUBSTANCE from 1992
+- DAWN (Drug Abuse Warning Network): ER visits by substance
+- State vital statistics: Drug-related mortality
+- National Household Survey on Drug Abuse (pre-NSDUH): Some state estimates
+- Cocaine/crack was at peak - TEDS cocaine admissions are key metric
+- Heroin admissions tracked in TEDS
+- Estimate prevalence by applying national rates to state population, adjusted by TEDS admission rates
+` : `
 - Alcohol, marijuana, cocaine, heroin: NSDUH from 1999 (reliable 2002+)
 - Methamphetamine: NSDUH from 2002
 - Fentanyl-specific: CDC WONDER from 2013
 - Prescription drugs: NSDUH from 2002
+`}
 
 NEVER return empty or N/A. Always provide a number with source citation.`;
         break;
