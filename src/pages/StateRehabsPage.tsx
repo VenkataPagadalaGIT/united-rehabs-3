@@ -11,22 +11,15 @@ import { FAQ } from "@/components/listing/FAQ";
 import { Footer } from "@/components/listing/Footer";
 import { SEOHead } from "@/components/SEOHead";
 import { useFilters } from "@/hooks/useFilters";
-import { mockNavItems, mockFooterLinks, mockFAQs, mockCities, mockState } from "@/data/mockData";
-
-// Map slug to state ID - will be expanded with more states
-const stateSlugMap: Record<string, { id: string; name: string }> = {
-  california: { id: "ca", name: "California" },
-  texas: { id: "tx", name: "Texas" },
-  florida: { id: "fl", name: "Florida" },
-  "new-york": { id: "ny", name: "New York" },
-};
+import { mockNavItems, mockFooterLinks, mockFAQs, mockCities } from "@/data/mockData";
+import { getStateBySlug, toState } from "@/data/stateConfig";
 
 const StateRehabsPage = () => {
   const { slug } = useParams();
   
   // Extract the state part from the URL - support both patterns
   const stateKey = slug?.replace(/-addiction-rehab-centers$/, "").replace(/-addiction-rehabs$/, "") || "";
-  const stateInfo = stateSlugMap[stateKey];
+  const stateConfig = getStateBySlug(stateKey);
   
   const {
     filters,
@@ -46,21 +39,17 @@ const StateRehabsPage = () => {
     setCity(cityId);
   };
   
-  if (!stateInfo) {
+  if (!stateConfig) {
     return <Navigate to="/" replace />;
   }
 
-  // Create dynamic state object
-  const state = {
-    ...mockState,
-    id: stateInfo.id,
-    name: stateInfo.name,
-  };
+  // Create state object from config
+  const state = toState(stateConfig);
 
   // Dynamic breadcrumb items - geographic hierarchy
   const breadcrumbItems = [
     { label: "United States", href: "/united-states" },
-    { label: stateInfo.name, href: `/${stateKey}-addiction-rehabs` },
+    { label: stateConfig.name, href: `/${stateKey}-addiction-rehabs` },
   ];
 
   return (
@@ -89,7 +78,7 @@ const StateRehabsPage = () => {
       {/* Tabs section with proper container */}
       <section className="container mx-auto px-4 pb-8">
         <StateTabs
-          stateId={stateInfo.id}
+          stateId={stateConfig.id}
           stateName={state.name}
           centers={centers}
           conditions={conditions}
