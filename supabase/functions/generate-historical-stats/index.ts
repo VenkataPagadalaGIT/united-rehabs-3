@@ -60,8 +60,8 @@ async function generateAndSave(
     // Step 2: Use Perplexity with structured output for ALL years
     const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
     
-    // Generate in chunks to avoid token limits (7 years per chunk)
-    const chunkSize = 7;
+    // Generate in chunks to avoid token limits (5 years per chunk for better JSON reliability)
+    const chunkSize = 5;
     const allStatistics: any[] = [];
     const allSubstanceStats: any[] = [];
 
