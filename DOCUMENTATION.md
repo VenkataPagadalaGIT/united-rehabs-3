@@ -898,6 +898,305 @@ const uploadImage = async (file: File) => {
 
 ---
 
+## State Page Scaling Guide
+
+This guide documents the complete process for adding new state pages, using California as the reference implementation.
+
+### Overview: California Implementation
+
+California was built as the template state with three main page types:
+
+| Page Type | URL Pattern | Component | Purpose |
+|-----------|-------------|-----------|---------|
+| **Rehabs** | `/{state}-addiction-rehabs` | `StateRehabsPage.tsx` | Treatment center listings with filters |
+| **Statistics** | `/{state}-addiction-stats` | `StateStatsPage.tsx` | Addiction data & charts |
+| **Resources** | `/{state}-addiction-free-resources` | `StateResourcesPage.tsx` | Free helplines & support |
+
+### Step-by-Step: Adding a New State
+
+#### Step 1: Update State Slug Map
+
+Add the new state to the slug map in **all three page files**:
+
+**Files to update:**
+- `src/pages/StateRehabsPage.tsx`
+- `src/pages/StateStatsPage.tsx`
+- `src/pages/StateResourcesPage.tsx`
+
+```typescript
+// Add to stateSlugMap in each file
+const stateSlugMap: Record<string, { id: string; name: string }> = {
+  california: { id: "ca", name: "California" },
+  texas: { id: "tx", name: "Texas" },
+  florida: { id: "fl", name: "Florida" },
+  "new-york": { id: "ny", name: "New York" },
+  // ADD NEW STATE HERE:
+  ohio: { id: "oh", name: "Ohio" },
+  pennsylvania: { id: "pa", name: "Pennsylvania" },
+};
+```
+
+> **Tip:** Consider extracting this to a shared constants file: `src/data/stateConfig.ts`
+
+#### Step 2: Add Database Data
+
+Use the admin panel to add state-specific data:
+
+##### A. Addiction Statistics (`/admin/statistics`)
+```sql
+-- Example: Add Ohio statistics
+INSERT INTO state_addiction_statistics (
+  state_id, state_name, year, total_affected, overdose_deaths, 
+  opioid_deaths, alcohol_abuse_rate, drug_abuse_rate,
+  treatment_admissions, recovery_rate, data_source
+) VALUES (
+  'oh', 'Ohio', 2023, 850000, 4500, 3200, 
+  7.2, 5.8, 125000, 42.5, 'SAMHSA NSDUH'
+);
+```
+
+##### B. Substance Statistics (`/admin/substance`)
+```sql
+-- Example: Add Ohio substance data
+INSERT INTO substance_statistics (
+  state_id, state_name, year,
+  alcohol_use_past_month_percent, alcohol_binge_drinking_percent,
+  opioid_use_disorder, fentanyl_deaths, cocaine_use_disorder,
+  meth_use_disorder, treatment_received
+) VALUES (
+  'oh', 'Ohio', 2023,
+  52.5, 26.8, 145000, 2800, 38000, 22000, 95000
+);
+```
+
+##### C. FAQs (`/admin/faqs`)
+Add state-specific FAQs with `state_id = 'oh'`:
+- "What are the best rehab centers in Ohio?"
+- "Does Ohio Medicaid cover addiction treatment?"
+- "How many treatment facilities are in Ohio?"
+
+##### D. Free Resources (`/admin/resources`)
+Add state-specific helplines with `state_id = 'oh'`:
+- Ohio Crisis Text Line
+- Ohio Department of Mental Health hotline
+- Local treatment referral services
+
+##### E. SEO Configuration (`/admin/seo`)
+Add SEO entries for each page type:
+
+| page_slug | page_type | meta_title |
+|-----------|-----------|------------|
+| `ohio-addiction-rehabs` | state | Ohio Addiction Rehab Centers |
+| `ohio-addiction-stats` | state | Ohio Addiction Statistics |
+| `ohio-addiction-free-resources` | state | Free Resources in Ohio |
+
+#### Step 3: Add Page Content (Optional)
+
+Use `/admin/content` to add dynamic content blocks:
+
+```sql
+INSERT INTO page_content (
+  page_key, section_key, state_id, title, body, content_type
+) VALUES 
+  ('state_rehabs', 'intro', 'oh', 
+   'Ohio Addiction Treatment', 
+   'Ohio faces unique challenges with opioid addiction...', 
+   'text'),
+  ('state_rehabs', 'statistics_highlight', 'oh',
+   'Key Statistics',
+   'Over 850,000 Ohioans struggle with substance use disorders.',
+   'highlight');
+```
+
+### Data Requirements Checklist
+
+For each new state, ensure you have:
+
+| Data Type | Table | Required Fields | Admin Page |
+|-----------|-------|-----------------|------------|
+| ✅ Basic Stats | `state_addiction_statistics` | state_id, state_name, year, total_affected | `/admin/statistics` |
+| ✅ Substance Data | `substance_statistics` | state_id, state_name, year, substance counts | `/admin/substance` |
+| ✅ FAQs | `faqs` | question, answer, state_id | `/admin/faqs` |
+| ✅ Resources | `free_resources` | title, phone, state_id | `/admin/resources` |
+| ✅ SEO | `page_seo` | page_slug, meta_title, meta_description | `/admin/seo` |
+| ⭕ Content | `page_content` | page_key, section_key, state_id | `/admin/content` |
+
+### URL Routing
+
+Routes are already configured in `App.tsx` using dynamic slugs:
+
+```tsx
+// These routes handle ALL states automatically
+<Route path="/:slug" element={<StateRehabsPage />} />
+<Route path="/:slug" element={<StateStatsPage />} />
+<Route path="/:slug" element={<StateResourcesPage />} />
+```
+
+The slug pattern matching in each component handles the routing:
+- `california-addiction-rehabs` → California rehabs page
+- `ohio-addiction-stats` → Ohio statistics page
+
+### Component Architecture
+
+```
+StateRehabsPage
+├── SEOHead (fetches from page_seo)
+├── Header
+├── Breadcrumb
+├── PageHero
+├── FilterTabs
+├── ImageGallery
+├── StateTabs
+│   ├── RehabListingsTab (treatment centers)
+│   ├── StatisticsTab (charts & data)
+│   └── FreeResourcesTab (helplines)
+├── Categories
+├── FAQ (fetches from faqs where state_id = ?)
+└── Footer
+```
+
+### Data Fetching Pattern
+
+Each tab component fetches state-specific data:
+
+```typescript
+// Example: StatisticsTab data fetching
+const { data: stats } = useQuery({
+  queryKey: ['state-statistics', stateId],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from('state_addiction_statistics')
+      .select('*')
+      .eq('state_id', stateId)
+      .order('year', { ascending: false });
+    
+    if (error) throw error;
+    return data;
+  }
+});
+```
+
+### Bulk Import for Scaling
+
+For adding multiple states quickly, use the bulk import feature:
+
+1. Go to `/admin/statistics`
+2. Click "Import/Export"
+3. Upload CSV with state data:
+
+```csv
+state_id,state_name,year,total_affected,overdose_deaths,opioid_deaths
+oh,Ohio,2023,850000,4500,3200
+pa,Pennsylvania,2023,920000,5100,3800
+mi,Michigan,2023,780000,3200,2400
+```
+
+### Testing New States
+
+After adding a new state:
+
+1. **Verify URLs work:**
+   - `/{state}-addiction-rehabs`
+   - `/{state}-addiction-stats`
+   - `/{state}-addiction-free-resources`
+
+2. **Check data loads:**
+   - Statistics charts render
+   - FAQs display correctly
+   - Resources show for that state
+
+3. **Verify SEO:**
+   - Meta titles/descriptions appear
+   - Breadcrumbs show correct state name
+   - Page titles are dynamic
+
+### Future Improvements
+
+To further scale, consider:
+
+1. **Extract state config to shared file:**
+   ```typescript
+   // src/data/stateConfig.ts
+   export const STATES: Record<string, StateInfo> = {
+     california: { id: "ca", name: "California", abbr: "CA" },
+     // ... all 50 states
+   };
+   ```
+
+2. **Create state seeding script:**
+   ```typescript
+   // scripts/seedState.ts
+   async function seedState(stateId: string, stateName: string) {
+     // Insert default stats, FAQs, SEO...
+   }
+   ```
+
+3. **Add state validation:**
+   ```typescript
+   const isValidState = (slug: string): boolean => {
+     return Object.keys(STATES).includes(slug);
+   };
+   ```
+
+### Quick Reference: All 50 States
+
+```typescript
+const ALL_STATES = {
+  alabama: { id: "al", name: "Alabama" },
+  alaska: { id: "ak", name: "Alaska" },
+  arizona: { id: "az", name: "Arizona" },
+  arkansas: { id: "ar", name: "Arkansas" },
+  california: { id: "ca", name: "California" },
+  colorado: { id: "co", name: "Colorado" },
+  connecticut: { id: "ct", name: "Connecticut" },
+  delaware: { id: "de", name: "Delaware" },
+  florida: { id: "fl", name: "Florida" },
+  georgia: { id: "ga", name: "Georgia" },
+  hawaii: { id: "hi", name: "Hawaii" },
+  idaho: { id: "id", name: "Idaho" },
+  illinois: { id: "il", name: "Illinois" },
+  indiana: { id: "in", name: "Indiana" },
+  iowa: { id: "ia", name: "Iowa" },
+  kansas: { id: "ks", name: "Kansas" },
+  kentucky: { id: "ky", name: "Kentucky" },
+  louisiana: { id: "la", name: "Louisiana" },
+  maine: { id: "me", name: "Maine" },
+  maryland: { id: "md", name: "Maryland" },
+  massachusetts: { id: "ma", name: "Massachusetts" },
+  michigan: { id: "mi", name: "Michigan" },
+  minnesota: { id: "mn", name: "Minnesota" },
+  mississippi: { id: "ms", name: "Mississippi" },
+  missouri: { id: "mo", name: "Missouri" },
+  montana: { id: "mt", name: "Montana" },
+  nebraska: { id: "ne", name: "Nebraska" },
+  nevada: { id: "nv", name: "Nevada" },
+  "new-hampshire": { id: "nh", name: "New Hampshire" },
+  "new-jersey": { id: "nj", name: "New Jersey" },
+  "new-mexico": { id: "nm", name: "New Mexico" },
+  "new-york": { id: "ny", name: "New York" },
+  "north-carolina": { id: "nc", name: "North Carolina" },
+  "north-dakota": { id: "nd", name: "North Dakota" },
+  ohio: { id: "oh", name: "Ohio" },
+  oklahoma: { id: "ok", name: "Oklahoma" },
+  oregon: { id: "or", name: "Oregon" },
+  pennsylvania: { id: "pa", name: "Pennsylvania" },
+  "rhode-island": { id: "ri", name: "Rhode Island" },
+  "south-carolina": { id: "sc", name: "South Carolina" },
+  "south-dakota": { id: "sd", name: "South Dakota" },
+  tennessee: { id: "tn", name: "Tennessee" },
+  texas: { id: "tx", name: "Texas" },
+  utah: { id: "ut", name: "Utah" },
+  vermont: { id: "vt", name: "Vermont" },
+  virginia: { id: "va", name: "Virginia" },
+  washington: { id: "wa", name: "Washington" },
+  "west-virginia": { id: "wv", name: "West Virginia" },
+  wisconsin: { id: "wi", name: "Wisconsin" },
+  wyoming: { id: "wy", name: "Wyoming" },
+};
+```
+
+---
+
 ## Contact & Support
 
 For questions about this project, refer to:
