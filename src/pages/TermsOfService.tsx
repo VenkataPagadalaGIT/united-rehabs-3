@@ -29,8 +29,11 @@ export default function TermsOfService() {
 
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-4">3. No Medical Advice</h2>
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed mb-4">
                 The information provided on this Website is for general informational and educational purposes only. It is not intended to be, and should not be construed as, medical advice, professional diagnosis, opinion, or treatment. Always seek the advice of a qualified healthcare provider with any questions you may have regarding a medical condition, mental health concern, or substance use disorder. Never disregard professional medical advice or delay in seeking it because of something you have read on this Website.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                <strong>HIPAA Notice:</strong> United Rehabs is NOT a "covered entity" under the Health Insurance Portability and Accountability Act (HIPAA). We do not provide healthcare services, process health insurance, or maintain medical records. We are an informational directory only. Please do not submit Protected Health Information (PHI) or sensitive medical details through our website.
               </p>
             </section>
 

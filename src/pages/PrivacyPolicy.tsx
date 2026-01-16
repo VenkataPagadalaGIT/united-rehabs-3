@@ -134,21 +134,61 @@ export default function PrivacyPolicy() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-foreground mb-4">11. California Privacy Rights</h2>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">11. California Privacy Rights (CCPA)</h2>
               <p className="text-muted-foreground leading-relaxed">
                 California residents have additional rights under the California Consumer Privacy Act (CCPA), including the right to know what personal information is collected, request deletion, and opt out of the sale of personal information. We do not sell personal information. To exercise your rights, please contact us using the information below.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-foreground mb-4">12. Changes to This Privacy Policy</h2>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">12. European Union Privacy Rights (GDPR)</h2>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                If you are located in the European Economic Area (EEA), United Kingdom, or Switzerland, you have certain rights under the General Data Protection Regulation (GDPR):
+              </p>
+              <ul className="list-disc list-inside text-muted-foreground space-y-2 mb-4">
+                <li><strong>Right to Access:</strong> Request a copy of your personal data we hold</li>
+                <li><strong>Right to Rectification:</strong> Request correction of inaccurate personal data</li>
+                <li><strong>Right to Erasure:</strong> Request deletion of your personal data ("right to be forgotten")</li>
+                <li><strong>Right to Restrict Processing:</strong> Request limitation on how we use your data</li>
+                <li><strong>Right to Data Portability:</strong> Receive your data in a structured, machine-readable format</li>
+                <li><strong>Right to Object:</strong> Object to processing based on legitimate interests or direct marketing</li>
+                <li><strong>Right to Withdraw Consent:</strong> Withdraw consent at any time where processing is based on consent</li>
+              </ul>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                <strong>Legal Basis for Processing:</strong> We process personal data on the following legal bases:
+              </p>
+              <ul className="list-disc list-inside text-muted-foreground space-y-2 mb-4">
+                <li><strong>Consent:</strong> Where you have given explicit consent for specific purposes</li>
+                <li><strong>Legitimate Interests:</strong> For website analytics, security, and service improvement</li>
+                <li><strong>Legal Obligation:</strong> When required to comply with applicable laws</li>
+              </ul>
+              <p className="text-muted-foreground leading-relaxed">
+                <strong>International Data Transfers:</strong> Your data may be transferred to and processed in the United States. We ensure appropriate safeguards are in place for such transfers. To exercise your GDPR rights, please contact us. You also have the right to lodge a complaint with your local data protection authority.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">13. HIPAA Notice</h2>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                <strong>Important:</strong> United Rehabs is NOT a "covered entity" under the Health Insurance Portability and Accountability Act (HIPAA). We are an informational directory website and do not provide healthcare services, process health insurance claims, or maintain medical records.
+              </p>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                We do not collect, store, or transmit Protected Health Information (PHI) as defined by HIPAA. Any information you voluntarily provide through our website (such as contact inquiries) is not subject to HIPAA protections.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                <strong>Warning:</strong> Please do not submit sensitive medical information, diagnoses, treatment history, or other health-related personal details through our website forms. If you need to share such information, please do so directly with a licensed healthcare provider or treatment facility.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">14. Changes to This Privacy Policy</h2>
               <p className="text-muted-foreground leading-relaxed">
                 We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date. You are advised to review this Privacy Policy periodically for any changes. Changes are effective immediately upon posting.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-foreground mb-4">13. Contact Us</h2>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">15. Contact Us</h2>
               <p className="text-muted-foreground leading-relaxed">
                 If you have any questions about this Privacy Policy or our data practices, please contact us through our website.
               </p>
