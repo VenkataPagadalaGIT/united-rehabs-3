@@ -1,1 +1,13 @@
 project_id = "yqtusenxmedosivmeone"
+
+[functions.generate-content]
+verify_jwt = false
+
+[functions.research-state]
+verify_jwt = false
+
+[functions.qa-review]
+verify_jwt = false
+
+[functions.generate-historical-stats]
+verify_jwt = false
