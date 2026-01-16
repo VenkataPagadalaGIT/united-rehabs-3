@@ -285,41 +285,49 @@ Create compelling SEO content that helps people searching for "${stateName} reha
 
     console.log(`Researching ${researchType} for ${stateName} (${targetYear})...`);
 
-    const response = await fetch("https://api.perplexity.ai/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "sonar-pro",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: query },
-        ],
-        // Use appropriate recency filter based on year
-        search_recency_filter: isFutureYear || targetYear >= currentYear - 2 ? "year" : undefined,
-        // Prioritize federal .gov sources
-        search_domain_filter: [
-          "cdc.gov",
-          "wonder.cdc.gov",
-          "samhsa.gov",
-          "nsduhweb.rti.org",
-          "nida.nih.gov",
-          "dea.gov",
-          ".gov",
-        ],
-      }),
-    });
+    // Add timeout to prevent edge function from hanging
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 50000); // 50 second timeout
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Perplexity API error:", errorText);
-      return new Response(
-        JSON.stringify({ success: false, error: `Perplexity API error: ${response.status}` }),
-        { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    try {
+      const response = await fetch("https://api.perplexity.ai/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "sonar-pro",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: query },
+          ],
+          // Use appropriate recency filter based on year
+          search_recency_filter: isFutureYear || targetYear >= currentYear - 2 ? "year" : undefined,
+          // Prioritize federal .gov sources
+          search_domain_filter: [
+            "cdc.gov",
+            "wonder.cdc.gov",
+            "samhsa.gov",
+            "nsduhweb.rti.org",
+            "nida.nih.gov",
+            "dea.gov",
+            ".gov",
+          ],
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Perplexity API error:", errorText);
+        return new Response(
+          JSON.stringify({ success: false, error: `Perplexity API error: ${response.status}` }),
+          { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "";
@@ -327,21 +335,33 @@ Create compelling SEO content that helps people searching for "${stateName} reha
 
     console.log(`Research complete for ${stateName} - ${researchType} (${targetYear})`);
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        data: {
-          stateName,
-          stateAbbreviation,
-          researchType,
-          year: targetYear,
-          content,
-          citations,
-          timestamp: new Date().toISOString(),
-        },
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+      return new Response(
+        JSON.stringify({
+          success: true,
+          data: {
+            stateName,
+            stateAbbreviation,
+            researchType,
+            year: targetYear,
+            content,
+            citations,
+            timestamp: new Date().toISOString(),
+          },
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    } catch (fetchError: unknown) {
+      clearTimeout(timeoutId);
+      const err = fetchError as Error;
+      if (err.name === 'AbortError') {
+        console.error(`Perplexity API timeout for ${stateName} - ${researchType} (${targetYear})`);
+        return new Response(
+          JSON.stringify({ success: false, error: "Request timed out. The Perplexity API took too long to respond." }),
+          { status: 504, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      throw fetchError;
+    }
   } catch (error) {
     console.error("Research error:", error);
     return new Response(

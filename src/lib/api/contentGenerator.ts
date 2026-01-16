@@ -62,6 +62,27 @@ export interface StateGenerationResult {
   content: unknown;
 }
 
+// Helper function for retry logic
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  maxRetries = 2,
+  delayMs = 3000
+): Promise<T> {
+  let lastError: Error | null = null;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      if (attempt < maxRetries) {
+        console.log(`Retry attempt ${attempt + 1}/${maxRetries} after error: ${lastError.message}`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
+    }
+  }
+  throw lastError;
+}
+
 // Research a specific topic for a state using Perplexity
 export async function researchState(
   stateName: string,
@@ -69,14 +90,20 @@ export async function researchState(
   researchType: ContentType,
   year?: number
 ): Promise<ResearchResult> {
-  const { data, error } = await supabase.functions.invoke("research-state", {
-    body: { stateName, stateAbbreviation, researchType, year },
-  });
+  try {
+    const { data, error } = await withRetry(() => 
+      supabase.functions.invoke("research-state", {
+        body: { stateName, stateAbbreviation, researchType, year },
+      })
+    );
 
-  if (error) {
-    return { success: false, error: error.message };
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return data;
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
   }
-  return data;
 }
 
 // Generate content from research using Lovable AI
@@ -88,14 +115,20 @@ export async function generateContent(
   citations: string[],
   year?: number
 ): Promise<GeneratedContent> {
-  const { data, error } = await supabase.functions.invoke("generate-content", {
-    body: { stateName, stateAbbreviation, contentType, researchData, citations, year },
-  });
+  try {
+    const { data, error } = await withRetry(() =>
+      supabase.functions.invoke("generate-content", {
+        body: { stateName, stateAbbreviation, contentType, researchData, citations, year },
+      })
+    );
 
-  if (error) {
-    return { success: false, error: error.message };
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return data;
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
   }
-  return data;
 }
 
 // QA review generated content
