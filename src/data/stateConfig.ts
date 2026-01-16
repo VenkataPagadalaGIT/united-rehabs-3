@@ -1,5 +1,5 @@
 import type { State, City, TreatmentCenter } from "@/types";
-
+import { ALL_STATES, type StateBasicConfig } from "@/data/allStates";
 /**
  * State Configuration
  * 
@@ -273,11 +273,49 @@ export const STATES: Record<string, StateConfig> = {
 
 /**
  * Get state configuration by slug
+ * First checks detailed STATES config, then falls back to ALL_STATES
  * @param slug - The URL slug (e.g., "california", "new-york")
  * @returns StateConfig or undefined if not found
  */
 export function getStateBySlug(slug: string): StateConfig | undefined {
-  return STATES[slug];
+  // First check detailed config
+  if (STATES[slug]) {
+    return STATES[slug];
+  }
+  
+  // Fallback to ALL_STATES and generate a basic config
+  const basicState = ALL_STATES.find(s => s.slug === slug);
+  if (basicState) {
+    return generateBasicStateConfig(basicState);
+  }
+  
+  return undefined;
+}
+
+/**
+ * Generate a basic StateConfig from StateBasicConfig
+ */
+function generateBasicStateConfig(basic: StateBasicConfig): StateConfig {
+  return {
+    id: basic.id,
+    name: basic.name,
+    abbreviation: basic.abbreviation,
+    slug: basic.slug,
+    description: `${basic.name} offers comprehensive addiction treatment resources and recovery support services. Find rehab centers, statistics, and free resources for substance abuse recovery in ${basic.name}.`,
+    latitude: basic.latitude,
+    longitude: basic.longitude,
+    population: basic.population,
+    heroImages: [
+      {
+        id: `${basic.id}-1`,
+        url: `https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&h=600&fit=crop`,
+        alt: `${basic.name} landscape`,
+        type: "photo",
+        order: 1,
+      },
+    ],
+    cities: [],
+  };
 }
 
 /**
@@ -308,17 +346,17 @@ export function toState(config: StateConfig): State {
 }
 
 /**
- * Get all supported state slugs
+ * Get all supported state slugs (all 50 states)
  */
 export function getAllStateSlugs(): string[] {
-  return Object.keys(STATES);
+  return ALL_STATES.map(s => s.slug);
 }
 
 /**
  * Check if a slug is a valid state
  */
 export function isValidStateSlug(slug: string): boolean {
-  return slug in STATES;
+  return ALL_STATES.some(s => s.slug === slug);
 }
 
 /**
