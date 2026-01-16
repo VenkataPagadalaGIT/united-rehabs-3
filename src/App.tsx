@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import AccessibilityStatement from "./pages/AccessibilityStatement";
 import StatePage from "./pages/StatePage";
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
@@ -25,6 +26,7 @@ import ArticlePage from "./pages/ArticlePage";
 import ShortcodeShowcase from "./pages/ShortcodeShowcase";
 import URLsAdmin from "./pages/admin/URLsAdmin";
 import SecurityAdmin from "./pages/admin/SecurityAdmin";
+import { CrisisHotlineBanner } from "./components/CrisisHotlineBanner";
 
 const queryClient = new QueryClient();
 
@@ -34,10 +36,12 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <CrisisHotlineBanner />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/accessibility" element={<AccessibilityStatement />} />
           
           {/* Blog, News, Articles routes */}
           <Route path="/blog" element={<ArticlesListPage />} />

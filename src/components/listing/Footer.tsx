@@ -68,6 +68,13 @@ export function Footer({ linkGroups }: FooterProps) {
             </Link>
             <span className="text-sidebar-foreground/30">|</span>
             <Link
+              to="/accessibility"
+              className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
+            >
+              Accessibility
+            </Link>
+            <span className="text-sidebar-foreground/30">|</span>
+            <Link
               to="/admin"
               className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
             >
