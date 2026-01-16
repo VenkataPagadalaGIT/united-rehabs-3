@@ -8,6 +8,9 @@ import NotFound from "./pages/NotFound";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AccessibilityStatement from "./pages/AccessibilityStatement";
+import AboutUs from "./pages/AboutUs";
+import Contact from "./pages/Contact";
+import DoNotSell from "./pages/DoNotSell";
 import StatePage from "./pages/StatePage";
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
@@ -27,6 +30,7 @@ import ShortcodeShowcase from "./pages/ShortcodeShowcase";
 import URLsAdmin from "./pages/admin/URLsAdmin";
 import SecurityAdmin from "./pages/admin/SecurityAdmin";
 import { CrisisHotlineBanner } from "./components/CrisisHotlineBanner";
+import { CookieConsentBanner } from "./components/CookieConsentBanner";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +46,9 @@ const App = () => (
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/accessibility" element={<AccessibilityStatement />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/do-not-sell" element={<DoNotSell />} />
           
           {/* Blog, News, Articles routes */}
           <Route path="/blog" element={<ArticlesListPage />} />
@@ -75,6 +82,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <CookieConsentBanner />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
