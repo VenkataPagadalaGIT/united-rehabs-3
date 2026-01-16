@@ -2,7 +2,7 @@ import { TreatmentGrid } from "../TreatmentGrid";
 import { Sidebar } from "../Sidebar";
 import { LocationTags } from "../LocationTags";
 import { RelatedRehabs } from "../RelatedRehabs";
-import { mockHealthResources, mockStatisticsCards, mockTreatmentCenters } from "@/data/mockData";
+import { mockStatisticsCards, mockTreatmentCenters } from "@/data/mockData";
 import type { TreatmentCenter, FilterOption, City } from "@/types";
 
 interface RehabListingsTabProps {
@@ -47,7 +47,6 @@ export const RehabListingsTab = ({
         </div>
         <div className="lg:col-span-1">
           <Sidebar
-            healthResources={mockHealthResources}
             statisticsCards={mockStatisticsCards}
             stateName={stateName}
           />

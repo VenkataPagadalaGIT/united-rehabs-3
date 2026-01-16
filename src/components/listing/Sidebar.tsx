@@ -1,15 +1,24 @@
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Phone } from "lucide-react";
-import type { HealthResource, StatisticsCard } from "@/types";
+import type { StatisticsCard } from "@/types";
 
 interface SidebarProps {
-  healthResources: HealthResource[];
   statisticsCards: StatisticsCard[];
   phoneNumber?: string;
   stateName?: string;
 }
 
-export function Sidebar({ healthResources, statisticsCards, phoneNumber = "111-234-3333", stateName = "California" }: SidebarProps) {
+export function Sidebar({ statisticsCards, phoneNumber = "111-234-3333", stateName = "California" }: SidebarProps) {
+  // Generate dynamic health resources based on state name
+  const healthResources = useMemo(() => [
+    { id: "hr1", title: `Health Outcomes in ${stateName}`, url: "#" },
+    { id: "hr2", title: `Health Behaviors Near ${stateName}`, url: "#" },
+    { id: "hr3", title: `Health Outcomes in ${stateName}`, url: "#" },
+    { id: "hr4", title: `FAQ's about ${stateName} Rehabs`, url: "#" },
+    { id: "hr5", title: `Health Outcomes in ${stateName}`, url: "#" },
+  ], [stateName]);
+
   return (
     <div className="space-y-6">
       {/* Health Behaviors Section */}
