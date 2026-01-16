@@ -196,9 +196,22 @@ export default function DataCoverageAdmin() {
     }
   };
 
+  const [autoRefresh, setAutoRefresh] = useState(true);
+
   useEffect(() => {
     fetchCoverage();
   }, []);
+
+  // Auto-refresh every 10 seconds when enabled
+  useEffect(() => {
+    if (!autoRefresh) return;
+    
+    const interval = setInterval(() => {
+      fetchCoverage();
+    }, 10000);
+    
+    return () => clearInterval(interval);
+  }, [autoRefresh]);
 
   const getStatusIcon = (hasData: boolean) => {
     return hasData ? (
@@ -235,10 +248,19 @@ export default function DataCoverageAdmin() {
             Monitor data completeness across all 50 states
           </p>
         </div>
-        <Button onClick={fetchCoverage} disabled={loading} variant="outline">
-          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => setAutoRefresh(!autoRefresh)}
+            variant={autoRefresh ? "default" : "outline"}
+            size="sm"
+          >
+            {autoRefresh ? "Auto-Refresh ON" : "Auto-Refresh OFF"}
+          </Button>
+          <Button onClick={fetchCoverage} disabled={loading} variant="outline" size="sm">
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {/* Summary Cards */}
