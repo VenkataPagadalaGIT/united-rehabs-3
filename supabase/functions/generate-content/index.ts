@@ -11,6 +11,7 @@ interface GenerateRequest {
   contentType: "statistics" | "resources" | "faqs" | "seo";
   researchData: string;
   citations: string[];
+  year?: number; // For statistics, specify the year
 }
 
 serve(async (req) => {
@@ -19,7 +20,7 @@ serve(async (req) => {
   }
 
   try {
-    const { stateName, stateAbbreviation, contentType, researchData, citations } = await req.json() as GenerateRequest;
+    const { stateName, stateAbbreviation, contentType, researchData, citations, year } = await req.json() as GenerateRequest;
 
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) {
@@ -34,11 +35,12 @@ serve(async (req) => {
 
     switch (contentType) {
       case "statistics":
-        systemPrompt = `You are a data analyst creating structured addiction statistics for ${stateName}. Output ONLY valid JSON matching this exact structure:
+        const targetYear = year || new Date().getFullYear();
+        systemPrompt = `You are a data analyst creating structured addiction statistics for ${stateName} for the year ${targetYear}. Output ONLY valid JSON matching this exact structure:
 {
   "state_id": "${stateAbbreviation.toLowerCase()}",
   "state_name": "${stateName}",
-  "year": 2024,
+  "year": ${targetYear},
   "total_affected": number or null,
   "overdose_deaths": number or null,
   "opioid_deaths": number or null,
@@ -49,8 +51,9 @@ serve(async (req) => {
   "recovery_rate": number (percentage) or null,
   "data_source": "source name",
   "source_url": "url if available"
-}`;
-        userPrompt = `Based on this research data, extract and structure the statistics for ${stateName}:\n\n${researchData}\n\nCitations: ${citations.join(", ")}\n\nOutput ONLY the JSON object, no markdown or explanation.`;
+}
+IMPORTANT: The year field MUST be ${targetYear}.`;
+        userPrompt = `Based on this research data, extract and structure the statistics for ${stateName} for year ${targetYear}:\n\n${researchData}\n\nCitations: ${citations.join(", ")}\n\nOutput ONLY the JSON object with year set to ${targetYear}, no markdown or explanation.`;
         break;
 
       case "resources":

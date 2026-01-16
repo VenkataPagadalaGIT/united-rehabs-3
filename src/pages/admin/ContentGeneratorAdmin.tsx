@@ -90,10 +90,14 @@ const CONTENT_TYPES: { value: ContentType; label: string; description: string }[
   { value: "seo", label: "SEO Content", description: "Page titles and descriptions" },
 ];
 
+// Available years for statistics (2015-2024)
+const AVAILABLE_YEARS = [2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015];
+
 export default function ContentGeneratorAdmin() {
   const { toast } = useToast();
   const [selectedStates, setSelectedStates] = useState<string[]>([]);
   const [selectedContentTypes, setSelectedContentTypes] = useState<ContentType[]>(["statistics", "faqs", "seo"]);
+  const [selectedYears, setSelectedYears] = useState<number[]>([2024, 2023, 2022]);
   const [skipQA, setSkipQA] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -125,6 +129,22 @@ export default function ContentGeneratorAdmin() {
     );
   };
 
+  const toggleYear = (year: number) => {
+    setSelectedYears(prev =>
+      prev.includes(year)
+        ? prev.filter(y => y !== year)
+        : [...prev, year].sort((a, b) => b - a)
+    );
+  };
+
+  const selectAllYears = () => {
+    setSelectedYears([...AVAILABLE_YEARS]);
+  };
+
+  const clearYears = () => {
+    setSelectedYears([]);
+  };
+
   const startGeneration = async () => {
     if (selectedStates.length === 0) {
       toast({ title: "No states selected", description: "Please select at least one state", variant: "destructive" });
@@ -132,6 +152,10 @@ export default function ContentGeneratorAdmin() {
     }
     if (selectedContentTypes.length === 0) {
       toast({ title: "No content types selected", description: "Please select at least one content type", variant: "destructive" });
+      return;
+    }
+    if (selectedContentTypes.includes("statistics") && selectedYears.length === 0) {
+      toast({ title: "No years selected", description: "Please select at least one year for statistics", variant: "destructive" });
       return;
     }
 
@@ -150,7 +174,8 @@ export default function ContentGeneratorAdmin() {
           setCurrentTask(current);
         },
         skipQA,
-        3000 // 3 second delay between calls
+        3000, // 3 second delay between calls
+        selectedYears // Pass selected years for statistics
       );
 
       setResults(generatedResults);
@@ -372,6 +397,50 @@ export default function ContentGeneratorAdmin() {
             </CardContent>
           </Card>
 
+          {/* Year Selection for Statistics */}
+          {selectedContentTypes.includes("statistics") && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Select Years ({selectedYears.length}/10)</CardTitle>
+                    <CardDescription>Choose years for statistics data (2015-2024)</CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={selectAllYears}>
+                      Select All
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={clearYears}>
+                      Clear
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-2 grid-cols-5 sm:grid-cols-10">
+                  {AVAILABLE_YEARS.map(year => (
+                    <div
+                      key={year}
+                      className={`flex items-center justify-center gap-2 p-2 rounded border cursor-pointer transition-colors ${
+                        selectedYears.includes(year)
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-muted-foreground"
+                      }`}
+                      onClick={() => toggleYear(year)}
+                    >
+                      <Checkbox
+                        checked={selectedYears.includes(year)}
+                        onCheckedChange={() => toggleYear(year)}
+                        className="sr-only"
+                      />
+                      <span className="text-sm font-medium">{year}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -430,7 +499,17 @@ export default function ContentGeneratorAdmin() {
                     <Label htmlFor="skip-qa">Skip QA Review</Label>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {selectedStates.length * selectedContentTypes.length} items to generate
+                    {(() => {
+                      let count = 0;
+                      for (const type of selectedContentTypes) {
+                        if (type === "statistics") {
+                          count += selectedStates.length * selectedYears.length;
+                        } else {
+                          count += selectedStates.length;
+                        }
+                      }
+                      return `${count} items to generate`;
+                    })()}
                   </p>
                 </div>
                 <Button

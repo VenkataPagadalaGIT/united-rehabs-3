@@ -126,7 +126,10 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
     return num.toString();
   };
 
-  const availableYears = statistics?.map((s) => s.year) || [];
+  // Generate all years from 2015-2024, highlighting which have data
+  const allYears = Array.from({ length: 10 }, (_, i) => 2024 - i); // [2024, 2023, ..., 2015]
+  const yearsWithData = new Set(statistics?.map((s) => s.year) || []);
+  const availableYears = allYears; // Show all years 2015-2024
 
   // Prepare chart data
   const trendData = statistics?.map((s) => ({
@@ -256,7 +259,7 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
           <SelectContent>
             {availableYears.map((year) => (
               <SelectItem key={year} value={year.toString()}>
-                {year}
+                {year}{!yearsWithData.has(year) && " *"}
               </SelectItem>
             ))}
           </SelectContent>

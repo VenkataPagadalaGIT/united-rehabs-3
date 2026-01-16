@@ -9,6 +9,7 @@ interface ResearchRequest {
   stateName: string;
   stateAbbreviation: string;
   researchType: "statistics" | "resources" | "faqs" | "seo";
+  year?: number; // For statistics, specify the year to research
 }
 
 serve(async (req) => {
@@ -17,7 +18,7 @@ serve(async (req) => {
   }
 
   try {
-    const { stateName, stateAbbreviation, researchType } = await req.json() as ResearchRequest;
+    const { stateName, stateAbbreviation, researchType, year } = await req.json() as ResearchRequest;
 
     const apiKey = Deno.env.get("PERPLEXITY_API_KEY");
     if (!apiKey) {
@@ -33,16 +34,18 @@ serve(async (req) => {
 
     switch (researchType) {
       case "statistics":
-        query = `What are the latest addiction and substance abuse statistics for ${stateName} (${stateAbbreviation})? Include: 
-        - Total overdose deaths (most recent year)
-        - Opioid-related deaths
-        - Drug abuse rate percentage
-        - Alcohol abuse rate percentage
-        - Number of treatment facilities
-        - Treatment admission numbers
-        - Recovery rates if available
+        const targetYear = year || new Date().getFullYear();
+        query = `What are the addiction and substance abuse statistics for ${stateName} (${stateAbbreviation}) for the year ${targetYear}? Include: 
+        - Total overdose deaths in ${targetYear}
+        - Opioid-related deaths in ${targetYear}
+        - Drug abuse rate percentage in ${targetYear}
+        - Alcohol abuse rate percentage in ${targetYear}
+        - Number of treatment facilities in ${targetYear}
+        - Treatment admission numbers in ${targetYear}
+        - Recovery rates if available for ${targetYear}
+        If ${targetYear} data is not available, provide the closest available year's data and note the actual year.
         Provide specific numbers with sources.`;
-        systemPrompt = "You are a research assistant specializing in addiction and public health statistics. Provide accurate, cited data.";
+        systemPrompt = `You are a research assistant specializing in addiction and public health statistics. Focus on finding data for ${targetYear} specifically. Provide accurate, cited data.`;
         break;
 
       case "resources":
