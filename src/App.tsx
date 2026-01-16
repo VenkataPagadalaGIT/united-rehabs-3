@@ -31,6 +31,7 @@ import ShortcodeShowcase from "./pages/ShortcodeShowcase";
 import URLsAdmin from "./pages/admin/URLsAdmin";
 import SecurityAdmin from "./pages/admin/SecurityAdmin";
 import ContentGeneratorAdmin from "./pages/admin/ContentGeneratorAdmin";
+import DataCoverageAdmin from "./pages/admin/DataCoverageAdmin";
 import { CrisisHotlineBanner } from "./components/CrisisHotlineBanner";
 import { CookieConsentBanner } from "./components/CookieConsentBanner";
 
@@ -81,6 +82,7 @@ const App = () => (
             <Route path="urls" element={<URLsAdmin />} />
             <Route path="security" element={<SecurityAdmin />} />
             <Route path="content-generator" element={<ContentGeneratorAdmin />} />
+            <Route path="data-coverage" element={<DataCoverageAdmin />} />
           </Route>
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
