@@ -1161,9 +1161,11 @@ const effectiveYear = selectedYear || mostRecentYear || "2023";
 4. `Sidebar` → displays dynamic `stateName`
 
 **Files to check:**
-- `Sidebar.tsx` - uses `stateName` prop
+- `Sidebar.tsx` - uses `stateName` prop and generates dynamic health resources
 - `RehabListingsTab.tsx` - passes `stateName` to Sidebar
 - `StateTabs.tsx` - passes `stateName` to RehabListingsTab
+
+**Note:** The Sidebar now generates health resource links dynamically using `useMemo` based on `stateName`, instead of using hardcoded mock data.
 
 #### 6. State Config Synchronization
 **Problem:** `state_id` in database doesn't match `id` in `stateConfig.ts`.
