@@ -6,15 +6,16 @@ interface SidebarProps {
   healthResources: HealthResource[];
   statisticsCards: StatisticsCard[];
   phoneNumber?: string;
+  stateName?: string;
 }
 
-export function Sidebar({ healthResources, statisticsCards, phoneNumber = "111-234-3333" }: SidebarProps) {
+export function Sidebar({ healthResources, statisticsCards, phoneNumber = "111-234-3333", stateName = "California" }: SidebarProps) {
   return (
     <div className="space-y-6">
       {/* Health Behaviors Section */}
       <div className="bg-card rounded-xl border border-border p-6">
         <h3 className="text-primary text-sm font-medium mb-4">
-          Health Behaviors in California
+          Health Behaviors in {stateName}
         </h3>
         <ul className="space-y-3">
           {healthResources.map((resource) => (
@@ -33,7 +34,7 @@ export function Sidebar({ healthResources, statisticsCards, phoneNumber = "111-2
       {/* CTA Section */}
       <div className="bg-card rounded-xl border border-border p-6">
         <h3 className="text-foreground font-semibold mb-4">
-          Health Outcomes in California
+          Health Outcomes in {stateName}
         </h3>
         <Button className="w-full bg-primary hover:bg-primary/90 gap-2 mb-3">
           <Phone className="h-4 w-4" />

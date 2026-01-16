@@ -13,6 +13,7 @@ interface RehabListingsTabProps {
   cities: City[];
   activeCityId?: string;
   onCityClick: (cityId: string) => void;
+  stateName?: string;
 }
 
 export const RehabListingsTab = ({
@@ -23,6 +24,7 @@ export const RehabListingsTab = ({
   cities,
   activeCityId,
   onCityClick,
+  stateName = "California",
 }: RehabListingsTabProps) => {
   return (
     <div className="space-y-8">
@@ -47,6 +49,7 @@ export const RehabListingsTab = ({
           <Sidebar
             healthResources={mockHealthResources}
             statisticsCards={mockStatisticsCards}
+            stateName={stateName}
           />
         </div>
       </div>

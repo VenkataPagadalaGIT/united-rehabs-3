@@ -1151,6 +1151,51 @@ const effectiveYear = selectedYear || mostRecentYear || "2023";
 - [ ] FAQs have `is_active = true`
 - [ ] FAQ component filters by state_id (verify it's not using mock data)
 
+#### 5. Hardcoded State Names in Components
+**Problem:** Some components (Sidebar, health behaviors sections) show "California" instead of the current state.
+
+**Solution:** Components now accept `stateName` prop that flows from:
+1. `StateRehabsPage` → gets state from `stateConfig.ts`
+2. `StateTabs` → receives `stateName` prop
+3. `RehabListingsTab` → passes `stateName` to child components
+4. `Sidebar` → displays dynamic `stateName`
+
+**Files to check:**
+- `Sidebar.tsx` - uses `stateName` prop
+- `RehabListingsTab.tsx` - passes `stateName` to Sidebar
+- `StateTabs.tsx` - passes `stateName` to RehabListingsTab
+
+#### 6. State Config Synchronization
+**Problem:** `state_id` in database doesn't match `id` in `stateConfig.ts`.
+
+**Important:** The `id` field in `stateConfig.ts` MUST match the `state_id` used in database tables:
+- California: `id: "ca"` → database `state_id: "ca"`
+- Florida: `id: "fl"` → database `state_id: "fl"`
+- Texas: `id: "tx"` → database `state_id: "tx"`
+- New York: `id: "ny"` → database `state_id: "ny"`
+
+### QA Checklist for New States
+
+When adding a new state, verify all of the following:
+
+- [ ] State added to `src/data/stateConfig.ts` with correct `id`, `slug`, and `heroImages`
+- [ ] Database has `state_addiction_statistics` records with matching `state_id`
+- [ ] Database has `substance_statistics` records with matching `state_id` and years
+- [ ] Database has `faqs` records with matching `state_id` and `is_active = true`
+- [ ] Database has `free_resources` records with matching `state_id`
+- [ ] Database has `page_seo` records for all 3 page types
+- [ ] Navigation works: `/{state}-addiction-rehabs` loads correctly
+- [ ] Statistics tab shows charts with data
+- [ ] Substance charts show data
+- [ ] Year selector defaults to most recent year with data
+- [ ] Sidebar shows correct state name (not "California")
+- [ ] FAQs display for the state
+- [ ] Resources tab shows state-specific resources
+- [ ] Page title/meta description are dynamic
+- [ ] Filter button shows state name (not "California")
+- [ ] Hero section shows state name and description
+- [ ] Image gallery shows state-specific images
+
 ### Future Improvements
 
 ### Quick Reference: All 50 States
