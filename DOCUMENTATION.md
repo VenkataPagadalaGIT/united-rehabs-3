@@ -1210,19 +1210,50 @@ When adding a new state, verify all of the following:
 
 #### 4. Key Files That Must Be State-Aware
 These files use state data and must be checked:
-- `stateConfig.ts` - Central source of truth for state data including cities
-- `StateRehabsPage.tsx` - Uses `getStateCities()` for location tags
+- `stateConfig.ts` - Central source of truth for state data including cities AND treatment centers
+- `StateRehabsPage.tsx` - Uses `getStateCities()` for location tags, passes `stateId` to `useFilters`
+- `useFilters.ts` - Accepts `stateId` parameter, uses `getStateTreatmentCenters()` for state-specific data
 - `StateTabs.tsx` - Passes `stateName` to child components
-- `RehabListingsTab.tsx` - Passes `stateName` to Sidebar
+- `RehabListingsTab.tsx` - Passes `stateName` to Sidebar, uses `centers` prop for Related Rehabs
 - `Sidebar.tsx` - Generates dynamic health resources using `stateName`
 - `StatisticsTab.tsx` - Uses dynamic year selection
 
 ### Common Mistakes to Avoid
 
-1. **Using mock data directly** - Always check if component is using `mockCities`, `mockHealthResources`, etc. instead of state-specific data
+1. **Using mock data directly** - Always check if component is using `mockCities`, `mockHealthResources`, `mockTreatmentCenters`, etc. instead of state-specific data
 2. **Hardcoded state names** - Search for "California" in components to find hardcoded references
 3. **Not passing stateName prop** - Ensure stateName flows through: `StateRehabsPage` → `StateTabs` → `RehabListingsTab` → `Sidebar`
-4. **Year selector issues** - StatisticsTab now auto-selects most recent year with data
+4. **Not passing stateId to useFilters** - `useFilters(stateName, stateId)` requires BOTH parameters for proper filtering
+5. **Year selector issues** - StatisticsTab now auto-selects most recent year with data
+6. **Treatment centers showing wrong state** - Always use `getStateTreatmentCenters(stateId)` from `stateConfig.ts`, never `mockTreatmentCenters`
+
+#### 5. Treatment Centers Data Flow (CRITICAL)
+**Problem:** Treatment cards show California addresses on Florida page (or other states).
+
+**Root Cause:** `mockTreatmentCenters` in `mockData.ts` only contains California data.
+
+**Solution:** State-specific treatment centers are now defined in `stateConfig.ts`:
+1. `STATE_TREATMENT_CENTERS` - Record of treatment centers keyed by state ID
+2. `getStateTreatmentCenters(stateId)` - Returns treatment centers for a specific state
+3. `useFilters` hook now accepts `stateId` parameter and uses state-specific data
+
+**Data flow:**
+```
+stateConfig.ts
+  └── STATE_TREATMENT_CENTERS[stateId]  ← Define treatment centers per state
+        └── getStateTreatmentCenters(stateId)  ← Getter function
+              └── useFilters(stateName, stateId)  ← Hook uses state-specific centers
+                    └── centers  ← Returned to StateRehabsPage
+                          └── StateTabs → RehabListingsTab
+                                ├── TreatmentGrid (main listings)
+                                └── RelatedRehabs (bottom section)
+```
+
+**When adding a new state:**
+1. Add state config to `STATES` in `stateConfig.ts`
+2. Add treatment centers to `STATE_TREATMENT_CENTERS` for that state ID
+3. Add database records (statistics, FAQs, resources)
+4. Test that treatment cards show the correct state addresses
 
 ### Future Improvements
 

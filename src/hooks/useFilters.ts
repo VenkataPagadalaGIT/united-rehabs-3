@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import type { FilterCategory, ActiveFilters, TreatmentCenter } from "@/types";
-import { mockFilters, mockTreatmentCenters } from "@/data/mockData";
+import { mockFilters } from "@/data/mockData";
+import { getStateTreatmentCenters } from "@/data/stateConfig";
 
 const initialFilters: ActiveFilters = {
   cityIds: [],
@@ -15,7 +16,7 @@ const initialFilters: ActiveFilters = {
   sortBy: "relevance",
 };
 
-export function useFilters(stateName?: string) {
+export function useFilters(stateName?: string, stateId?: string) {
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>(initialFilters);
 
   // Create filters with dynamic state name
@@ -93,9 +94,14 @@ export function useFilters(stateName?: string) {
     setActiveFilters((prev) => ({ ...prev, page: prev.page + 1 }));
   }, []);
 
+  // Get state-specific treatment centers
+  const stateTreatmentCenters = useMemo(() => {
+    return stateId ? getStateTreatmentCenters(stateId) : [];
+  }, [stateId]);
+
   // Filter treatment centers based on active filters
   const filteredCenters = useMemo(() => {
-    let result = [...mockTreatmentCenters];
+    let result = [...stateTreatmentCenters];
 
     // Filter by city
     if (activeFilters.cityIds.length > 0) {
@@ -119,7 +125,7 @@ export function useFilters(stateName?: string) {
     }
 
     return result;
-  }, [activeFilters]);
+  }, [activeFilters, stateTreatmentCenters]);
 
   // Paginate results
   const paginatedCenters = useMemo(() => {
