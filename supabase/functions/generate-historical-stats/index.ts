@@ -21,11 +21,10 @@ async function generateAndSave(
   endYear: number
 ) {
   const PERPLEXITY_API_KEY = Deno.env.get('PERPLEXITY_API_KEY');
-  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
   const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
   const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-  if (!PERPLEXITY_API_KEY || !LOVABLE_API_KEY || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  if (!PERPLEXITY_API_KEY || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     console.error('Missing required env vars');
     return;
   }
@@ -34,7 +33,7 @@ async function generateAndSave(
   const stateId = stateAbbreviation.toLowerCase();
 
   try {
-    // Step 1: ONE Perplexity research call
+    // Step 1: Perplexity research call
     console.log(`[${stateAbbreviation}] Starting research...`);
     const researchResp = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
@@ -50,82 +49,101 @@ async function generateAndSave(
     });
     
     if (!researchResp.ok) {
-      console.error(`[${stateAbbreviation}] Perplexity error: ${researchResp.status}`);
+      console.error(`[${stateAbbreviation}] Perplexity research error: ${researchResp.status}`);
       return;
     }
 
     const research = await researchResp.json();
     const researchText = research.choices[0].message.content;
-    console.log(`[${stateAbbreviation}] Research complete, generating data...`);
+    console.log(`[${stateAbbreviation}] Research complete, generating structured data with Perplexity...`);
 
-    // Step 2: Generate ALL years in ONE AI call with structured output
+    // Step 2: Use Perplexity with structured output for ALL years
     const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
     
-    const prompt = `Based on this research for ${stateName}:
-${researchText.substring(0, 4000)}
+    // Generate in chunks to avoid token limits (7 years per chunk)
+    const chunkSize = 7;
+    const allStatistics: any[] = [];
+    const allSubstanceStats: any[] = [];
 
-Generate statistics for ALL years: ${years.join(',')}
+    for (let i = 0; i < years.length; i += chunkSize) {
+      const chunkYears = years.slice(i, i + chunkSize);
+      console.log(`[${stateAbbreviation}] Processing years ${chunkYears[0]}-${chunkYears[chunkYears.length - 1]}...`);
 
-Return JSON with two arrays. Use realistic interpolation for missing years.
-Fentanyl deaths: 0 before 2013, then increasing.
+      const structuredResp = await fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${PERPLEXITY_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'sonar',
+          messages: [{
+            role: 'system',
+            content: `You are a data analyst. Based on the research provided, generate realistic addiction statistics for ${stateName}. Use interpolation for missing years. Fentanyl deaths should be 0 before 2013.`
+          }, {
+            role: 'user',
+            content: `Research data for ${stateName}:
+${researchText.substring(0, 3000)}
 
-{"statistics":[
-  {"year":YEAR,"state_id":"${stateId}","state_name":"${stateName}","total_affected":N,"overdose_deaths":N,"opioid_deaths":N,"alcohol_abuse_rate":N,"drug_abuse_rate":N,"treatment_admissions":N,"recovery_rate":N,"relapse_rate":N,"affected_age_12_17":N,"affected_age_18_25":N,"affected_age_26_34":N,"affected_age_35_plus":N,"total_treatment_centers":N,"inpatient_facilities":N,"outpatient_facilities":N,"economic_cost_billions":N,"data_source":"CDC/SAMHSA","source_url":"https://wonder.cdc.gov/"}
-],"substance_statistics":[
-  {"year":YEAR,"state_id":"${stateId}","state_name":"${stateName}","alcohol_use_disorder":N,"opioid_use_disorder":N,"fentanyl_deaths":N,"cocaine_related_deaths":N,"meth_related_deaths":N,"marijuana_use_past_year":N,"treatment_received":N,"alcohol_use_past_month_percent":N,"alcohol_binge_drinking_percent":N}
-]}
+Generate statistics for years: ${chunkYears.join(', ')}
 
-ONLY return valid JSON, no explanation.`;
+Return JSON with two arrays. state_id is "${stateId}", state_name is "${stateName}".
 
-    const aiResp = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${LOVABLE_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-pro', // Use Pro for larger context
-        messages: [{ role: 'user', content: prompt }],
-      }),
-    });
+Format:
+{"statistics":[{"year":YEAR,"state_id":"${stateId}","state_name":"${stateName}","total_affected":NUMBER,"overdose_deaths":NUMBER,"opioid_deaths":NUMBER,"alcohol_abuse_rate":NUMBER,"drug_abuse_rate":NUMBER,"treatment_admissions":NUMBER,"recovery_rate":NUMBER,"relapse_rate":NUMBER,"affected_age_12_17":NUMBER,"affected_age_18_25":NUMBER,"affected_age_26_34":NUMBER,"affected_age_35_plus":NUMBER,"total_treatment_centers":NUMBER,"inpatient_facilities":NUMBER,"outpatient_facilities":NUMBER,"economic_cost_billions":NUMBER,"data_source":"CDC/SAMHSA","source_url":"https://wonder.cdc.gov/"}],"substance_statistics":[{"year":YEAR,"state_id":"${stateId}","state_name":"${stateName}","alcohol_use_disorder":NUMBER,"opioid_use_disorder":NUMBER,"fentanyl_deaths":NUMBER,"cocaine_related_deaths":NUMBER,"meth_related_deaths":NUMBER,"marijuana_use_past_year":NUMBER,"treatment_received":NUMBER,"alcohol_use_past_month_percent":NUMBER,"alcohol_binge_drinking_percent":NUMBER}]}
 
-    if (!aiResp.ok) {
-      console.error(`[${stateAbbreviation}] AI error: ${aiResp.status}`);
-      return;
+ONLY return valid JSON, no explanation.`
+          }],
+        }),
+      });
+
+      if (!structuredResp.ok) {
+        console.error(`[${stateAbbreviation}] Perplexity structured error: ${structuredResp.status}`);
+        continue;
+      }
+
+      const structuredData = await structuredResp.json();
+      const content = structuredData.choices?.[0]?.message?.content || '';
+      
+      // Extract JSON
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          const parsed = JSON.parse(jsonMatch[0]);
+          if (parsed.statistics) allStatistics.push(...parsed.statistics);
+          if (parsed.substance_statistics) allSubstanceStats.push(...parsed.substance_statistics);
+        } catch (e) {
+          console.error(`[${stateAbbreviation}] JSON parse error for chunk:`, e);
+        }
+      }
+
+      // Small delay between chunks to avoid rate limits
+      if (i + chunkSize < years.length) {
+        await new Promise(r => setTimeout(r, 500));
+      }
     }
 
-    const aiData = await aiResp.json();
-    const content = aiData.choices?.[0]?.message?.content || '';
-    
-    // Extract JSON
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      console.error(`[${stateAbbreviation}] No JSON in AI response`);
-      return;
-    }
-
-    const parsed = JSON.parse(jsonMatch[0]);
-    console.log(`[${stateAbbreviation}] Generated ${parsed.statistics?.length || 0} stats, ${parsed.substance_statistics?.length || 0} substance stats`);
+    console.log(`[${stateAbbreviation}] Generated ${allStatistics.length} stats, ${allSubstanceStats.length} substance stats`);
 
     // Step 3: Upsert to database
-    if (parsed.statistics?.length > 0) {
+    if (allStatistics.length > 0) {
       const { error: statsError } = await supabase
         .from('state_addiction_statistics')
-        .upsert(parsed.statistics, { onConflict: 'state_id,year' });
+        .upsert(allStatistics, { onConflict: 'state_id,year' });
       
       if (statsError) {
         console.error(`[${stateAbbreviation}] Stats insert error:`, statsError);
       } else {
-        console.log(`[${stateAbbreviation}] ✓ Saved ${parsed.statistics.length} statistics records`);
+        console.log(`[${stateAbbreviation}] ✓ Saved ${allStatistics.length} statistics records`);
       }
     }
 
-    if (parsed.substance_statistics?.length > 0) {
+    if (allSubstanceStats.length > 0) {
       const { error: substanceError } = await supabase
         .from('substance_statistics')
-        .upsert(parsed.substance_statistics, { onConflict: 'state_id,year' });
+        .upsert(allSubstanceStats, { onConflict: 'state_id,year' });
       
       if (substanceError) {
         console.error(`[${stateAbbreviation}] Substance insert error:`, substanceError);
       } else {
-        console.log(`[${stateAbbreviation}] ✓ Saved ${parsed.substance_statistics.length} substance records`);
+        console.log(`[${stateAbbreviation}] ✓ Saved ${allSubstanceStats.length} substance records`);
       }
     }
 
@@ -166,7 +184,7 @@ serve(async (req) => {
       success: true,
       message: `Started background generation for ${states.length} state(s)`,
       states: states.map(s => s.stateAbbreviation),
-      apiCallsPerState: 2 // 1 Perplexity + 1 AI
+      apiCallsPerState: '1 research + ~5 structured (chunked by 7 years) = ~6 Perplexity calls'
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
