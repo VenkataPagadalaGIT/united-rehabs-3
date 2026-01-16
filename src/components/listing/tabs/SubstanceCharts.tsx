@@ -293,7 +293,7 @@ export const SubstanceCharts = ({ data, selectedYear, stateName }: SubstanceChar
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              <span>Annual Deaths by Substance Type</span>
+              <span>Annual Deaths by Substance Type in {stateName}, USA</span>
               <Badge variant="destructive" className="text-xs">Critical Data</Badge>
             </CardTitle>
             <CardDescription>Source: CDC WONDER Multiple Cause of Death Database</CardDescription>
@@ -331,8 +331,8 @@ export const SubstanceCharts = ({ data, selectedYear, stateName }: SubstanceChar
           {/* Opioid breakdown stats */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Opioid Use Breakdown ({selectedYear})</CardTitle>
-              <CardDescription>People affected by different opioid types</CardDescription>
+              <CardTitle className="text-base">Opioid Use Breakdown in {stateName}, USA ({selectedYear})</CardTitle>
+              <CardDescription>People affected by different opioid types in {stateName}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
@@ -367,8 +367,8 @@ export const SubstanceCharts = ({ data, selectedYear, stateName }: SubstanceChar
           {/* Opioid trend */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Opioid Use Trends</CardTitle>
-              <CardDescription>Year-over-year changes in opioid-related statistics</CardDescription>
+              <CardTitle className="text-base">Opioid Use Trends in {stateName}, USA</CardTitle>
+              <CardDescription>Year-over-year changes in opioid-related statistics in {stateName}</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={200}>
@@ -401,7 +401,7 @@ export const SubstanceCharts = ({ data, selectedYear, stateName }: SubstanceChar
       >
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Alcohol Statistics ({selectedYear})</CardTitle>
+            <CardTitle className="text-base">Alcohol Statistics in {stateName}, USA ({selectedYear})</CardTitle>
             <CardDescription>Source: SAMHSA National Survey on Drug Use and Health</CardDescription>
           </CardHeader>
           <CardContent>
@@ -454,8 +454,8 @@ export const SubstanceCharts = ({ data, selectedYear, stateName }: SubstanceChar
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Stimulant Use ({selectedYear})</CardTitle>
-              <CardDescription>Past year use and related deaths</CardDescription>
+              <CardTitle className="text-base">Stimulant Use in {stateName}, USA ({selectedYear})</CardTitle>
+              <CardDescription>Past year use and related deaths in {stateName}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
@@ -489,8 +489,8 @@ export const SubstanceCharts = ({ data, selectedYear, stateName }: SubstanceChar
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Stimulant Use Trends</CardTitle>
-              <CardDescription>Cocaine vs Methamphetamine over time</CardDescription>
+              <CardTitle className="text-base">Stimulant Use Trends in {stateName}, USA</CardTitle>
+              <CardDescription>Cocaine vs Methamphetamine over time in {stateName}</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={200}>
@@ -522,7 +522,7 @@ export const SubstanceCharts = ({ data, selectedYear, stateName }: SubstanceChar
       >
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Cannabis Statistics ({selectedYear})</CardTitle>
+            <CardTitle className="text-base">Cannabis Statistics in {stateName}, USA ({selectedYear})</CardTitle>
             <CardDescription>Source: SAMHSA NSDUH</CardDescription>
           </CardHeader>
           <CardContent>
@@ -567,8 +567,8 @@ export const SubstanceCharts = ({ data, selectedYear, stateName }: SubstanceChar
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Treatment Statistics ({selectedYear})</CardTitle>
-              <CardDescription>Who received help vs who still needs it</CardDescription>
+              <CardTitle className="text-base">Treatment Statistics in {stateName}, USA ({selectedYear})</CardTitle>
+              <CardDescription>Who received help vs who still needs it in {stateName}</CardDescription>
             </CardHeader>
             <CardContent>
               {treatmentData.length > 0 ? (
@@ -604,8 +604,8 @@ export const SubstanceCharts = ({ data, selectedYear, stateName }: SubstanceChar
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Key Treatment Metrics</CardTitle>
-              <CardDescription>Detailed breakdown of treatment access</CardDescription>
+              <CardTitle className="text-base">Key Treatment Metrics in {stateName}, USA</CardTitle>
+              <CardDescription>Detailed breakdown of treatment access in {stateName}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className={`p-4 rounded-lg ${COLORS.treatment.bg} border`}>
@@ -647,8 +647,8 @@ export const SubstanceCharts = ({ data, selectedYear, stateName }: SubstanceChar
       >
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Co-Occurring Disorders ({selectedYear})</CardTitle>
-            <CardDescription>Substance use disorder combined with mental illness</CardDescription>
+            <CardTitle className="text-base">Co-Occurring Disorders in {stateName}, USA ({selectedYear})</CardTitle>
+            <CardDescription>Substance use disorder combined with mental illness in {stateName}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
