@@ -1,4 +1,4 @@
-import type { State } from "@/types";
+import type { State, City } from "@/types";
 
 /**
  * State Configuration
@@ -24,6 +24,13 @@ interface StateConfig {
     url: string;
     alt: string;
     type: "photo" | "map";
+    order: number;
+  }[];
+  cities: {
+    id: string;
+    name: string;
+    slug: string;
+    featured: boolean;
     order: number;
   }[];
   // Optional demographic data
@@ -85,6 +92,14 @@ export const STATES: Record<string, StateConfig> = {
         order: 4,
       },
     ],
+    cities: [
+      { id: "oc", name: "Orange County", slug: "orange-county", featured: true, order: 1 },
+      { id: "sd", name: "San Diego", slug: "san-diego", featured: true, order: 2 },
+      { id: "ps", name: "Palm Springs", slug: "palm-springs", featured: true, order: 3 },
+      { id: "la", name: "Los Angeles", slug: "los-angeles", featured: true, order: 4 },
+      { id: "ba", name: "Bay Area", slug: "bay-area", featured: true, order: 5 },
+      { id: "bh", name: "Beverly Hills", slug: "beverly-hills", featured: true, order: 6 },
+    ],
   },
   florida: {
     id: "fl",
@@ -132,6 +147,14 @@ export const STATES: Record<string, StateConfig> = {
         type: "photo",
         order: 4,
       },
+    ],
+    cities: [
+      { id: "mia", name: "Miami", slug: "miami", featured: true, order: 1 },
+      { id: "orl", name: "Orlando", slug: "orlando", featured: true, order: 2 },
+      { id: "tpa", name: "Tampa", slug: "tampa", featured: true, order: 3 },
+      { id: "jax", name: "Jacksonville", slug: "jacksonville", featured: true, order: 4 },
+      { id: "ftl", name: "Fort Lauderdale", slug: "fort-lauderdale", featured: true, order: 5 },
+      { id: "wpb", name: "West Palm Beach", slug: "west-palm-beach", featured: true, order: 6 },
     ],
   },
   texas: {
@@ -181,6 +204,14 @@ export const STATES: Record<string, StateConfig> = {
         order: 4,
       },
     ],
+    cities: [
+      { id: "hou", name: "Houston", slug: "houston", featured: true, order: 1 },
+      { id: "dal", name: "Dallas", slug: "dallas", featured: true, order: 2 },
+      { id: "aus", name: "Austin", slug: "austin", featured: true, order: 3 },
+      { id: "sat", name: "San Antonio", slug: "san-antonio", featured: true, order: 4 },
+      { id: "ftw", name: "Fort Worth", slug: "fort-worth", featured: true, order: 5 },
+      { id: "elp", name: "El Paso", slug: "el-paso", featured: true, order: 6 },
+    ],
   },
   "new-york": {
     id: "ny",
@@ -228,6 +259,14 @@ export const STATES: Record<string, StateConfig> = {
         type: "photo",
         order: 4,
       },
+    ],
+    cities: [
+      { id: "nyc", name: "New York City", slug: "new-york-city", featured: true, order: 1 },
+      { id: "buf", name: "Buffalo", slug: "buffalo", featured: true, order: 2 },
+      { id: "alb", name: "Albany", slug: "albany", featured: true, order: 3 },
+      { id: "roc", name: "Rochester", slug: "rochester", featured: true, order: 4 },
+      { id: "syr", name: "Syracuse", slug: "syracuse", featured: true, order: 5 },
+      { id: "wpl", name: "White Plains", slug: "white-plains", featured: true, order: 6 },
     ],
   },
 };
@@ -280,4 +319,26 @@ export function getAllStateSlugs(): string[] {
  */
 export function isValidStateSlug(slug: string): boolean {
   return slug in STATES;
+}
+
+/**
+ * Get cities for a state with full City type
+ * @param stateId - The state ID (e.g., "ca", "fl")
+ * @param stateSlug - The state slug for lookup
+ * @returns Array of City objects
+ */
+export function getStateCities(stateSlug: string): City[] {
+  const config = STATES[stateSlug];
+  if (!config) return [];
+  
+  return config.cities.map(city => ({
+    id: city.id,
+    stateId: config.id,
+    name: city.name,
+    slug: city.slug,
+    featured: city.featured,
+    order: city.order,
+    createdAt: "",
+    updatedAt: "",
+  }));
 }

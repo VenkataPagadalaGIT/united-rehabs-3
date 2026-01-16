@@ -1180,23 +1180,49 @@ const effectiveYear = selectedYear || mostRecentYear || "2023";
 
 When adding a new state, verify all of the following:
 
-- [ ] State added to `src/data/stateConfig.ts` with correct `id`, `slug`, and `heroImages`
-- [ ] Database has `state_addiction_statistics` records with matching `state_id`
-- [ ] Database has `substance_statistics` records with matching `state_id` and years
-- [ ] Database has `faqs` records with matching `state_id` and `is_active = true`
-- [ ] Database has `free_resources` records with matching `state_id`
-- [ ] Database has `page_seo` records for all 3 page types
+#### 1. State Configuration (`src/data/stateConfig.ts`)
+- [ ] State added with correct `id` (lowercase abbreviation: "ca", "fl", "tx")
+- [ ] State has `slug` matching URL pattern (e.g., "california", "new-york")
+- [ ] State has `heroImages` array with 4 photos
+- [ ] State has `cities` array with 6 featured cities
+
+#### 2. Database Records
+- [ ] `state_addiction_statistics` records with matching `state_id`
+- [ ] `substance_statistics` records with matching `state_id` and years
+- [ ] `faqs` records with matching `state_id` and `is_active = true`
+- [ ] `free_resources` records with matching `state_id`
+- [ ] `page_seo` records for all 3 page types
+
+#### 3. Visual Verification
 - [ ] Navigation works: `/{state}-addiction-rehabs` loads correctly
+- [ ] Hero section shows correct state name and description
+- [ ] Image gallery shows state-specific images
+- [ ] Filter button shows state name (not "California")
+- [ ] **Location tags show state-specific cities** (not California cities)
+- [ ] Sidebar "Health Behaviors/Outcomes" shows correct state name
+- [ ] Sidebar health resource links show correct state name
 - [ ] Statistics tab shows charts with data
 - [ ] Substance charts show data
 - [ ] Year selector defaults to most recent year with data
-- [ ] Sidebar shows correct state name (not "California")
 - [ ] FAQs display for the state
 - [ ] Resources tab shows state-specific resources
 - [ ] Page title/meta description are dynamic
-- [ ] Filter button shows state name (not "California")
-- [ ] Hero section shows state name and description
-- [ ] Image gallery shows state-specific images
+
+#### 4. Key Files That Must Be State-Aware
+These files use state data and must be checked:
+- `stateConfig.ts` - Central source of truth for state data including cities
+- `StateRehabsPage.tsx` - Uses `getStateCities()` for location tags
+- `StateTabs.tsx` - Passes `stateName` to child components
+- `RehabListingsTab.tsx` - Passes `stateName` to Sidebar
+- `Sidebar.tsx` - Generates dynamic health resources using `stateName`
+- `StatisticsTab.tsx` - Uses dynamic year selection
+
+### Common Mistakes to Avoid
+
+1. **Using mock data directly** - Always check if component is using `mockCities`, `mockHealthResources`, etc. instead of state-specific data
+2. **Hardcoded state names** - Search for "California" in components to find hardcoded references
+3. **Not passing stateName prop** - Ensure stateName flows through: `StateRehabsPage` → `StateTabs` → `RehabListingsTab` → `Sidebar`
+4. **Year selector issues** - StatisticsTab now auto-selects most recent year with data
 
 ### Future Improvements
 

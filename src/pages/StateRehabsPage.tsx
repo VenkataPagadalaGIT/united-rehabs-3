@@ -11,8 +11,8 @@ import { FAQ } from "@/components/listing/FAQ";
 import { Footer } from "@/components/listing/Footer";
 import { SEOHead } from "@/components/SEOHead";
 import { useFilters } from "@/hooks/useFilters";
-import { mockNavItems, mockFooterLinks, mockFAQs, mockCities } from "@/data/mockData";
-import { getStateBySlug, toState } from "@/data/stateConfig";
+import { mockNavItems, mockFooterLinks, mockFAQs } from "@/data/mockData";
+import { getStateBySlug, toState, getStateCities } from "@/data/stateConfig";
 
 const StateRehabsPage = () => {
   const { slug } = useParams();
@@ -44,8 +44,9 @@ const StateRehabsPage = () => {
     return <Navigate to="/" replace />;
   }
 
-  // Create state object from config
+  // Create state object and get cities from config
   const state = toState(stateConfig);
+  const cities = getStateCities(stateKey);
 
   // Dynamic breadcrumb items - geographic hierarchy
   const breadcrumbItems = [
@@ -85,7 +86,7 @@ const StateRehabsPage = () => {
           conditions={conditions}
           hasMore={hasMore}
           onLoadMore={loadMore}
-          cities={mockCities}
+          cities={cities}
           activeCityId={activeCityId}
           onCityClick={handleCityClick}
         />
