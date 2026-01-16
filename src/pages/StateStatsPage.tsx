@@ -6,38 +6,27 @@ import { StatisticsTab } from "@/components/listing/tabs/StatisticsTab";
 import { FAQ } from "@/components/listing/FAQ";
 import { Footer } from "@/components/listing/Footer";
 import { SEOHead } from "@/components/SEOHead";
-import { mockNavItems, mockFooterLinks, mockFAQs, mockState } from "@/data/mockData";
-
-// Map slug to state ID - will be expanded with more states
-const stateSlugMap: Record<string, { id: string; name: string }> = {
-  california: { id: "ca", name: "California" },
-  texas: { id: "tx", name: "Texas" },
-  florida: { id: "fl", name: "Florida" },
-  "new-york": { id: "ny", name: "New York" },
-};
+import { mockNavItems, mockFooterLinks, mockFAQs } from "@/data/mockData";
+import { getStateBySlug, toState } from "@/data/stateConfig";
 
 const StateStatsPage = () => {
   const { slug } = useParams();
   
   // Extract the state part from the URL (e.g., "california" from "california-addiction-stats")
   const stateKey = slug?.replace(/-addiction-stats$/, "") || "";
-  const stateInfo = stateSlugMap[stateKey];
+  const stateConfig = getStateBySlug(stateKey);
   
-  if (!stateInfo) {
+  if (!stateConfig) {
     return <Navigate to="/" replace />;
   }
 
-  // Create dynamic state object
-  const state = {
-    ...mockState,
-    id: stateInfo.id,
-    name: stateInfo.name,
-  };
+  // Create state object from config
+  const state = toState(stateConfig);
 
   // Dynamic breadcrumb items - geographic hierarchy
   const breadcrumbItems = [
     { label: "United States", href: "/united-states" },
-    { label: stateInfo.name, href: `/${stateKey}-addiction-stats` },
+    { label: stateConfig.name, href: `/${stateKey}-addiction-stats` },
   ];
 
   return (
@@ -54,7 +43,7 @@ const StateStatsPage = () => {
         <PageHero state={state} />
         
         <div className="py-8">
-          <StatisticsTab stateId={stateInfo.id} stateName={state.name} />
+          <StatisticsTab stateId={stateConfig.id} stateName={state.name} />
         </div>
       </main>
 

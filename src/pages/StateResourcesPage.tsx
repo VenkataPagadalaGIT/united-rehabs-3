@@ -6,38 +6,27 @@ import { FreeResourcesTab } from "@/components/listing/tabs/FreeResourcesTab";
 import { FAQ } from "@/components/listing/FAQ";
 import { Footer } from "@/components/listing/Footer";
 import { SEOHead } from "@/components/SEOHead";
-import { mockNavItems, mockFooterLinks, mockFAQs, mockState } from "@/data/mockData";
-
-// Map slug to state ID - will be expanded with more states
-const stateSlugMap: Record<string, { id: string; name: string }> = {
-  california: { id: "ca", name: "California" },
-  texas: { id: "tx", name: "Texas" },
-  florida: { id: "fl", name: "Florida" },
-  "new-york": { id: "ny", name: "New York" },
-};
+import { mockNavItems, mockFooterLinks, mockFAQs } from "@/data/mockData";
+import { getStateBySlug, toState } from "@/data/stateConfig";
 
 const StateResourcesPage = () => {
   const { slug } = useParams();
   
   // Extract the state part from the URL
   const stateKey = slug?.replace(/-addiction-free-resources$/, "") || "";
-  const stateInfo = stateSlugMap[stateKey];
+  const stateConfig = getStateBySlug(stateKey);
   
-  if (!stateInfo) {
+  if (!stateConfig) {
     return <Navigate to="/" replace />;
   }
 
-  // Create dynamic state object
-  const state = {
-    ...mockState,
-    id: stateInfo.id,
-    name: stateInfo.name,
-  };
+  // Create state object from config
+  const state = toState(stateConfig);
 
   // Dynamic breadcrumb items - geographic hierarchy
   const breadcrumbItems = [
     { label: "United States", href: "/united-states" },
-    { label: stateInfo.name, href: `/${stateKey}-addiction-free-resources` },
+    { label: stateConfig.name, href: `/${stateKey}-addiction-free-resources` },
   ];
 
   return (
@@ -54,7 +43,7 @@ const StateResourcesPage = () => {
         <PageHero state={state} />
         
         <div className="py-8">
-          <FreeResourcesTab stateId={stateInfo.id} stateName={state.name} />
+          <FreeResourcesTab stateId={stateConfig.id} stateName={state.name} />
         </div>
       </main>
 

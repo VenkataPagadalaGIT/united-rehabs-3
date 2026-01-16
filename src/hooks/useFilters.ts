@@ -15,8 +15,17 @@ const initialFilters: ActiveFilters = {
   sortBy: "relevance",
 };
 
-export function useFilters() {
+export function useFilters(stateName?: string) {
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>(initialFilters);
+
+  // Create filters with dynamic state name
+  const dynamicFilters = useMemo(() => {
+    return mockFilters.map(filter => 
+      filter.category === "state" 
+        ? { ...filter, label: stateName || "State" }
+        : filter
+    );
+  }, [stateName]);
 
   // Convert to Record for component usage
   const filterRecord: Record<FilterCategory, string[]> = useMemo(() => ({
@@ -124,7 +133,7 @@ export function useFilters() {
   const conditions = mockFilters.find((f) => f.category === "conditions")?.options || [];
 
   return {
-    filters: mockFilters,
+    filters: dynamicFilters,
     activeFilters: filterRecord,
     toggleFilter,
     setCity,

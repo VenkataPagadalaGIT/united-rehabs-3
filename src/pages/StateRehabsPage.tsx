@@ -21,6 +21,7 @@ const StateRehabsPage = () => {
   const stateKey = slug?.replace(/-addiction-rehab-centers$/, "").replace(/-addiction-rehabs$/, "") || "";
   const stateConfig = getStateBySlug(stateKey);
   
+  // Pass state name to useFilters for dynamic filter label
   const {
     filters,
     activeFilters,
@@ -30,7 +31,7 @@ const StateRehabsPage = () => {
     centers,
     hasMore,
     conditions,
-  } = useFilters();
+  } = useFilters(stateConfig?.name);
 
   const [activeCityId, setActiveCityId] = useState<string>();
 
