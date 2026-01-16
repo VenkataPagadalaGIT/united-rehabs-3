@@ -30,6 +30,7 @@ import ArticlePage from "./pages/ArticlePage";
 import ShortcodeShowcase from "./pages/ShortcodeShowcase";
 import URLsAdmin from "./pages/admin/URLsAdmin";
 import SecurityAdmin from "./pages/admin/SecurityAdmin";
+import ContentGeneratorAdmin from "./pages/admin/ContentGeneratorAdmin";
 import { CrisisHotlineBanner } from "./components/CrisisHotlineBanner";
 import { CookieConsentBanner } from "./components/CookieConsentBanner";
 
@@ -79,6 +80,7 @@ const App = () => (
             <Route path="articles" element={<ArticlesAdmin />} />
             <Route path="urls" element={<URLsAdmin />} />
             <Route path="security" element={<SecurityAdmin />} />
+            <Route path="content-generator" element={<ContentGeneratorAdmin />} />
           </Route>
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
