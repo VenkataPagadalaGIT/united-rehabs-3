@@ -60,6 +60,7 @@ export const StateTabs = ({
           cities={cities}
           activeCityId={activeCityId}
           onCityClick={onCityClick}
+          stateName={stateName}
         />
       </TabsContent>
 
