@@ -63,7 +63,7 @@ const StateRehabsPage = () => {
       />
       <Header navItems={mockNavItems} />
       
-      <main className="container mx-auto px-4">
+      <main id="main-content" className="container mx-auto px-4" role="main">
         <Breadcrumb items={breadcrumbItems} />
         <PageHero state={state} />
         <FilterTabs

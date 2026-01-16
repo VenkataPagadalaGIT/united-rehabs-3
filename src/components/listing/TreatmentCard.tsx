@@ -5,9 +5,10 @@ import type { TreatmentCenter, FilterOption } from "@/types";
 interface TreatmentCardProps {
   center: TreatmentCenter;
   conditions: FilterOption[];
+  isSponsored?: boolean;
 }
 
-export function TreatmentCard({ center, conditions }: TreatmentCardProps) {
+export function TreatmentCard({ center, conditions, isSponsored = false }: TreatmentCardProps) {
   const primaryImage = center.images.find((img) => img.isPrimary) || center.images[0];
   
   // Get condition labels from IDs
@@ -16,19 +17,30 @@ export function TreatmentCard({ center, conditions }: TreatmentCardProps) {
   );
 
   return (
-    <div className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg transition-shadow">
+    <article 
+      className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg transition-shadow focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
+      aria-label={`${center.name} treatment center`}
+    >
       {/* Image */}
       <div className="relative h-48">
         <img
           src={primaryImage?.url}
-          alt={primaryImage?.alt || center.name}
+          alt={`Facility photo of ${center.name}`}
           className="w-full h-full object-cover"
+          loading="lazy"
         />
         <div className="absolute top-3 left-3">
           <Badge className="bg-foreground/80 text-white text-xs">
-            📍 {center.address}
+            <span aria-hidden="true">📍</span> <span className="sr-only">Location: </span>{center.address}
           </Badge>
         </div>
+        {isSponsored && (
+          <div className="absolute top-3 right-3">
+            <Badge variant="secondary" className="bg-primary/90 text-primary-foreground text-xs font-medium">
+              Ad
+            </Badge>
+          </div>
+        )}
       </div>
 
       {/* Content */}
@@ -100,13 +112,14 @@ export function TreatmentCard({ center, conditions }: TreatmentCardProps) {
           </div>
           <a
             href={`tel:${center.phone}`}
-            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
+            aria-label={`Call ${center.name} at ${center.phone}`}
           >
-            <Phone className="h-3 w-3" />
+            <Phone className="h-3 w-3" aria-hidden="true" />
             {center.phone}
           </a>
         </div>
       </div>
-    </div>
+    </article>
   );
 }

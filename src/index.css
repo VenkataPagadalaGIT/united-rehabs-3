@@ -94,4 +94,31 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Accessibility: Visible focus indicators for all interactive elements */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Skip link styling - visible only on focus */
+  .sr-only-focusable:focus {
+    @apply not-sr-only absolute top-2 left-2 z-[100] bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium;
+  }
+  
+  /* Ensure sufficient color contrast for links */
+  a {
+    @apply transition-colors;
+  }
+
+  /* Reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }

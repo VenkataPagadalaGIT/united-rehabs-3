@@ -11,6 +11,7 @@ import AccessibilityStatement from "./pages/AccessibilityStatement";
 import AboutUs from "./pages/AboutUs";
 import Contact from "./pages/Contact";
 import DoNotSell from "./pages/DoNotSell";
+import AffiliateDisclosure from "./pages/AffiliateDisclosure";
 import StatePage from "./pages/StatePage";
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
@@ -49,6 +50,7 @@ const App = () => (
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/do-not-sell" element={<DoNotSell />} />
+          <Route path="/affiliate-disclosure" element={<AffiliateDisclosure />} />
           
           {/* Blog, News, Articles routes */}
           <Route path="/blog" element={<ArticlesListPage />} />

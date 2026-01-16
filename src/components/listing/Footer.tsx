@@ -8,7 +8,7 @@ interface FooterProps {
 
 export function Footer({ linkGroups }: FooterProps) {
   return (
-    <footer className="bg-sidebar text-sidebar-foreground">
+    <footer className="bg-sidebar text-sidebar-foreground" role="contentinfo">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
           {/* Logo & Social */}
@@ -17,14 +17,20 @@ export function Footer({ linkGroups }: FooterProps) {
               <span className="text-primary font-bold text-lg">united</span>
               <span className="text-sidebar-foreground font-bold text-lg">rehabs</span>
             </div>
-            <div className="flex gap-3">
-              {["G", "f", "in", "X"].map((icon) => (
+            <div className="flex gap-3" role="list" aria-label="Social media links">
+              {[
+                { icon: "G", label: "Google" },
+                { icon: "f", label: "Facebook" },
+                { icon: "in", label: "LinkedIn" },
+                { icon: "X", label: "X (Twitter)" }
+              ].map((social) => (
                 <a
-                  key={icon}
+                  key={social.icon}
                   href="#"
-                  className="w-8 h-8 rounded-full bg-sidebar-accent flex items-center justify-center text-sm hover:bg-primary transition-colors"
+                  className="w-8 h-8 rounded-full bg-sidebar-accent flex items-center justify-center text-sm hover:bg-primary transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-sidebar"
+                  aria-label={`Follow us on ${social.label}`}
                 >
-                  {icon}
+                  {social.icon}
                 </a>
               ))}
             </div>
@@ -32,21 +38,21 @@ export function Footer({ linkGroups }: FooterProps) {
 
           {/* Link Columns */}
           {linkGroups.map((group) => (
-            <div key={group.title}>
+            <nav key={group.title} aria-label={group.title}>
               <h4 className="font-semibold mb-4">{group.title}</h4>
               <ul className="space-y-2">
                 {group.links.map((link, index) => (
                   <li key={index}>
                     <a
                       href={link.href}
-                      className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
+                      className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-sidebar rounded"
                     >
                       {link.label}
                     </a>
                   </li>
                 ))}
               </ul>
-            </div>
+            </nav>
           ))}
         </div>
 
@@ -93,6 +99,13 @@ export function Footer({ linkGroups }: FooterProps) {
               className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
             >
               Contact
+            </Link>
+            <span className="text-sidebar-foreground/30">|</span>
+            <Link
+              to="/affiliate-disclosure"
+              className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
+            >
+              Affiliate Disclosure
             </Link>
             <span className="text-sidebar-foreground/30">|</span>
             <Link
