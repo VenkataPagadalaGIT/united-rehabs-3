@@ -320,7 +320,7 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
         {/* Total Affected Trend */}
         <Card>
           <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6 pb-2 sm:pb-4">
-            <CardTitle className="text-sm sm:text-lg">People Affected Over Time</CardTitle>
+            <CardTitle className="text-sm sm:text-lg">People Affected Over Time in {stateName}, USA</CardTitle>
           </CardHeader>
           <CardContent className="px-2 sm:px-6 pb-3 sm:pb-6">
             <ResponsiveContainer width="100%" height={180} className="sm:!h-[250px]">
@@ -354,7 +354,7 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
         {/* Deaths Trend */}
         <Card>
           <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6 pb-2 sm:pb-4">
-            <CardTitle className="text-sm sm:text-lg">Overdose & Opioid Deaths</CardTitle>
+            <CardTitle className="text-sm sm:text-lg">Overdose & Opioid Deaths in {stateName}, USA</CardTitle>
           </CardHeader>
           <CardContent className="px-2 sm:px-6 pb-3 sm:pb-6">
             <ResponsiveContainer width="100%" height={180} className="sm:!h-[250px]">
@@ -395,7 +395,7 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
       {/* Substance Abuse Rates Chart */}
       <Card>
         <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6 pb-2 sm:pb-4">
-          <CardTitle className="text-sm sm:text-lg">Substance Abuse & Recovery Rates (%)</CardTitle>
+          <CardTitle className="text-sm sm:text-lg">Substance Abuse & Recovery Rates in {stateName}, USA (%)</CardTitle>
         </CardHeader>
         <CardContent className="px-2 sm:px-6 pb-3 sm:pb-6">
           <ResponsiveContainer width="100%" height={180} className="sm:!h-[250px]">
@@ -428,7 +428,7 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
         {/* Age Distribution Pie Chart */}
         <Card>
           <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6 pb-2 sm:pb-4">
-            <CardTitle className="text-sm sm:text-lg">Affected by Age Group ({selectedYear})</CardTitle>
+            <CardTitle className="text-sm sm:text-lg">Affected by Age Group in {stateName}, USA ({selectedYear})</CardTitle>
           </CardHeader>
           <CardContent className="px-2 sm:px-6 pb-3 sm:pb-6">
             <ResponsiveContainer width="100%" height={200} className="sm:!h-[280px]">
