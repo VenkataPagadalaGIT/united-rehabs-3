@@ -89,9 +89,14 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
     },
   });
 
-  // Set default year to most recent available data when statistics load
-  const mostRecentYear = statistics?.length ? Math.max(...statistics.map(s => s.year)).toString() : null;
-  const effectiveYear = selectedYear || mostRecentYear || "2023";
+  // Get available years from actual data
+  const yearsWithData = statistics?.map(s => s.year).sort((a, b) => b - a) || [];
+  const mostRecentYear = yearsWithData.length > 0 ? yearsWithData[0].toString() : null;
+  
+  // Only use a year that actually has data
+  const effectiveYear = selectedYear && yearsWithData.includes(parseInt(selectedYear)) 
+    ? selectedYear 
+    : mostRecentYear;
 
   const { data: substanceStats } = useQuery({
     queryKey: ["substance-statistics", stateId],
@@ -126,10 +131,7 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
     return num.toString();
   };
 
-  // Generate all years from 2015-2024, highlighting which have data
-  const allYears = Array.from({ length: 10 }, (_, i) => 2024 - i); // [2024, 2023, ..., 2015]
-  const yearsWithData = new Set(statistics?.map((s) => s.year) || []);
-  const availableYears = allYears; // Show all years 2015-2024
+  // Use years from actual data (yearsWithData is defined at top)
 
   // Prepare chart data
   const trendData = statistics?.map((s) => ({
@@ -182,13 +184,23 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
     );
   }
 
-  if (!currentYearData) {
+  if (!currentYearData || !effectiveYear) {
     return (
-      <Card>
-        <CardContent className="py-8 text-center text-muted-foreground">
-          No statistics available for {stateName}. Data will be updated as government sources release new information.
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-xl sm:text-2xl font-bold truncate">{stateName} Addiction Statistics</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Data sourced from SAMHSA, CDC, NIDA
+            </p>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="py-8 text-center text-muted-foreground">
+            No statistics data available for {stateName} yet. Use the AI Generator in the admin panel to populate data for this state.
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
@@ -252,18 +264,20 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
             Data sourced from {currentYearData.data_source || "SAMHSA, CDC, NIDA"}
           </p>
         </div>
-        <Select value={effectiveYear} onValueChange={setSelectedYear}>
-          <SelectTrigger className="w-[100px] sm:w-[120px] flex-shrink-0">
-            <SelectValue placeholder="Year" />
-          </SelectTrigger>
-          <SelectContent>
-            {availableYears.map((year) => (
-              <SelectItem key={year} value={year.toString()}>
-                {year}{!yearsWithData.has(year) && " *"}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {yearsWithData.length > 0 && (
+          <Select value={effectiveYear || ""} onValueChange={setSelectedYear}>
+            <SelectTrigger className="w-[100px] sm:w-[120px] flex-shrink-0">
+              <SelectValue placeholder="Year" />
+            </SelectTrigger>
+            <SelectContent>
+              {yearsWithData.map((year) => (
+                <SelectItem key={year} value={year.toString()}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       {/* Data Disclaimer */}
