@@ -75,6 +75,27 @@ export function Footer({ linkGroups }: FooterProps) {
             </Link>
             <span className="text-sidebar-foreground/30">|</span>
             <Link
+              to="/do-not-sell"
+              className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
+            >
+              Do Not Sell My Info
+            </Link>
+            <span className="text-sidebar-foreground/30">|</span>
+            <Link
+              to="/about"
+              className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
+            >
+              About Us
+            </Link>
+            <span className="text-sidebar-foreground/30">|</span>
+            <Link
+              to="/contact"
+              className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
+            >
+              Contact
+            </Link>
+            <span className="text-sidebar-foreground/30">|</span>
+            <Link
               to="/admin"
               className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
             >
