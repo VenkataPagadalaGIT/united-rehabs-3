@@ -84,7 +84,8 @@ const ALL_STATES = [
 ];
 
 const CONTENT_TYPES: { value: ContentType; label: string; description: string }[] = [
-  { value: "statistics", label: "Statistics", description: "Addiction statistics and data" },
+  { value: "statistics", label: "General Statistics", description: "Overdose deaths, treatment centers, rates" },
+  { value: "substance_statistics", label: "Substance Statistics", description: "Detailed per-substance data (alcohol, opioids, etc.)" },
   { value: "resources", label: "Resources", description: "Free treatment resources" },
   { value: "faqs", label: "FAQs", description: "Frequently asked questions" },
   { value: "seo", label: "SEO Content", description: "Page titles and descriptions" },
@@ -96,8 +97,8 @@ const AVAILABLE_YEARS = [2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2
 export default function ContentGeneratorAdmin() {
   const { toast } = useToast();
   const [selectedStates, setSelectedStates] = useState<string[]>([]);
-  const [selectedContentTypes, setSelectedContentTypes] = useState<ContentType[]>(["statistics", "faqs", "seo"]);
-  const [selectedYears, setSelectedYears] = useState<number[]>([2024, 2023, 2022]);
+  const [selectedContentTypes, setSelectedContentTypes] = useState<ContentType[]>(["statistics", "substance_statistics", "faqs", "seo"]);
+  const [selectedYears, setSelectedYears] = useState<number[]>([2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015]);
   const [skipQA, setSkipQA] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -225,11 +226,58 @@ export default function ContentGeneratorAdmin() {
               opioid_deaths: statsData.opioid_deaths as number | null,
               drug_abuse_rate: statsData.drug_abuse_rate as number | null,
               alcohol_abuse_rate: statsData.alcohol_abuse_rate as number | null,
+              affected_age_12_17: statsData.affected_age_12_17 as number | null,
+              affected_age_18_25: statsData.affected_age_18_25 as number | null,
+              affected_age_26_34: statsData.affected_age_26_34 as number | null,
+              affected_age_35_plus: statsData.affected_age_35_plus as number | null,
               total_treatment_centers: statsData.total_treatment_centers as number | null,
+              inpatient_facilities: statsData.inpatient_facilities as number | null,
+              outpatient_facilities: statsData.outpatient_facilities as number | null,
               treatment_admissions: statsData.treatment_admissions as number | null,
               recovery_rate: statsData.recovery_rate as number | null,
+              relapse_rate: statsData.relapse_rate as number | null,
+              economic_cost_billions: statsData.economic_cost_billions as number | null,
               data_source: statsData.data_source as string | null,
               source_url: statsData.source_url as string | null,
+            }, { onConflict: "state_id,year" });
+          if (error) throw error;
+          successCount++;
+        } else if (result.contentType === "substance_statistics" && result.content) {
+          const substanceData = result.content as Record<string, unknown>;
+          const { error } = await supabase
+            .from("substance_statistics")
+            .upsert({
+              state_id: String(substanceData.state_id || ""),
+              state_name: String(substanceData.state_name || ""),
+              year: Number(substanceData.year) || new Date().getFullYear(),
+              alcohol_use_past_month_percent: substanceData.alcohol_use_past_month_percent as number | null,
+              alcohol_binge_drinking_percent: substanceData.alcohol_binge_drinking_percent as number | null,
+              alcohol_heavy_use_percent: substanceData.alcohol_heavy_use_percent as number | null,
+              alcohol_use_disorder: substanceData.alcohol_use_disorder as number | null,
+              alcohol_related_deaths: substanceData.alcohol_related_deaths as number | null,
+              opioid_use_disorder: substanceData.opioid_use_disorder as number | null,
+              opioid_misuse_past_year: substanceData.opioid_misuse_past_year as number | null,
+              prescription_opioid_misuse: substanceData.prescription_opioid_misuse as number | null,
+              heroin_use: substanceData.heroin_use as number | null,
+              fentanyl_deaths: substanceData.fentanyl_deaths as number | null,
+              fentanyl_involved_overdoses: substanceData.fentanyl_involved_overdoses as number | null,
+              marijuana_use_past_month: substanceData.marijuana_use_past_month as number | null,
+              marijuana_use_past_year: substanceData.marijuana_use_past_year as number | null,
+              marijuana_use_disorder: substanceData.marijuana_use_disorder as number | null,
+              cocaine_use_past_year: substanceData.cocaine_use_past_year as number | null,
+              cocaine_use_disorder: substanceData.cocaine_use_disorder as number | null,
+              cocaine_related_deaths: substanceData.cocaine_related_deaths as number | null,
+              meth_use_past_year: substanceData.meth_use_past_year as number | null,
+              meth_use_disorder: substanceData.meth_use_disorder as number | null,
+              meth_related_deaths: substanceData.meth_related_deaths as number | null,
+              prescription_stimulant_misuse: substanceData.prescription_stimulant_misuse as number | null,
+              prescription_sedative_misuse: substanceData.prescription_sedative_misuse as number | null,
+              prescription_tranquilizer_misuse: substanceData.prescription_tranquilizer_misuse as number | null,
+              treatment_received: substanceData.treatment_received as number | null,
+              treatment_needed_not_received: substanceData.treatment_needed_not_received as number | null,
+              mat_recipients: substanceData.mat_recipients as number | null,
+              mental_illness_with_sud: substanceData.mental_illness_with_sud as number | null,
+              serious_mental_illness_with_sud: substanceData.serious_mental_illness_with_sud as number | null,
             }, { onConflict: "state_id,year" });
           if (error) throw error;
           successCount++;
@@ -398,7 +446,7 @@ export default function ContentGeneratorAdmin() {
           </Card>
 
           {/* Year Selection for Statistics */}
-          {selectedContentTypes.includes("statistics") && (
+          {(selectedContentTypes.includes("statistics") || selectedContentTypes.includes("substance_statistics")) && (
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -502,7 +550,7 @@ export default function ContentGeneratorAdmin() {
                     {(() => {
                       let count = 0;
                       for (const type of selectedContentTypes) {
-                        if (type === "statistics") {
+                        if (type === "statistics" || type === "substance_statistics") {
                           count += selectedStates.length * selectedYears.length;
                         } else {
                           count += selectedStates.length;

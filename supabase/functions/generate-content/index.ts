@@ -8,10 +8,10 @@ const corsHeaders = {
 interface GenerateRequest {
   stateName: string;
   stateAbbreviation: string;
-  contentType: "statistics" | "resources" | "faqs" | "seo";
+  contentType: "statistics" | "substance_statistics" | "resources" | "faqs" | "seo";
   researchData: string;
   citations: string[];
-  year?: number; // For statistics, specify the year
+  year?: number;
 }
 
 serve(async (req) => {
@@ -32,79 +32,134 @@ serve(async (req) => {
 
     let systemPrompt = "";
     let userPrompt = "";
+    const targetYear = year || new Date().getFullYear();
+    const stateId = stateAbbreviation.toLowerCase();
 
     switch (contentType) {
       case "statistics":
-        const targetYear = year || new Date().getFullYear();
-        systemPrompt = `You are a data analyst creating structured addiction statistics for ${stateName} for the year ${targetYear}. Output ONLY valid JSON matching this exact structure:
+        systemPrompt = `You are a data analyst extracting addiction statistics for ${stateName}. Output ONLY valid JSON with this EXACT structure:
 {
-  "state_id": "${stateAbbreviation.toLowerCase()}",
+  "state_id": "${stateId}",
   "state_name": "${stateName}",
   "year": ${targetYear},
-  "total_affected": number or null,
-  "overdose_deaths": number or null,
-  "opioid_deaths": number or null,
-  "drug_abuse_rate": number (percentage) or null,
-  "alcohol_abuse_rate": number (percentage) or null,
-  "total_treatment_centers": number or null,
-  "treatment_admissions": number or null,
-  "recovery_rate": number (percentage) or null,
-  "data_source": "source name",
-  "source_url": "url if available"
+  "total_affected": <number or null>,
+  "overdose_deaths": <number or null>,
+  "opioid_deaths": <number or null>,
+  "drug_abuse_rate": <number as percentage like 5.8 or null>,
+  "alcohol_abuse_rate": <number as percentage like 6.2 or null>,
+  "affected_age_12_17": <number or null>,
+  "affected_age_18_25": <number or null>,
+  "affected_age_26_34": <number or null>,
+  "affected_age_35_plus": <number or null>,
+  "total_treatment_centers": <number or null>,
+  "inpatient_facilities": <number or null>,
+  "outpatient_facilities": <number or null>,
+  "treatment_admissions": <number or null>,
+  "recovery_rate": <number as percentage or null>,
+  "relapse_rate": <number as percentage or null>,
+  "economic_cost_billions": <number like 5.2 or null>,
+  "data_source": "CDC, SAMHSA NSDUH",
+  "source_url": "https://www.samhsa.gov/data/nsduh"
 }
-IMPORTANT: The year field MUST be ${targetYear}.`;
-        userPrompt = `Based on this research data, extract and structure the statistics for ${stateName} for year ${targetYear}:\n\n${researchData}\n\nCitations: ${citations.join(", ")}\n\nOutput ONLY the JSON object with year set to ${targetYear}, no markdown or explanation.`;
+Extract numbers from research. Use null if data not found. Year MUST be ${targetYear}.`;
+        userPrompt = `Extract statistics for ${stateName} for ${targetYear} from this research:\n\n${researchData}\n\nSources: ${citations.join(", ")}\n\nOutput ONLY JSON, no markdown.`;
+        break;
+
+      case "substance_statistics":
+        systemPrompt = `You are extracting substance-specific statistics for ${stateName}. Output ONLY valid JSON with this EXACT structure:
+{
+  "state_id": "${stateId}",
+  "state_name": "${stateName}",
+  "year": ${targetYear},
+  "alcohol_use_past_month_percent": <number or null>,
+  "alcohol_binge_drinking_percent": <number or null>,
+  "alcohol_heavy_use_percent": <number or null>,
+  "alcohol_use_disorder": <number or null>,
+  "alcohol_related_deaths": <number or null>,
+  "opioid_use_disorder": <number or null>,
+  "opioid_misuse_past_year": <number or null>,
+  "prescription_opioid_misuse": <number or null>,
+  "heroin_use": <number or null>,
+  "fentanyl_deaths": <number or null>,
+  "fentanyl_involved_overdoses": <number or null>,
+  "marijuana_use_past_month": <number or null>,
+  "marijuana_use_past_year": <number or null>,
+  "marijuana_use_disorder": <number or null>,
+  "cocaine_use_past_year": <number or null>,
+  "cocaine_use_disorder": <number or null>,
+  "cocaine_related_deaths": <number or null>,
+  "meth_use_past_year": <number or null>,
+  "meth_use_disorder": <number or null>,
+  "meth_related_deaths": <number or null>,
+  "prescription_stimulant_misuse": <number or null>,
+  "prescription_sedative_misuse": <number or null>,
+  "prescription_tranquilizer_misuse": <number or null>,
+  "treatment_received": <number or null>,
+  "treatment_needed_not_received": <number or null>,
+  "mat_recipients": <number or null>,
+  "mental_illness_with_sud": <number or null>,
+  "serious_mental_illness_with_sud": <number or null>
+}
+Extract numbers from research. Use null if not found. Year MUST be ${targetYear}.`;
+        userPrompt = `Extract substance statistics for ${stateName} for ${targetYear} from this research:\n\n${researchData}\n\nSources: ${citations.join(", ")}\n\nOutput ONLY JSON, no markdown.`;
         break;
 
       case "resources":
-        systemPrompt = `You are creating a list of free addiction treatment resources for ${stateName}. Output ONLY valid JSON as an array:
+        systemPrompt = `You are creating addiction treatment resources for ${stateName}. Output ONLY valid JSON array:
 [
   {
     "title": "Resource Name",
-    "description": "Brief description",
-    "resource_type": "hotline" | "treatment_center" | "support_group" | "government_program",
-    "phone": "phone number or null",
-    "website": "url or null",
-    "address": "address or null",
+    "description": "Detailed description (2-3 sentences)",
+    "resource_type": "hotline" | "treatment_center" | "support_group" | "government_program" | "crisis_line",
+    "phone": "phone number with area code or null",
+    "website": "full URL or null",
+    "address": "full address or null",
     "is_free": true,
     "is_nationwide": false,
-    "state_id": "${stateAbbreviation.toLowerCase()}"
+    "state_id": "${stateId}",
+    "featured": true for important resources
   }
-]`;
-        userPrompt = `Based on this research, create structured resource entries for ${stateName}:\n\n${researchData}\n\nOutput ONLY the JSON array, no markdown.`;
+]
+Create 10-15 verified resources. Always include SAMHSA Helpline.`;
+        userPrompt = `Create resources for ${stateName} from this research:\n\n${researchData}\n\nOutput ONLY JSON array, no markdown.`;
         break;
 
       case "faqs":
-        systemPrompt = `You are creating FAQs about addiction treatment in ${stateName}. Output ONLY valid JSON as an array:
+        systemPrompt = `You are creating FAQs about addiction treatment in ${stateName}. Output ONLY valid JSON array:
 [
   {
-    "question": "Question text?",
-    "answer": "Detailed answer with state-specific information.",
+    "question": "Question about treatment in ${stateName}?",
+    "answer": "Detailed answer (3-5 sentences) with ${stateName}-specific information.",
     "category": "Insurance" | "Treatment" | "Legal" | "Resources" | "General",
-    "state_id": "${stateAbbreviation.toLowerCase()}"
+    "state_id": "${stateId}",
+    "is_active": true,
+    "sort_order": 1
   }
-]`;
-        userPrompt = `Based on this research, create 8-10 FAQs for ${stateName}:\n\n${researchData}\n\nOutput ONLY the JSON array, no markdown.`;
+]
+Create 10 relevant FAQs. Include insurance, legal, and treatment questions.`;
+        userPrompt = `Create 10 FAQs for ${stateName} from this research:\n\n${researchData}\n\nOutput ONLY JSON array, no markdown.`;
         break;
 
       case "seo":
-        systemPrompt = `You are an SEO specialist creating page content for ${stateName} rehab listings. Output ONLY valid JSON:
+        systemPrompt = `You are creating SEO content for ${stateName} rehab listings. Output ONLY valid JSON:
 {
-  "page_slug": "${stateName.toLowerCase().replace(/ /g, "-")}",
+  "page_slug": "${stateName.toLowerCase().replace(/ /g, "-")}-addiction-rehabs",
   "page_type": "state",
-  "meta_title": "under 60 chars, include '${stateName} Rehab Centers'",
-  "meta_description": "under 160 chars, compelling description",
-  "h1_title": "main heading for the page",
-  "intro_text": "2-3 paragraphs of introductory content about addiction treatment in ${stateName}",
-  "og_title": "social sharing title",
-  "og_description": "social sharing description",
-  "state_id": "${stateAbbreviation.toLowerCase()}"
+  "meta_title": "${stateName} Rehab Centers | Find Treatment Near You",
+  "meta_description": "Under 160 chars describing ${stateName} addiction treatment options",
+  "h1_title": "Addiction Treatment Centers in ${stateName}",
+  "intro_text": "3-4 paragraphs about addiction treatment in ${stateName}. Include statistics, treatment options, insurance info.",
+  "og_title": "${stateName} Drug & Alcohol Rehab Centers",
+  "og_description": "Find the best addiction treatment in ${stateName}. Free resources and verified rehab centers.",
+  "state_id": "${stateId}",
+  "meta_keywords": ["${stateName} rehab", "${stateName} addiction treatment", "drug rehab ${stateAbbreviation}"],
+  "is_active": true
 }`;
-        userPrompt = `Based on this research, create SEO content for ${stateName}:\n\n${researchData}\n\nOutput ONLY the JSON object, no markdown.`;
+        userPrompt = `Create SEO content for ${stateName} from this research:\n\n${researchData}\n\nOutput ONLY JSON, no markdown.`;
         break;
     }
 
-    console.log(`Generating ${contentType} content for ${stateName}...`);
+    console.log(`Generating ${contentType} for ${stateName} (${targetYear})...`);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -128,12 +183,6 @@ IMPORTANT: The year field MUST be ${targetYear}.`;
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ success: false, error: "Payment required. Please add credits." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
       const errorText = await response.text();
       console.error("AI gateway error:", errorText);
       return new Response(
@@ -145,14 +194,12 @@ IMPORTANT: The year field MUST be ${targetYear}.`;
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "";
 
-    // Parse the JSON content
     let parsedContent;
     try {
-      // Remove markdown code blocks if present
       const cleanContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
       parsedContent = JSON.parse(cleanContent);
     } catch (parseError) {
-      console.error("Failed to parse AI response as JSON:", content);
+      console.error("Failed to parse AI response:", content);
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -163,7 +210,7 @@ IMPORTANT: The year field MUST be ${targetYear}.`;
       );
     }
 
-    console.log(`Content generated for ${stateName} - ${contentType}`);
+    console.log(`Generated ${contentType} for ${stateName} (${targetYear})`);
 
     return new Response(
       JSON.stringify({
@@ -172,6 +219,7 @@ IMPORTANT: The year field MUST be ${targetYear}.`;
           stateName,
           stateAbbreviation,
           contentType,
+          year: targetYear,
           content: parsedContent,
           timestamp: new Date().toISOString(),
         },
