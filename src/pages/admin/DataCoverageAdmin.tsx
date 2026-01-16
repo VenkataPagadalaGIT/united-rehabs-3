@@ -20,6 +20,7 @@ import {
   Clock,
   Activity
 } from "lucide-react";
+import RecentActivityLog from "@/components/admin/RecentActivityLog";
 
 // All 50 US States
 const ALL_STATES = [
@@ -445,6 +446,9 @@ export default function DataCoverageAdmin() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Recent Activity Log */}
+      <RecentActivityLog />
 
       {/* Overall Progress - States Coverage */}
       <Card>
