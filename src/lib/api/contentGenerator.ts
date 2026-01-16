@@ -52,6 +52,7 @@ export interface StateGenerationResult {
   stateName: string;
   stateAbbreviation: string;
   contentType: ContentType;
+  year?: number;
   research: ResearchResult;
   generated: GeneratedContent;
   qa: QAResult;
@@ -63,10 +64,11 @@ export interface StateGenerationResult {
 export async function researchState(
   stateName: string,
   stateAbbreviation: string,
-  researchType: ContentType
+  researchType: ContentType,
+  year?: number
 ): Promise<ResearchResult> {
   const { data, error } = await supabase.functions.invoke("research-state", {
-    body: { stateName, stateAbbreviation, researchType },
+    body: { stateName, stateAbbreviation, researchType, year },
   });
 
   if (error) {
@@ -81,10 +83,11 @@ export async function generateContent(
   stateAbbreviation: string,
   contentType: ContentType,
   researchData: string,
-  citations: string[]
+  citations: string[],
+  year?: number
 ): Promise<GeneratedContent> {
   const { data, error } = await supabase.functions.invoke("generate-content", {
-    body: { stateName, stateAbbreviation, contentType, researchData, citations },
+    body: { stateName, stateAbbreviation, contentType, researchData, citations, year },
   });
 
   if (error) {
@@ -115,16 +118,18 @@ export async function generateStateContent(
   stateName: string,
   stateAbbreviation: string,
   contentType: ContentType,
-  skipQA = false
+  skipQA = false,
+  year?: number
 ): Promise<StateGenerationResult> {
   // Step 1: Research
-  const research = await researchState(stateName, stateAbbreviation, contentType);
+  const research = await researchState(stateName, stateAbbreviation, contentType, year);
   
   if (!research.success || !research.data) {
     return {
       stateName,
       stateAbbreviation,
       contentType,
+      year,
       research,
       generated: { success: false, error: "Research failed" },
       qa: { success: false, error: "Skipped due to research failure" },
@@ -139,7 +144,8 @@ export async function generateStateContent(
     stateAbbreviation,
     contentType,
     research.data.content,
-    research.data.citations
+    research.data.citations,
+    year
   );
 
   if (!generated.success || !generated.data) {
@@ -147,6 +153,7 @@ export async function generateStateContent(
       stateName,
       stateAbbreviation,
       contentType,
+      year,
       research,
       generated,
       qa: { success: false, error: "Skipped due to generation failure" },
@@ -189,6 +196,7 @@ export async function generateStateContent(
     stateName,
     stateAbbreviation,
     contentType,
+    year,
     research,
     generated,
     qa,
@@ -203,42 +211,90 @@ export async function bulkGenerateContent(
   contentTypes: ContentType[],
   onProgress?: (completed: number, total: number, current: string) => void,
   skipQA = false,
-  delayMs = 2000 // Delay between API calls to avoid rate limiting
+  delayMs = 2000, // Delay between API calls to avoid rate limiting
+  years?: number[] // For statistics, generate for multiple years
 ): Promise<StateGenerationResult[]> {
   const results: StateGenerationResult[] = [];
-  const total = states.length * contentTypes.length;
+  
+  // Calculate total: for statistics with years, multiply by year count
+  const statsYears = years || [new Date().getFullYear()];
+  let total = 0;
+  for (const contentType of contentTypes) {
+    if (contentType === "statistics") {
+      total += states.length * statsYears.length;
+    } else {
+      total += states.length;
+    }
+  }
+  
   let completed = 0;
 
   for (const state of states) {
     for (const contentType of contentTypes) {
-      onProgress?.(completed, total, `${state.name} - ${contentType}`);
-      
-      try {
-        const result = await generateStateContent(
-          state.name,
-          state.abbreviation,
-          contentType,
-          skipQA
-        );
-        results.push(result);
-      } catch (error) {
-        results.push({
-          stateName: state.name,
-          stateAbbreviation: state.abbreviation,
-          contentType,
-          research: { success: false, error: String(error) },
-          generated: { success: false, error: "Skipped" },
-          qa: { success: false, error: "Skipped" },
-          approved: false,
-          content: null,
-        });
-      }
-      
-      completed++;
-      
-      // Add delay between calls to avoid rate limiting
-      if (completed < total) {
-        await new Promise(resolve => setTimeout(resolve, delayMs));
+      if (contentType === "statistics" && years && years.length > 0) {
+        // For statistics, generate for each selected year
+        for (const year of years) {
+          onProgress?.(completed, total, `${state.name} - ${contentType} (${year})`);
+          
+          try {
+            const result = await generateStateContent(
+              state.name,
+              state.abbreviation,
+              contentType,
+              skipQA,
+              year
+            );
+            results.push(result);
+          } catch (error) {
+            results.push({
+              stateName: state.name,
+              stateAbbreviation: state.abbreviation,
+              contentType,
+              year,
+              research: { success: false, error: String(error) },
+              generated: { success: false, error: "Skipped" },
+              qa: { success: false, error: "Skipped" },
+              approved: false,
+              content: null,
+            });
+          }
+          
+          completed++;
+          
+          if (completed < total) {
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+          }
+        }
+      } else {
+        // For non-statistics content types
+        onProgress?.(completed, total, `${state.name} - ${contentType}`);
+        
+        try {
+          const result = await generateStateContent(
+            state.name,
+            state.abbreviation,
+            contentType,
+            skipQA
+          );
+          results.push(result);
+        } catch (error) {
+          results.push({
+            stateName: state.name,
+            stateAbbreviation: state.abbreviation,
+            contentType,
+            research: { success: false, error: String(error) },
+            generated: { success: false, error: "Skipped" },
+            qa: { success: false, error: "Skipped" },
+            approved: false,
+            content: null,
+          });
+        }
+        
+        completed++;
+        
+        if (completed < total) {
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+        }
       }
     }
   }
