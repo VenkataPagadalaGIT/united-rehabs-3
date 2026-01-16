@@ -33,11 +33,13 @@ import {
   Link2,
   Shield,
   Brain,
+  PieChart,
 } from "lucide-react";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: Home },
   { title: "AI Generator", url: "/admin/content-generator", icon: Brain },
+  { title: "Data Coverage", url: "/admin/data-coverage", icon: PieChart },
   { title: "Articles", url: "/admin/articles", icon: Newspaper },
   { title: "Statistics", url: "/admin/statistics", icon: BarChart3 },
   { title: "Substance Stats", url: "/admin/substance", icon: Database },
