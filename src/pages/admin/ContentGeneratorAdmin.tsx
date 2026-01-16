@@ -91,14 +91,14 @@ const CONTENT_TYPES: { value: ContentType; label: string; description: string }[
   { value: "seo", label: "SEO Content", description: "Page titles and descriptions" },
 ];
 
-// Available years for statistics (2015-2024)
-const AVAILABLE_YEARS = [2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015];
+// Available years for statistics (2015-2026)
+const AVAILABLE_YEARS = [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015];
 
 export default function ContentGeneratorAdmin() {
   const { toast } = useToast();
   const [selectedStates, setSelectedStates] = useState<string[]>([]);
   const [selectedContentTypes, setSelectedContentTypes] = useState<ContentType[]>(["statistics", "substance_statistics", "faqs", "seo"]);
-  const [selectedYears, setSelectedYears] = useState<number[]>([2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015]);
+  const [selectedYears, setSelectedYears] = useState<number[]>([2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015]);
   const [skipQA, setSkipQA] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
