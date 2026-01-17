@@ -1,4 +1,4 @@
-import { ComposableMap, Geographies, Geography, ZoomableGroup, createCoordinates } from "@vnedyalk0v/react19-simple-maps";
+import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
 import { useState } from "react";
 
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -93,7 +93,7 @@ export function WorldMap({ onCountryClick }: WorldMapProps) {
         projection="geoMercator"
         projectionConfig={{
           scale: 120,
-          center: createCoordinates(0, 30),
+          center: [0, 30],
         }}
         className="w-full h-[300px] md:h-[400px]"
       >
