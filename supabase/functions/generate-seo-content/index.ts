@@ -9,6 +9,7 @@ const corsHeaders = {
 interface GenerateRequest {
   stateId: string;
   stateName: string;
+  stateSlug?: string; // Full state name slug (e.g., "california", "new-york")
   pageTypes?: string[]; // Optional: specific page types to generate
 }
 
@@ -18,7 +19,10 @@ serve(async (req) => {
   }
 
   try {
-    const { stateId, stateName, pageTypes = ['state_main', 'state_stats', 'state_rehabs', 'state_resources'] } = await req.json() as GenerateRequest;
+    const { stateId, stateName, stateSlug, pageTypes = ['state_main', 'state_stats', 'state_rehabs', 'state_resources'] } = await req.json() as GenerateRequest;
+    
+    // Use stateSlug for URL-friendly paths, fallback to converting stateName
+    const urlSlug = stateSlug || stateName.toLowerCase().replace(/\s+/g, '-');
 
     const PERPLEXITY_API_KEY = Deno.env.get('PERPLEXITY_API_KEY');
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
@@ -82,7 +86,7 @@ Generate SEO metadata for these page types. Return ONLY valid JSON, no markdown:
   "pages": [
     {
       "page_type": "state_main",
-      "page_slug": "${stateId}-addiction-treatment",
+      "page_slug": "${urlSlug}-addiction-rehabs",
       "meta_title": "[Under 60 chars, include '${stateName} Addiction Treatment' and year]",
       "meta_description": "[Under 160 chars, compelling with CTA, mention free resources]",
       "h1_title": "[Main heading for the page]",
@@ -93,7 +97,7 @@ Generate SEO metadata for these page types. Return ONLY valid JSON, no markdown:
     },
     {
       "page_type": "state_stats",
-      "page_slug": "${stateId}-addiction-statistics",
+      "page_slug": "${urlSlug}-addiction-stats",
       "meta_title": "[Focus on statistics, data, numbers]",
       "meta_description": "[Highlight key stats, trends]",
       "h1_title": "[Statistics-focused heading]",
@@ -104,7 +108,7 @@ Generate SEO metadata for these page types. Return ONLY valid JSON, no markdown:
     },
     {
       "page_type": "state_rehabs",
-      "page_slug": "${stateId}-rehab-centers",
+      "page_slug": "${urlSlug}-rehab-centers",
       "meta_title": "[Focus on treatment centers, rehabs]",
       "meta_description": "[Highlight finding treatment, centers]",
       "h1_title": "[Treatment-focused heading]",
@@ -115,7 +119,7 @@ Generate SEO metadata for these page types. Return ONLY valid JSON, no markdown:
     },
     {
       "page_type": "state_resources",
-      "page_slug": "${stateId}-free-resources",
+      "page_slug": "${urlSlug}-addiction-free-resources",
       "meta_title": "[Focus on free resources, hotlines, support]",
       "meta_description": "[Highlight free help, accessibility]",
       "h1_title": "[Resources-focused heading]",
