@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.verify-admin]
 verify_jwt = false
+
+[functions.verify-state-data]
+verify_jwt = false

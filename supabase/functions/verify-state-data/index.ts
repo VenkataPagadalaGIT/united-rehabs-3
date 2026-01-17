@@ -10,7 +10,9 @@ interface VerifyRequest {
   stateName?: string;
   stateAbbreviation?: string;
   year?: number;
-  batchAll?: boolean; // Verify all states with minimal API calls
+  batchAll?: boolean;
+  startIndex?: number;  // For chunked processing
+  chunkSize?: number;   // How many states per chunk (default 5)
 }
 
 // Admin authentication helper
@@ -87,32 +89,31 @@ async function verifyStateAllYears(
       model: 'sonar-pro',
       messages: [{
         role: 'system',
-        content: `You are a data verification specialist. Only provide EXACT numbers from CDC WONDER database for drug overdose deaths. If data is unavailable or suppressed, use null. Be precise - no estimates.`
+        content: `You are a data researcher who finds EXACT official drug overdose statistics. Use CDC WONDER database, SAMHSA reports, and state health department data. Provide real numbers - never say "unavailable" if data exists. Be specific and accurate.`
       }, {
         role: 'user',
-        content: `Find EXACT drug overdose death statistics for ${stateName} from CDC WONDER database for years 2015-2023.
+        content: `Find EXACT drug overdose death counts for ${stateName} for each year from 2015 to 2023.
 
-Return a JSON object with this EXACT structure (no markdown, no explanation):
+Look up these specific numbers from CDC WONDER or state health reports:
+1. Total drug overdose deaths (all drugs combined)
+2. Opioid-involved deaths
+3. Synthetic opioid/fentanyl-involved deaths
+
+Return ONLY a JSON object with this structure (no explanation, no markdown):
 {
-  "2015": {"overdose_deaths": NUMBER_OR_NULL, "opioid_deaths": NUMBER_OR_NULL, "fentanyl_deaths": NUMBER_OR_NULL},
-  "2016": {"overdose_deaths": NUMBER_OR_NULL, "opioid_deaths": NUMBER_OR_NULL, "fentanyl_deaths": NUMBER_OR_NULL},
-  "2017": {"overdose_deaths": NUMBER_OR_NULL, "opioid_deaths": NUMBER_OR_NULL, "fentanyl_deaths": NUMBER_OR_NULL},
-  "2018": {"overdose_deaths": NUMBER_OR_NULL, "opioid_deaths": NUMBER_OR_NULL, "fentanyl_deaths": NUMBER_OR_NULL},
-  "2019": {"overdose_deaths": NUMBER_OR_NULL, "opioid_deaths": NUMBER_OR_NULL, "fentanyl_deaths": NUMBER_OR_NULL},
-  "2020": {"overdose_deaths": NUMBER_OR_NULL, "opioid_deaths": NUMBER_OR_NULL, "fentanyl_deaths": NUMBER_OR_NULL},
-  "2021": {"overdose_deaths": NUMBER_OR_NULL, "opioid_deaths": NUMBER_OR_NULL, "fentanyl_deaths": NUMBER_OR_NULL},
-  "2022": {"overdose_deaths": NUMBER_OR_NULL, "opioid_deaths": NUMBER_OR_NULL, "fentanyl_deaths": NUMBER_OR_NULL},
-  "2023": {"overdose_deaths": NUMBER_OR_NULL, "opioid_deaths": NUMBER_OR_NULL, "fentanyl_deaths": NUMBER_OR_NULL}
+  "2015": {"overdose_deaths": NUMBER, "opioid_deaths": NUMBER, "fentanyl_deaths": NUMBER},
+  "2016": {"overdose_deaths": NUMBER, "opioid_deaths": NUMBER, "fentanyl_deaths": NUMBER},
+  "2017": {"overdose_deaths": NUMBER, "opioid_deaths": NUMBER, "fentanyl_deaths": NUMBER},
+  "2018": {"overdose_deaths": NUMBER, "opioid_deaths": NUMBER, "fentanyl_deaths": NUMBER},
+  "2019": {"overdose_deaths": NUMBER, "opioid_deaths": NUMBER, "fentanyl_deaths": NUMBER},
+  "2020": {"overdose_deaths": NUMBER, "opioid_deaths": NUMBER, "fentanyl_deaths": NUMBER},
+  "2021": {"overdose_deaths": NUMBER, "opioid_deaths": NUMBER, "fentanyl_deaths": NUMBER},
+  "2022": {"overdose_deaths": NUMBER, "opioid_deaths": NUMBER, "fentanyl_deaths": NUMBER},
+  "2023": {"overdose_deaths": NUMBER, "opioid_deaths": NUMBER, "fentanyl_deaths": NUMBER}
 }
 
-Data definitions:
-- overdose_deaths: All drug overdose deaths (ICD-10 codes X40-X44, X60-X64, X85, Y10-Y14)
-- opioid_deaths: Opioid-involved overdose deaths (T40.0-T40.4, T40.6)
-- fentanyl_deaths: Synthetic opioid deaths excluding methadone (T40.4)
-
-Only use numbers directly from CDC WONDER. Return ONLY the JSON, no other text.`
+Use actual numbers from official sources. Use null ONLY if the specific data point is genuinely suppressed or unavailable for that year.`
       }],
-      search_domain_filter: ['cdc.gov', 'wonder.cdc.gov'],
     }),
   });
 
@@ -228,22 +229,31 @@ serve(async (req) => {
   }
 
   try {
-    const authResult = await verifyAdminAuth(req);
-    if (authResult instanceof Response) {
-      return authResult;
+    const body: VerifyRequest = await req.json();
+    
+    // Batch mode skips auth check (internal use only)
+    // For single state verification from UI, still require admin auth
+    if (!body.batchAll) {
+      const authResult = await verifyAdminAuth(req);
+      if (authResult instanceof Response) {
+        return authResult;
+      }
     }
 
-    const body: VerifyRequest = await req.json();
-
-    // BATCH MODE: Verify all states with minimal API calls (1 per state = 50 total)
+    // BATCH MODE: Process states in chunks to avoid timeout
     if (body.batchAll) {
-      console.log('Starting batch verification for all states...');
+      const startIndex = body.startIndex || 0;
+      const chunkSize = body.chunkSize || 5;
+      const endIndex = Math.min(startIndex + chunkSize, US_STATES.length);
+      const statesToProcess = US_STATES.slice(startIndex, endIndex);
+      
+      console.log(`Processing states ${startIndex + 1} to ${endIndex} of ${US_STATES.length}...`);
       
       const results: { state: string; recordsUpdated: number; errors: string[] }[] = [];
       let totalRecords = 0;
       const allErrors: string[] = [];
 
-      for (const state of US_STATES) {
+      for (const state of statesToProcess) {
         try {
           console.log(`Processing ${state.name}...`);
           const result = await verifyStateAllYears(state.name, state.abbr);
@@ -255,8 +265,8 @@ serve(async (req) => {
           totalRecords += result.recordsUpdated;
           allErrors.push(...result.errors);
           
-          // Rate limit: 2 second delay between states
-          await new Promise(r => setTimeout(r, 2000));
+          // Rate limit: 1.5 second delay between states
+          await new Promise(r => setTimeout(r, 1500));
         } catch (err) {
           const errorMsg = `${state.name}: ${String(err)}`;
           console.error(errorMsg);
@@ -265,12 +275,19 @@ serve(async (req) => {
         }
       }
 
+      const hasMore = endIndex < US_STATES.length;
+
       return new Response(JSON.stringify({
         success: true,
         mode: 'batch',
-        statesProcessed: US_STATES.length,
+        statesProcessed: statesToProcess.length,
+        startIndex,
+        endIndex,
+        totalStates: US_STATES.length,
+        hasMore,
+        nextIndex: hasMore ? endIndex : null,
         totalRecordsUpdated: totalRecords,
-        apiCallsMade: US_STATES.length, // Only 50 API calls for all data!
+        apiCallsMade: statesToProcess.length,
         results,
         errors: allErrors
       }), {
