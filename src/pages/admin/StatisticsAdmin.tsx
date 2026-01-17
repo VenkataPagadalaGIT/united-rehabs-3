@@ -47,11 +47,23 @@ interface StatRecord {
 
 interface VerifyResult {
   state: string;
-  year: number;
-  verified: boolean;
-  changes: Record<string, { old: number | null; new: number }>;
-  sources: string[];
+  year?: number;
+  verified?: boolean;
+  changes?: Record<string, { old: number | null; new: number }>;
+  sources?: string[];
   error?: string;
+  recordsUpdated?: number;
+  errors?: string[];
+}
+
+interface BatchResult {
+  success: boolean;
+  mode: string;
+  statesProcessed: number;
+  totalRecordsUpdated: number;
+  apiCallsMade: number;
+  results: VerifyResult[];
+  errors: string[];
 }
 
 const StatisticsAdmin = () => {
@@ -59,7 +71,9 @@ const StatisticsAdmin = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<StatRecord | null>(null);
   const [verifyResults, setVerifyResults] = useState<VerifyResult[]>([]);
+  const [batchResult, setBatchResult] = useState<BatchResult | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isBatchVerifying, setIsBatchVerifying] = useState(false);
   const [selectedVerifyState, setSelectedVerifyState] = useState<string>("");
   const [selectedVerifyYear, setSelectedVerifyYear] = useState<string>("2023");
   const [formData, setFormData] = useState({
@@ -88,7 +102,7 @@ const StatisticsAdmin = () => {
     },
   });
 
-  // QA Verification handler
+  // QA Verification handler - single state
   const handleVerifyData = async () => {
     if (!selectedVerifyState) {
       toast.error("Please select a state to verify");
@@ -97,6 +111,7 @@ const StatisticsAdmin = () => {
     
     setIsVerifying(true);
     setVerifyResults([]);
+    setBatchResult(null);
     
     try {
       const stateInfo = ALL_STATES.find(s => s.abbreviation === selectedVerifyState);
@@ -105,30 +120,58 @@ const StatisticsAdmin = () => {
       const { data, error } = await supabase.functions.invoke("verify-state-data", {
         body: {
           stateName: stateInfo.name,
-          stateAbbreviation: stateInfo.abbreviation,
-          year: parseInt(selectedVerifyYear)
+          stateAbbreviation: stateInfo.abbreviation
         }
       });
 
       if (error) throw error;
 
-      if (data?.success && data.results) {
-        setVerifyResults(data.results);
-        const result = data.results[0];
-        if (result.verified) {
-          toast.success(`${stateInfo.name} ${selectedVerifyYear} data verified - no changes needed`);
-        } else if (result.changes && Object.keys(result.changes).length > 0) {
-          toast.success(`Updated ${Object.keys(result.changes).length} fields for ${stateInfo.name} ${selectedVerifyYear}`);
-          queryClient.invalidateQueries({ queryKey: ["admin-statistics"] });
-        } else if (result.error) {
-          toast.error(`Verification failed: ${result.error}`);
-        }
+      if (data?.success) {
+        toast.success(`Verified ${stateInfo.name}: ${data.recordsUpdated} records updated using 1 API call`);
+        queryClient.invalidateQueries({ queryKey: ["admin-statistics"] });
+        setVerifyResults([{
+          state: stateInfo.name,
+          recordsUpdated: data.recordsUpdated,
+          errors: data.errors
+        }]);
       }
     } catch (err: any) {
       console.error("Verification error:", err);
       toast.error("Verification failed: " + (err.message || "Unknown error"));
     } finally {
       setIsVerifying(false);
+    }
+  };
+
+  // BATCH: Verify ALL states with minimal API calls (50 total)
+  const handleBatchVerifyAll = async () => {
+    if (!confirm("This will verify ALL 50 states using 50 API calls (1 per state). This may take 2-3 minutes. Continue?")) {
+      return;
+    }
+    
+    setIsBatchVerifying(true);
+    setVerifyResults([]);
+    setBatchResult(null);
+    
+    try {
+      toast.info("Starting batch verification for all 50 states...");
+      
+      const { data, error } = await supabase.functions.invoke("verify-state-data", {
+        body: { batchAll: true }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        setBatchResult(data);
+        toast.success(`Batch complete! Updated ${data.totalRecordsUpdated} records across ${data.statesProcessed} states using only ${data.apiCallsMade} API calls`);
+        queryClient.invalidateQueries({ queryKey: ["admin-statistics"] });
+      }
+    } catch (err: any) {
+      console.error("Batch verification error:", err);
+      toast.error("Batch verification failed: " + (err.message || "Unknown error"));
+    } finally {
+      setIsBatchVerifying(false);
     }
   };
 
@@ -303,14 +346,16 @@ const StatisticsAdmin = () => {
         <div className="flex items-center gap-2 mb-3">
           <ShieldCheck className="h-5 w-5 text-primary" />
           <h3 className="font-semibold">QA Data Verification</h3>
-          <Badge variant="outline" className="ml-2">CDC/SAMHSA</Badge>
+          <Badge variant="outline" className="ml-2">CDC WONDER</Badge>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          Verify and correct state data using official CDC WONDER and SAMHSA sources for 100% accuracy.
+          Verify and correct data using official CDC WONDER sources. Single state = 1 API call. All states = 50 API calls.
         </p>
-        <div className="flex flex-wrap gap-3 items-end">
+        
+        {/* Single State Verification */}
+        <div className="flex flex-wrap gap-3 items-end mb-4">
           <div className="space-y-1">
-            <Label className="text-xs">State</Label>
+            <Label className="text-xs">Single State</Label>
             <Select value={selectedVerifyState} onValueChange={setSelectedVerifyState}>
               <SelectTrigger className="w-[180px]"><SelectValue placeholder="Select state" /></SelectTrigger>
               <SelectContent>
@@ -320,43 +365,53 @@ const StatisticsAdmin = () => {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1">
-            <Label className="text-xs">Year</Label>
-            <Select value={selectedVerifyYear} onValueChange={setSelectedVerifyYear}>
-              <SelectTrigger className="w-[100px]"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {[2023, 2022, 2021, 2020, 2019].map((year) => (
-                  <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Button onClick={handleVerifyData} disabled={isVerifying || !selectedVerifyState} variant="secondary">
-            {isVerifying ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Verifying...</>) : (<><ShieldCheck className="mr-2 h-4 w-4" />Verify & Fix Data</>)}
+          <Button onClick={handleVerifyData} disabled={isVerifying || isBatchVerifying || !selectedVerifyState} variant="secondary">
+            {isVerifying ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Verifying...</>) : (<><ShieldCheck className="mr-2 h-4 w-4" />Verify State (1 API call)</>)}
           </Button>
+          
+          <div className="border-l pl-4 ml-2">
+            <Button onClick={handleBatchVerifyAll} disabled={isVerifying || isBatchVerifying} variant="default" className="bg-green-600 hover:bg-green-700">
+              {isBatchVerifying ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Processing all states...</>) : (<><ShieldCheck className="mr-2 h-4 w-4" />Verify ALL 50 States (50 API calls)</>)}
+            </Button>
+          </div>
         </div>
 
-        {verifyResults.length > 0 && (
+        {/* Batch Results */}
+        {batchResult && (
+          <Alert className="border-green-500/50 bg-green-500/10 mb-4">
+            <ShieldCheck className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-sm">
+              <strong>Batch Complete!</strong> Processed {batchResult.statesProcessed} states using only {batchResult.apiCallsMade} API calls.
+              Updated {batchResult.totalRecordsUpdated} records total.
+              {batchResult.errors.length > 0 && (
+                <details className="mt-2">
+                  <summary className="cursor-pointer text-amber-600">{batchResult.errors.length} errors occurred</summary>
+                  <ul className="mt-1 ml-4 list-disc text-xs text-red-600 max-h-32 overflow-auto">
+                    {batchResult.errors.map((err, i) => <li key={i}>{err}</li>)}
+                  </ul>
+                </details>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Single State Results */}
+        {verifyResults.length > 0 && !batchResult && (
           <div className="mt-4 space-y-2">
             {verifyResults.map((result, idx) => (
-              <Alert key={idx} className={result.verified ? "border-green-500/50 bg-green-500/10" : result.error ? "border-red-500/50 bg-red-500/10" : "border-amber-500/50 bg-amber-500/10"}>
-                {result.verified ? <ShieldCheck className="h-4 w-4 text-green-600" /> : <AlertTriangle className="h-4 w-4 text-amber-600" />}
+              <Alert key={idx} className={result.error ? "border-red-500/50 bg-red-500/10" : "border-green-500/50 bg-green-500/10"}>
+                <ShieldCheck className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-sm">
-                  <strong>{result.state} ({result.year}):</strong>{" "}
-                  {result.verified ? "All data verified - no corrections needed" : result.error ? (
+                  <strong>{result.state}:</strong>{" "}
+                  {result.error ? (
                     <span className="text-red-600">{result.error}</span>
                   ) : (
-                    <>
-                      Corrected {Object.keys(result.changes || {}).length} field(s):
-                      <ul className="mt-1 ml-4 list-disc text-xs">
-                        {Object.entries(result.changes || {}).map(([field, change]) => (
-                          <li key={field}>{field}: {change.old?.toLocaleString() || 'N/A'} → <strong>{change.new.toLocaleString()}</strong></li>
-                        ))}
-                      </ul>
-                      {result.sources?.length > 0 && (
-                        <div className="mt-1 text-xs text-muted-foreground">Sources: {result.sources.slice(0, 2).join(", ")}</div>
-                      )}
-                    </>
+                    <>Updated {result.recordsUpdated} records (years 2015-2023) using CDC WONDER data</>
+                  )}
+                  {result.errors && result.errors.length > 0 && (
+                    <ul className="mt-1 ml-4 list-disc text-xs text-amber-600">
+                      {result.errors.map((err, i) => <li key={i}>{err}</li>)}
+                    </ul>
                   )}
                 </AlertDescription>
               </Alert>
