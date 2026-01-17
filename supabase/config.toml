@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.research-article]
 verify_jwt = false
+
+[functions.verify-admin]
+verify_jwt = false
