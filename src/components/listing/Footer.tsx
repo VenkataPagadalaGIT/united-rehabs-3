@@ -60,6 +60,13 @@ export function Footer({ linkGroups }: FooterProps) {
         <div className="mt-8 pt-6 border-t border-sidebar-border">
           <div className="flex flex-wrap gap-4 justify-center md:justify-start">
             <Link
+              to="/legal-disclaimer"
+              className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
+            >
+              Legal Disclaimer
+            </Link>
+            <span className="text-sidebar-foreground/30">|</span>
+            <Link
               to="/terms-of-service"
               className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
             >
@@ -120,10 +127,30 @@ export function Footer({ linkGroups }: FooterProps) {
         {/* Legal Disclaimer */}
         <div className="mt-12 pt-8 border-t border-sidebar-border">
           <div className="bg-sidebar-accent/30 rounded-lg p-4 mb-8">
-            <h5 className="text-sm font-semibold text-sidebar-foreground mb-2">Legal Disclaimer</h5>
-            <p className="text-sidebar-foreground/60 text-xs leading-relaxed">
-              The information provided on this website is for general informational and educational purposes only and is not intended as a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of a qualified healthcare provider with any questions you may have regarding a medical condition or treatment options. We make no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, or suitability of the information contained herein. Any reliance you place on such information is strictly at your own risk. We are not responsible for any errors or omissions, or for any actions taken based on the information provided. Statistics and data are sourced from publicly available government databases and may be subject to reporting delays or revisions. This website does not endorse any specific treatment center, program, or service.
-            </p>
+            <h5 className="text-sm font-semibold text-sidebar-foreground mb-2">Legal Disclaimer & Data Accuracy Notice</h5>
+            <div className="text-sidebar-foreground/60 text-xs leading-relaxed space-y-2">
+              <p>
+                <strong>No Medical Advice:</strong> The information on this website is for general informational and educational purposes only. It is NOT a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider before making decisions about addiction treatment or recovery.
+              </p>
+              <p>
+                <strong>No Guarantee of Accuracy:</strong> Statistics are compiled from publicly available sources including CDC WONDER, SAMHSA, NIDA, and state health departments. While we strive for accuracy, we make NO WARRANTIES regarding completeness, accuracy, reliability, or timeliness of any data. Figures may be provisional, subject to revision, or reflect different collection methodologies. Any reliance on this information is STRICTLY AT YOUR OWN RISK.
+              </p>
+              <p>
+                <strong>International Users:</strong> This data primarily reflects conditions within the United States. Laws, regulations, treatment protocols, and statistical methodologies vary by country. Users outside the U.S. should consult local authorities and healthcare systems.
+              </p>
+              <p>
+                <strong>Limitation of Liability:</strong> Under no circumstances shall United Rehabs, its operators, affiliates, or data providers be liable for any direct, indirect, incidental, special, consequential, or punitive damages arising from your use of or reliance upon information on this website. This limitation applies regardless of legal theory and in any jurisdiction worldwide.
+              </p>
+              <p>
+                <strong>No Endorsement:</strong> Listings do not constitute endorsement. We do not guarantee the quality, licensing, or effectiveness of any treatment center. Users must conduct their own due diligence.
+              </p>
+              <p className="pt-2 border-t border-sidebar-border/30">
+                By using this website, you acknowledge reading and agreeing to our full{" "}
+                <Link to="/legal-disclaimer" className="text-primary hover:underline">Legal Disclaimer</Link>,{" "}
+                <Link to="/terms-of-service" className="text-primary hover:underline">Terms of Service</Link>, and{" "}
+                <Link to="/privacy-policy" className="text-primary hover:underline">Privacy Policy</Link>.
+              </p>
+            </div>
           </div>
         </div>
 

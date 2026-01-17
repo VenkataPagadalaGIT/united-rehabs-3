@@ -12,6 +12,7 @@ import AboutUs from "./pages/AboutUs";
 import Contact from "./pages/Contact";
 import DoNotSell from "./pages/DoNotSell";
 import AffiliateDisclosure from "./pages/AffiliateDisclosure";
+import LegalDisclaimer from "./pages/LegalDisclaimer";
 import StatePage from "./pages/StatePage";
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
@@ -53,6 +54,7 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/do-not-sell" element={<DoNotSell />} />
           <Route path="/affiliate-disclosure" element={<AffiliateDisclosure />} />
+          <Route path="/legal-disclaimer" element={<LegalDisclaimer />} />
           
           {/* Blog, News, Articles routes */}
           <Route path="/blog" element={<ArticlesListPage />} />
