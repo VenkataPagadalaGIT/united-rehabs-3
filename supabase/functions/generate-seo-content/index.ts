@@ -13,12 +13,61 @@ interface GenerateRequest {
   pageTypes?: string[]; // Optional: specific page types to generate
 }
 
+// Admin authentication helper
+async function verifyAdminAuth(req: Request): Promise<{ userId: string } | Response> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(
+      JSON.stringify({ success: false, error: "Unauthorized - missing authentication" }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  const authSupabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: authHeader } } }
+  );
+
+  const { data: { user }, error } = await authSupabase.auth.getUser();
+  
+  if (error || !user) {
+    return new Response(
+      JSON.stringify({ success: false, error: "Unauthorized - invalid token" }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  // Check if user has admin role
+  const { data: roleData } = await authSupabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", user.id)
+    .eq("role", "admin")
+    .single();
+
+  if (!roleData) {
+    return new Response(
+      JSON.stringify({ success: false, error: "Forbidden - Admin access required" }),
+      { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  return { userId: user.id };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Verify admin authentication
+    const authResult = await verifyAdminAuth(req);
+    if (authResult instanceof Response) {
+      return authResult;
+    }
+
     const { stateId, stateName, stateSlug, pageTypes = ['state_main', 'state_stats', 'state_rehabs', 'state_resources'] } = await req.json() as GenerateRequest;
     
     // Use stateSlug for URL-friendly paths, fallback to converting stateName
