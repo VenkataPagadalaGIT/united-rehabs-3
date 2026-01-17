@@ -11,7 +11,30 @@ export const useAuth = () => {
   useEffect(() => {
     let mounted = true;
 
-    const checkAdminRole = async (userId: string): Promise<boolean> => {
+    // Server-side admin verification using edge function
+    const verifyAdminServerSide = async (accessToken: string): Promise<boolean> => {
+      try {
+        const { data, error } = await supabase.functions.invoke("verify-admin", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        if (error) {
+          console.error("Server-side admin verification failed:", error);
+          return false;
+        }
+
+        return data?.isAdmin === true;
+      } catch (err) {
+        console.error("Error calling verify-admin function:", err);
+        // Fallback to client-side check if edge function fails
+        return false;
+      }
+    };
+
+    // Fallback client-side check (used only if server verification fails)
+    const checkAdminRoleFallback = async (userId: string): Promise<boolean> => {
       const { data, error } = await supabase
         .from("user_roles")
         .select("role")
@@ -34,8 +57,16 @@ export const useAuth = () => {
       setSession(session);
       setUser(session?.user ?? null);
       
-      if (session?.user) {
-        const adminStatus = await checkAdminRole(session.user.id);
+      if (session?.user && session.access_token) {
+        // Primary: Server-side verification
+        let adminStatus = await verifyAdminServerSide(session.access_token);
+        
+        // If server verification returns false, double-check with fallback
+        // This handles cases where the edge function might be unavailable
+        if (!adminStatus) {
+          adminStatus = await checkAdminRoleFallback(session.user.id);
+        }
+        
         if (mounted) {
           setIsAdmin(adminStatus);
         }
@@ -56,11 +87,19 @@ export const useAuth = () => {
         setSession(session);
         setUser(session?.user ?? null);
         
-        if (session?.user) {
+        if (session?.user && session.access_token) {
           // Defer async work with setTimeout
           setTimeout(async () => {
             if (!mounted) return;
-            const adminStatus = await checkAdminRole(session.user.id);
+            
+            // Primary: Server-side verification
+            let adminStatus = await verifyAdminServerSide(session.access_token);
+            
+            // Fallback if needed
+            if (!adminStatus) {
+              adminStatus = await checkAdminRoleFallback(session.user.id);
+            }
+            
             if (mounted) {
               setIsAdmin(adminStatus);
             }
