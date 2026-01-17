@@ -108,7 +108,7 @@ Generate SEO metadata for these page types. Return ONLY valid JSON, no markdown:
     },
     {
       "page_type": "state_rehabs",
-      "page_slug": "${urlSlug}-rehab-centers",
+      "page_slug": "${urlSlug}-addiction-rehabs",
       "meta_title": "[Focus on treatment centers, rehabs]",
       "meta_description": "[Highlight finding treatment, centers]",
       "h1_title": "[Treatment-focused heading]",
