@@ -25,6 +25,7 @@ import {
 import { SubstanceCharts } from "./SubstanceCharts";
 import { DataSourcesSection } from "./DataSourcesSection";
 import { RehabGuides } from "../RehabGuides";
+import { DataAccuracyDisclaimer } from "./DataAccuracyDisclaimer";
 
 interface StatisticsTabProps {
   stateId: string;
@@ -543,6 +544,9 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
 
       {/* Rehab Guides & Education */}
       <RehabGuides />
+
+      {/* Legal Disclaimer */}
+      <DataAccuracyDisclaimer />
     </div>
   );
 };
