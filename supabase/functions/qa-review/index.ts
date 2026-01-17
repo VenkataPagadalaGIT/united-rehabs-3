@@ -13,6 +13,52 @@ interface QARequest {
   originalResearch: string;
 }
 
+// Rate limiting configuration
+const RATE_LIMIT_MAX_REQUESTS = 30;
+const RATE_LIMIT_WINDOW_MINUTES = 60;
+
+async function checkRateLimit(userId: string, functionName: string): Promise<{ allowed: boolean; error?: Response }> {
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
+
+  const { data, error } = await supabase.rpc("check_rate_limit", {
+    p_user_id: userId,
+    p_function_name: functionName,
+    p_max_requests: RATE_LIMIT_MAX_REQUESTS,
+    p_window_minutes: RATE_LIMIT_WINDOW_MINUTES,
+  });
+
+  if (error) {
+    console.error("Rate limit check error:", error);
+    return { allowed: true };
+  }
+
+  if (!data) {
+    return {
+      allowed: false,
+      error: new Response(
+        JSON.stringify({
+          success: false,
+          error: "Rate limit exceeded. Please try again later.",
+          retryAfter: RATE_LIMIT_WINDOW_MINUTES * 60,
+        }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Retry-After": String(RATE_LIMIT_WINDOW_MINUTES * 60),
+          },
+        }
+      ),
+    };
+  }
+
+  return { allowed: true };
+}
+
 // Admin authentication helper
 async function verifyAdminAuth(req: Request): Promise<{ userId: string } | Response> {
   const authHeader = req.headers.get("Authorization");
@@ -66,6 +112,12 @@ serve(async (req) => {
     const authResult = await verifyAdminAuth(req);
     if (authResult instanceof Response) {
       return authResult;
+    }
+
+    // Check rate limit
+    const rateLimitResult = await checkRateLimit(authResult.userId, "qa-review");
+    if (!rateLimitResult.allowed && rateLimitResult.error) {
+      return rateLimitResult.error;
     }
 
     const { stateName, contentType, generatedContent, originalResearch } = await req.json() as QARequest;
