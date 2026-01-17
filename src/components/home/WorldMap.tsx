@@ -1,4 +1,4 @@
-import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
+import { ComposableMap, Geographies, Geography, ZoomableGroup, createCoordinates } from "@vnedyalk0v/react19-simple-maps";
 import { useState } from "react";
 
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -93,21 +93,21 @@ export function WorldMap({ onCountryClick }: WorldMapProps) {
         projection="geoMercator"
         projectionConfig={{
           scale: 120,
-          center: [0, 30],
+          center: createCoordinates(0, 30),
         }}
         className="w-full h-[300px] md:h-[400px]"
       >
         <ZoomableGroup>
           <Geographies geography={geoUrl}>
             {({ geographies }) =>
-              geographies.map((geo) => {
-                const countryName = geo.properties.name;
+              geographies.map((geo, index) => {
+                const countryName = geo.properties?.name;
                 const country = countryData[countryName];
                 const isHovered = hoveredCountry === countryName;
                 
                 return (
                   <Geography
-                    key={geo.rsmKey}
+                    key={geo.id ?? index}
                     geography={geo}
                     fill={country ? (isHovered ? "#ea580c" : country.color) : "#e5e7eb"}
                     stroke="#fff"
