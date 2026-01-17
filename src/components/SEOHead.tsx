@@ -28,11 +28,15 @@ export const SEOHead = ({ pageSlug, fallbackTitle, fallbackDescription }: SEOHea
         .select("meta_title, meta_description, meta_keywords, og_title, og_description, og_image_url, canonical_url, robots")
         .eq("page_slug", pageSlug)
         .eq("is_active", true)
-        .single();
+        .maybeSingle();
       
-      if (error) return null;
-      return data as PageSEO;
+      if (error) {
+        console.error("Error fetching SEO data:", error);
+        return null;
+      }
+      return data as PageSEO | null;
     },
+    enabled: !!pageSlug,
   });
 
   useEffect(() => {
@@ -117,10 +121,14 @@ export const usePageSEO = (pageSlug: string) => {
         .select("h1_title, intro_text, meta_title")
         .eq("page_slug", pageSlug)
         .eq("is_active", true)
-        .single();
+        .maybeSingle();
       
-      if (error) return null;
+      if (error) {
+        console.error("Error fetching SEO content:", error);
+        return null;
+      }
       return data;
     },
+    enabled: !!pageSlug,
   });
 };
