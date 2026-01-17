@@ -14,6 +14,15 @@ const guides = [
   },
   {
     id: 1,
+    title: "Understanding Opioid Addiction",
+    description: "From prescription to recovery—learn how opioids affect the brain and the treatment options that work.",
+    icon: BookOpen,
+    category: "Addiction Type",
+    readTime: "15 min read",
+    slug: "/guide/opioid-addiction",
+  },
+  {
+    id: 2,
     title: "Signs You May Need Rehab",
     description: "Learn to recognize the warning signs of addiction and when professional help is needed.",
     icon: HelpCircle,
@@ -22,7 +31,7 @@ const guides = [
     slug: null,
   },
   {
-    id: 2,
+    id: 3,
     title: "Types of Treatment Programs",
     description: "Understand the differences between inpatient, outpatient, and intensive outpatient programs.",
     icon: BookOpen,
@@ -31,7 +40,7 @@ const guides = [
     slug: null,
   },
   {
-    id: 3,
+    id: 4,
     title: "How to Choose the Right Rehab",
     description: "A comprehensive guide to evaluating and selecting the best treatment center for your needs.",
     icon: Compass,
@@ -40,7 +49,7 @@ const guides = [
     slug: null,
   },
   {
-    id: 4,
+    id: 5,
     title: "What to Expect in Treatment",
     description: "Prepare for your recovery journey with an overview of typical treatment phases and activities.",
     icon: CheckCircle,
@@ -49,7 +58,7 @@ const guides = [
     slug: null,
   },
   {
-    id: 5,
+    id: 6,
     title: "Insurance & Payment Options",
     description: "Navigate the financial aspects of rehab including insurance coverage and payment plans.",
     icon: Shield,
@@ -58,7 +67,7 @@ const guides = [
     slug: null,
   },
   {
-    id: 6,
+    id: 7,
     title: "Supporting a Loved One",
     description: "How to help someone struggling with addiction while taking care of yourself.",
     icon: Heart,
