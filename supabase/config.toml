@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.verify-state-data]
 verify_jwt = false
+
+[functions.verify-state-data-dual]
+verify_jwt = false
