@@ -10,14 +10,14 @@ const tabsData = {
     title: "Browse by Condition",
     description: "Learn about different substance use disorders and mental health conditions we help treat.",
     items: [
-      { name: "Alcohol Addiction", count: 2847, description: "Comprehensive treatment for alcohol use disorder including detox and long-term recovery programs.", educational: true },
-      { name: "Opioid Addiction", count: 2156, description: "Specialized care for heroin, fentanyl, and prescription painkiller dependencies.", educational: true },
-      { name: "Cocaine Addiction", count: 1834, description: "Evidence-based treatment approaches for cocaine and crack cocaine dependency.", educational: true },
-      { name: "Methamphetamine", count: 1623, description: "Targeted programs addressing the unique challenges of meth addiction recovery.", educational: true },
-      { name: "Prescription Drugs", count: 1945, description: "Treatment for benzodiazepine, stimulant, and other prescription drug dependencies.", educational: true },
-      { name: "Dual Diagnosis", count: 1567, description: "Integrated treatment for co-occurring mental health and substance use disorders.", educational: true },
-      { name: "Depression", count: 2341, description: "Therapeutic approaches combining medication management and counseling.", educational: true },
-      { name: "Anxiety Disorders", count: 2189, description: "Evidence-based treatments including CBT, exposure therapy, and holistic approaches.", educational: true },
+      { name: "Alcohol Addiction", count: 2847, description: "Comprehensive treatment for alcohol use disorder including detox and long-term recovery programs.", educational: true, slug: "/guide/alcohol-addiction" },
+      { name: "Opioid Addiction", count: 2156, description: "Specialized care for heroin, fentanyl, and prescription painkiller dependencies.", educational: true, slug: null },
+      { name: "Cocaine Addiction", count: 1834, description: "Evidence-based treatment approaches for cocaine and crack cocaine dependency.", educational: true, slug: null },
+      { name: "Methamphetamine", count: 1623, description: "Targeted programs addressing the unique challenges of meth addiction recovery.", educational: true, slug: null },
+      { name: "Prescription Drugs", count: 1945, description: "Treatment for benzodiazepine, stimulant, and other prescription drug dependencies.", educational: true, slug: null },
+      { name: "Dual Diagnosis", count: 1567, description: "Integrated treatment for co-occurring mental health and substance use disorders.", educational: true, slug: null },
+      { name: "Depression", count: 2341, description: "Therapeutic approaches combining medication management and counseling.", educational: true, slug: null },
+      { name: "Anxiety Disorders", count: 2189, description: "Evidence-based treatments including CBT, exposure therapy, and holistic approaches.", educational: true, slug: null },
     ],
   },
   specialty: {
@@ -185,39 +185,55 @@ export function BrowseTabsSection() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                  {tab.items.map((item) => (
-                    <Card 
-                      key={item.name} 
-                      className="hover:shadow-md transition-shadow cursor-pointer group border-border hover:border-primary/50"
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between mb-2">
-                          <h4 className="font-medium text-foreground group-hover:text-primary transition-colors">
-                            {item.name}
-                          </h4>
-                          {item.educational ? (
-                            <Badge variant="secondary" className="text-xs shrink-0">
-                              <BookOpen className="h-3 w-3 mr-1" />
-                              Learn
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="text-xs shrink-0">
-                              <Building2 className="h-3 w-3 mr-1" />
-                              {item.count}+
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {item.description}
-                        </p>
-                        {!item.educational && (
-                          <div className="mt-3 flex items-center text-primary text-sm font-medium">
-                            View Centers <ArrowRight className="h-4 w-4 ml-1" />
+                  {tab.items.map((item) => {
+                    const cardContent = (
+                      <Card 
+                        className="hover:shadow-md transition-shadow cursor-pointer group border-border hover:border-primary/50 h-full"
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between mb-2">
+                            <h4 className="font-medium text-foreground group-hover:text-primary transition-colors">
+                              {item.name}
+                            </h4>
+                            {item.educational ? (
+                              <Badge variant="secondary" className="text-xs shrink-0">
+                                <BookOpen className="h-3 w-3 mr-1" />
+                                Learn
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-xs shrink-0">
+                                <Building2 className="h-3 w-3 mr-1" />
+                                {item.count}+
+                              </Badge>
+                            )}
                           </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {item.description}
+                          </p>
+                          {item.educational && item.slug && (
+                            <div className="mt-3 flex items-center text-primary text-sm font-medium">
+                              Read Guide <ArrowRight className="h-4 w-4 ml-1" />
+                            </div>
+                          )}
+                          {!item.educational && (
+                            <div className="mt-3 flex items-center text-primary text-sm font-medium">
+                              View Centers <ArrowRight className="h-4 w-4 ml-1" />
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+
+                    if (item.slug) {
+                      return (
+                        <a key={item.name} href={item.slug} className="block">
+                          {cardContent}
+                        </a>
+                      );
+                    }
+
+                    return <div key={item.name}>{cardContent}</div>;
+                  })}
                 </div>
 
                 {/* Educational Callout */}

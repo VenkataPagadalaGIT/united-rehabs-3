@@ -1,7 +1,17 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen, CheckCircle, HelpCircle, Compass, Heart, Shield } from "lucide-react";
+import { BookOpen, CheckCircle, HelpCircle, Compass, Heart, Shield, Wine } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const guides = [
+  {
+    id: 0,
+    title: "Understanding Alcohol Addiction",
+    description: "A comprehensive guide to alcohol use disorder, its effects on the brain, and the path to recovery.",
+    icon: Wine,
+    category: "Addiction Type",
+    readTime: "12 min read",
+    slug: "/guide/alcohol-addiction",
+  },
   {
     id: 1,
     title: "Signs You May Need Rehab",
@@ -9,6 +19,7 @@ const guides = [
     icon: HelpCircle,
     category: "Identification",
     readTime: "5 min read",
+    slug: null,
   },
   {
     id: 2,
@@ -17,6 +28,7 @@ const guides = [
     icon: BookOpen,
     category: "Education",
     readTime: "8 min read",
+    slug: null,
   },
   {
     id: 3,
@@ -25,6 +37,7 @@ const guides = [
     icon: Compass,
     category: "Guidance",
     readTime: "10 min read",
+    slug: null,
   },
   {
     id: 4,
@@ -33,6 +46,7 @@ const guides = [
     icon: CheckCircle,
     category: "Preparation",
     readTime: "7 min read",
+    slug: null,
   },
   {
     id: 5,
@@ -41,6 +55,7 @@ const guides = [
     icon: Shield,
     category: "Financial",
     readTime: "6 min read",
+    slug: null,
   },
   {
     id: 6,
@@ -49,6 +64,7 @@ const guides = [
     icon: Heart,
     category: "Family Support",
     readTime: "8 min read",
+    slug: null,
   },
 ];
 
@@ -70,10 +86,10 @@ export const RehabGuides = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {guides.map((guide) => {
           const IconComponent = guide.icon;
-          return (
+          
+          const cardContent = (
             <Card
-              key={guide.id}
-              className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:border-primary/50"
+              className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:border-primary/50 h-full"
             >
               <CardContent className="p-5 space-y-3">
                 <div className="flex items-start justify-between">
@@ -104,6 +120,16 @@ export const RehabGuides = () => {
               </CardContent>
             </Card>
           );
+
+          if (guide.slug) {
+            return (
+              <Link key={guide.id} to={guide.slug} className="block">
+                {cardContent}
+              </Link>
+            );
+          }
+
+          return <div key={guide.id} className="block">{cardContent}</div>;
         })}
       </div>
     </section>
