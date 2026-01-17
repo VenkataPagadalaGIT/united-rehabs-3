@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.generate-historical-stats]
 verify_jwt = false
+
+[functions.generate-state-content]
+verify_jwt = false
