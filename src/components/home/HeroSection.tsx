@@ -253,7 +253,7 @@ export function HeroSection() {
       <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 tracking-tight">
-            <span className="font-display italic">Your Journey To Wellness</span>
+            <span className="font-display">Your Journey To Wellness</span>
             <br />
             <span className="font-sans">Begins Here</span>
           </h1>
