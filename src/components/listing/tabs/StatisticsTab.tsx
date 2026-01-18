@@ -90,11 +90,12 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
     },
   });
 
-  // Get available years from actual data
-  const yearsWithData = statistics?.map(s => s.year).sort((a, b) => b - a) || [];
+  // Get available years from actual data - cap at 2025 as the latest complete data year
+  const LATEST_COMPLETE_YEAR = 2025;
+  const yearsWithData = statistics?.map(s => s.year).filter(y => y <= LATEST_COMPLETE_YEAR).sort((a, b) => b - a) || [];
   const mostRecentYear = yearsWithData.length > 0 ? yearsWithData[0].toString() : null;
   
-  // Only use a year that actually has data
+  // Only use a year that actually has data (capped at 2025)
   const effectiveYear = selectedYear && yearsWithData.includes(parseInt(selectedYear)) 
     ? selectedYear 
     : mostRecentYear;
