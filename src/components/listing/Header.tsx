@@ -92,17 +92,38 @@ export function Header({ navItems }: HeaderProps) {
         {mobileMenuOpen && (
           <nav 
             id="mobile-menu" 
-            className="lg:hidden py-4 border-t border-border"
+            className="lg:hidden border-t border-border"
             aria-label="Mobile navigation"
           >
             {navItems.map((item) => (
-              <button
-                key={item.id}
-                className="flex items-center justify-between w-full py-3 text-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-2"
-              >
-                {item.label}
-                {item.hasDropdown && <ChevronDown className="h-4 w-4" aria-hidden="true" />}
-              </button>
+              <div key={item.id}>
+                {item.label.toLowerCase() === "locations" ? (
+                  <>
+                    <button
+                      onClick={() => setLocationsMenuOpen(!locationsMenuOpen)}
+                      className="flex items-center justify-between w-full py-3 text-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-4"
+                    >
+                      {item.label}
+                      <ChevronDown 
+                        className={`h-4 w-4 transition-transform ${locationsMenuOpen ? "rotate-180" : ""}`} 
+                        aria-hidden="true" 
+                      />
+                    </button>
+                    <LocationsMegaMenu 
+                      isOpen={locationsMenuOpen} 
+                      onClose={() => setLocationsMenuOpen(false)}
+                      isMobile={true}
+                    />
+                  </>
+                ) : (
+                  <button
+                    className="flex items-center justify-between w-full py-3 text-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-4"
+                  >
+                    {item.label}
+                    {item.hasDropdown && <ChevronDown className="h-4 w-4" aria-hidden="true" />}
+                  </button>
+                )}
+              </div>
             ))}
           </nav>
         )}
