@@ -26,20 +26,20 @@ const globalStats = [
   { category: "Treatment Gap", stat: "Only 1 in 11 receive treatment", percentage: "9%", note: "treatment access rate", source: "UNODC 2024" },
 ];
 
-// US statistics from SAMHSA NSDUH 2025 (latest complete data)
+// US statistics from SAMHSA NSDUH 2024 (released July 2025) & CDC VSRR 2025
 const usStats = [
-  { category: "Alcohol Use", stat: "137.2 million people consumed alcohol", percentage: "48.1%", note: "(aged 12+)", source: "SAMHSA 2025" },
-  { category: "Binge Drinking", stat: "62.8 million engaged in binge drinking", percentage: "45.8%", note: "of drinkers", source: "SAMHSA 2025" },
-  { category: "Alcohol Use Disorder", stat: "29.5 million had AUD", percentage: "10.4%", note: "of population", source: "SAMHSA 2025" },
-  { category: "Marijuana Use", stat: "63.4 million used marijuana", percentage: "22.3%", note: "past year", source: "SAMHSA 2025" },
-  { category: "Opioid Misuse", stat: "8.5 million misused opioids", percentage: "3.0%", note: "of population", source: "SAMHSA 2025" },
-  { category: "Drug Use Disorders", stat: "27.8 million had drug use disorders", percentage: "9.8%", note: "of population", source: "SAMHSA 2025" },
-  { category: "Substance Use Disorders", stat: "49.2 million experienced SUDs", percentage: "17.1%", note: "of population", source: "SAMHSA 2025" },
-  { category: "Young Adults (18-25)", stat: "9.4 million had SUDs", percentage: "27.5%", note: "of age group", source: "SAMHSA 2025" },
-  { category: "Adolescents (12-17)", stat: "2.1 million had SUDs", percentage: "8.2%", note: "of age group", source: "SAMHSA 2025" },
-  { category: "Overdose Deaths", stat: "98,500 drug overdose deaths", percentage: "8.4%", note: "decrease from 2024", source: "CDC 2025" },
-  { category: "Treatment Access", stat: "13.5 million received treatment", percentage: "24.8%", note: "of those in need", source: "SAMHSA 2025" },
-  { category: "Recovery", stat: "23.1 million in recovery", percentage: "74.2%", note: "of those with past issues", source: "SAMHSA 2025" },
+  { category: "Alcohol Use", stat: "134.3 million people consumed alcohol", percentage: "47.1%", note: "(aged 12+, past month)", source: "SAMHSA 2024" },
+  { category: "Binge Drinking", stat: "61.2 million engaged in binge drinking", percentage: "45.6%", note: "of drinkers", source: "SAMHSA 2024" },
+  { category: "Substance Use Disorders", stat: "64 million had SUDs", percentage: "22.8%", note: "of population 12+", source: "SAMHSA 2024" },
+  { category: "Marijuana Use", stat: "44.3 million used marijuana", percentage: "15.9%", note: "past month", source: "SAMHSA 2024" },
+  { category: "Nicotine Vaping", stat: "27.7 million used nicotine vapes", percentage: "9.9%", note: "past month", source: "SAMHSA 2024" },
+  { category: "Opioid Misuse", stat: "8.7 million misused opioids", percentage: "3.1%", note: "past year", source: "SAMHSA 2024" },
+  { category: "Drug Use Disorders", stat: "27.8 million had drug use disorders", percentage: "9.9%", note: "of population", source: "SAMHSA 2024" },
+  { category: "Overdose Deaths", stat: "76,516 drug overdose deaths", percentage: "24.5%", note: "decline from prior year", source: "CDC 2025" },
+  { category: "Fentanyl Involvement", stat: "~75% of overdoses involve fentanyl", percentage: "75%", note: "synthetic opioids", source: "CDC 2025" },
+  { category: "Treatment Gap", stat: "Only 1 in 11 receive treatment", percentage: "9%", note: "treatment access rate", source: "SAMHSA 2024" },
+  { category: "Young Adults (18-25)", stat: "9.3 million had SUDs", percentage: "27.4%", note: "of age group", source: "SAMHSA 2024" },
+  { category: "Recovery", stat: "22.3 million in recovery", percentage: "73.5%", note: "of those with past issues", source: "SAMHSA 2024" },
 ];
 
 export function StatisticsSection() {
@@ -79,10 +79,10 @@ export function StatisticsSection() {
         <div className="text-center mb-10">
           <p className="text-primary font-medium mb-2">Statistics</p>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Global Addiction & Substance Use Statistics (2025)
+            Global Addiction & Substance Use Statistics (2024-2025)
           </h2>
           <p className="text-muted-foreground max-w-3xl mx-auto">
-            Substance use disorders affect over 296 million people worldwide. Drug-related deaths and limited treatment access remain critical global health challenges, with significant variations between regions.
+            Substance use disorders affect over 64 million Americans. Overdose deaths declined 24.5% in 2025, though treatment access remains a critical challenge with only 1 in 11 receiving help.
           </p>
         </div>
 
@@ -109,7 +109,7 @@ export function StatisticsSection() {
             <TabsContent value="us">
               {renderTable(usStats)}
               <p className="text-sm text-muted-foreground text-center mt-6">
-                Data sources: SAMHSA National Survey on Drug Use and Health 2025, CDC WONDER Database 2025
+                Data sources: SAMHSA NSDUH 2024 (July 2025), CDC VSRR Provisional Data (Sept 2025)
               </p>
             </TabsContent>
           </Tabs>
