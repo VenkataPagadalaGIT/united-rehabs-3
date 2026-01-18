@@ -2,6 +2,7 @@ import { useParams, Navigate } from "react-router-dom";
 import StateStatsPage from "./StateStatsPage";
 import StateRehabsPage from "./StateRehabsPage";
 import StateResourcesPage from "./StateResourcesPage";
+import NotFound from "./NotFound";
 import { isValidStateSlug } from "@/data/stateConfig";
 
 const StatePage = () => {
@@ -39,8 +40,8 @@ const StatePage = () => {
     return <Navigate to={`/${slug}-addiction-rehabs`} replace />;
   }
 
-  // Not a valid state page - let it fall through to 404
-  return <Navigate to="/not-found" replace />;
+  // Not a valid state page - render NotFound directly
+  return <NotFound />;
 };
 
 export default StatePage;
