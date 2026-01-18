@@ -4,6 +4,19 @@
 
 /* United Rehabs Design System - Clean white with dark accents */
 
+/* Professional Typography System */
+:root {
+  --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
