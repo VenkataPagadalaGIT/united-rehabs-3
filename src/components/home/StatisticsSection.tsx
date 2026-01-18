@@ -15,15 +15,15 @@ const globalStats = [
   { category: "Total Drug Users", stat: "292 million people used drugs worldwide", percentage: "5.8%", note: "of global population aged 15-64", source: "UNODC 2024" },
   { category: "Cannabis Users", stat: "228 million cannabis users", percentage: "4.3%", note: "most used drug globally", source: "UNODC 2024" },
   { category: "Opioid Users", stat: "60 million opioid users", percentage: "1.2%", note: "including prescription opioids", source: "UNODC 2024" },
-  { category: "Amphetamine Users", stat: "36 million amphetamine users", percentage: "0.7%", note: "including methamphetamine", source: "UNODC 2024" },
-  { category: "Cocaine Users", stat: "22 million cocaine users", percentage: "0.4%", note: "globally", source: "UNODC 2024" },
-  { category: "Drug Use Disorders", stat: "39.5 million with drug use disorders", percentage: "13.5%", note: "of all drug users", source: "UNODC 2024" },
+  { category: "Amphetamine Users", stat: "30 million amphetamine users", percentage: "0.6%", note: "including methamphetamine", source: "UNODC 2024" },
+  { category: "Cocaine Users", stat: "23 million cocaine users", percentage: "0.5%", note: "globally", source: "UNODC 2024" },
+  { category: "Drug Use Disorders", stat: "64 million with drug use disorders", percentage: "22%", note: "of all drug users", source: "UNODC 2024" },
   { category: "Alcohol Use", stat: "2.3 billion people consume alcohol", percentage: "43%", note: "of global population 15+", source: "WHO 2024" },
   { category: "Alcohol Use Disorder", stat: "400 million with AUD", percentage: "7.5%", note: "of drinkers worldwide", source: "WHO 2024" },
   { category: "Drug-Related Deaths", stat: "600,000 drug-related deaths annually", percentage: "1.3%", note: "of all deaths globally", source: "UNODC 2024" },
   { category: "Opioid Overdose Deaths", stat: "128,000 opioid overdose deaths", percentage: "21%", note: "of drug-related deaths", source: "UNODC 2024" },
-  { category: "Injection Drug Users", stat: "13.2 million inject drugs", percentage: "0.26%", note: "of global population", source: "UNODC 2024" },
-  { category: "Treatment Gap", stat: "Only 1 in 7 receive treatment", percentage: "14%", note: "treatment access rate", source: "WHO 2024" },
+  { category: "Injection Drug Users", stat: "13.9 million inject drugs", percentage: "0.28%", note: "of global population", source: "UNODC 2024" },
+  { category: "Treatment Gap", stat: "Only 1 in 11 receive treatment", percentage: "9%", note: "treatment access rate", source: "UNODC 2024" },
 ];
 
 // US statistics from SAMHSA NSDUH 2023
