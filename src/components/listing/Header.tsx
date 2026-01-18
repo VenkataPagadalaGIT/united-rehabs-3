@@ -24,9 +24,9 @@ export function Header({ navItems }: HeaderProps) {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded" aria-label="United Rehabs Home">
-            <div className="flex flex-col">
-              <span className="text-primary font-bold text-lg leading-tight">united</span>
-              <span className="text-foreground font-bold text-lg leading-tight">rehabs</span>
+            <div className="flex flex-col leading-none">
+              <span className="text-primary font-bold text-xl tracking-tight" style={{ fontFamily: 'var(--font-sans)' }}>united</span>
+              <span className="text-foreground font-bold text-xl tracking-tight" style={{ fontFamily: 'var(--font-sans)' }}>rehabs</span>
             </div>
           </a>
 

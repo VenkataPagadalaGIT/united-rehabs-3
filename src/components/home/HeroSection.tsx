@@ -252,10 +252,10 @@ export function HeroSection() {
       
       <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
-            <span className="italic">Your Journey To Wellness</span>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 tracking-tight">
+            <span className="font-display italic">Your Journey To Wellness</span>
             <br />
-            <span>Begins Here</span>
+            <span className="font-sans">Begins Here</span>
           </h1>
           
           <p className="text-lg text-muted-foreground mb-8">
