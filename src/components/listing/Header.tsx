@@ -1,7 +1,8 @@
-import { ChevronDown, Menu } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import type { NavItem } from "@/types";
+import { LocationsMegaMenu } from "./LocationsMegaMenu";
 
 interface HeaderProps {
   navItems: NavItem[];
@@ -9,6 +10,17 @@ interface HeaderProps {
 
 export function Header({ navItems }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [locationsMenuOpen, setLocationsMenuOpen] = useState(false);
+
+  const handleNavItemHover = (item: NavItem) => {
+    if (item.label.toLowerCase() === "locations") {
+      setLocationsMenuOpen(true);
+    }
+  };
+
+  const handleNavItemLeave = (item: NavItem) => {
+    // Menu will close via its own onMouseLeave
+  };
 
   return (
     <header className="bg-card border-b border-border sticky top-0 z-50">
@@ -33,15 +45,25 @@ export function Header({ navItems }: HeaderProps) {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6" aria-label="Main navigation">
             {navItems.map((item) => (
-              <button
+              <div
                 key={item.id}
-                className="flex items-center gap-1 text-foreground hover:text-primary transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-2 py-1"
-                aria-expanded={item.hasDropdown ? "false" : undefined}
-                aria-haspopup={item.hasDropdown ? "true" : undefined}
+                className="relative"
+                onMouseEnter={() => handleNavItemHover(item)}
+                onMouseLeave={() => handleNavItemLeave(item)}
               >
-                {item.label}
-                {item.hasDropdown && <ChevronDown className="h-4 w-4" aria-hidden="true" />}
-              </button>
+                <button
+                  className={`flex items-center gap-1 text-foreground hover:text-primary transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-2 py-1 ${
+                    item.label.toLowerCase() === "locations" && locationsMenuOpen ? "text-primary" : ""
+                  }`}
+                  aria-expanded={item.hasDropdown ? (item.label.toLowerCase() === "locations" ? locationsMenuOpen : false) : undefined}
+                  aria-haspopup={item.hasDropdown ? "true" : undefined}
+                >
+                  {item.label}
+                  {item.hasDropdown && <ChevronDown className={`h-4 w-4 transition-transform ${
+                    item.label.toLowerCase() === "locations" && locationsMenuOpen ? "rotate-180" : ""
+                  }`} aria-hidden="true" />}
+                </button>
+              </div>
             ))}
           </nav>
 
@@ -57,7 +79,11 @@ export function Header({ navItems }: HeaderProps) {
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-menu"
             >
-              <Menu className="h-6 w-6" aria-hidden="true" />
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" aria-hidden="true" />
+              ) : (
+                <Menu className="h-6 w-6" aria-hidden="true" />
+              )}
             </button>
           </div>
         </div>
@@ -81,6 +107,12 @@ export function Header({ navItems }: HeaderProps) {
           </nav>
         )}
       </div>
+
+      {/* Locations Mega Menu */}
+      <LocationsMegaMenu 
+        isOpen={locationsMenuOpen} 
+        onClose={() => setLocationsMenuOpen(false)} 
+      />
     </header>
   );
 }
