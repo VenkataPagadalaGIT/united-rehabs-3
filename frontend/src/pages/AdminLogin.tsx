@@ -8,7 +8,45 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Lock, Mail, AlertCircle, Loader2, ShieldAlert } from "lucide-react";
-import { loginSchema, authSchema, loginRateLimiter } from "@/lib/validation";
+
+// Simple rate limiter
+const rateLimiter = {
+  attempts: new Map<string, { count: number; lastAttempt: number }>(),
+  maxAttempts: 5,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  
+  isRateLimited(key: string): boolean {
+    const data = this.attempts.get(key);
+    if (!data) return false;
+    
+    if (Date.now() - data.lastAttempt > this.windowMs) {
+      this.attempts.delete(key);
+      return false;
+    }
+    
+    return data.count >= this.maxAttempts;
+  },
+  
+  recordAttempt(key: string) {
+    const data = this.attempts.get(key);
+    if (!data || Date.now() - data.lastAttempt > this.windowMs) {
+      this.attempts.set(key, { count: 1, lastAttempt: Date.now() });
+    } else {
+      data.count++;
+      data.lastAttempt = Date.now();
+    }
+  },
+  
+  getRemainingTime(key: string): number {
+    const data = this.attempts.get(key);
+    if (!data) return 0;
+    return Math.max(0, this.windowMs - (Date.now() - data.lastAttempt)) / 1000;
+  },
+  
+  reset(key: string) {
+    this.attempts.delete(key);
+  }
+};
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -45,8 +83,8 @@ const AdminLogin = () => {
 
   const checkRateLimit = (): boolean => {
     const rateLimitKey = email.toLowerCase().trim();
-    if (loginRateLimiter.isRateLimited(rateLimitKey)) {
-      const remaining = loginRateLimiter.getRemainingTime(rateLimitKey);
+    if (rateLimiter.isRateLimited(rateLimitKey)) {
+      const remaining = rateLimiter.getRemainingTime(rateLimitKey);
       setRateLimitSeconds(remaining);
       setIsRateLimited(true);
       setError(`Too many login attempts. Please try again in ${Math.ceil(remaining / 60)} minutes.`);
@@ -55,19 +93,32 @@ const AdminLogin = () => {
     return false;
   };
 
+  const validateEmail = (email: string): boolean => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const validatePassword = (password: string): boolean => {
+    return password.length >= 6;
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
 
-    // Check rate limiting first
-    if (checkRateLimit()) return;
-
-    const validation = loginSchema.safeParse({ email, password });
-    if (!validation.success) {
-      setError(validation.error.errors[0].message);
+    // Validate inputs
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address");
       return;
     }
+    if (!validatePassword(password)) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
+    // Check rate limiting first
+    if (checkRateLimit()) return;
 
     setIsSubmitting(true);
     const { error } = await signIn(email, password);
@@ -75,16 +126,11 @@ const AdminLogin = () => {
 
     if (error) {
       // Record failed attempt for rate limiting
-      loginRateLimiter.recordAttempt(email.toLowerCase().trim());
-      
-      if (error.message.includes("Invalid login credentials")) {
-        setError("Invalid email or password. Please try again.");
-      } else {
-        setError(error.message);
-      }
+      rateLimiter.recordAttempt(email.toLowerCase().trim());
+      setError(error.message || "Invalid email or password. Please try again.");
     } else {
       // Reset rate limiter on successful login
-      loginRateLimiter.reset(email.toLowerCase().trim());
+      rateLimiter.reset(email.toLowerCase().trim());
     }
   };
 
@@ -93,10 +139,13 @@ const AdminLogin = () => {
     setError(null);
     setSuccess(null);
 
-    // Use strong password validation for signup
-    const validation = authSchema.safeParse({ email, password });
-    if (!validation.success) {
-      setError(validation.error.errors[0].message);
+    // Validate inputs
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters");
       return;
     }
 
@@ -105,13 +154,9 @@ const AdminLogin = () => {
     setIsSubmitting(false);
 
     if (error) {
-      if (error.message.includes("already registered")) {
-        setError("This email is already registered. Please sign in instead.");
-      } else {
-        setError(error.message);
-      }
+      setError(error.message || "Registration failed. Please try again.");
     } else {
-      setSuccess("Account created! Please contact an administrator to get admin access.");
+      setSuccess("Account created successfully! You are now logged in.");
     }
   };
 
@@ -245,7 +290,7 @@ const AdminLogin = () => {
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Must be 8+ chars with uppercase, lowercase, number, and special character
+                    Must be at least 8 characters
                   </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
