@@ -122,21 +122,21 @@ class TestCountries:
         print(f"Total countries: {data['total']}")
     
     def test_get_country_by_code(self):
-        """Test getting country by code (Nigeria)"""
-        response = requests.get(f"{BASE_URL}/api/countries/NG")
+        """Test getting country by code (Nigeria - 3-letter ISO code)"""
+        response = requests.get(f"{BASE_URL}/api/countries/NGA")
         assert response.status_code == 200
         data = response.json()
-        assert data["country_code"] == "NG"
+        assert data["country_code"] == "NGA"
         assert "country_name" in data
         print(f"Country: {data.get('country_name', 'N/A')}")
     
     def test_get_country_statistics(self):
         """Test getting country statistics"""
-        response = requests.get(f"{BASE_URL}/api/countries/NG/statistics")
+        response = requests.get(f"{BASE_URL}/api/countries/NGA/statistics")
         assert response.status_code == 200
         data = response.json()
         assert "statistics" in data
-        assert data["country_code"] == "NG"
+        assert data["country_code"] == "NGA"
         print(f"Nigeria statistics years: {data.get('years_covered', [])}")
     
     def test_get_country_treatment_centers(self):
