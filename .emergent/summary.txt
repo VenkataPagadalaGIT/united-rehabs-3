@@ -1,58 +1,80 @@
 <analysis>**original_problem_statement:**
-The user's goal is to migrate a website from the lovable platform to a new, scalable full-stack application (FastAPI, React, MongoDB) under a new git repository . Key requirements include replicating all features, implementing an admin panel with authentication, and developing a multi-agent AI pipeline to generate and manage state-specific addiction data. The user later expanded the scope to include comprehensive data visualizations (charts, graphs) on public-facing pages to match a reference site, specified the use of a multi-LLM pipeline (Gemini, GPT-4o, Claude) for data generation, and requested that the database be populated with historical data for all 51 states covering the years 2019-2025. The most recent request was to connect the homepage to the backend and add treatment center listings, optimizing for minimal API calls.
+The user's initial goal was to migrate a website from lovable to a new full-stack application (FastAPI, React, MongoDB) with an admin panel and a multi-agent AI pipeline for US state-specific addiction data. The scope has significantly expanded to transform the site into a global resource.
+
+Current High-Level Goal: Evolve the platform into an international authority on addiction statistics, covering 195 countries.
 
 PRODUCT REQUIREMENTS:
-1.  Full migration from Lovable/Supabase to a FastAPI, React, MongoDB stack.
-2.  Create a new git repo .
-3.  Replicate all features, including an admin panel and comprehensive data visualizations on public pages.
-4.  Implement admin-only authentication.
-5.  Develop a multi-agent AI pipeline (Research: Gemini, Generate: GPT-4o, Fact-Check: Claude) to populate state-specific addiction data.
-6.  Support manual bulk data import.
-7.  Populate and display data for all 51 states from 2019-2025.
-8.  Connect all public-facing pages (Homepage, State Pages) to the backend, optimizing for performance.
+1.  **Global Data Expansion:** The primary focus is now on populating and displaying data for 195 countries, including historical stats, sources, and treatment centers.
+2.  **Feature-Rich Frontend:** Implement advanced data visualizations, an interactive global map, and a country comparison tool.
+3.  **Multilingual Support:** Make the site accessible to a global audience by adding support for Spanish, French, and Portuguese.
+4.  **Content Management:** Build out a CMS within the admin panel to manage static pages like About Us and Privacy Policy.
+5.  **SEO & AEO:** Ensure all pages, especially the new country pages, are structured for optimal SEO and AEO (Answer Engine Optimization) with proper internal linking.
+6.  **Live Data Integration:** Explore and implement integration with live APIs from organizations like WHO and UNODC to keep data current.
+7.  **Pre-launch Readiness:** Create and complete a pre-launch checklist to ensure the site is ready for public release.
 
 **User's preferred language**: English
 
 **what currently exists?**
-A full-stack application with a FastAPI backend, React frontend, and MongoDB database. The backend features a multi-LLM, 4-agent pipeline for data generation, secure JWT authentication, and various CRUD APIs. The frontend includes a fully functional admin panel and public-facing state pages that have been significantly enhanced with comprehensive data visualizations (line, bar, donut charts) via the  library. The database is fully populated with addiction statistics and substance data for all 51 states for the years 2019-2025. An optimized backend endpoint () has been created to serve all data for the homepage in a single call, and treatment center data has been added to the database.
+The application is a full-stack platform with a FastAPI backend, React frontend, and MongoDB. It has successfully pivoted from a US-only focus to a global one. The database is now populated with addiction and substance data for all 195 countries for the years 2019-2025.
+
+The frontend includes:
+- A fully dynamic homepage connected to the backend.
+- A functional Treatment Center Listings page with search and filtering for both US and international centers.
+- Dynamic, data-rich statistics pages for all 195 countries, with charts and source citations.
+- A comprehensive footer with SEO-friendly links organized by continent.
+- An admin panel with a (partially implemented) CMS for editing legal pages.
+- The groundwork for multi-language support has been laid by installing  and creating initial translation files.
 
 **Last working item**:
--   **Last item agent was working:** The agent created an optimized backend endpoint () to fetch all data needed for the homepage in a single API call and populated the database with treatment center data. The next step is to connect the frontend homepage components to this new, efficient endpoint.
+-   **Last item agent was working:** The agent was implementing multi-language support (Spanish, French, Portuguese) as per the user's P0 request. It installed , , and , and created the initial JSON translation files for English, Spanish, French, and Portuguese.
 -   **Status:** IN PROGRESS
 -   **Agent Testing Done:** N
--   **Which testing method agent to use?** Frontend testing agent. After connecting the frontend components to the new API, the agent should first take a screenshot of the homepage to verify that it loads data correctly. Then, it should use the testing agent to confirm all dynamic sections (e.g., featured states, national statistics, map) are populated from the backend.
+-   **Which testing method agent to use?** Frontend testing agent. After integrating the language switcher and translating UI components, the agent should use the screenshot tool to verify the language changes on the homepage and a country page. Then, use the testing agent to ensure navigation and data display are unaffected across different languages.
 -   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
--   None.
+-   **Issue 1: Admin Login Flow and CMS Stability (Priority: P1)**
+    -   **Attempted fixes:** The agent encountered a browser crash while attempting to test the new CMS admin page. It rewrote the  file assuming a code error, but did not re-test the full login flow. The root cause of the crash is unknown.
+    -   **Next debug checklist:**
+        1.  Attempt to log in to  using the provided credentials ( / ).
+        2.  Check browser console logs and backend logs during the login attempt for any errors.
+        3.  If login is successful, navigate to  and verify the page loads without crashing.
+        4.  Review and stabilize the code in  to ensure it's robust.
+    -   **Why fix this issue and what will be achieved with the fix?** A stable admin panel is critical for managing the site's content. This fix will unblock the task of connecting legal pages to the backend.
+    -   **Status:** IN PROGRESS
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Both.
+    -   **Blocked on other issue:** None.
 
 **In progress Task List**:
--   **Task 1: Connect Homepage to Backend API (Priority: P0)**
-    -   **Where to resume:** Modify the frontend homepage, starting with  and its child components (e.g., , ). The task is to replace the current static/mock data with a single API call to the new  endpoint using the  client.
-    -   **What will be achieved?** The homepage will become fully dynamic, loading featured states, national statistics, and other content from the database. This will improve performance by consolidating multiple data fetches into a single, optimized API call.
+-   **Task 1: Complete Multi-language Support Implementation (Priority: P0)**
+    -   **Where to resume:** Create the i18n configuration file (). Then, wrap the main  with the . Implement a language switcher component in the header/footer. Finally, replace hardcoded UI text with the  function from  hook across key components (Header, Footer, Homepage, Country Page).
+    -   **What will be achieved?** The website will be translated into Spanish, French, and Portuguese, making it accessible to a wider international audience.
     -   **Status:** IN PROGRESS
-    -   **Should Test frontend/backend/both after fix?** Both. The new backend endpoint needs verification, and the frontend changes are significant.
+    -   **Should Test frontend/backend/both after fix?** Frontend.
     -   **Blocked on something:** None.
 
 **Upcoming and Future Tasks**
 -   **Upcoming Tasks:**
-    -   **P1: Build Treatment Center Listings Page:** The data for treatment centers has been added to the database. The next step is to create a new page (e.g., ) to display these listings, ideally with search and filter capabilities.
-    -   **P2: Connect Legal/Static Pages to Backend:** Pages like About Us and Privacy Policy are currently static. They should be made editable from the admin panel by connecting them to a generic content management endpoint.
+    -   **P1: Interactive Global Map:** Replace the static map on the homepage with an interactive one (e.g., using  or another library) where clicking a country navigates to its statistics page.
+    -   **P2: Country Comparison Tool:** Build a new page () allowing users to select 2-4 countries and compare key statistics side-by-side using charts.
+    -   **P3: Connect Legal Pages to CMS:** Finish the implementation allowing the content for pages like About Us and Privacy Policy to be fetched from and updated via the now-stable admin CMS.
 
 -   **Future Tasks:**
-    -   **Data Review Workflow:** Implement a  system for all data entries to ensure quality.
+    -   **Live WHO/UNODC API Integration:** Develop a mechanism (either manual admin trigger or a cron job) to periodically fetch and update statistics from live official APIs.
+    -   **Data Review Workflow:** Implement a  system for all data entries.
     -   **Version History:** Add the ability to track and revert changes to data records.
-    -   **Data Export:** Allow admins to download database collections as CSV or JSON.
-    -   **Live SAMHSA API Integration:** Investigate connecting to a real-time SAMHSA API to supplement or validate the AI-generated data.
 
 **Completed work in this session**
--   **Public Pages Connected & Enhanced:** Fixed the critical bug where state pages were not showing backend data and completely overhauled the UI with comprehensive data visualizations (), including a year-selector dropdown, line charts, bar charts, and donut charts to match the user's reference.
--   **Full Data Population:** Successfully populated the database with complete historical statistics and substance data for **all 51 states** covering **7 years (2019-2025)**.
--   **Multi-LLM Pipeline Implemented:** Upgraded the 4-agent data pipeline to use three different LLMs for improved data quality and validation: **Gemini 2.5 Flash** (Research), **GPT-4o** (Content Generation), and **Claude Sonnet 4.5** (Fact-Checking).
--   **Admin Login and DB Issues Resolved:** Debugged and fixed a persistent admin login failure, which was caused by an incorrect  in the  file. Migrated all data from the incorrect database () to the correct one ().
--   **R&D Data Imported:** Successfully extracted and imported user-provided data from Excel files.
--   **Optimized Homepage Backend:** Created a new endpoint () to serve all necessary data for the homepage in a single call and added treatment center data to the database.
--   **Project Documentation:** Created and maintained , , and  to track progress and future tasks.
+-   **Homepage Integration:** Connected the entire homepage to a new optimized  endpoint, making all sections (statistics, featured centers, state counts) fully dynamic.
+-   **International Data Expansion (195 Countries):**
+    -   Updated backend models and created a seeding script for 195 countries.
+    -   Populated the database with 7 years of historical data (2019-2025) for all countries.
+-   **Dynamic Country Pages:** Created a new page component () that dynamically renders statistics, charts, and source citations for all 195 countries (e.g., ).
+-   **Treatment Center Listings Page:** Built a full-featured page at  to list both US and international facilities, including search and filter functionality.
+-   **Enhanced SEO Footer:** Overhauled the footer to include dynamically generated, SEO-friendly Browse by Country links, organized by continent for all 195 countries.
+-   **Admin CMS Foundation:** Created the backend endpoints and frontend page () for a content management system.
+-   **Documentation:** Created  and  and consistently updated all  and  files.
 
 **Earlier issues found/mentioned but not fixed**
 -   None.
@@ -64,45 +86,46 @@ A full-stack application with a FastAPI backend, React frontend, and MongoDB dat
 
 
 **Key Technical Concepts**
--   **Frontend:** React, TypeScript, Vite, TailwindCSS, Shadcn/ui, **Recharts** (for data visualization).
--   **Backend:** FastAPI, Python, Pydantic, Motor (async MongoDB driver).
+-   **Frontend:** React, TypeScript, Vite, TailwindCSS, Shadcn/ui, Recharts, **react-i18next**, **i18next**.
+-   **Backend:** FastAPI, Python, Pydantic, Motor.
 -   **Database:** MongoDB.
--   **AI Integration:** Multi-LLM orchestration (Gemini, GPT-4o, Claude) via .
+-   **AI Integration:** Multi-LLM pipeline (Gemini, GPT-4o, Claude).
 -   **Authentication:** JWT.
 
 **key DB schema**
 -   **users:** 
--   **state_addiction_statistics:**  (Populated for all 51 states, 2019-2025)
--   **substance_statistics:**  (Populated for all 51 states, 2019-2025)
--   **treatment_centers:**  (New collection, populated)
--   **faqs:** 
--   **resources:** 
+-   **state_addiction_statistics:** 
+-   **countries:**  (NEW)
+-   **country_statistics:**  (NEW)
+-   **treatment_centers:**  (Extended for international)
+-   **pages:**  (For CMS)
+-   **audit_logs:**  (For versioning)
 
 **changes in tech stack**
--   Added  and  to frontend dependencies for data visualization.
+-   Added , ,  to frontend for multi-language support.
 
 **All files of reference**
--   : The primary file for the next task of connecting the homepage.
--   : Contains the new  endpoint and other core logic.
--   : A key reference for implementing data-driven UI with .
--   : Contains the multi-LLM pipeline implementation.
--   , , : Project documentation files.
+-   : (To be created) Core configuration for internationalization.
+-   : Directory containing all translation files.
+-   : The admin page that needs to be stabilized.
+-   : User-requested documentation for pre-launch review.
+-   : Reference for a complete, data-driven page.
 
 **Areas that need refactoring**:
--   None at this time.
+-   **/app/frontend/src/pages/admin/CMSAdmin.tsx**: This component was hastily rewritten after causing a browser crash. It needs to be reviewed for stability, error handling, and proper React practices. The login flow to access it also needs to be verified.
 
 **key api endpoints**
--   : [NEW] Optimized endpoint to get all data for the homepage in one call.
--   : Returns statistics for a state (supports  query).
--   : Returns substance statistics for a state and year.
--   : Runs the 4-agent data pipeline for a given state.
--   : Admin authentication.
+-   : Get list of all countries.
+-   : Get detailed statistics for a single country.
+-   : Search/filter treatment centers.
+-   : Get content for a CMS-managed page.
+-   : Update content for a CMS-managed page.
 
 **Critical Info for New Agent**
--   The immediate task is to connect the frontend homepage to the newly created  endpoint. The backend work and data population for this are already complete.
--   The database is now fully populated with 7 years of data (2019-2025) for all 51 states. The frontend should reflect this data richness.
--   The admin login was previously broken due to a  mismatch in the  file ( vs. ). This is fixed, but be mindful of this configuration if any strange database behavior occurs.
--   The user values cost optimization. Continue to prioritize efficient solutions like the single homepage API call.
+-   The user's top priority (P0) is implementing multi-language support. Start there.
+-   The admin login flow and the stability of the  page are critical blockers for the Connect Legal Pages task. This must be investigated and fixed. A browser crash occurred during the last attempt to test it.
+-   The user wants documentation with timestamps. Continue updating  and other memory files as work is completed.
+-   The user has approved the next set of features: Interactive Map, Comparison Tool, and API Integration. Plan to tackle these after the multi-language support and CMS fix are complete.
 
 **documents and test reports created in this job**
 -   
@@ -110,39 +133,41 @@ A full-stack application with a FastAPI backend, React frontend, and MongoDB dat
 -   
 -   
 -   
+-   
+-   
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User:**  - Approved connecting the homepage and adding treatment centers with an emphasis on optimization. (In Progress)
-2.  **User:**  - Requested full data population for all states and years. (Completed)
-3.  **User:**  - Requested completion of data for all states and optimization of API calls. (Completed)
-4.  **User:**  - Requested using three different LLMs for the pipeline. (Completed)
-5.  **User:**  - Asked for an explanation of the agent architecture and provided data to import. (Completed)
-6.  **User:**  - Provided a new Emergent LLM Key. (Completed)
-7.  **User:**  - Gave trust to the agent to proceed with cost optimization and documentation. (Acknowledged)
-8.  **User:**  - Provided feedback that the state pages lacked visualizations and gave a reference URL. (Completed)
-9.  **User:**  - Inquired about the agent pipeline structure. (Completed)
-10. **User:**  - Initial approval to start work. (Completed)
+1.  **User:** Approved the prioritized list of tasks (Multi-language, Map, Comparison, API) and asked for a pre-launch task list. (In Progress)
+2.  **User:** Confirmed priorities for international expansion (Top 20 countries first, include international centers). (Completed)
+3.  **User:** Requested documentation and systematic implementation of new international features. (In Progress)
+4.  **User:** Requested that all country pages be created with the same URL structure as the US states and that the footer be updated for SEO. (Completed)
+5.  **User:** Approved the plan to build the Treatment Center Listings page. (Completed)
+6.  **User:** Approved connecting the homepage and adding treatment centers with an emphasis on optimization. (Completed)
+7.  **User:** Requested full data population for all US states and years. (Completed)
+8.  **User:** Requested using three different LLMs for the data pipeline. (Completed)
+9.  **User:** Inquired about the agent architecture and provided R&D data to import. (Completed)
+10. **User:** Provided a new Emergent LLM Key. (Completed)
 
 **Project Health Check:**
--   **Broken:** None.
--   **Mocked:** The homepage () currently uses static data and is the immediate focus for integration.
+-   **Broken:** The admin login flow is potentially unstable. A browser crash occurred during the last test. The  page itself was rewritten but has not been successfully tested since.
+-   **Mocked:** None. All major public-facing features are connected to the backend.
 
 **3rd Party Integrations**
--   **Google Gemini 2.5 Flash** — uses Emergent LLM Key (for Research Agent).
--   **OpenAI GPT-4o** — uses Emergent LLM Key (for Content Generation Agent).
--   **Anthropic Claude Sonnet 4.5** — uses Emergent LLM Key (for Fact Checker Agent).
+-   **Google Gemini 2.5 Flash** — uses Emergent LLM Key.
+-   **OpenAI GPT-4o** — uses Emergent LLM Key.
+-   **Anthropic Claude Sonnet 4.5** — uses Emergent LLM Key.
 -   **Recharts** — Frontend charting library.
+-   **i18next / react-i18next** — For multi-language support.
 
 **Testing status**
 -   **Testing agent used after significant changes:** YES
 -   **Troubleshoot agent used after agent stuck in loop:** NO
 -   **Test files created:** None.
--   **Known regressions:** None.
+-   **Known regressions:** The admin panel's stability is uncertain after a browser crash during testing.
 
 **Credentials to test flow:**
 -   **Admin User:** 
 -   **Admin Password:** 
 
 **What agent forgot to execute**
--   The agent initially missed connecting the public pages post-migration but later fixed it.
--   The agent encountered and resolved a self-induced bug related to an incorrect database name in the  file, which caused significant delays in debugging the admin login. This is now resolved.</analysis>
+-   The agent did not fully debug the cause of the browser crash during the admin login test. It rewrote the destination page () but did not confirm if the login process itself was the source of the problem. A full, careful re-test of the admin login flow is required.</analysis>
