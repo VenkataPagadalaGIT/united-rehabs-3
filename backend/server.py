@@ -1,15 +1,28 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Header
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field
-from typing import List
-import uuid
-from datetime import datetime
+from typing import List, Optional
+from datetime import datetime, timedelta
+import math
 
+from models import (
+    User, UserCreate, UserLogin, Token,
+    StateAddictionStatistics, StateAddictionStatisticsCreate,
+    SubstanceStatistics, SubstanceStatisticsCreate,
+    FreeResource, FreeResourceCreate,
+    FAQ, FAQCreate,
+    DataSource, DataSourceCreate,
+    RehabGuide, RehabGuideCreate,
+    PageContent, PageContentCreate,
+    PageSEO, PageSEOCreate,
+    Article, ArticleCreate,
+    PaginatedResponse, DashboardCounts
+)
+from auth import verify_password, get_password_hash, create_access_token, decode_token
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -17,40 +30,587 @@ load_dotenv(ROOT_DIR / '.env')
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[os.environ.get('DB_NAME', 'united_rehabs')]
 
-# Create the main app without a prefix
-app = FastAPI()
+# Create the main app
+app = FastAPI(title="United Rehabs API", version="1.0.0")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Define Models
-class StatusCheck(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+# ============================================
+# AUTH DEPENDENCIES
+# ============================================
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+async def get_current_user(authorization: Optional[str] = Header(None)) -> Optional[User]:
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    token = authorization.split(" ")[1]
+    payload = decode_token(token)
+    if not payload:
+        return None
+    user_id = payload.get("sub")
+    if not user_id:
+        return None
+    user_data = await db.users.find_one({"id": user_id})
+    if not user_data:
+        return None
+    return User(**user_data)
 
-# Add your routes to the router instead of directly to app
+async def require_admin(authorization: Optional[str] = Header(None)) -> User:
+    user = await get_current_user(authorization)
+    if not user or user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user
+
+# ============================================
+# AUTH ROUTES
+# ============================================
+
+@api_router.post("/auth/register", response_model=Token)
+async def register(user_data: UserCreate):
+    # Check if user exists
+    existing = await db.users.find_one({"email": user_data.email})
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Create user
+    user = User(
+        email=user_data.email,
+        password_hash=get_password_hash(user_data.password)
+    )
+    await db.users.insert_one(user.dict())
+    
+    # Generate token
+    access_token = create_access_token({"sub": user.id, "email": user.email, "role": user.role})
+    return Token(
+        access_token=access_token,
+        user={"id": user.id, "email": user.email, "role": user.role}
+    )
+
+@api_router.post("/auth/login", response_model=Token)
+async def login(user_data: UserLogin):
+    # Find user
+    user_doc = await db.users.find_one({"email": user_data.email})
+    if not user_doc:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    user = User(**user_doc)
+    
+    # Verify password
+    if not verify_password(user_data.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    # Generate token
+    access_token = create_access_token({"sub": user.id, "email": user.email, "role": user.role})
+    return Token(
+        access_token=access_token,
+        user={"id": user.id, "email": user.email, "role": user.role}
+    )
+
+@api_router.get("/auth/me")
+async def get_me(user: User = Depends(get_current_user)):
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    return {"id": user.id, "email": user.email, "role": user.role, "mfa_enabled": user.mfa_enabled}
+
+# ============================================
+# DASHBOARD
+# ============================================
+
+@api_router.get("/dashboard/counts", response_model=DashboardCounts)
+async def get_dashboard_counts():
+    return DashboardCounts(
+        statistics_count=await db.state_addiction_statistics.count_documents({}),
+        substance_count=await db.substance_statistics.count_documents({}),
+        resources_count=await db.free_resources.count_documents({}),
+        sources_count=await db.data_sources.count_documents({}),
+        guides_count=await db.rehab_guides.count_documents({}),
+        faqs_count=await db.faqs.count_documents({}),
+        articles_count=await db.articles.count_documents({}),
+        seo_count=await db.page_seo.count_documents({})
+    )
+
+# ============================================
+# STATE ADDICTION STATISTICS
+# ============================================
+
+@api_router.get("/statistics", response_model=List[StateAddictionStatistics])
+async def get_statistics(
+    state_id: Optional[str] = None,
+    year: Optional[int] = None,
+    skip: int = 0,
+    limit: int = 100
+):
+    query = {}
+    if state_id:
+        query["state_id"] = state_id
+    if year:
+        query["year"] = year
+    
+    cursor = db.state_addiction_statistics.find(query).sort([("state_name", 1), ("year", -1)]).skip(skip).limit(limit)
+    results = await cursor.to_list(length=limit)
+    return [StateAddictionStatistics(**r) for r in results]
+
+@api_router.get("/statistics/{id}", response_model=StateAddictionStatistics)
+async def get_statistic(id: str):
+    result = await db.state_addiction_statistics.find_one({"id": id})
+    if not result:
+        raise HTTPException(status_code=404, detail="Statistic not found")
+    return StateAddictionStatistics(**result)
+
+@api_router.post("/statistics", response_model=StateAddictionStatistics)
+async def create_statistic(data: StateAddictionStatisticsCreate, user: User = Depends(require_admin)):
+    stat = StateAddictionStatistics(**data.dict())
+    await db.state_addiction_statistics.insert_one(stat.dict())
+    return stat
+
+@api_router.put("/statistics/{id}", response_model=StateAddictionStatistics)
+async def update_statistic(id: str, data: StateAddictionStatisticsCreate, user: User = Depends(require_admin)):
+    result = await db.state_addiction_statistics.find_one({"id": id})
+    if not result:
+        raise HTTPException(status_code=404, detail="Statistic not found")
+    
+    update_data = data.dict()
+    update_data["updated_at"] = datetime.utcnow()
+    await db.state_addiction_statistics.update_one({"id": id}, {"$set": update_data})
+    
+    updated = await db.state_addiction_statistics.find_one({"id": id})
+    return StateAddictionStatistics(**updated)
+
+@api_router.delete("/statistics/{id}")
+async def delete_statistic(id: str, user: User = Depends(require_admin)):
+    result = await db.state_addiction_statistics.delete_one({"id": id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Statistic not found")
+    return {"message": "Deleted successfully"}
+
+# ============================================
+# SUBSTANCE STATISTICS
+# ============================================
+
+@api_router.get("/substance-statistics", response_model=List[SubstanceStatistics])
+async def get_substance_statistics(
+    state_id: Optional[str] = None,
+    year: Optional[int] = None,
+    skip: int = 0,
+    limit: int = 100
+):
+    query = {}
+    if state_id:
+        query["state_id"] = state_id
+    if year:
+        query["year"] = year
+    
+    cursor = db.substance_statistics.find(query).sort([("state_name", 1), ("year", -1)]).skip(skip).limit(limit)
+    results = await cursor.to_list(length=limit)
+    return [SubstanceStatistics(**r) for r in results]
+
+@api_router.post("/substance-statistics", response_model=SubstanceStatistics)
+async def create_substance_statistic(data: SubstanceStatisticsCreate, user: User = Depends(require_admin)):
+    stat = SubstanceStatistics(**data.dict())
+    await db.substance_statistics.insert_one(stat.dict())
+    return stat
+
+@api_router.put("/substance-statistics/{id}", response_model=SubstanceStatistics)
+async def update_substance_statistic(id: str, data: SubstanceStatisticsCreate, user: User = Depends(require_admin)):
+    result = await db.substance_statistics.find_one({"id": id})
+    if not result:
+        raise HTTPException(status_code=404, detail="Substance statistic not found")
+    
+    update_data = data.dict()
+    update_data["updated_at"] = datetime.utcnow()
+    await db.substance_statistics.update_one({"id": id}, {"$set": update_data})
+    
+    updated = await db.substance_statistics.find_one({"id": id})
+    return SubstanceStatistics(**updated)
+
+@api_router.delete("/substance-statistics/{id}")
+async def delete_substance_statistic(id: str, user: User = Depends(require_admin)):
+    result = await db.substance_statistics.delete_one({"id": id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Substance statistic not found")
+    return {"message": "Deleted successfully"}
+
+# ============================================
+# FREE RESOURCES
+# ============================================
+
+@api_router.get("/resources", response_model=List[FreeResource])
+async def get_resources(
+    state_id: Optional[str] = None,
+    resource_type: Optional[str] = None,
+    is_nationwide: Optional[bool] = None,
+    skip: int = 0,
+    limit: int = 100
+):
+    query = {}
+    if state_id:
+        query["$or"] = [{"state_id": state_id}, {"is_nationwide": True}]
+    if resource_type:
+        query["resource_type"] = resource_type
+    if is_nationwide is not None:
+        query["is_nationwide"] = is_nationwide
+    
+    cursor = db.free_resources.find(query).sort("sort_order", 1).skip(skip).limit(limit)
+    results = await cursor.to_list(length=limit)
+    return [FreeResource(**r) for r in results]
+
+@api_router.post("/resources", response_model=FreeResource)
+async def create_resource(data: FreeResourceCreate, user: User = Depends(require_admin)):
+    resource = FreeResource(**data.dict())
+    await db.free_resources.insert_one(resource.dict())
+    return resource
+
+@api_router.put("/resources/{id}", response_model=FreeResource)
+async def update_resource(id: str, data: FreeResourceCreate, user: User = Depends(require_admin)):
+    result = await db.free_resources.find_one({"id": id})
+    if not result:
+        raise HTTPException(status_code=404, detail="Resource not found")
+    
+    update_data = data.dict()
+    update_data["updated_at"] = datetime.utcnow()
+    await db.free_resources.update_one({"id": id}, {"$set": update_data})
+    
+    updated = await db.free_resources.find_one({"id": id})
+    return FreeResource(**updated)
+
+@api_router.delete("/resources/{id}")
+async def delete_resource(id: str, user: User = Depends(require_admin)):
+    result = await db.free_resources.delete_one({"id": id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Resource not found")
+    return {"message": "Deleted successfully"}
+
+# ============================================
+# FAQs
+# ============================================
+
+@api_router.get("/faqs", response_model=List[FAQ])
+async def get_faqs(
+    state_id: Optional[str] = None,
+    category: Optional[str] = None,
+    is_active: Optional[bool] = True,
+    skip: int = 0,
+    limit: int = 100
+):
+    query = {}
+    if state_id:
+        query["$or"] = [{"state_id": state_id}, {"state_id": None}]
+    if category:
+        query["category"] = category
+    if is_active is not None:
+        query["is_active"] = is_active
+    
+    cursor = db.faqs.find(query).sort("sort_order", 1).skip(skip).limit(limit)
+    results = await cursor.to_list(length=limit)
+    return [FAQ(**r) for r in results]
+
+@api_router.post("/faqs", response_model=FAQ)
+async def create_faq(data: FAQCreate, user: User = Depends(require_admin)):
+    faq = FAQ(**data.dict())
+    await db.faqs.insert_one(faq.dict())
+    return faq
+
+@api_router.put("/faqs/{id}", response_model=FAQ)
+async def update_faq(id: str, data: FAQCreate, user: User = Depends(require_admin)):
+    result = await db.faqs.find_one({"id": id})
+    if not result:
+        raise HTTPException(status_code=404, detail="FAQ not found")
+    
+    update_data = data.dict()
+    update_data["updated_at"] = datetime.utcnow()
+    await db.faqs.update_one({"id": id}, {"$set": update_data})
+    
+    updated = await db.faqs.find_one({"id": id})
+    return FAQ(**updated)
+
+@api_router.delete("/faqs/{id}")
+async def delete_faq(id: str, user: User = Depends(require_admin)):
+    result = await db.faqs.delete_one({"id": id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="FAQ not found")
+    return {"message": "Deleted successfully"}
+
+# ============================================
+# DATA SOURCES
+# ============================================
+
+@api_router.get("/data-sources", response_model=List[DataSource])
+async def get_data_sources(skip: int = 0, limit: int = 100):
+    cursor = db.data_sources.find({}).skip(skip).limit(limit)
+    results = await cursor.to_list(length=limit)
+    return [DataSource(**r) for r in results]
+
+@api_router.post("/data-sources", response_model=DataSource)
+async def create_data_source(data: DataSourceCreate, user: User = Depends(require_admin)):
+    source = DataSource(**data.dict())
+    await db.data_sources.insert_one(source.dict())
+    return source
+
+@api_router.put("/data-sources/{id}", response_model=DataSource)
+async def update_data_source(id: str, data: DataSourceCreate, user: User = Depends(require_admin)):
+    result = await db.data_sources.find_one({"id": id})
+    if not result:
+        raise HTTPException(status_code=404, detail="Data source not found")
+    
+    await db.data_sources.update_one({"id": id}, {"$set": data.dict()})
+    updated = await db.data_sources.find_one({"id": id})
+    return DataSource(**updated)
+
+@api_router.delete("/data-sources/{id}")
+async def delete_data_source(id: str, user: User = Depends(require_admin)):
+    result = await db.data_sources.delete_one({"id": id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Data source not found")
+    return {"message": "Deleted successfully"}
+
+# ============================================
+# REHAB GUIDES
+# ============================================
+
+@api_router.get("/guides", response_model=List[RehabGuide])
+async def get_guides(
+    category: Optional[str] = None,
+    is_active: Optional[bool] = True,
+    skip: int = 0,
+    limit: int = 100
+):
+    query = {}
+    if category:
+        query["category"] = category
+    if is_active is not None:
+        query["is_active"] = is_active
+    
+    cursor = db.rehab_guides.find(query).sort("sort_order", 1).skip(skip).limit(limit)
+    results = await cursor.to_list(length=limit)
+    return [RehabGuide(**r) for r in results]
+
+@api_router.post("/guides", response_model=RehabGuide)
+async def create_guide(data: RehabGuideCreate, user: User = Depends(require_admin)):
+    guide = RehabGuide(**data.dict())
+    await db.rehab_guides.insert_one(guide.dict())
+    return guide
+
+@api_router.put("/guides/{id}", response_model=RehabGuide)
+async def update_guide(id: str, data: RehabGuideCreate, user: User = Depends(require_admin)):
+    result = await db.rehab_guides.find_one({"id": id})
+    if not result:
+        raise HTTPException(status_code=404, detail="Guide not found")
+    
+    update_data = data.dict()
+    update_data["updated_at"] = datetime.utcnow()
+    await db.rehab_guides.update_one({"id": id}, {"$set": update_data})
+    
+    updated = await db.rehab_guides.find_one({"id": id})
+    return RehabGuide(**updated)
+
+@api_router.delete("/guides/{id}")
+async def delete_guide(id: str, user: User = Depends(require_admin)):
+    result = await db.rehab_guides.delete_one({"id": id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Guide not found")
+    return {"message": "Deleted successfully"}
+
+# ============================================
+# PAGE CONTENT
+# ============================================
+
+@api_router.get("/page-content", response_model=List[PageContent])
+async def get_page_content(
+    page_key: Optional[str] = None,
+    state_id: Optional[str] = None,
+    is_active: Optional[bool] = True,
+    skip: int = 0,
+    limit: int = 100
+):
+    query = {}
+    if page_key:
+        query["page_key"] = page_key
+    if state_id:
+        query["state_id"] = state_id
+    if is_active is not None:
+        query["is_active"] = is_active
+    
+    cursor = db.page_content.find(query).sort("sort_order", 1).skip(skip).limit(limit)
+    results = await cursor.to_list(length=limit)
+    return [PageContent(**r) for r in results]
+
+@api_router.post("/page-content", response_model=PageContent)
+async def create_page_content(data: PageContentCreate, user: User = Depends(require_admin)):
+    content = PageContent(**data.dict())
+    await db.page_content.insert_one(content.dict())
+    return content
+
+@api_router.put("/page-content/{id}", response_model=PageContent)
+async def update_page_content(id: str, data: PageContentCreate, user: User = Depends(require_admin)):
+    result = await db.page_content.find_one({"id": id})
+    if not result:
+        raise HTTPException(status_code=404, detail="Page content not found")
+    
+    update_data = data.dict()
+    update_data["updated_at"] = datetime.utcnow()
+    await db.page_content.update_one({"id": id}, {"$set": update_data})
+    
+    updated = await db.page_content.find_one({"id": id})
+    return PageContent(**updated)
+
+@api_router.delete("/page-content/{id}")
+async def delete_page_content(id: str, user: User = Depends(require_admin)):
+    result = await db.page_content.delete_one({"id": id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Page content not found")
+    return {"message": "Deleted successfully"}
+
+# ============================================
+# PAGE SEO
+# ============================================
+
+@api_router.get("/page-seo", response_model=List[PageSEO])
+async def get_page_seo(
+    page_type: Optional[str] = None,
+    state_id: Optional[str] = None,
+    is_active: Optional[bool] = True,
+    skip: int = 0,
+    limit: int = 100
+):
+    query = {}
+    if page_type:
+        query["page_type"] = page_type
+    if state_id:
+        query["state_id"] = state_id
+    if is_active is not None:
+        query["is_active"] = is_active
+    
+    cursor = db.page_seo.find(query).skip(skip).limit(limit)
+    results = await cursor.to_list(length=limit)
+    return [PageSEO(**r) for r in results]
+
+@api_router.get("/page-seo/by-slug/{slug}")
+async def get_page_seo_by_slug(slug: str):
+    result = await db.page_seo.find_one({"page_slug": slug, "is_active": True})
+    if not result:
+        return None
+    return PageSEO(**result)
+
+@api_router.post("/page-seo", response_model=PageSEO)
+async def create_page_seo(data: PageSEOCreate, user: User = Depends(require_admin)):
+    seo = PageSEO(**data.dict())
+    await db.page_seo.insert_one(seo.dict())
+    return seo
+
+@api_router.put("/page-seo/{id}", response_model=PageSEO)
+async def update_page_seo(id: str, data: PageSEOCreate, user: User = Depends(require_admin)):
+    result = await db.page_seo.find_one({"id": id})
+    if not result:
+        raise HTTPException(status_code=404, detail="Page SEO not found")
+    
+    update_data = data.dict()
+    update_data["updated_at"] = datetime.utcnow()
+    await db.page_seo.update_one({"id": id}, {"$set": update_data})
+    
+    updated = await db.page_seo.find_one({"id": id})
+    return PageSEO(**updated)
+
+@api_router.delete("/page-seo/{id}")
+async def delete_page_seo(id: str, user: User = Depends(require_admin)):
+    result = await db.page_seo.delete_one({"id": id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Page SEO not found")
+    return {"message": "Deleted successfully"}
+
+# ============================================
+# ARTICLES
+# ============================================
+
+@api_router.get("/articles", response_model=List[Article])
+async def get_articles(
+    content_type: Optional[str] = None,
+    is_published: Optional[bool] = None,
+    is_featured: Optional[bool] = None,
+    category: Optional[str] = None,
+    state_id: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 100
+):
+    query = {}
+    if content_type:
+        query["content_type"] = content_type
+    if is_published is not None:
+        query["is_published"] = is_published
+    if is_featured is not None:
+        query["is_featured"] = is_featured
+    if category:
+        query["category"] = category
+    if state_id:
+        query["state_id"] = state_id
+    
+    cursor = db.articles.find(query).sort("created_at", -1).skip(skip).limit(limit)
+    results = await cursor.to_list(length=limit)
+    return [Article(**r) for r in results]
+
+@api_router.get("/articles/by-slug/{content_type}/{slug}")
+async def get_article_by_slug(content_type: str, slug: str):
+    result = await db.articles.find_one({"content_type": content_type, "slug": slug})
+    if not result:
+        raise HTTPException(status_code=404, detail="Article not found")
+    
+    # Increment view count
+    await db.articles.update_one({"id": result["id"]}, {"$inc": {"views_count": 1}})
+    
+    return Article(**result)
+
+@api_router.post("/articles", response_model=Article)
+async def create_article(data: ArticleCreate, user: User = Depends(require_admin)):
+    article_data = data.dict()
+    if data.is_published:
+        article_data["published_at"] = datetime.utcnow()
+    article = Article(**article_data)
+    await db.articles.insert_one(article.dict())
+    return article
+
+@api_router.put("/articles/{id}", response_model=Article)
+async def update_article(id: str, data: ArticleCreate, user: User = Depends(require_admin)):
+    result = await db.articles.find_one({"id": id})
+    if not result:
+        raise HTTPException(status_code=404, detail="Article not found")
+    
+    update_data = data.dict()
+    update_data["updated_at"] = datetime.utcnow()
+    
+    # Set published_at if publishing for the first time
+    if data.is_published and not result.get("published_at"):
+        update_data["published_at"] = datetime.utcnow()
+    
+    await db.articles.update_one({"id": id}, {"$set": update_data})
+    updated = await db.articles.find_one({"id": id})
+    return Article(**updated)
+
+@api_router.delete("/articles/{id}")
+async def delete_article(id: str, user: User = Depends(require_admin)):
+    result = await db.articles.delete_one({"id": id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Article not found")
+    return {"message": "Deleted successfully"}
+
+# ============================================
+# HEALTH CHECK
+# ============================================
+
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "United Rehabs API v1.0.0", "status": "healthy"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.dict()
-    status_obj = StatusCheck(**status_dict)
-    _ = await db.status_checks.insert_one(status_obj.dict())
-    return status_obj
-
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    status_checks = await db.status_checks.find().to_list(1000)
-    return [StatusCheck(**status_check) for status_check in status_checks]
+@api_router.get("/health")
+async def health_check():
+    return {"status": "healthy", "timestamp": datetime.utcnow().isoformat()}
 
 # Include the router in the main app
 app.include_router(api_router)
@@ -62,13 +622,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
