@@ -529,3 +529,73 @@ export const cmsApi = {
     return response.data;
   },
 };
+
+// ============================================
+// SEO MANAGEMENT API
+// ============================================
+
+export const seoApi = {
+  // Global Settings
+  getGlobalSettings: async () => {
+    const response = await api.get('/api/seo/global');
+    return response.data;
+  },
+  
+  updateGlobalSettings: async (settings: any) => {
+    const response = await api.put('/api/seo/global', settings);
+    return response.data;
+  },
+  
+  // Folder Rules
+  getFolderRules: async () => {
+    const response = await api.get('/api/seo/folder-rules');
+    return response.data;
+  },
+  
+  createFolderRule: async (rule: any) => {
+    const response = await api.post('/api/seo/folder-rules', rule);
+    return response.data;
+  },
+  
+  updateFolderRule: async (id: string, rule: any) => {
+    const response = await api.put(`/api/seo/folder-rules/${id}`, rule);
+    return response.data;
+  },
+  
+  deleteFolderRule: async (id: string) => {
+    const response = await api.delete(`/api/seo/folder-rules/${id}`);
+    return response.data;
+  },
+  
+  // Page SEO
+  getPageSeoList: async (params?: { search?: string; page_type?: string }) => {
+    const response = await api.get('/api/seo/pages', { params });
+    return response.data;
+  },
+  
+  getPageSeo: async (slug: string) => {
+    const response = await api.get(`/api/seo/pages/${slug}`);
+    return response.data;
+  },
+  
+  updatePageSeo: async (slug: string, seo: any) => {
+    const response = await api.put(`/api/seo/pages/${slug}`, seo);
+    return response.data;
+  },
+  
+  deletePageSeo: async (slug: string) => {
+    const response = await api.delete(`/api/seo/pages/${slug}`);
+    return response.data;
+  },
+  
+  // Utilities
+  getAudit: async () => {
+    const response = await api.get('/api/seo/audit');
+    return response.data;
+  },
+  
+  bulkUpdate: async (pageType: string, updates: any) => {
+    const response = await api.post(`/api/seo/bulk-update?page_type=${pageType}`, updates);
+    return response.data;
+  },
+};
