@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,13 +16,13 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { seoApi } from "@/lib/api";
 import { 
   Globe, Settings, FolderTree, FileText, Plus, Pencil, Trash2, 
-  Search, RefreshCw, Download, AlertCircle, CheckCircle, ExternalLink
+  Search, Download, AlertCircle, CheckCircle, ExternalLink
 } from "lucide-react";
 
 interface GlobalSEOSettings {
@@ -137,8 +136,7 @@ export default function SEOManagerAdmin() {
   const pageSeoList = pageSeoData?.pages || [];
 
   return (
-    <AdminLayout>
-      <div className="space-y-6" data-testid="seo-manager-admin">
+    <div className="space-y-6" data-testid="seo-manager-admin">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
