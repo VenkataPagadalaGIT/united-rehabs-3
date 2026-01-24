@@ -2,6 +2,28 @@
 
 ## January 24, 2026
 
+### Homepage Connected to Backend API ✅ (Latest)
+**Completed the connection of the homepage to the optimized backend API**
+
+#### New Features:
+- **Single Optimized API Call**: Homepage now fetches all data from `/api/homepage/data` in one call
+- **TrustIndicators Component**: Displays dynamic national statistics (12.2M Americans Affected, 13K Treatment Centers, 42.2% Avg Recovery Rate, 2.1M Treatment Admissions)
+- **LocationsSection Component**: Displays all 51 states with real treatment center counts from database
+- **DynamicFeaturedCenters Component**: New component showing 8 featured treatment centers
+- **React Query Caching**: 5-minute stale time for optimal performance
+
+#### Files Created/Modified:
+- `/app/frontend/src/pages/Index.tsx` - Updated to use homepageApi.getData()
+- `/app/frontend/src/components/home/TrustIndicators.tsx` - Added national stats display with props
+- `/app/frontend/src/components/home/LocationsSection.tsx` - Rewritten to use backend state counts
+- `/app/frontend/src/components/home/DynamicFeaturedCenters.tsx` - NEW component for featured centers
+- `/app/frontend/src/lib/api.ts` - Added homepageApi and treatmentCentersApi
+
+#### Backend Endpoint Used:
+- `GET /api/homepage/data` - Returns national_stats, top_states, featured_centers, faqs, state_counts, data_year
+
+---
+
 ### Phase 7: Comprehensive Statistics Visualizations ✅
 **Added substance trend charts and historical data**
 
