@@ -13,6 +13,7 @@ interface HeaderProps {
 export function Header({ navItems }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [locationsMenuOpen, setLocationsMenuOpen] = useState(false);
+  const { t } = useTranslation();
 
   const handleNavItemHover = (item: NavItem) => {
     if (item.label.toLowerCase() === "locations") {
@@ -69,10 +70,11 @@ export function Header({ navItems }: HeaderProps) {
             ))}
           </nav>
 
-          {/* CTA Button */}
-          <div className="flex items-center gap-4">
-            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold">
-              Get Help Now
+          {/* Language & CTA */}
+          <div className="flex items-center gap-2 sm:gap-4">
+            <LanguageSwitcher />
+            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold" data-testid="get-help-now-btn">
+              {t('common.getHelpNow')}
             </Button>
             <button
               className="lg:hidden focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded p-1"
