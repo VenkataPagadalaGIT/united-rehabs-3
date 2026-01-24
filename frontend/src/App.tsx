@@ -28,6 +28,7 @@ import GuidesAdmin from "./pages/admin/GuidesAdmin";
 import FAQsAdmin from "./pages/admin/FAQsAdmin";
 import ContentAdmin from "./pages/admin/ContentAdmin";
 import SEOAdmin from "./pages/admin/SEOAdmin";
+import SEOManagerAdmin from "./pages/admin/SEOManagerAdmin";
 import ArticlesAdmin from "./pages/admin/ArticlesAdmin";
 import ArticlesListPage from "./pages/ArticlesListPage";
 import ArticlePage from "./pages/ArticlePage";
