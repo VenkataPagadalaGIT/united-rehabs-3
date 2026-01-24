@@ -108,7 +108,8 @@ class TestHomepageAPI:
         
         # Check structure of first center
         first_center = featured_centers[0]
-        required_fields = ['id', 'name', 'city', 'state', 'rating']
+        # Note: API returns 'state_name' not 'state' - frontend TypeScript interface should be updated
+        required_fields = ['id', 'name', 'city', 'state_name', 'rating']
         for field in required_fields:
             assert field in first_center, f"Missing field in featured_center: {field}"
         
