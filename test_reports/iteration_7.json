@@ -1,0 +1,153 @@
+{
+  "summary": "Comprehensive testing of new features: Interactive Global Map, Country Comparison Tool, Data Export endpoints, Draft/Review/Publish workflow, and CMS pages. Backend: 27/28 tests passed (96%). Frontend: All major features working correctly.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "/api/statistics/pending-review",
+        "issue": "Route conflict - 'pending-review' is matched by /api/statistics/{id} route instead of dedicated endpoint. Returns 404 'Statistic not found'",
+        "priority": "MEDIUM",
+        "fix": "Move /api/statistics/pending-review route BEFORE /api/statistics/{id} in server.py"
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Interactive Global Map click navigation",
+        "issue": "Clicking on countries in the map does not navigate to country stats page. The map renders correctly and shows tooltips on hover, but click events may not be triggering navigation properly.",
+        "affected_selectors": ["[data-testid='interactive-global-map']"],
+        "priority": "MEDIUM",
+        "note": "Direct URL navigation to country pages works (e.g., /united-states-addiction-rehabs)"
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_new_features.py",
+    "/app/test_reports/pytest/pytest_new_features.xml"
+  ],
+  "action_items": [
+    "Fix route ordering in server.py - move /api/statistics/pending-review BEFORE /api/statistics/{id}",
+    "Investigate map click navigation - may need to check react-simple-maps click event handling"
+  ],
+  "critical_code_review_comments": [
+    "Route ordering issue in server.py: FastAPI matches routes in order, so /statistics/{id} catches 'pending-review' as an ID"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_new_features.py"
+  ],
+  "success_rate": {
+    "backend": "96% (27/28 tests passed)",
+    "frontend": "95% (all features working except map click navigation)"
+  },
+  "test_credentials": {
+    "admin_email": "admin@unitedrehabs.com",
+    "admin_password": "admin_password"
+  },
+  "seed_data_creation": "",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "New features tested: Interactive Global Map (renders correctly, click navigation needs investigation), Country Comparison page at /compare (fully working with charts), Data Export endpoints (all 3 working with admin auth), CMS pages at /about and /privacy-policy (working). Route /about-us returns 404 - correct route is /about.",
+  "features_tested": {
+    "interactive_global_map_loads": {
+      "status": "PASS",
+      "details": "Map renders on homepage with color-coded regions, legend, and 'Compare Countries' link"
+    },
+    "map_click_navigation": {
+      "status": "PARTIAL",
+      "details": "Map shows tooltips on hover but click navigation to country pages not working via map. Direct URL navigation works."
+    },
+    "country_comparison_page": {
+      "status": "PASS",
+      "details": "/compare loads with 3 default countries (USA, GBR, DEU), year selector (2025), add/remove country functionality"
+    },
+    "comparison_charts": {
+      "status": "PASS",
+      "details": "3 Recharts components render: People Affected, Deaths Comparison (Alcohol + Drug), Treatment Centers"
+    },
+    "add_remove_countries": {
+      "status": "PASS",
+      "details": "Add Country dropdown shows 50 countries, remove buttons work correctly"
+    },
+    "year_selector": {
+      "status": "PASS",
+      "details": "Year selector shows 2025 as default with options 2019-2025"
+    },
+    "export_countries_endpoint": {
+      "status": "PASS",
+      "details": "/api/export/countries returns JSON data with admin auth"
+    },
+    "export_statistics_endpoint": {
+      "status": "PASS",
+      "details": "/api/export/statistics returns JSON data with admin auth"
+    },
+    "export_treatment_centers_endpoint": {
+      "status": "PASS",
+      "details": "/api/export/treatment-centers returns JSON data with admin auth"
+    },
+    "status_workflow_endpoint": {
+      "status": "PASS",
+      "details": "/api/statistics/{id}/status works for draft/review/publish workflow"
+    },
+    "privacy_policy_page": {
+      "status": "PASS",
+      "details": "/privacy-policy loads with CMS content"
+    },
+    "about_us_page": {
+      "status": "PASS",
+      "details": "/about loads with CMS content (note: route is /about not /about-us)"
+    },
+    "language_switcher": {
+      "status": "PASS",
+      "details": "Language switcher button found in header (EN/ES/FR/PT support confirmed in previous iteration)"
+    },
+    "admin_login_cms": {
+      "status": "PASS",
+      "details": "Admin login works, CMS dashboard shows 357 statistics, 298 FAQs, 125 resources"
+    }
+  },
+  "backend_api_tests": {
+    "health_check": "PASS",
+    "api_root": "PASS",
+    "admin_login": "PASS",
+    "invalid_login": "PASS",
+    "get_all_countries": "PASS (195 countries)",
+    "get_country_usa": "PASS",
+    "get_country_gbr": "PASS",
+    "get_country_deu": "PASS",
+    "get_country_statistics": "PASS",
+    "get_country_statistics_with_year": "PASS",
+    "get_countries_by_region": "PASS",
+    "compare_multiple_countries": "PASS",
+    "global_statistics": "PASS",
+    "export_countries_json": "PASS",
+    "export_statistics_json": "PASS",
+    "export_treatment_centers_json": "PASS",
+    "export_requires_auth": "PASS",
+    "pending_review_statistics": "FAIL (route conflict)",
+    "status_update_requires_auth": "PASS",
+    "status_update_invalid_status": "PASS",
+    "get_about_us_page": "PASS",
+    "get_privacy_policy_page": "PASS",
+    "get_terms_of_service_page": "PASS",
+    "get_treatment_centers": "PASS",
+    "get_treatment_centers_by_country": "PASS",
+    "search_treatment_centers": "PASS",
+    "homepage_data": "PASS",
+    "international_homepage_data": "PASS"
+  },
+  "screenshots": [
+    ".screenshots/homepage_with_map.png",
+    ".screenshots/global_map_section.png",
+    ".screenshots/compare_page_initial.png",
+    ".screenshots/compare_page_charts.png",
+    ".screenshots/compare_page_final.png",
+    ".screenshots/usa_country_page.png",
+    ".screenshots/about_page.png",
+    ".screenshots/privacy_policy_page.png",
+    ".screenshots/admin_login.png",
+    ".screenshots/admin_dashboard.png"
+  ]
+}
