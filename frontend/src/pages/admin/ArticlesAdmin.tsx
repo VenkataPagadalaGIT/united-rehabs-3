@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { articlesApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -80,12 +80,7 @@ export default function ArticlesAdmin() {
   const { data: articles, isLoading } = useQuery({
     queryKey: ["admin-articles"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("articles")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data as Article[];
+      return await articlesApi.getAll({ limit: 1000 });
     },
   });
 
@@ -94,26 +89,7 @@ export default function ArticlesAdmin() {
       if (!article.title || !article.slug) {
         throw new Error("Title and slug are required");
       }
-      const { error } = await supabase.from("articles").insert([{
-        title: article.title,
-        slug: article.slug,
-        excerpt: article.excerpt || null,
-        content: article.content || null,
-        content_type: article.content_type || "blog",
-        featured_image_url: article.featured_image_url || null,
-        author_name: article.author_name || null,
-        state_id: article.state_id || null,
-        category: article.category || null,
-        tags: article.tags || null,
-        meta_title: article.meta_title || null,
-        meta_description: article.meta_description || null,
-        is_featured: article.is_featured || false,
-        is_published: article.is_published || false,
-        read_time: article.read_time || "5 min read",
-        sort_order: article.sort_order || 0,
-        published_at: article.is_published ? new Date().toISOString() : null,
-      }]);
-      if (error) throw error;
+      return await articlesApi.create(article);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-articles"] });
@@ -121,21 +97,12 @@ export default function ArticlesAdmin() {
       setIsDialogOpen(false);
       setEditingArticle(null);
     },
-    onError: (error) => toast.error(`Error: ${error.message}`),
+    onError: (error: any) => toast.error(`Error: ${error.message}`),
   });
 
   const updateMutation = useMutation({
     mutationFn: async (article: Partial<Article>) => {
-      const { error } = await supabase
-        .from("articles")
-        .update({
-          ...article,
-          published_at: article.is_published && !editingArticle?.published_at 
-            ? new Date().toISOString() 
-            : article.published_at,
-        })
-        .eq("id", article.id);
-      if (error) throw error;
+      return await articlesApi.update(article.id!, article);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-articles"] });
@@ -143,19 +110,18 @@ export default function ArticlesAdmin() {
       setIsDialogOpen(false);
       setEditingArticle(null);
     },
-    onError: (error) => toast.error(`Error: ${error.message}`),
+    onError: (error: any) => toast.error(`Error: ${error.message}`),
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("articles").delete().eq("id", id);
-      if (error) throw error;
+      return await articlesApi.delete(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-articles"] });
       toast.success("Article deleted successfully");
     },
-    onError: (error) => toast.error(`Error: ${error.message}`),
+    onError: (error: any) => toast.error(`Error: ${error.message}`),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -177,7 +143,7 @@ export default function ArticlesAdmin() {
   };
 
   const filteredArticles = articles?.filter(
-    (a) => filterType === "all" || a.content_type === filterType
+    (a: Article) => filterType === "all" || a.content_type === filterType
   );
 
   const getTypeIcon = (type: string) => {
@@ -398,7 +364,7 @@ export default function ArticlesAdmin() {
       </div>
 
       <div className="grid gap-4">
-        {filteredArticles?.map((article) => {
+        {filteredArticles?.map((article: Article) => {
           const TypeIcon = getTypeIcon(article.content_type);
           return (
             <Card key={article.id}>
