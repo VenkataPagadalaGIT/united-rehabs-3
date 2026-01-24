@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { statisticsApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Table,
   TableBody,
@@ -29,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Loader2, ShieldCheck, AlertTriangle } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, ShieldCheck } from "lucide-react";
 import { ALL_STATES } from "@/data/allStates";
 
 interface StatRecord {
@@ -45,37 +44,10 @@ interface StatRecord {
   data_source: string | null;
 }
 
-interface VerifyResult {
-  state: string;
-  year?: number;
-  verified?: boolean;
-  changes?: Record<string, { old: number | null; new: number }>;
-  sources?: string[];
-  error?: string;
-  recordsUpdated?: number;
-  errors?: string[];
-}
-
-interface BatchResult {
-  success: boolean;
-  mode: string;
-  statesProcessed: number;
-  totalRecordsUpdated: number;
-  apiCallsMade: number;
-  results: VerifyResult[];
-  errors: string[];
-}
-
 const StatisticsAdmin = () => {
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<StatRecord | null>(null);
-  const [verifyResults, setVerifyResults] = useState<VerifyResult[]>([]);
-  const [batchResult, setBatchResult] = useState<BatchResult | null>(null);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [isBatchVerifying, setIsBatchVerifying] = useState(false);
-  const [selectedVerifyState, setSelectedVerifyState] = useState<string>("");
-  const [selectedVerifyYear, setSelectedVerifyYear] = useState<string>("2023");
   const [formData, setFormData] = useState({
     state_id: "",
     state_name: "",
@@ -91,94 +63,13 @@ const StatisticsAdmin = () => {
   const { data: statistics, isLoading } = useQuery({
     queryKey: ["admin-statistics"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("state_addiction_statistics")
-        .select("*")
-        .order("state_name")
-        .order("year", { ascending: false });
-
-      if (error) throw error;
-      return data as StatRecord[];
+      return await statisticsApi.getAll({ limit: 1000 });
     },
   });
 
-  // QA Verification handler - single state
-  const handleVerifyData = async () => {
-    if (!selectedVerifyState) {
-      toast.error("Please select a state to verify");
-      return;
-    }
-    
-    setIsVerifying(true);
-    setVerifyResults([]);
-    setBatchResult(null);
-    
-    try {
-      const stateInfo = ALL_STATES.find(s => s.abbreviation === selectedVerifyState);
-      if (!stateInfo) throw new Error("State not found");
-
-      const { data, error } = await supabase.functions.invoke("verify-state-data", {
-        body: {
-          stateName: stateInfo.name,
-          stateAbbreviation: stateInfo.abbreviation
-        }
-      });
-
-      if (error) throw error;
-
-      if (data?.success) {
-        toast.success(`Verified ${stateInfo.name}: ${data.recordsUpdated} records updated using 1 API call`);
-        queryClient.invalidateQueries({ queryKey: ["admin-statistics"] });
-        setVerifyResults([{
-          state: stateInfo.name,
-          recordsUpdated: data.recordsUpdated,
-          errors: data.errors
-        }]);
-      }
-    } catch (err: any) {
-      console.error("Verification error:", err);
-      toast.error("Verification failed: " + (err.message || "Unknown error"));
-    } finally {
-      setIsVerifying(false);
-    }
-  };
-
-  // BATCH: Verify ALL states with minimal API calls (50 total)
-  const handleBatchVerifyAll = async () => {
-    if (!confirm("This will verify ALL 50 states using 50 API calls (1 per state). This may take 2-3 minutes. Continue?")) {
-      return;
-    }
-    
-    setIsBatchVerifying(true);
-    setVerifyResults([]);
-    setBatchResult(null);
-    
-    try {
-      toast.info("Starting batch verification for all 50 states...");
-      
-      const { data, error } = await supabase.functions.invoke("verify-state-data", {
-        body: { batchAll: true }
-      });
-
-      if (error) throw error;
-
-      if (data?.success) {
-        setBatchResult(data);
-        toast.success(`Batch complete! Updated ${data.totalRecordsUpdated} records across ${data.statesProcessed} states using only ${data.apiCallsMade} API calls`);
-        queryClient.invalidateQueries({ queryKey: ["admin-statistics"] });
-      }
-    } catch (err: any) {
-      console.error("Batch verification error:", err);
-      toast.error("Batch verification failed: " + (err.message || "Unknown error"));
-    } finally {
-      setIsBatchVerifying(false);
-    }
-  };
-
   const createMutation = useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
-      const { error } = await supabase.from("state_addiction_statistics").insert([data as any]);
-      if (error) throw error;
+      return await statisticsApi.create(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-statistics"] });
@@ -186,13 +77,12 @@ const StatisticsAdmin = () => {
       setIsOpen(false);
       resetForm();
     },
-    onError: (error) => toast.error("Failed to create record: " + error.message),
+    onError: (error: any) => toast.error("Failed to create record: " + error.message),
   });
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<StatRecord> }) => {
-      const { error } = await supabase.from("state_addiction_statistics").update(data).eq("id", id);
-      if (error) throw error;
+      return await statisticsApi.update(id, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-statistics"] });
@@ -200,19 +90,18 @@ const StatisticsAdmin = () => {
       setIsOpen(false);
       resetForm();
     },
-    onError: (error) => toast.error("Failed to update record: " + error.message),
+    onError: (error: any) => toast.error("Failed to update record: " + error.message),
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("state_addiction_statistics").delete().eq("id", id);
-      if (error) throw error;
+      return await statisticsApi.delete(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-statistics"] });
       toast.success("Record deleted successfully");
     },
-    onError: (error) => toast.error("Failed to delete record: " + error.message),
+    onError: (error: any) => toast.error("Failed to delete record: " + error.message),
   });
 
   const resetForm = () => {
@@ -266,6 +155,17 @@ const StatisticsAdmin = () => {
     }
   };
 
+  const handleStateChange = (abbreviation: string) => {
+    const state = ALL_STATES.find(s => s.abbreviation === abbreviation);
+    if (state) {
+      setFormData({
+        ...formData,
+        state_id: state.abbreviation,
+        state_name: state.name,
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -280,7 +180,7 @@ const StatisticsAdmin = () => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold">State Addiction Statistics</h2>
-          <p className="text-muted-foreground">Manage and verify addiction statistics by state and year.</p>
+          <p className="text-muted-foreground">Manage addiction statistics by state and year.</p>
         </div>
         <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetForm(); }}>
           <DialogTrigger asChild>
@@ -293,12 +193,19 @@ const StatisticsAdmin = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>State ID</Label>
-                  <Input value={formData.state_id} onChange={(e) => setFormData({ ...formData, state_id: e.target.value })} placeholder="CA" required />
-                </div>
-                <div className="space-y-2">
-                  <Label>State Name</Label>
-                  <Input value={formData.state_name} onChange={(e) => setFormData({ ...formData, state_name: e.target.value })} placeholder="California" required />
+                  <Label>State</Label>
+                  <Select value={formData.state_id} onValueChange={handleStateChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select state" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ALL_STATES.map((state) => (
+                        <SelectItem key={state.abbreviation} value={state.abbreviation}>
+                          {state.name} ({state.abbreviation})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>Year</Label>
@@ -324,10 +231,10 @@ const StatisticsAdmin = () => {
                   <Label>Recovery Rate (%)</Label>
                   <Input type="number" step="0.1" value={formData.recovery_rate} onChange={(e) => setFormData({ ...formData, recovery_rate: e.target.value })} />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Data Source</Label>
-                <Input value={formData.data_source} onChange={(e) => setFormData({ ...formData, data_source: e.target.value })} placeholder="CDC, SAMHSA" />
+                <div className="space-y-2">
+                  <Label>Data Source</Label>
+                  <Input value={formData.data_source} onChange={(e) => setFormData({ ...formData, data_source: e.target.value })} placeholder="CDC, SAMHSA" />
+                </div>
               </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
@@ -339,85 +246,6 @@ const StatisticsAdmin = () => {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
-
-      {/* QA Verification Section */}
-      <div className="bg-muted/50 border rounded-lg p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <ShieldCheck className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold">QA Data Verification</h3>
-          <Badge variant="outline" className="ml-2">CDC WONDER</Badge>
-        </div>
-        <p className="text-sm text-muted-foreground mb-4">
-          Verify and correct data using official CDC WONDER sources. Single state = 1 API call. All states = 50 API calls.
-        </p>
-        
-        {/* Single State Verification */}
-        <div className="flex flex-wrap gap-3 items-end mb-4">
-          <div className="space-y-1">
-            <Label className="text-xs">Single State</Label>
-            <Select value={selectedVerifyState} onValueChange={setSelectedVerifyState}>
-              <SelectTrigger className="w-[180px]"><SelectValue placeholder="Select state" /></SelectTrigger>
-              <SelectContent>
-                {ALL_STATES.map((state) => (
-                  <SelectItem key={state.abbreviation} value={state.abbreviation}>{state.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Button onClick={handleVerifyData} disabled={isVerifying || isBatchVerifying || !selectedVerifyState} variant="secondary">
-            {isVerifying ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Verifying...</>) : (<><ShieldCheck className="mr-2 h-4 w-4" />Verify State (1 API call)</>)}
-          </Button>
-          
-          <div className="border-l pl-4 ml-2">
-            <Button onClick={handleBatchVerifyAll} disabled={isVerifying || isBatchVerifying} variant="default" className="bg-green-600 hover:bg-green-700">
-              {isBatchVerifying ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Processing all states...</>) : (<><ShieldCheck className="mr-2 h-4 w-4" />Verify ALL 50 States (50 API calls)</>)}
-            </Button>
-          </div>
-        </div>
-
-        {/* Batch Results */}
-        {batchResult && (
-          <Alert className="border-green-500/50 bg-green-500/10 mb-4">
-            <ShieldCheck className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-sm">
-              <strong>Batch Complete!</strong> Processed {batchResult.statesProcessed} states using only {batchResult.apiCallsMade} API calls.
-              Updated {batchResult.totalRecordsUpdated} records total.
-              {batchResult.errors.length > 0 && (
-                <details className="mt-2">
-                  <summary className="cursor-pointer text-amber-600">{batchResult.errors.length} errors occurred</summary>
-                  <ul className="mt-1 ml-4 list-disc text-xs text-red-600 max-h-32 overflow-auto">
-                    {batchResult.errors.map((err, i) => <li key={i}>{err}</li>)}
-                  </ul>
-                </details>
-              )}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Single State Results */}
-        {verifyResults.length > 0 && !batchResult && (
-          <div className="mt-4 space-y-2">
-            {verifyResults.map((result, idx) => (
-              <Alert key={idx} className={result.error ? "border-red-500/50 bg-red-500/10" : "border-green-500/50 bg-green-500/10"}>
-                <ShieldCheck className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-sm">
-                  <strong>{result.state}:</strong>{" "}
-                  {result.error ? (
-                    <span className="text-red-600">{result.error}</span>
-                  ) : (
-                    <>Updated {result.recordsUpdated} records (years 2015-2023) using CDC WONDER data</>
-                  )}
-                  {result.errors && result.errors.length > 0 && (
-                    <ul className="mt-1 ml-4 list-disc text-xs text-amber-600">
-                      {result.errors.map((err, i) => <li key={i}>{err}</li>)}
-                    </ul>
-                  )}
-                </AlertDescription>
-              </Alert>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Data Table */}
@@ -434,7 +262,7 @@ const StatisticsAdmin = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {statistics?.map((record) => (
+            {statistics?.map((record: StatRecord) => (
               <TableRow key={record.id}>
                 <TableCell className="font-medium">{record.state_name}</TableCell>
                 <TableCell>{record.year}</TableCell>
@@ -458,6 +286,13 @@ const StatisticsAdmin = () => {
                 </TableCell>
               </TableRow>
             ))}
+            {(!statistics || statistics.length === 0) && (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  No statistics found. Add your first record!
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
