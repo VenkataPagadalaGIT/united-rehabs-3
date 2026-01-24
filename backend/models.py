@@ -215,9 +215,45 @@ class PageContent(PageContentCreate):
 # PAGE SEO
 # ============================================
 
+class GlobalSEOSettings(BaseModel):
+    """Site-wide SEO defaults"""
+    id: str = "global_seo_settings"
+    site_name: str = "United Rehabs"
+    default_title_suffix: str = " | United Rehabs"
+    default_meta_description: str = "Find addiction treatment centers and recovery resources worldwide."
+    default_og_image: Optional[str] = None
+    default_robots: str = "index, follow"
+    google_site_verification: Optional[str] = None
+    bing_site_verification: Optional[str] = None
+    twitter_handle: Optional[str] = None
+    facebook_app_id: Optional[str] = None
+    schema_org_type: str = "Organization"
+    schema_org_data: Optional[Dict[str, Any]] = None
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class FolderSEORule(BaseModel):
+    """SEO rules for URL path patterns (folder-level)"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    path_pattern: str  # e.g., "/{state}-addiction-rehabs", "/admin/*", "/rehab-centers"
+    rule_name: str  # Human readable name
+    title_template: Optional[str] = None  # e.g., "{state_name} Addiction Treatment | United Rehabs"
+    meta_description_template: Optional[str] = None
+    canonical_rule: str = "self"  # self, none, custom
+    custom_canonical_pattern: Optional[str] = None
+    robots: str = "index, follow"  # index/noindex, follow/nofollow
+    priority: int = 0  # Higher = more specific, takes precedence
+    og_type: str = "website"
+    include_in_sitemap: bool = True
+    sitemap_priority: float = 0.5  # 0.0-1.0
+    sitemap_changefreq: str = "weekly"  # always, hourly, daily, weekly, monthly, yearly, never
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
 class PageSEOCreate(BaseModel):
+    """Page-level SEO overrides"""
     page_slug: str
-    page_type: str = "state"  # state, city, treatment, article, etc.
+    page_type: str = "state"  # state, country, city, treatment, article, legal, etc.
     meta_title: str
     meta_description: Optional[str] = None
     meta_keywords: Optional[List[str]] = None
@@ -226,10 +262,17 @@ class PageSEOCreate(BaseModel):
     og_title: Optional[str] = None
     og_description: Optional[str] = None
     og_image_url: Optional[str] = None
+    og_type: str = "website"
     canonical_url: Optional[str] = None
-    robots: Optional[str] = None
+    robots: Optional[str] = None  # None = inherit from folder/global
+    noindex: bool = False  # Explicit noindex flag
+    nofollow: bool = False  # Explicit nofollow flag
     structured_data: Optional[Dict[str, Any]] = None
     state_id: Optional[str] = None
+    country_code: Optional[str] = None
+    include_in_sitemap: bool = True
+    sitemap_priority: Optional[float] = None  # None = inherit from folder
+    sitemap_changefreq: Optional[str] = None  # None = inherit from folder
     is_active: bool = True
 
 class PageSEO(PageSEOCreate):
