@@ -13,12 +13,13 @@ interface DynamicFAQProps {
 }
 
 export function DynamicFAQ({ stateId, stateName }: DynamicFAQProps) {
-  const { data: faqs, isLoading } = useQuery({
+  const { data: faqs = [], isLoading, error } = useQuery({
     queryKey: ["faqs", stateId],
     queryFn: async () => {
-      return await faqsApi.getAll({ state_id: stateId, is_active: true, limit: 20 });
+      const result = await faqsApi.getAll({ state_id: stateId, is_active: true, limit: 20 });
+      return Array.isArray(result) ? result : [];
     },
-    enabled: true, // Always fetch - will get general FAQs if no stateId
+    enabled: true,
   });
 
   if (isLoading) {
@@ -38,7 +39,7 @@ export function DynamicFAQ({ stateId, stateName }: DynamicFAQProps) {
     );
   }
 
-  if (!faqs || faqs.length === 0) {
+  if (error || !faqs || faqs.length === 0) {
     return null;
   }
 
