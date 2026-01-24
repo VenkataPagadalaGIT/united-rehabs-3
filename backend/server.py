@@ -99,20 +99,13 @@ async def register(user_data: UserCreate):
 async def login(user_data: UserLogin):
     # Find user
     user_doc = await db.users.find_one({"email": user_data.email}, {"_id": 0})
-    logger.info(f"Login attempt for {user_data.email}, found: {bool(user_doc)}")
     if not user_doc:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    logger.info(f"User doc keys: {list(user_doc.keys())}")
-    logger.info(f"Password hash from DB: {user_doc.get('password_hash', 'MISSING')[:30]}...")
-    
     user = User(**user_doc)
-    logger.info(f"User model password_hash: {user.password_hash[:30]}...")
     
     # Verify password
-    is_valid = verify_password(user_data.password, user.password_hash)
-    logger.info(f"Password verification result: {is_valid}")
-    if not is_valid:
+    if not verify_password(user_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
     # Generate token
