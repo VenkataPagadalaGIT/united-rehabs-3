@@ -80,7 +80,7 @@ export const ALL_COUNTRIES: CountryBasicConfig[] = [
   { code: "BRN", name: "Brunei", slug: "brunei", region: "Asia", subRegion: "South-Eastern Asia", flag: "🇧🇳", population: 445000 },
   { code: "KHM", name: "Cambodia", slug: "cambodia", region: "Asia", subRegion: "South-Eastern Asia", flag: "🇰🇭", population: 16720000 },
   { code: "CHN", name: "China", slug: "china", region: "Asia", subRegion: "Eastern Asia", flag: "🇨🇳", population: 1412000000 },
-  { code: "GEO", name: "Georgia", slug: "georgia", region: "Asia", subRegion: "Western Asia", flag: "🇬🇪", population: 3710000 },
+  { code: "GEO", name: "Georgia", slug: "georgia-country", region: "Asia", subRegion: "Western Asia", flag: "🇬🇪", population: 3710000 },
   { code: "IND", name: "India", slug: "india", region: "Asia", subRegion: "Southern Asia", flag: "🇮🇳", population: 1417200000 },
   { code: "IDN", name: "Indonesia", slug: "indonesia", region: "Asia", subRegion: "South-Eastern Asia", flag: "🇮🇩", population: 275500000 },
   { code: "IRN", name: "Iran", slug: "iran", region: "Asia", subRegion: "Southern Asia", flag: "🇮🇷", population: 87920000 },
