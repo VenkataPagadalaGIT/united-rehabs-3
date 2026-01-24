@@ -4,7 +4,6 @@ import {
   ComposableMap,
   Geographies,
   Geography,
-  ZoomableGroup,
 } from "react-simple-maps";
 import { useTranslation } from "react-i18next";
 import { ALL_COUNTRIES, getCountryByCode } from "@/data/countryConfig";
