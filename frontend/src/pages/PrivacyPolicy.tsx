@@ -1,16 +1,48 @@
+import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/listing/Header";
 import { Footer } from "@/components/listing/Footer";
 import { mockFooterLinks, mockNavItems } from "@/data/mockData";
+import { cmsApi } from "@/lib/api";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PrivacyPolicy() {
+  // Fetch content from CMS
+  const { data: pageContent, isLoading } = useQuery({
+    queryKey: ["cms-page", "privacy-policy"],
+    queryFn: () => cmsApi.getPage("privacy-policy"),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Check if we have CMS content
+  const hasCMSContent = pageContent?.content && pageContent.content.length > 100;
+
   return (
     <div className="min-h-screen bg-background">
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Privacy Policy</h1>
-          <p className="text-muted-foreground mb-8">Last updated: January 4, 2026</p>
+          {isLoading ? (
+            <div className="space-y-4">
+              <Skeleton className="h-12 w-64" />
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-96 w-full" />
+            </div>
+          ) : hasCMSContent ? (
+            <div>
+              <h1 className="text-4xl font-bold text-foreground mb-2">
+                {pageContent?.title || "Privacy Policy"}
+              </h1>
+              <p className="text-muted-foreground mb-8">Last updated: January 24, 2026</p>
+              <div 
+                className="prose prose-slate max-w-none"
+                dangerouslySetInnerHTML={{ __html: pageContent?.content || "" }}
+              />
+            </div>
+          ) : (
+            <>
+              <h1 className="text-4xl font-bold text-foreground mb-2">Privacy Policy</h1>
+              <p className="text-muted-foreground mb-8">Last updated: January 24, 2026</p>
           
           <div className="prose prose-slate max-w-none space-y-8">
             <section>
@@ -194,6 +226,8 @@ export default function PrivacyPolicy() {
               </p>
             </section>
           </div>
+            </>
+          )}
         </div>
       </main>
       
