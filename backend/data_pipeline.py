@@ -256,7 +256,7 @@ Your role is to verify that addiction statistics are within reasonable ranges ba
 
 Flag any data that seems unrealistic or inconsistent."""
 
-        chat = self._create_chat(f"factcheck-{state_abbrev}", system_message)
+        chat = self._create_chat(f"factcheck-{state_abbrev}", system_message, agent_type="factcheck")
         if not chat:
             return {"error": "LLM not available"}
 
