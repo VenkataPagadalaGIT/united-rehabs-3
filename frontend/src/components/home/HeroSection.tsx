@@ -266,7 +266,7 @@ export function HeroSection() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 tracking-tight">
             <span className="font-display">Find Your Path to</span>
             <br />
-            <span className="bg-gradient-to-r from-primary via-accent to-green-500 bg-clip-text text-transparent">Recovery</span>
+            <span className="text-primary">Recovery</span>
           </h1>
           
           <p className="text-lg text-muted-foreground mb-8">
