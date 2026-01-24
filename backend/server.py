@@ -612,6 +612,77 @@ async def root():
 async def health_check():
     return {"status": "healthy", "timestamp": datetime.utcnow().isoformat()}
 
+# ============================================
+# AI CONTENT GENERATION
+# ============================================
+
+from pydantic import BaseModel
+
+class ContentGenerationRequest(BaseModel):
+    state_name: str
+    state_abbrev: str
+    data_type: str = "statistics"  # statistics, resources, faqs
+
+class ContentWriteRequest(BaseModel):
+    state_name: str
+    state_abbrev: str
+    content_type: str = "page_intro"  # page_intro, seo_description, article
+    research_data: str
+
+class QAReviewRequest(BaseModel):
+    content: str
+    state_name: str
+    state_abbrev: str
+
+@api_router.post("/generate/research")
+async def research_state_data(request: ContentGenerationRequest, user: User = Depends(require_admin)):
+    """Research addiction data for a specific state using AI."""
+    try:
+        from content_generator import content_generator
+        result = await content_generator.research_state_data(
+            state_name=request.state_name,
+            state_abbrev=request.state_abbrev,
+            data_type=request.data_type
+        )
+        return result
+    except ImportError:
+        raise HTTPException(status_code=500, detail="Content generator not available")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/generate/content")
+async def generate_content(request: ContentWriteRequest, user: User = Depends(require_admin)):
+    """Generate SEO-optimized content based on research data."""
+    try:
+        from content_generator import content_generator
+        result = await content_generator.generate_content(
+            state_name=request.state_name,
+            state_abbrev=request.state_abbrev,
+            content_type=request.content_type,
+            research_data=request.research_data
+        )
+        return result
+    except ImportError:
+        raise HTTPException(status_code=500, detail="Content generator not available")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/generate/qa")
+async def qa_review_content(request: QAReviewRequest, user: User = Depends(require_admin)):
+    """QA review of generated content for accuracy and quality."""
+    try:
+        from content_generator import content_generator
+        result = await content_generator.qa_review(
+            content=request.content,
+            state_name=request.state_name,
+            state_abbrev=request.state_abbrev
+        )
+        return result
+    except ImportError:
+        raise HTTPException(status_code=500, detail="Content generator not available")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Include the router in the main app
 app.include_router(api_router)
 
