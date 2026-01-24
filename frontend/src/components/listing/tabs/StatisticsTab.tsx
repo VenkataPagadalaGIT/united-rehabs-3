@@ -142,6 +142,22 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
     ].filter(d => d.value > 0);
   }, [currentSubstance]);
 
+  // Substance trend data for charts
+  const substanceTrendData = useMemo(() => {
+    return [...allSubstanceStats].reverse().map((s: any) => ({
+      year: s.year,
+      rxOpioids: s.prescription_opioid_misuse,
+      heroin: s.heroin_use,
+      opioidDisorder: s.opioid_use_disorder,
+      cocaine: s.cocaine_use_past_year,
+      meth: s.meth_use_past_year,
+      fentanylDeaths: s.fentanyl_deaths,
+      alcoholDeaths: s.alcohol_related_deaths,
+      methDeaths: s.meth_related_deaths,
+      cocaineDeaths: s.cocaine_related_deaths,
+    }));
+  }, [allSubstanceStats]);
+
   const displayName = currentStat?.state_name || stateName || "State";
   const displayYear = currentStat?.year || new Date().getFullYear();
 
