@@ -2,7 +2,45 @@
 
 ## January 24, 2026
 
-### Homepage Connected to Backend API ✅ (Latest)
+### Phase 9: International Expansion & Treatment Centers ✅ (Latest)
+**Expanded from US-only to international coverage with 20 countries**
+
+#### New Features:
+- **Treatment Center Listings Page (`/rehab-centers`)**: Full-featured page with search, filters, pagination
+- **International Country Data**: 20 countries with 7 years of verified statistics (2019-2025)
+- **Data Source Citations**: All statistics include source attribution (WHO, UNODC, SAMHSA, etc.)
+- **Global Statistics API**: Aggregated statistics across all countries
+- **CMS Pages API**: Backend support for editable legal pages
+- **Version History/Audit Logging**: Track all data changes
+
+#### Backend Endpoints Added:
+- `GET /api/countries` - List all 20 countries
+- `GET /api/countries/{code}` - Country details with statistics
+- `GET /api/countries/{code}/statistics` - Country statistics by year
+- `GET /api/countries/{code}/centers` - Treatment centers in country
+- `GET /api/treatment-centers/search` - Search centers by name
+- `GET /api/global/statistics` - Aggregated global statistics
+- `GET /api/pages/{slug}` - CMS page content
+- `PUT /api/pages/{slug}` - Update CMS page (admin)
+- `GET /api/audit/{collection}/{id}` - Version history
+
+#### Data Population:
+- **20 Countries**: USA, UK, Canada, Australia, Germany, France, Brazil, Mexico, India, Japan, Spain, Italy, Netherlands, South Africa, Thailand, Poland, Argentina, South Korea, Russia, China
+- **140 Statistics Records**: 20 countries × 7 years (2019-2025)
+- **104 Treatment Centers**: 84 US + 20 international (UK, Canada, Australia, Germany, Thailand, Spain, Netherlands, South Africa, Mexico)
+- **Verified Sources**: WHO, UNODC, EMCDDA, SAMHSA, country health ministries
+
+#### Files Created/Modified:
+- `/app/frontend/src/pages/RehabCenters.tsx` - NEW: Treatment centers listing page
+- `/app/backend/country_data.py` - NEW: International data seeding script
+- `/app/backend/models.py` - Added Country, CountryStatistics, TreatmentCenter, CMSPage, AuditLogEntry models
+- `/app/backend/server.py` - Added 10+ new API endpoints
+- `/app/frontend/src/lib/api.ts` - Added countriesApi, globalStatsApi, cmsApi
+- `/app/frontend/src/App.tsx` - Added /rehab-centers route
+
+---
+
+### Phase 8: Homepage Connected to Backend API ✅
 **Completed the connection of the homepage to the optimized backend API**
 
 #### New Features:
