@@ -14,6 +14,7 @@ import DoNotSell from "./pages/DoNotSell";
 import AffiliateDisclosure from "./pages/AffiliateDisclosure";
 import LegalDisclaimer from "./pages/LegalDisclaimer";
 import StatePage from "./pages/StatePage";
+import CountryPage from "./pages/CountryPage";
 import RehabCenters from "./pages/RehabCenters";
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
@@ -37,8 +38,25 @@ import DataCoverageAdmin from "./pages/admin/DataCoverageAdmin";
 import BulkImportAdmin from "./pages/admin/BulkImportAdmin";
 import { CrisisHotlineBanner } from "./components/CrisisHotlineBanner";
 import { CookieConsentBanner } from "./components/CookieConsentBanner";
+import { isValidCountrySlug } from "./data/countryConfig";
+import { isValidStateSlug } from "./data/stateConfig";
 
 const queryClient = new QueryClient();
+
+// Helper component to route between state and country pages
+const LocationPage = () => {
+  const slug = window.location.pathname.slice(1).replace(/-addiction-rehabs$/, "").replace(/-addiction-stats$/, "");
+  
+  if (isValidCountrySlug(slug)) {
+    return <CountryPage />;
+  }
+  
+  if (isValidStateSlug(slug)) {
+    return <StatePage />;
+  }
+  
+  return <NotFound />;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -69,8 +87,8 @@ const App = () => (
           <Route path="/shortcodes" element={<ShortcodeShowcase />} />
           <Route path="/:type/:slug" element={<ArticlePage />} />
           
-          {/* SEO-Optimized State Pages - must be before catch-all */}
-          <Route path="/:slug" element={<StatePage />} />
+          {/* SEO-Optimized Location Pages (States + Countries) */}
+          <Route path="/:slug" element={<LocationPage />} />
           
           
           {/* Admin Routes */}
