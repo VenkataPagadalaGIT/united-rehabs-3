@@ -1592,6 +1592,342 @@ async def update_country_stat_status(code: str, year: int, request: StatusUpdate
     return {"success": True, "message": f"Status updated to {request.status}"}
 
 # ============================================
+# SEO MANAGEMENT API - Global, Folder, Page Level
+# ============================================
+
+# --- Global SEO Settings ---
+@api_router.get("/seo/global")
+async def get_global_seo_settings():
+    """Get global SEO settings"""
+    settings = await db.seo_settings.find_one({"id": "global_seo_settings"})
+    if not settings:
+        # Return defaults
+        return GlobalSEOSettings().dict()
+    settings.pop("_id", None)
+    return settings
+
+@api_router.put("/seo/global")
+async def update_global_seo_settings(settings: GlobalSEOSettings, user: User = Depends(require_admin)):
+    """Update global SEO settings"""
+    settings_dict = settings.dict()
+    settings_dict["updated_at"] = datetime.utcnow()
+    await db.seo_settings.update_one(
+        {"id": "global_seo_settings"},
+        {"$set": settings_dict},
+        upsert=True
+    )
+    return {"success": True, "message": "Global SEO settings updated"}
+
+# --- Folder-Level SEO Rules ---
+@api_router.get("/seo/folder-rules")
+async def get_folder_seo_rules(user: User = Depends(require_admin)):
+    """Get all folder-level SEO rules"""
+    cursor = db.seo_folder_rules.find({}, {"_id": 0}).sort("priority", -1)
+    rules = await cursor.to_list(length=100)
+    return {"rules": rules, "count": len(rules)}
+
+@api_router.post("/seo/folder-rules")
+async def create_folder_seo_rule(rule: FolderSEORule, user: User = Depends(require_admin)):
+    """Create a new folder-level SEO rule"""
+    rule_dict = rule.dict()
+    rule_dict["created_at"] = datetime.utcnow()
+    rule_dict["updated_at"] = datetime.utcnow()
+    await db.seo_folder_rules.insert_one(rule_dict)
+    return {"success": True, "id": rule.id, "message": "Folder SEO rule created"}
+
+@api_router.put("/seo/folder-rules/{rule_id}")
+async def update_folder_seo_rule(rule_id: str, rule: FolderSEORule, user: User = Depends(require_admin)):
+    """Update a folder-level SEO rule"""
+    rule_dict = rule.dict()
+    rule_dict["updated_at"] = datetime.utcnow()
+    result = await db.seo_folder_rules.update_one({"id": rule_id}, {"$set": rule_dict})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Rule not found")
+    return {"success": True, "message": "Folder SEO rule updated"}
+
+@api_router.delete("/seo/folder-rules/{rule_id}")
+async def delete_folder_seo_rule(rule_id: str, user: User = Depends(require_admin)):
+    """Delete a folder-level SEO rule"""
+    result = await db.seo_folder_rules.delete_one({"id": rule_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Rule not found")
+    return {"success": True, "message": "Folder SEO rule deleted"}
+
+# --- Page-Level SEO ---
+@api_router.get("/seo/pages")
+async def get_page_seo_list(
+    page_type: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 50,
+    user: User = Depends(require_admin)
+):
+    """Get list of page-level SEO records"""
+    query = {}
+    if page_type:
+        query["page_type"] = page_type
+    
+    cursor = db.page_seo.find(query, {"_id": 0}).skip(skip).limit(limit).sort("page_slug", 1)
+    records = await cursor.to_list(length=limit)
+    total = await db.page_seo.count_documents(query)
+    return {"pages": records, "total": total, "skip": skip, "limit": limit}
+
+@api_router.get("/seo/pages/{slug:path}")
+async def get_page_seo(slug: str):
+    """Get SEO settings for a specific page"""
+    # Clean slug
+    clean_slug = slug.strip("/")
+    
+    # Try exact match first
+    page_seo = await db.page_seo.find_one({"page_slug": clean_slug}, {"_id": 0})
+    
+    # Get matching folder rule
+    folder_rules = await db.seo_folder_rules.find({"is_active": True}, {"_id": 0}).sort("priority", -1).to_list(length=100)
+    matching_rule = None
+    for rule in folder_rules:
+        pattern = rule.get("path_pattern", "")
+        if pattern.endswith("*") and clean_slug.startswith(pattern[:-1]):
+            matching_rule = rule
+            break
+        elif pattern == f"/{clean_slug}" or pattern == clean_slug:
+            matching_rule = rule
+            break
+    
+    # Get global settings
+    global_settings = await db.seo_settings.find_one({"id": "global_seo_settings"}, {"_id": 0})
+    if not global_settings:
+        global_settings = GlobalSEOSettings().dict()
+    
+    # Merge: Global < Folder < Page (page overrides folder, folder overrides global)
+    result = {
+        "page_slug": clean_slug,
+        "meta_title": global_settings.get("site_name", "United Rehabs"),
+        "meta_description": global_settings.get("default_meta_description"),
+        "robots": global_settings.get("default_robots", "index, follow"),
+        "og_image_url": global_settings.get("default_og_image"),
+        "canonical_url": None,
+        "include_in_sitemap": True,
+        "sitemap_priority": 0.5,
+        "sitemap_changefreq": "weekly",
+        "source": "global"
+    }
+    
+    if matching_rule:
+        result.update({
+            "robots": matching_rule.get("robots", result["robots"]),
+            "include_in_sitemap": matching_rule.get("include_in_sitemap", True),
+            "sitemap_priority": matching_rule.get("sitemap_priority", 0.5),
+            "sitemap_changefreq": matching_rule.get("sitemap_changefreq", "weekly"),
+            "og_type": matching_rule.get("og_type", "website"),
+            "source": "folder"
+        })
+    
+    if page_seo:
+        for key, value in page_seo.items():
+            if value is not None and key not in ["_id", "created_at", "updated_at"]:
+                result[key] = value
+        result["source"] = "page"
+        
+        # Handle noindex/nofollow flags
+        if page_seo.get("noindex") or page_seo.get("nofollow"):
+            robots_parts = []
+            robots_parts.append("noindex" if page_seo.get("noindex") else "index")
+            robots_parts.append("nofollow" if page_seo.get("nofollow") else "follow")
+            result["robots"] = ", ".join(robots_parts)
+    
+    return result
+
+@api_router.put("/seo/pages/{slug:path}")
+async def upsert_page_seo(slug: str, seo: PageSEOCreate, user: User = Depends(require_admin)):
+    """Create or update page-level SEO settings"""
+    clean_slug = slug.strip("/")
+    seo_dict = seo.dict()
+    seo_dict["page_slug"] = clean_slug
+    seo_dict["updated_at"] = datetime.utcnow()
+    
+    existing = await db.page_seo.find_one({"page_slug": clean_slug})
+    if existing:
+        await db.page_seo.update_one({"page_slug": clean_slug}, {"$set": seo_dict})
+        return {"success": True, "message": "Page SEO updated", "action": "updated"}
+    else:
+        seo_dict["created_at"] = datetime.utcnow()
+        seo_dict["id"] = str(uuid.uuid4())
+        await db.page_seo.insert_one(seo_dict)
+        return {"success": True, "message": "Page SEO created", "action": "created"}
+
+@api_router.delete("/seo/pages/{slug:path}")
+async def delete_page_seo(slug: str, user: User = Depends(require_admin)):
+    """Delete page-level SEO settings (reverts to folder/global)"""
+    clean_slug = slug.strip("/")
+    result = await db.page_seo.delete_one({"page_slug": clean_slug})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Page SEO not found")
+    return {"success": True, "message": "Page SEO deleted, now using folder/global defaults"}
+
+# --- Sitemap Generation ---
+@api_router.get("/seo/sitemap.xml")
+async def generate_sitemap():
+    """Generate dynamic sitemap.xml"""
+    from fastapi.responses import Response
+    
+    base_url = "https://unitedrehabs.com"  # Replace with actual domain
+    
+    # Start XML
+    xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>']
+    xml_parts.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+    
+    # Get folder rules for priority/changefreq
+    folder_rules = await db.seo_folder_rules.find({"is_active": True, "include_in_sitemap": True}, {"_id": 0}).to_list(length=100)
+    
+    # Static pages
+    static_pages = [
+        {"loc": "/", "priority": "1.0", "changefreq": "daily"},
+        {"loc": "/about", "priority": "0.7", "changefreq": "monthly"},
+        {"loc": "/contact", "priority": "0.6", "changefreq": "monthly"},
+        {"loc": "/privacy-policy", "priority": "0.3", "changefreq": "yearly"},
+        {"loc": "/terms-of-service", "priority": "0.3", "changefreq": "yearly"},
+        {"loc": "/rehab-centers", "priority": "0.9", "changefreq": "daily"},
+        {"loc": "/compare", "priority": "0.8", "changefreq": "weekly"},
+    ]
+    
+    for page in static_pages:
+        xml_parts.append(f"""  <url>
+    <loc>{base_url}{page['loc']}</loc>
+    <changefreq>{page['changefreq']}</changefreq>
+    <priority>{page['priority']}</priority>
+  </url>""")
+    
+    # State pages (51 states)
+    states = await db.state_addiction_statistics.distinct("state_id")
+    for state_id in states:
+        state = await db.state_addiction_statistics.find_one({"state_id": state_id}, {"state_name": 1})
+        if state:
+            slug = state.get("state_name", "").lower().replace(" ", "-")
+            xml_parts.append(f"""  <url>
+    <loc>{base_url}/{slug}-addiction-rehabs</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>""")
+    
+    # Country pages (195 countries)
+    countries = await db.countries.find({}, {"slug": 1}).to_list(length=200)
+    for country in countries:
+        slug = country.get("slug", "")
+        if slug:
+            xml_parts.append(f"""  <url>
+    <loc>{base_url}/{slug}-addiction-rehabs</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>""")
+    
+    # Published articles
+    articles = await db.articles.find({"is_published": True}, {"slug": 1}).to_list(length=500)
+    for article in articles:
+        slug = article.get("slug", "")
+        if slug:
+            xml_parts.append(f"""  <url>
+    <loc>{base_url}/articles/{slug}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>""")
+    
+    xml_parts.append('</urlset>')
+    
+    return Response(content="\n".join(xml_parts), media_type="application/xml")
+
+# --- Robots.txt Generation ---
+@api_router.get("/seo/robots.txt")
+async def generate_robots_txt():
+    """Generate dynamic robots.txt"""
+    from fastapi.responses import Response
+    
+    base_url = "https://unitedrehabs.com"
+    
+    # Get noindex folder rules
+    noindex_rules = await db.seo_folder_rules.find(
+        {"is_active": True, "robots": {"$regex": "noindex", "$options": "i"}},
+        {"path_pattern": 1}
+    ).to_list(length=100)
+    
+    lines = [
+        "# United Rehabs robots.txt",
+        "# Generated dynamically",
+        "",
+        "User-agent: *",
+        "Allow: /",
+        "",
+        "# Admin and API paths",
+        "Disallow: /admin",
+        "Disallow: /admin/",
+        "Disallow: /api/",
+        "",
+    ]
+    
+    # Add noindex paths from rules
+    if noindex_rules:
+        lines.append("# Noindex paths from SEO rules")
+        for rule in noindex_rules:
+            pattern = rule.get("path_pattern", "")
+            if pattern:
+                lines.append(f"Disallow: {pattern}")
+        lines.append("")
+    
+    lines.extend([
+        "# Sitemap",
+        f"Sitemap: {base_url}/api/seo/sitemap.xml",
+    ])
+    
+    return Response(content="\n".join(lines), media_type="text/plain")
+
+# --- Bulk SEO Operations ---
+@api_router.post("/seo/bulk-update")
+async def bulk_update_seo(
+    page_type: str,
+    updates: Dict[str, Any],
+    user: User = Depends(require_admin)
+):
+    """Bulk update SEO settings for a page type"""
+    if not updates:
+        raise HTTPException(status_code=400, detail="No updates provided")
+    
+    updates["updated_at"] = datetime.utcnow()
+    result = await db.page_seo.update_many(
+        {"page_type": page_type},
+        {"$set": updates}
+    )
+    
+    return {
+        "success": True,
+        "matched": result.matched_count,
+        "modified": result.modified_count,
+        "message": f"Updated {result.modified_count} {page_type} pages"
+    }
+
+# --- SEO Audit ---
+@api_router.get("/seo/audit")
+async def seo_audit(user: User = Depends(require_admin)):
+    """Get SEO audit report"""
+    # Count pages without custom SEO
+    total_states = await db.state_addiction_statistics.distinct("state_id")
+    total_countries = await db.countries.count_documents({})
+    pages_with_seo = await db.page_seo.count_documents({})
+    
+    # Check for common issues
+    missing_meta_desc = await db.page_seo.count_documents({"meta_description": None})
+    noindex_pages = await db.page_seo.count_documents({"noindex": True})
+    
+    return {
+        "total_state_pages": len(total_states),
+        "total_country_pages": total_countries,
+        "pages_with_custom_seo": pages_with_seo,
+        "pages_using_defaults": len(total_states) + total_countries - pages_with_seo,
+        "issues": {
+            "missing_meta_description": missing_meta_desc,
+            "noindex_pages": noindex_pages,
+        },
+        "coverage_percent": round((pages_with_seo / max(len(total_states) + total_countries, 1)) * 100, 1)
+    }
+
+# ============================================
 # SEED INTERNATIONAL DATA ON STARTUP
 # ============================================
 
