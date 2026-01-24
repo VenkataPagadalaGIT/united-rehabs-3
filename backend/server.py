@@ -698,6 +698,7 @@ async def get_homepage_data():
 
 @api_router.get("/treatment-centers")
 async def get_treatment_centers(
+    country_code: Optional[str] = None,
     state_id: Optional[str] = None,
     city: Optional[str] = None,
     treatment_type: Optional[str] = None,
@@ -706,8 +707,10 @@ async def get_treatment_centers(
     limit: int = 20
 ):
     query = {"is_active": True}
+    if country_code:
+        query["country_code"] = country_code.upper()
     if state_id:
-        query["state_id"] = state_id
+        query["state_id"] = state_id.upper()
     if city:
         query["city"] = {"$regex": city, "$options": "i"}
     if treatment_type:
@@ -715,7 +718,59 @@ async def get_treatment_centers(
     if is_featured is not None:
         query["is_featured"] = is_featured
     
-    cursor = db.treatment_centers.find(query, {"_id": 0}).sort("rating", -1).skip(skip).limit(limit)
+    cursor = db.treatment_centers.find(query, {"_id": 0}).sort([("is_featured", -1), ("rating", -1)]).skip(skip).limit(limit)
+    results = await cursor.to_list(length=limit)
+    total = await db.treatment_centers.count_documents(query)
+    
+    # Get filter options
+    all_countries = await db.treatment_centers.distinct("country_code", {"is_active": True})
+    all_types = await db.treatment_centers.distinct("treatment_types", {"is_active": True})
+    
+    return {
+        "centers": results,
+        "total": total,
+        "skip": skip,
+        "limit": limit,
+        "filters": {
+            "countries": sorted(all_countries),
+            "treatment_types": sorted([t for t in all_types if t]),
+        }
+    }
+
+@api_router.get("/treatment-centers/search")
+async def search_treatment_centers_endpoint(
+    q: Optional[str] = None,
+    country_code: Optional[str] = None,
+    state_id: Optional[str] = None,
+    city: Optional[str] = None,
+    treatment_type: Optional[str] = None,
+    insurance: Optional[str] = None,
+    is_featured: Optional[bool] = None,
+    min_rating: Optional[float] = None,
+    skip: int = 0,
+    limit: int = 20
+):
+    """Advanced search for treatment centers"""
+    query = {"is_active": True}
+    
+    if q:
+        query["name"] = {"$regex": q, "$options": "i"}
+    if country_code:
+        query["country_code"] = country_code.upper()
+    if state_id:
+        query["state_id"] = state_id.upper()
+    if city:
+        query["city"] = {"$regex": city, "$options": "i"}
+    if treatment_type:
+        query["treatment_types"] = treatment_type
+    if insurance:
+        query["insurance_accepted"] = insurance
+    if is_featured is not None:
+        query["is_featured"] = is_featured
+    if min_rating:
+        query["rating"] = {"$gte": min_rating}
+    
+    cursor = db.treatment_centers.find(query, {"_id": 0}).sort([("is_featured", -1), ("rating", -1)]).skip(skip).limit(limit)
     results = await cursor.to_list(length=limit)
     total = await db.treatment_centers.count_documents(query)
     
