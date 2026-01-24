@@ -47,15 +47,17 @@ import { isValidStateSlug } from "./data/stateConfig";
 const queryClient = new QueryClient();
 
 // Helper component to route between state and country pages
+// IMPORTANT: Check US states FIRST since US is primary market and some names overlap (e.g., Georgia)
 const LocationPage = () => {
   const slug = window.location.pathname.slice(1).replace(/-addiction-rehabs$/, "").replace(/-addiction-stats$/, "");
   
-  if (isValidCountrySlug(slug)) {
-    return <CountryPage />;
-  }
-  
+  // US States take priority over countries with same name
   if (isValidStateSlug(slug)) {
     return <StatePage />;
+  }
+  
+  if (isValidCountrySlug(slug)) {
+    return <CountryPage />;
   }
   
   return <NotFound />;
