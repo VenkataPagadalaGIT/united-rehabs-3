@@ -94,7 +94,6 @@ function InteractiveGlobalMapComponent({
         }}
         style={{ width: "100%", height }}
       >
-        <ZoomableGroup center={[0, 20]} zoom={1}>
           <Geographies geography={geoUrl}>
             {({ geographies }) =>
               geographies.map((geo) => {
