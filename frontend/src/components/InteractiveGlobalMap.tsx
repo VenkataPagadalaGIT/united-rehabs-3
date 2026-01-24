@@ -108,11 +108,16 @@ function InteractiveGlobalMapComponent({
                     stroke="#1f2937"
                     strokeWidth={0.5}
                     style={{
-                      default: { outline: "none", cursor: country ? "pointer" : "default" },
+                      default: { outline: "none", cursor: country ? "pointer" : "default", pointerEvents: "auto" },
                       hover: { outline: "none", fill: country ? "#f97316" : "#4b5563" },
                       pressed: { outline: "none" },
                     }}
-                    onClick={() => country && handleCountryClick(country.code)}
+                    onClick={() => {
+                      console.log('Geography onClick fired for:', isoA3, countryCode);
+                      if (country) {
+                        handleCountryClick(country.code);
+                      }
+                    }}
                     onMouseEnter={() => {
                       if (country) {
                         setHoveredCountry(country.code);
