@@ -1,6 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { pageSeoApi } from "@/lib/api";
-import { Helmet } from "react-helmet";
+
+interface SEOData {
+  page_slug: string;
+  page_type: string;
+  meta_title: string;
+  meta_description: string | null;
+  h1_title: string | null;
+  intro_text: string | null;
+  og_title: string | null;
+  og_description: string | null;
+  og_image_url: string | null;
+  canonical_url: string | null;
+  state_id: string | null;
+  is_active: boolean;
+}
 
 interface SEOHeadProps {
   pageSlug?: string;
@@ -8,8 +22,8 @@ interface SEOHeadProps {
   defaultDescription?: string;
 }
 
-export const SEOHead = ({ pageSlug, defaultTitle, defaultDescription }: SEOHeadProps) => {
-  const { data: seoData } = useQuery({
+export const usePageSEO = (pageSlug?: string) => {
+  const { data, isLoading, error } = useQuery({
     queryKey: ["page-seo", pageSlug],
     queryFn: async () => {
       if (!pageSlug) return null;
@@ -18,19 +32,31 @@ export const SEOHead = ({ pageSlug, defaultTitle, defaultDescription }: SEOHeadP
     enabled: !!pageSlug,
   });
 
-  const title = seoData?.meta_title || defaultTitle || "United Rehabs";
-  const description = seoData?.meta_description || defaultDescription || "Find addiction treatment centers nationwide";
+  return {
+    seo: data as SEOData | null,
+    isLoading,
+    error,
+    // Helpers
+    title: data?.meta_title || "",
+    description: data?.meta_description || "",
+    h1: data?.h1_title || "",
+    intro: data?.intro_text || "",
+  };
+};
 
-  return (
-    <>
-      <title>{title}</title>
-      <meta name="description" content={description} />
-      {seoData?.og_title && <meta property="og:title" content={seoData.og_title} />}
-      {seoData?.og_description && <meta property="og:description" content={seoData.og_description} />}
-      {seoData?.og_image_url && <meta property="og:image" content={seoData.og_image_url} />}
-      {seoData?.canonical_url && <link rel="canonical" href={seoData.canonical_url} />}
-    </>
-  );
+export const SEOHead = ({ pageSlug, defaultTitle, defaultDescription }: SEOHeadProps) => {
+  const { seo } = usePageSEO(pageSlug);
+
+  const title = seo?.meta_title || defaultTitle || "United Rehabs";
+  const description = seo?.meta_description || defaultDescription || "Find addiction treatment centers nationwide";
+
+  // Note: This component relies on document.title being set
+  // For proper SEO, consider using react-helmet or similar
+  if (typeof document !== 'undefined') {
+    document.title = title;
+  }
+
+  return null; // SEO tags should be handled via react-helmet or similar
 };
 
 export default SEOHead;
