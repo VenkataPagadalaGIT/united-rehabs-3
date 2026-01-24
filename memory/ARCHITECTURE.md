@@ -251,22 +251,32 @@ GET  /api/audit/{collection}/{id}      # Get change history
 - [x] Add data source citations
 - [x] Create `/api/countries` endpoints
 - [x] Create `/api/global/statistics` endpoint
-- [ ] Update LocationsSection for countries (partial - needs country links)
-- [ ] Create country detail pages (next task)
+- [x] Create CountryPage component with same URL structure as US states
+- [x] Add year selector (2019-2025)
+- [x] Add historical charts (line, bar)
+- [x] Add treatment centers section per country
+- [x] Add data source citations with View Source links
 
-### Phase 3: Legal/CMS Pages ✅ BACKEND COMPLETE
+### Phase 3: Footer SEO Enhancement ✅ COMPLETE
+- [x] Add "Browse by Country" section with 20 countries
+- [x] Group countries by region (Europe, Americas, Asia Pacific & Africa)
+- [x] Add emoji flags for each country
+- [x] Add "Browse by US State" section with top 10 states
+- [x] All links follow SEO-friendly URL pattern (/{slug}-addiction-rehabs)
+
+### Phase 4: Legal/CMS Pages ✅ BACKEND COMPLETE
 - [x] Create page_content API for CMS
 - [x] Add GET/PUT `/api/pages/{slug}` endpoints
 - [ ] Update About Us page to use CMS (frontend pending)
 - [ ] Update Privacy Policy to use CMS (frontend pending)
 - [ ] Add admin interface for editing (future)
 
-### Phase 4: Data Review Workflow (Future)
+### Phase 5: Data Review Workflow (Future)
 - [ ] Add status field (draft/review/published)
 - [ ] Create review queue in admin
 - [ ] Add approval workflow
 
-### Phase 5: Version History ✅ BACKEND COMPLETE
+### Phase 6: Version History ✅ BACKEND COMPLETE
 - [x] Create audit_log collection
 - [x] Track all data changes
 - [ ] Add revision viewer in admin (future)
