@@ -116,18 +116,17 @@ export default function CMSAdmin() {
   const currentPageConfig = CMS_PAGES.find(p => p.slug === selectedPage);
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-              <FileText className="h-8 w-8" />
-              CMS Pages
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Edit legal and static page content
-            </p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+            <FileText className="h-8 w-8" />
+            CMS Pages
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Edit legal and static page content
+          </p>
           </div>
           <div className="flex items-center gap-2">
             <Button
