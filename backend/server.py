@@ -162,6 +162,17 @@ async def get_statistics(
     results = await cursor.to_list(length=limit)
     return [StateAddictionStatistics(**r) for r in results]
 
+# Move this BEFORE /statistics/{id} to avoid route conflict
+@api_router.get("/statistics/pending-review")
+async def get_pending_review_statistics(user: User = Depends(require_admin)):
+    """Get all statistics pending review"""
+    cursor = db.state_addiction_statistics.find(
+        {"status": "review"},
+        {"_id": 0}
+    ).sort("status_updated_at", 1)
+    results = await cursor.to_list(length=100)
+    return {"pending": results, "count": len(results)}
+
 @api_router.get("/statistics/{id}", response_model=StateAddictionStatistics)
 async def get_statistic(id: str):
     result = await db.state_addiction_statistics.find_one({"id": id})
