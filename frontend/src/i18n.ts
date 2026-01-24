@@ -2,11 +2,11 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-// Import translations directly for reliability
-import enTranslations from '../public/locales/en/translation.json';
-import esTranslations from '../public/locales/es/translation.json';
-import frTranslations from '../public/locales/fr/translation.json';
-import ptTranslations from '../public/locales/pt/translation.json';
+// Import translations from src directory
+import enTranslations from './locales/en/translation.json';
+import esTranslations from './locales/es/translation.json';
+import frTranslations from './locales/fr/translation.json';
+import ptTranslations from './locales/pt/translation.json';
 
 const resources = {
   en: { translation: enTranslations },
