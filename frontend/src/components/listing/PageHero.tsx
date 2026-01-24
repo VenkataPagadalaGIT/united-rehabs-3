@@ -15,15 +15,15 @@ export function PageHero({ state, pageKey }: PageHeroProps) {
   const derivedPageKey = pageKey || location.pathname.slice(1) || "home";
   
   // First try page_seo for h1_title and intro_text
-  const { data: seoContent } = usePageSEO(derivedPageKey);
+  const { seo: seoContent, h1, intro } = usePageSEO(derivedPageKey);
   
   // Fall back to page_content if no SEO content
   const { title, subtitle, body, isLoading } = useHeroContent(derivedPageKey);
   
   // Priority: SEO h1_title > page_content title > default
-  const displayTitle = seoContent?.h1_title || title || `Alcohol & Drug Addiction, Treatment And Rehabs In ${state.name}`;
+  const displayTitle = h1 || title || `Alcohol & Drug Addiction, Treatment And Rehabs In ${state.name}`;
   // Priority: SEO intro_text > page_content body > state description
-  const displayBody = seoContent?.intro_text || body || state.description;
+  const displayBody = intro || body || state.description;
 
   return (
     <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8 items-start py-4">
