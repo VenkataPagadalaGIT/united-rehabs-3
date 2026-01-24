@@ -191,10 +191,17 @@ curl -X POST "/api/pipeline/run" \
 All critical features have been implemented.
 
 ### P1 - High Priority
-- [ ] Connect Homepage (`/app/frontend/src/pages/Index.tsx`) to backend for dynamic content
-- [ ] Add more states using AI pipeline (Texas, New York, etc.)
-- [ ] Add historical substance statistics data (2019-2023) for trending charts
+- [x] ~~Connect Homepage to backend for dynamic content~~ ✅ COMPLETED Jan 24, 2026
+- [ ] Build Treatment Center Listings Page (`/rehab-centers`)
+- [ ] Add search/filter functionality to treatment centers
 - [ ] Implement proper error boundaries for public pages
+
+### Homepage Integration Details (Completed)
+- Single optimized API call (`/api/homepage/data`) returns all homepage data
+- TrustIndicators component displays national stats (12.2M affected, 13K centers, 42.2% recovery rate)
+- LocationsSection displays all 51 states with treatment center counts
+- DynamicFeaturedCenters displays 8 featured treatment centers from database
+- All data cached with React Query (5-minute stale time)
 
 ### P2 - Medium Priority  
 - [ ] Implement Draft → Review → Publish workflow for data entries
