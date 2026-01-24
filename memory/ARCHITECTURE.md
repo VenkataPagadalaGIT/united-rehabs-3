@@ -238,35 +238,38 @@ GET  /api/audit/{collection}/{id}      # Get change history
 
 ## ✅ Implementation Progress
 
-### Phase 1: Treatment Center Listings Page
-- [ ] Create `/rehab-centers` page component
-- [ ] Implement search functionality
-- [ ] Add filters (country, state, treatment type, insurance)
-- [ ] Add pagination
-- [ ] Add map view option
+### Phase 1: Treatment Center Listings Page ✅ COMPLETE
+- [x] Create `/rehab-centers` page component
+- [x] Implement search functionality  
+- [x] Add filters (country, state, treatment type, insurance)
+- [x] Add pagination
+- [ ] Add map view option (future enhancement)
 
-### Phase 2: International Countries Data
-- [ ] Create country models in backend
-- [ ] Seed top 20 countries with verified data
-- [ ] Add data source citations
-- [ ] Update LocationsSection for countries
-- [ ] Create country detail pages
+### Phase 2: International Countries Data ✅ COMPLETE
+- [x] Create country models in backend
+- [x] Seed top 20 countries with verified data
+- [x] Add data source citations
+- [x] Create `/api/countries` endpoints
+- [x] Create `/api/global/statistics` endpoint
+- [ ] Update LocationsSection for countries (partial - needs country links)
+- [ ] Create country detail pages (next task)
 
-### Phase 3: Legal/CMS Pages
-- [ ] Create page_content API for CMS
-- [ ] Update About Us page to use CMS
-- [ ] Update Privacy Policy to use CMS
-- [ ] Add admin interface for editing
+### Phase 3: Legal/CMS Pages ✅ BACKEND COMPLETE
+- [x] Create page_content API for CMS
+- [x] Add GET/PUT `/api/pages/{slug}` endpoints
+- [ ] Update About Us page to use CMS (frontend pending)
+- [ ] Update Privacy Policy to use CMS (frontend pending)
+- [ ] Add admin interface for editing (future)
 
-### Phase 4: Data Review Workflow
+### Phase 4: Data Review Workflow (Future)
 - [ ] Add status field (draft/review/published)
 - [ ] Create review queue in admin
 - [ ] Add approval workflow
 
-### Phase 5: Version History
-- [ ] Create audit_log collection
-- [ ] Track all data changes
-- [ ] Add revision viewer in admin
+### Phase 5: Version History ✅ BACKEND COMPLETE
+- [x] Create audit_log collection
+- [x] Track all data changes
+- [ ] Add revision viewer in admin (future)
 
 ---
 
