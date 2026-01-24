@@ -469,6 +469,78 @@ export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
               </CardContent>
             </Card>
           )}
+
+          {/* Opioid Use Trends Chart */}
+          {substanceTrendData.length > 1 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Opioid Use Trends in {displayName}</CardTitle>
+                <CardDescription>Historical trends of opioid misuse and disorder</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={substanceTrendData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="year" tick={{ fontSize: 12 }} />
+                    <YAxis tickFormatter={(v) => formatNumber(v)} tick={{ fontSize: 12 }} />
+                    <Tooltip formatter={(value: number) => [formatNumber(value), ""]} />
+                    <Legend />
+                    <Line type="monotone" dataKey="rxOpioids" stroke={COLORS.danger} strokeWidth={2} dot={{ r: 4 }} name="Rx Opioids" />
+                    <Line type="monotone" dataKey="heroin" stroke={COLORS.warning} strokeWidth={2} dot={{ r: 4 }} name="Heroin" />
+                    <Line type="monotone" dataKey="opioidDisorder" stroke={COLORS.purple} strokeWidth={2} dot={{ r: 4 }} name="Opioid Disorder" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Stimulant Use Trends Chart */}
+          {substanceTrendData.length > 1 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Stimulant Use Trends in {displayName}</CardTitle>
+                <CardDescription>Historical trends of cocaine and methamphetamine use</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={substanceTrendData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="year" tick={{ fontSize: 12 }} />
+                    <YAxis tickFormatter={(v) => formatNumber(v)} tick={{ fontSize: 12 }} />
+                    <Tooltip formatter={(value: number) => [formatNumber(value), ""]} />
+                    <Legend />
+                    <Line type="monotone" dataKey="cocaine" stroke={COLORS.purple} strokeWidth={2} dot={{ r: 4 }} name="Cocaine" />
+                    <Line type="monotone" dataKey="meth" stroke={COLORS.pink} strokeWidth={2} dot={{ r: 4 }} name="Meth" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Annual Deaths by Substance Chart */}
+          {substanceTrendData.length > 1 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Annual Deaths by Substance Type in {displayName}</CardTitle>
+                <CardDescription>Yearly deaths attributed to different substances</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={substanceTrendData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="year" tick={{ fontSize: 12 }} />
+                    <YAxis tickFormatter={(v) => formatNumber(v)} tick={{ fontSize: 12 }} />
+                    <Tooltip formatter={(value: number) => [formatNumber(value), ""]} />
+                    <Legend />
+                    <Bar dataKey="fentanylDeaths" fill={COLORS.danger} name="Fentanyl" stackId="a" />
+                    <Bar dataKey="alcoholDeaths" fill={COLORS.warning} name="Alcohol" stackId="a" />
+                    <Bar dataKey="methDeaths" fill={COLORS.pink} name="Meth" stackId="a" />
+                    <Bar dataKey="cocaineDeaths" fill={COLORS.purple} name="Cocaine" stackId="a" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
         </>
       )}
 
