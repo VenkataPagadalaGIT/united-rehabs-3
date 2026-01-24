@@ -116,9 +116,10 @@ function InteractiveGlobalMapComponent({
           <Geographies geography={geoUrl}>
             {({ geographies }) =>
               geographies.map((geo) => {
-                const isoA3 = geo.properties?.ISO_A3 || geo.id;
-                const countryCode = countryCodeMap[isoA3] || isoA3;
-                const country = ALL_COUNTRIES.find(c => c.code === countryCode);
+                // TopoJSON uses numeric ISO codes as the ID
+                const geoId = geo.id || geo.properties?.id;
+                const countryCode = isoNumericToAlpha3[geoId] || null;
+                const country = countryCode ? ALL_COUNTRIES.find(c => c.code === countryCode) : null;
 
                 return (
                   <Geography
