@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import type { NavItem } from "@/types";
 import { LocationsMegaMenu } from "./LocationsMegaMenu";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 interface HeaderProps {
   navItems: NavItem[];
