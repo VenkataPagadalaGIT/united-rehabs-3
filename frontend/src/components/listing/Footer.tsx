@@ -18,6 +18,7 @@ interface FooterProps {
 
 export function Footer({ linkGroups }: FooterProps) {
   const [expandedRegions, setExpandedRegions] = useState<string[]>([]);
+  const { t } = useTranslation();
 
   // Get top US states by population
   const topStates = [...ALL_STATES]
@@ -263,12 +264,12 @@ export function Footer({ linkGroups }: FooterProps) {
 
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row items-center justify-between pt-4 border-t border-sidebar-border">
-          <Button className="bg-primary hover:bg-primary/90 mb-4 md:mb-0">
-            Get Help Now
+          <Button className="bg-primary hover:bg-primary/90 mb-4 md:mb-0" data-testid="footer-get-help-btn">
+            {t('common.getHelpNow')}
           </Button>
           <p className="text-sidebar-foreground/60 text-sm text-center md:text-right">
-            © 2024 United Rehabs. All rights reserved.<br/>
-            <span className="text-xs">Serving {ALL_COUNTRIES.length} countries • 51 US states • Global coverage</span>
+            © 2024 United Rehabs. {t('footer.allRightsReserved')}<br/>
+            <span className="text-xs">{t('footer.serving')} {ALL_COUNTRIES.length} {t('footer.countriesWorldwide')} • 51 US {t('common.states')} • {t('footer.globalCoverage')}</span>
           </p>
         </div>
       </div>
