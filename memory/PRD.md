@@ -167,5 +167,11 @@ All critical features have been implemented.
 - `GET /api/statistics?state_id=FL` - Get statistics for a state
 - `GET /api/resources?state_id=FL` - Get resources (includes nationwide)
 - `GET /api/faqs?state_id=FL` - Get FAQs for a state
+- `GET /api/substance-statistics?state_id=FL` - Get substance-specific statistics
 - `POST /api/pipeline/run` - Run AI data pipeline for a state
 - `POST /api/bulk/import` - Import bulk data manually
+- `POST /api/auth/login` - Admin authentication
+
+## Database Configuration
+- **Database Name**: `united_rehabs` (set in `/app/backend/.env` as `DB_NAME`)
+- **Important**: Always ensure `DB_NAME=united_rehabs` in the backend .env file
