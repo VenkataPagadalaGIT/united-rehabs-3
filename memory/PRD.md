@@ -216,8 +216,9 @@ All critical features have been implemented.
 ### P1 - High Priority
 - [x] ~~Connect Homepage to backend for dynamic content~~ ✅ COMPLETED Jan 24, 2026
 - [x] ~~Multi-Language Support (i18n)~~ ✅ COMPLETED Jan 24, 2026
-- [ ] Interactive Global Map - Replace static map with clickable country navigation
-- [ ] Country Comparison Tool - Build `/compare` page for side-by-side stats
+- [x] ~~Interactive Global Map~~ ✅ COMPLETED Jan 24, 2026
+- [x] ~~Country Comparison Tool~~ ✅ COMPLETED Jan 24, 2026
+- [ ] Live WHO/UNODC API Integration (manual or cron-based data refresh)
 
 ### Homepage Integration Details (Completed)
 - Single optimized API call (`/api/homepage/data`) returns all homepage data
@@ -227,13 +228,13 @@ All critical features have been implemented.
 - All data cached with React Query (5-minute stale time)
 
 ### P2 - Medium Priority  
-- [ ] Connect Legal Pages to CMS backend (About, Privacy, Terms)
-- [ ] Implement Draft → Review → Publish workflow for data entries
-- [ ] Add version history for data records
-- [ ] Add data export functionality (CSV/JSON download)
+- [x] ~~Connect Legal Pages to CMS backend~~ ✅ COMPLETED Jan 24, 2026
+- [x] ~~Draft → Review → Publish workflow~~ ✅ COMPLETED Jan 24, 2026
+- [x] ~~Data export functionality (CSV/JSON)~~ ✅ COMPLETED Jan 24, 2026
+- [ ] Add version history UI for data records
+- [ ] SEO sitemap generation
 
 ### P3 - Nice to Have
-- [ ] Live WHO/UNODC API Integration
 - [ ] Add user analytics/tracking
 - [ ] Implement caching layer for frequently accessed data
 - [ ] Add automated data refresh from external sources
