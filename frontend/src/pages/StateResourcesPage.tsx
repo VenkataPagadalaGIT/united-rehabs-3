@@ -3,10 +3,10 @@ import { Header } from "@/components/listing/Header";
 import { Breadcrumb } from "@/components/listing/Breadcrumb";
 import { PageHero } from "@/components/listing/PageHero";
 import { FreeResourcesTab } from "@/components/listing/tabs/FreeResourcesTab";
-import { FAQ } from "@/components/listing/FAQ";
+import { DynamicFAQ } from "@/components/listing/DynamicFAQ";
 import { Footer } from "@/components/listing/Footer";
 import { SEOHead } from "@/components/SEOHead";
-import { mockNavItems, mockFooterLinks, mockFAQs } from "@/data/mockData";
+import { mockNavItems, mockFooterLinks } from "@/data/mockData";
 import { getStateBySlug, toState } from "@/data/stateConfig";
 
 const StateResourcesPage = () => {
@@ -47,7 +47,7 @@ const StateResourcesPage = () => {
         </div>
       </main>
 
-      <FAQ faqs={mockFAQs} />
+      <DynamicFAQ stateId={stateConfig.abbreviation} stateName={state.name} />
       <Footer linkGroups={mockFooterLinks} />
     </div>
   );

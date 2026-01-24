@@ -7,11 +7,11 @@ import { FilterTabs } from "@/components/listing/FilterTabs";
 import { ImageGallery } from "@/components/listing/ImageGallery";
 import { StateTabs } from "@/components/listing/StateTabs";
 import { Categories } from "@/components/listing/Categories";
-import { FAQ } from "@/components/listing/FAQ";
+import { DynamicFAQ } from "@/components/listing/DynamicFAQ";
 import { Footer } from "@/components/listing/Footer";
 import { SEOHead } from "@/components/SEOHead";
 import { useFilters } from "@/hooks/useFilters";
-import { mockNavItems, mockFooterLinks, mockFAQs } from "@/data/mockData";
+import { mockNavItems, mockFooterLinks } from "@/data/mockData";
 import { getStateBySlug, toState, getStateCities } from "@/data/stateConfig";
 
 const StateRehabsPage = () => {
@@ -93,7 +93,7 @@ const StateRehabsPage = () => {
       </section>
 
       <Categories />
-      <FAQ faqs={mockFAQs} />
+      <DynamicFAQ stateId={stateConfig.abbreviation} stateName={state.name} />
       <Footer linkGroups={mockFooterLinks} />
     </div>
   );
