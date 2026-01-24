@@ -1,0 +1,119 @@
+{
+  "common": {
+    "getHelpNow": "Obter Ajuda Agora",
+    "search": "Pesquisar",
+    "viewAll": "Ver Tudo",
+    "learnMore": "Saiba Mais",
+    "contactUs": "Fale Conosco",
+    "loading": "Carregando...",
+    "error": "Ocorreu um erro",
+    "noResults": "Nenhum resultado encontrado",
+    "showMore": "Mostrar Mais",
+    "showLess": "Mostrar Menos",
+    "countries": "Países",
+    "states": "Estados",
+    "centers": "Centros de Tratamento",
+    "year": "Ano",
+    "source": "Fonte",
+    "viewSource": "Ver Fonte"
+  },
+  "nav": {
+    "home": "Início",
+    "findTreatment": "Encontrar Tratamento",
+    "resources": "Recursos",
+    "about": "Sobre Nós",
+    "contact": "Contato",
+    "admin": "Administração"
+  },
+  "hero": {
+    "title": "Encontre os Melhores Centros de Tratamento de Dependência",
+    "subtitle": "Empoderando a Recuperação com Recursos Acessíveis",
+    "searchPlaceholder": "Pesquisar por localização, tipo de tratamento...",
+    "centersNationwide": "Centros em Todo o Mundo"
+  },
+  "stats": {
+    "peopleAffected": "Pessoas Afetadas",
+    "treatmentCenters": "Centros de Tratamento",
+    "recoveryRate": "Taxa Média de Recuperação",
+    "treatmentAdmissions": "Admissões de Tratamento",
+    "overdoseDeaths": "Mortes por Overdose",
+    "treatmentGap": "Lacuna de Tratamento",
+    "economicCost": "Custo Econômico",
+    "population": "População"
+  },
+  "trustIndicators": {
+    "verifiedFacilities": "Apenas Instalações Verificadas",
+    "verifiedDesc": "Centros de reabilitação que atendem aos mais altos padrões de cuidado.",
+    "personalizedApproach": "Abordagem Personalizada",
+    "personalizedDesc": "Opções de tratamento adaptadas às suas necessidades únicas."
+  },
+  "locations": {
+    "title": "Encontre os Melhores Centros Perto de Você",
+    "browseByCountry": "Navegar por País",
+    "browseByState": "Navegar por Estado dos EUA",
+    "centersIn": "centros em",
+    "moreCountries": "mais países..."
+  },
+  "featuredCenters": {
+    "title": "Comece com os Melhores Centros",
+    "subtitle": "Instalações de tratamento verificadas de qualidade em todo o mundo.",
+    "featured": "Destaque",
+    "verified": "Verificado",
+    "viewDetails": "Ver Detalhes",
+    "viewAllCenters": "Ver Todos os Centros de Tratamento",
+    "insuranceAccepted": "Seguro Aceito",
+    "callForPricing": "Ligar para preços",
+    "reviews": "avaliações"
+  },
+  "countryPage": {
+    "addictionStats": "Estatísticas de Dependência e Centros de Tratamento",
+    "dataSourced": "Dados obtidos de",
+    "selectYear": "Selecionar Ano",
+    "keyStatistics": "Estatísticas Principais",
+    "historicalTrends": "Tendências Históricas",
+    "treatmentCentersIn": "Centros de Tratamento em",
+    "additionalStats": "Estatísticas Adicionais",
+    "comingSoon": "Dados de centros de tratamento em breve.",
+    "browseAll": "Navegar por todos os centros internacionais"
+  },
+  "rehabCenters": {
+    "title": "Encontre Centros de Tratamento em Todo o Mundo",
+    "subtitle": "Navegue por instalações verificadas de tratamento de dependência em",
+    "searchByName": "Pesquisar por nome do centro...",
+    "allCountries": "Todos os Países",
+    "treatmentType": "Tipo de Tratamento",
+    "allTypes": "Todos os Tipos",
+    "showing": "Mostrando",
+    "of": "de",
+    "noCentersFound": "Nenhum centro encontrado",
+    "adjustFilters": "Tente ajustar seus filtros de pesquisa para encontrar mais resultados.",
+    "clearFilters": "Limpar Filtros"
+  },
+  "footer": {
+    "description": "Diretório global de tratamento de dependência cobrindo",
+    "countriesWorldwide": "países em todo o mundo.",
+    "dataSourcesTitle": "Fontes de Dados e Aviso Legal",
+    "dataSources": "As estatísticas são compiladas do Observatório Global de Saúde da OMS, do Relatório Mundial sobre Drogas da UNODC, do Relatório Europeu sobre Drogas do EMCDDA, do SAMHSA (EUA) e dos ministérios da saúde nacionais.",
+    "medicalDisclaimer": "Este site fornece apenas informações gerais e NÃO substitui aconselhamento médico profissional.",
+    "noEndorsement": "As listagens de instalações não constituem endosso. Os usuários devem verificar as credenciais de forma independente.",
+    "allRightsReserved": "Todos os direitos reservados.",
+    "serving": "Atendendo",
+    "globalCoverage": "Cobertura global"
+  },
+  "legal": {
+    "privacyPolicy": "Política de Privacidade",
+    "termsOfService": "Termos de Serviço",
+    "legalDisclaimer": "Aviso Legal",
+    "accessibility": "Acessibilidade",
+    "affiliateDisclosure": "Divulgação de Afiliados",
+    "doNotSell": "Não Vender Minhas Informações"
+  },
+  "regions": {
+    "europe": "Europa",
+    "asia": "Ásia",
+    "africa": "África",
+    "northAmerica": "América do Norte",
+    "southAmerica": "América do Sul",
+    "oceania": "Oceania"
+  }
+}

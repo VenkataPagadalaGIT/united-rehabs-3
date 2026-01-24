@@ -1,0 +1,119 @@
+{
+  "common": {
+    "getHelpNow": "Get Help Now",
+    "search": "Search",
+    "viewAll": "View All",
+    "learnMore": "Learn More",
+    "contactUs": "Contact Us",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "noResults": "No results found",
+    "showMore": "Show More",
+    "showLess": "Show Less",
+    "countries": "Countries",
+    "states": "States",
+    "centers": "Treatment Centers",
+    "year": "Year",
+    "source": "Source",
+    "viewSource": "View Source"
+  },
+  "nav": {
+    "home": "Home",
+    "findTreatment": "Find Treatment",
+    "resources": "Resources",
+    "about": "About Us",
+    "contact": "Contact",
+    "admin": "Admin"
+  },
+  "hero": {
+    "title": "Find The Best Addiction Treatment Centers",
+    "subtitle": "Empowering Recovery with Accessible Resources",
+    "searchPlaceholder": "Search by location, treatment type...",
+    "centersNationwide": "Centers Worldwide"
+  },
+  "stats": {
+    "peopleAffected": "People Affected",
+    "treatmentCenters": "Treatment Centers",
+    "recoveryRate": "Avg Recovery Rate",
+    "treatmentAdmissions": "Treatment Admissions",
+    "overdoseDeaths": "Overdose Deaths",
+    "treatmentGap": "Treatment Gap",
+    "economicCost": "Economic Cost",
+    "population": "Population"
+  },
+  "trustIndicators": {
+    "verifiedFacilities": "Only Verified Facilities",
+    "verifiedDesc": "Rehabs that meet the highest standards of care.",
+    "personalizedApproach": "Personalized Approach",
+    "personalizedDesc": "Tailored treatment options to suit your unique needs."
+  },
+  "locations": {
+    "title": "Find A Best Centers Near You",
+    "browseByCountry": "Browse by Country",
+    "browseByState": "Browse by US State",
+    "centersIn": "centers in",
+    "moreCountries": "more countries..."
+  },
+  "featuredCenters": {
+    "title": "Start With The Top Centers",
+    "subtitle": "Quality verified treatment facilities across the nation.",
+    "featured": "Featured",
+    "verified": "Verified",
+    "viewDetails": "View Details",
+    "viewAllCenters": "View All Treatment Centers",
+    "insuranceAccepted": "Insurance Accepted",
+    "callForPricing": "Call for pricing",
+    "reviews": "reviews"
+  },
+  "countryPage": {
+    "addictionStats": "Addiction Statistics & Treatment Centers",
+    "dataSourced": "Data sourced from",
+    "selectYear": "Select Year",
+    "keyStatistics": "Key Statistics",
+    "historicalTrends": "Historical Trends",
+    "treatmentCentersIn": "Treatment Centers in",
+    "additionalStats": "Additional Statistics",
+    "comingSoon": "Treatment center data coming soon.",
+    "browseAll": "Browse all international centers"
+  },
+  "rehabCenters": {
+    "title": "Find Treatment Centers Worldwide",
+    "subtitle": "Browse verified addiction treatment facilities across",
+    "searchByName": "Search by center name...",
+    "allCountries": "All Countries",
+    "treatmentType": "Treatment Type",
+    "allTypes": "All Types",
+    "showing": "Showing",
+    "of": "of",
+    "noCentersFound": "No centers found",
+    "adjustFilters": "Try adjusting your search filters to find more results.",
+    "clearFilters": "Clear Filters"
+  },
+  "footer": {
+    "description": "Global addiction treatment directory covering",
+    "countriesWorldwide": "countries worldwide.",
+    "dataSourcesTitle": "Data Sources & Disclaimer",
+    "dataSources": "Statistics are compiled from WHO Global Health Observatory, UNODC World Drug Report, EMCDDA European Drug Report, SAMHSA (US), and national health ministries.",
+    "medicalDisclaimer": "This website provides general information only and is NOT a substitute for professional medical advice.",
+    "noEndorsement": "Facility listings do not constitute endorsement. Users must verify credentials independently.",
+    "allRightsReserved": "All rights reserved.",
+    "serving": "Serving",
+    "globalCoverage": "Global coverage"
+  },
+  "legal": {
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "legalDisclaimer": "Legal Disclaimer",
+    "accessibility": "Accessibility",
+    "affiliateDisclosure": "Affiliate Disclosure",
+    "doNotSell": "Do Not Sell My Info"
+  },
+  "regions": {
+    "europe": "Europe",
+    "asia": "Asia",
+    "africa": "Africa",
+    "northAmerica": "North America",
+    "southAmerica": "South America",
+    "oceania": "Oceania"
+  }
+}

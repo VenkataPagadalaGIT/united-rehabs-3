@@ -1,0 +1,119 @@
+{
+  "common": {
+    "getHelpNow": "Obtener Ayuda Ahora",
+    "search": "Buscar",
+    "viewAll": "Ver Todo",
+    "learnMore": "Más Información",
+    "contactUs": "Contáctenos",
+    "loading": "Cargando...",
+    "error": "Ocurrió un error",
+    "noResults": "No se encontraron resultados",
+    "showMore": "Mostrar Más",
+    "showLess": "Mostrar Menos",
+    "countries": "Países",
+    "states": "Estados",
+    "centers": "Centros de Tratamiento",
+    "year": "Año",
+    "source": "Fuente",
+    "viewSource": "Ver Fuente"
+  },
+  "nav": {
+    "home": "Inicio",
+    "findTreatment": "Encontrar Tratamiento",
+    "resources": "Recursos",
+    "about": "Sobre Nosotros",
+    "contact": "Contacto",
+    "admin": "Administración"
+  },
+  "hero": {
+    "title": "Encuentre Los Mejores Centros de Tratamiento de Adicciones",
+    "subtitle": "Empoderando la Recuperación con Recursos Accesibles",
+    "searchPlaceholder": "Buscar por ubicación, tipo de tratamiento...",
+    "centersNationwide": "Centros en Todo el Mundo"
+  },
+  "stats": {
+    "peopleAffected": "Personas Afectadas",
+    "treatmentCenters": "Centros de Tratamiento",
+    "recoveryRate": "Tasa de Recuperación Promedio",
+    "treatmentAdmissions": "Admisiones de Tratamiento",
+    "overdoseDeaths": "Muertes por Sobredosis",
+    "treatmentGap": "Brecha de Tratamiento",
+    "economicCost": "Costo Económico",
+    "population": "Población"
+  },
+  "trustIndicators": {
+    "verifiedFacilities": "Solo Instalaciones Verificadas",
+    "verifiedDesc": "Centros de rehabilitación que cumplen con los más altos estándares de atención.",
+    "personalizedApproach": "Enfoque Personalizado",
+    "personalizedDesc": "Opciones de tratamiento adaptadas a sus necesidades únicas."
+  },
+  "locations": {
+    "title": "Encuentre Los Mejores Centros Cerca de Usted",
+    "browseByCountry": "Explorar por País",
+    "browseByState": "Explorar por Estado de EE.UU.",
+    "centersIn": "centros en",
+    "moreCountries": "más países..."
+  },
+  "featuredCenters": {
+    "title": "Comience con los Mejores Centros",
+    "subtitle": "Instalaciones de tratamiento verificadas de calidad en todo el mundo.",
+    "featured": "Destacado",
+    "verified": "Verificado",
+    "viewDetails": "Ver Detalles",
+    "viewAllCenters": "Ver Todos los Centros de Tratamiento",
+    "insuranceAccepted": "Seguro Aceptado",
+    "callForPricing": "Llamar para precios",
+    "reviews": "reseñas"
+  },
+  "countryPage": {
+    "addictionStats": "Estadísticas de Adicción y Centros de Tratamiento",
+    "dataSourced": "Datos obtenidos de",
+    "selectYear": "Seleccionar Año",
+    "keyStatistics": "Estadísticas Clave",
+    "historicalTrends": "Tendencias Históricas",
+    "treatmentCentersIn": "Centros de Tratamiento en",
+    "additionalStats": "Estadísticas Adicionales",
+    "comingSoon": "Datos de centros de tratamiento próximamente.",
+    "browseAll": "Explorar todos los centros internacionales"
+  },
+  "rehabCenters": {
+    "title": "Encuentre Centros de Tratamiento en Todo el Mundo",
+    "subtitle": "Explore instalaciones verificadas de tratamiento de adicciones en",
+    "searchByName": "Buscar por nombre del centro...",
+    "allCountries": "Todos los Países",
+    "treatmentType": "Tipo de Tratamiento",
+    "allTypes": "Todos los Tipos",
+    "showing": "Mostrando",
+    "of": "de",
+    "noCentersFound": "No se encontraron centros",
+    "adjustFilters": "Intente ajustar los filtros de búsqueda para encontrar más resultados.",
+    "clearFilters": "Limpiar Filtros"
+  },
+  "footer": {
+    "description": "Directorio global de tratamiento de adicciones que cubre",
+    "countriesWorldwide": "países en todo el mundo.",
+    "dataSourcesTitle": "Fuentes de Datos y Descargo de Responsabilidad",
+    "dataSources": "Las estadísticas se compilan del Observatorio Mundial de la Salud de la OMS, el Informe Mundial sobre Drogas de la ONUDD, el Informe Europeo sobre Drogas del EMCDDA, SAMHSA (EE.UU.) y ministerios de salud nacionales.",
+    "medicalDisclaimer": "Este sitio web proporciona información general únicamente y NO es un sustituto del consejo médico profesional.",
+    "noEndorsement": "Los listados de instalaciones no constituyen respaldo. Los usuarios deben verificar las credenciales de forma independiente.",
+    "allRightsReserved": "Todos los derechos reservados.",
+    "serving": "Sirviendo",
+    "globalCoverage": "Cobertura global"
+  },
+  "legal": {
+    "privacyPolicy": "Política de Privacidad",
+    "termsOfService": "Términos de Servicio",
+    "legalDisclaimer": "Descargo Legal",
+    "accessibility": "Accesibilidad",
+    "affiliateDisclosure": "Divulgación de Afiliados",
+    "doNotSell": "No Vender Mi Información"
+  },
+  "regions": {
+    "europe": "Europa",
+    "asia": "Asia",
+    "africa": "África",
+    "northAmerica": "América del Norte",
+    "southAmerica": "América del Sur",
+    "oceania": "Oceanía"
+  }
+}
