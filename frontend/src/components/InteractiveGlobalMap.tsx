@@ -133,7 +133,6 @@ function InteractiveGlobalMapComponent({
               })
             }
           </Geographies>
-        </ZoomableGroup>
       </ComposableMap>
 
       {/* Tooltip */}
