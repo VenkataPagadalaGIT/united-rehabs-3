@@ -742,6 +742,134 @@ async def get_pipeline_status(state_abbrev: str):
         "needs_api_call": stats_count == 0
     }
 
+# ============================================
+# BULK IMPORT/EXPORT
+# ============================================
+
+class BulkImportRequest(BaseModel):
+    data: str  # CSV or table data as string
+    data_type: str = "statistics"  # statistics, substance, faqs
+    format: str = "table"  # table, csv, json
+    mode: str = "upsert"  # upsert, insert, replace
+
+class BulkValidateRequest(BaseModel):
+    data: str
+    format: str = "table"
+
+@api_router.post("/bulk/validate")
+async def validate_bulk_data(request: BulkValidateRequest, user: User = Depends(require_admin)):
+    """Validate bulk data before importing (preview mode)"""
+    try:
+        from bulk_import import BulkDataService
+        service = BulkDataService(db)
+        
+        if request.format == "csv":
+            result = await service.parse_csv_statistics(request.data)
+        else:
+            result = await service.parse_table_statistics(request.data)
+        
+        return {
+            "success": True,
+            "preview": result,
+            "summary": {
+                "total_rows": result["total"],
+                "valid_rows": result["valid_count"],
+                "invalid_rows": result["total"] - result["valid_count"],
+                "errors": result["errors"]
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@api_router.post("/bulk/import")
+async def import_bulk_data(request: BulkImportRequest, user: User = Depends(require_admin)):
+    """Import bulk data (CSV or pasted table)"""
+    try:
+        from bulk_import import BulkDataService
+        service = BulkDataService(db)
+        
+        # Parse data
+        if request.format == "csv":
+            parsed = await service.parse_csv_statistics(request.data)
+        else:
+            parsed = await service.parse_table_statistics(request.data)
+        
+        if parsed["errors"] and not parsed["rows"]:
+            return {"success": False, "error": "Failed to parse data", "details": parsed["errors"]}
+        
+        # Import to database
+        result = await service.import_statistics(parsed["rows"], mode=request.mode)
+        
+        return {
+            "success": True,
+            "result": result,
+            "message": f"Imported {result['imported']} new, updated {result['updated']}, skipped {result['skipped']}"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@api_router.get("/bulk/export/{data_type}")
+async def export_bulk_data(data_type: str, state_id: Optional[str] = None, format: str = "csv"):
+    """Export data as CSV or JSON"""
+    try:
+        from bulk_import import BulkDataService
+        service = BulkDataService(db)
+        
+        if data_type == "statistics":
+            content = await service.export_statistics(state_id=state_id, format=format)
+        else:
+            raise HTTPException(status_code=400, detail=f"Unsupported data type: {data_type}")
+        
+        return {
+            "success": True,
+            "format": format,
+            "content": content
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@api_router.get("/bulk/template/{data_type}")
+async def get_import_template(data_type: str, format: str = "table"):
+    """Get import template for bulk data"""
+    from bulk_import import STATISTICS_CSV_TEMPLATE, STATISTICS_TABLE_TEMPLATE
+    
+    templates = {
+        "statistics": {
+            "csv": STATISTICS_CSV_TEMPLATE,
+            "table": STATISTICS_TABLE_TEMPLATE
+        }
+    }
+    
+    if data_type not in templates:
+        raise HTTPException(status_code=400, detail=f"Unknown data type: {data_type}")
+    
+    return {
+        "data_type": data_type,
+        "format": format,
+        "template": templates[data_type].get(format, templates[data_type]["table"]),
+        "fields": [
+            {"name": "state_id", "required": True, "example": "FL"},
+            {"name": "state_name", "required": True, "example": "Florida"},
+            {"name": "year", "required": True, "example": "2024"},
+            {"name": "total_affected", "required": False, "example": "1402500"},
+            {"name": "overdose_deaths", "required": False, "example": "7200"},
+            {"name": "opioid_deaths", "required": False, "example": "6400"},
+            {"name": "recovery_rate", "required": False, "example": "42.0"},
+            {"name": "data_source", "required": False, "example": "SAMHSA NSDUH"}
+        ]
+    }
+
+@api_router.get("/bulk/compare/{state_id}")
+async def compare_data_sources(state_id: str, user: User = Depends(require_admin)):
+    """Compare AI-generated vs manually imported data for a state"""
+    try:
+        from bulk_import import BulkDataService
+        service = BulkDataService(db)
+        result = await service.get_data_comparison(state_id)
+        return {"success": True, "comparison": result}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 # Include the router in the main app
 app.include_router(api_router)
 
