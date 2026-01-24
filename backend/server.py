@@ -683,6 +683,65 @@ async def qa_review_content(request: QAReviewRequest, user: User = Depends(requi
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# ============================================
+# FULL DATA PIPELINE
+# ============================================
+
+class PipelineRequest(BaseModel):
+    state_name: str
+    state_abbrev: str
+    years: List[int] = [2019, 2020, 2021, 2022, 2023, 2024]
+
+@api_router.post("/pipeline/run")
+async def run_data_pipeline(request: PipelineRequest, user: User = Depends(require_admin)):
+    """
+    Run the full multi-agent data pipeline for a state.
+    - Agent 1: Research (gathers data)
+    - Agent 2: Content Generator (creates SEO content)
+    - Agent 3: Fact Checker (verifies accuracy)
+    - Agent 4: QA (ensures database/frontend consistency)
+    """
+    try:
+        from data_pipeline import StateDataPipeline
+        pipeline = StateDataPipeline(db)
+        result = await pipeline.run_full_pipeline(
+            state_name=request.state_name,
+            state_abbrev=request.state_abbrev,
+            years=request.years
+        )
+        return result
+    except ImportError as e:
+        raise HTTPException(status_code=500, detail=f"Pipeline not available: {e}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/pipeline/status/{state_abbrev}")
+async def get_pipeline_status(state_abbrev: str):
+    """Get the data status for a state (how much data is cached in DB)."""
+    stats_count = await db.state_addiction_statistics.count_documents({"state_id": state_abbrev})
+    substance_count = await db.substance_statistics.count_documents({"state_id": state_abbrev})
+    faqs_count = await db.faqs.count_documents({"state_id": state_abbrev})
+    resources_count = await db.free_resources.count_documents({"state_id": state_abbrev})
+    seo_count = await db.page_seo.count_documents({"state_id": state_abbrev})
+    
+    # Get years covered
+    years_cursor = db.state_addiction_statistics.distinct("year", {"state_id": state_abbrev})
+    years = await years_cursor if hasattr(years_cursor, '__await__') else years_cursor
+    
+    return {
+        "state_id": state_abbrev,
+        "data_cached": {
+            "statistics": stats_count,
+            "substance_stats": substance_count,
+            "faqs": faqs_count,
+            "resources": resources_count,
+            "seo": seo_count
+        },
+        "years_covered": sorted(years) if isinstance(years, list) else [],
+        "ready_for_frontend": stats_count > 0 and substance_count > 0,
+        "needs_api_call": stats_count == 0
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
