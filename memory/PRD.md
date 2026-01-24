@@ -14,13 +14,21 @@ Migrate the United Rehabs website from the "lovable" platform (using Supabase) t
 ## 4-Agent Pipeline Architecture
 
 ```
-ORCHESTRATOR (server.py)
+ORCHESTRATOR (server.py - POST /api/pipeline/run)
     │
-    ├── AGENT 1: Research (Gemini 2.5 Flash) - Gather SAMHSA/CDC data
-    ├── AGENT 2: Content Generator (Gemini 2.5 Flash) - Create FAQs, SEO
-    ├── AGENT 3: Fact Checker (Gemini 2.5 Flash) - Verify accuracy
-    └── AGENT 4: QA Agent (No LLM) - Verify DB storage & frontend flow
+    ├── AGENT 1: Research      → Gemini 2.5 Flash (data gathering)
+    ├── AGENT 2: Content Gen   → GPT-4o (content creation)
+    ├── AGENT 3: Fact Checker  → Claude Sonnet 4.5 (cross-validation)
+    └── AGENT 4: QA Agent      → No LLM (database verification)
 ```
+
+**Why 3 Different LLMs?**
+- Better data validation through cross-model verification
+- Reduces single-model bias
+- Each model optimized for its task:
+  - Gemini: Fast, cost-effective for research
+  - GPT-4o: Strong content generation
+  - Claude: Excellent for analysis/fact-checking
 
 ### How to Run Pipeline
 ```bash
