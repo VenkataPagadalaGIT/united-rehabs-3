@@ -86,6 +86,7 @@ const App = () => (
             <Route path="security" element={<SecurityAdmin />} />
             <Route path="content-generator" element={<ContentGeneratorAdmin />} />
             <Route path="data-coverage" element={<DataCoverageAdmin />} />
+            <Route path="bulk-import" element={<BulkImportAdmin />} />
           </Route>
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
