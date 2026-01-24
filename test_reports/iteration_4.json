@@ -1,0 +1,113 @@
+{
+  "summary": "Comprehensive testing of international expansion features. Backend APIs all working correctly (25/25 tests passed). Frontend /rehab-centers page displays treatment centers with filters and pagination working. One bug found: search by name doesn't work because frontend uses wrong API endpoint.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "/api/treatment-centers",
+        "issue": "US treatment centers missing country_code field - data inconsistency with international centers",
+        "priority": "LOW"
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "RehabCenters.tsx",
+        "issue": "Search by center name doesn't work - frontend uses treatmentCentersApi.getAll() which calls /api/treatment-centers endpoint that doesn't support 'q' parameter. Should use treatmentCentersApi.search() which calls /api/treatment-centers/search",
+        "selector": "[data-testid='search-input']",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_international_api.py",
+    "/app/test_reports/pytest/pytest_international.xml"
+  ],
+  "action_items": [
+    "Fix RehabCenters.tsx to use treatmentCentersApi.search() when searchQuery is present instead of treatmentCentersApi.getAll()",
+    "Consider adding country_code='USA' to existing US treatment centers for data consistency"
+  ],
+  "critical_code_review_comments": [
+    "RehabCenters.tsx line 69: Uses getAll() for all queries including search - should conditionally use search() when q parameter is present"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_international_api.py"
+  ],
+  "success_rate": {
+    "backend": "100% (25/25 tests passed)",
+    "frontend": "90% (search not working, filters and pagination work)"
+  },
+  "test_credentials": {},
+  "seed_data_creation": "International data already seeded: 20 countries, 140 statistics records (7 years each), 104 treatment centers (84 US + 20 international)",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "International expansion APIs fully tested. /api/countries returns 20 countries, /api/countries/USA returns country with statistics, /api/global/statistics returns aggregated stats, /api/treatment-centers supports country_code and treatment_type filters, /api/treatment-centers/search supports q parameter for name search, /api/pages/{slug} returns CMS content with defaults. Frontend /rehab-centers page works except search functionality.",
+  "features_tested": {
+    "api_countries": {
+      "endpoint": "/api/countries",
+      "status": "PASS",
+      "details": "Returns 20 countries with regions, flags, population"
+    },
+    "api_countries_by_code": {
+      "endpoint": "/api/countries/{code}",
+      "status": "PASS",
+      "details": "Returns country details with latest_statistics, available_years, treatment_centers_count"
+    },
+    "api_country_statistics": {
+      "endpoint": "/api/countries/{code}/statistics",
+      "status": "PASS",
+      "details": "Returns 7 years of statistics (2019-2025) with verified sources"
+    },
+    "api_global_statistics": {
+      "endpoint": "/api/global/statistics",
+      "status": "PASS",
+      "details": "Returns aggregated stats across 20 countries, top 10 countries, data sources"
+    },
+    "api_treatment_centers": {
+      "endpoint": "/api/treatment-centers",
+      "status": "PASS",
+      "details": "Returns 104 centers with country_code and treatment_type filters working"
+    },
+    "api_treatment_centers_search": {
+      "endpoint": "/api/treatment-centers/search",
+      "status": "PASS",
+      "details": "Search by name (q parameter) works correctly"
+    },
+    "api_cms_pages": {
+      "endpoint": "/api/pages/{slug}",
+      "status": "PASS",
+      "details": "Returns default content for about-us, privacy-policy, terms-of-service"
+    },
+    "frontend_rehab_centers_page": {
+      "status": "PARTIAL",
+      "details": "Page loads with 104 centers, country filter works, treatment type filter works, pagination works. Search by name NOT working."
+    },
+    "frontend_country_filter": {
+      "status": "PASS",
+      "details": "Dropdown shows 9 countries (AUS, CAN, DEU, ESP, GBR, MEX, NLD, THA, ZAF), filtering works correctly"
+    },
+    "frontend_treatment_type_filter": {
+      "status": "PASS",
+      "details": "Dropdown shows all treatment types, filtering by Luxury shows 3 centers correctly"
+    },
+    "frontend_pagination": {
+      "status": "PASS",
+      "details": "Pagination controls work, different centers shown on each page"
+    },
+    "frontend_search": {
+      "status": "FAIL",
+      "details": "Search input present but doesn't filter results - uses wrong API endpoint"
+    }
+  },
+  "data_verification": {
+    "countries_count": 20,
+    "statistics_records": 140,
+    "treatment_centers_total": 104,
+    "international_centers": 20,
+    "us_centers": 84,
+    "years_covered": "2019-2025"
+  }
+}
