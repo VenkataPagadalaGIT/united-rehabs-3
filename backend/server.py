@@ -1003,6 +1003,388 @@ async def compare_data_sources(state_id: str, user: User = Depends(require_admin
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+# ============================================
+# COUNTRIES API (International Expansion)
+# ============================================
+
+@api_router.get("/countries")
+async def get_countries(
+    region: Optional[str] = None,
+    is_active: bool = True,
+    skip: int = 0,
+    limit: int = 200
+):
+    """Get all countries with optional region filter"""
+    query = {"is_active": is_active} if is_active else {}
+    if region:
+        query["region"] = region
+    
+    cursor = db.countries.find(query, {"_id": 0}).sort("country_name", 1).skip(skip).limit(limit)
+    results = await cursor.to_list(length=limit)
+    total = await db.countries.count_documents(query)
+    
+    return {
+        "countries": results,
+        "total": total,
+        "regions": ["North America", "Europe", "Asia", "South America", "Oceania", "Africa"]
+    }
+
+@api_router.get("/countries/{country_code}")
+async def get_country(country_code: str):
+    """Get single country details with latest statistics"""
+    country = await db.countries.find_one({"country_code": country_code.upper()}, {"_id": 0})
+    if not country:
+        raise HTTPException(status_code=404, detail="Country not found")
+    
+    # Get latest statistics
+    latest_stats = await db.country_statistics.find_one(
+        {"country_code": country_code.upper()},
+        {"_id": 0},
+        sort=[("year", -1)]
+    )
+    
+    # Get available years
+    years = await db.country_statistics.distinct("year", {"country_code": country_code.upper()})
+    
+    # Get treatment centers count
+    centers_count = await db.treatment_centers.count_documents({
+        "country_code": country_code.upper(),
+        "is_active": True
+    })
+    
+    return {
+        **country,
+        "latest_statistics": latest_stats,
+        "available_years": sorted(years, reverse=True),
+        "treatment_centers_count": centers_count
+    }
+
+@api_router.get("/countries/{country_code}/statistics")
+async def get_country_statistics(
+    country_code: str,
+    year: Optional[int] = None,
+    skip: int = 0,
+    limit: int = 10
+):
+    """Get statistics for a country with optional year filter"""
+    query = {"country_code": country_code.upper()}
+    if year:
+        query["year"] = year
+    
+    cursor = db.country_statistics.find(query, {"_id": 0}).sort("year", -1).skip(skip).limit(limit)
+    results = await cursor.to_list(length=limit)
+    
+    return {
+        "statistics": results,
+        "country_code": country_code.upper(),
+        "years_covered": sorted(set(r["year"] for r in results), reverse=True)
+    }
+
+@api_router.get("/countries/{country_code}/centers")
+async def get_country_treatment_centers(
+    country_code: str,
+    city: Optional[str] = None,
+    treatment_type: Optional[str] = None,
+    is_featured: Optional[bool] = None,
+    skip: int = 0,
+    limit: int = 20
+):
+    """Get treatment centers in a country"""
+    query = {"country_code": country_code.upper(), "is_active": True}
+    if city:
+        query["city"] = {"$regex": city, "$options": "i"}
+    if treatment_type:
+        query["treatment_types"] = treatment_type
+    if is_featured is not None:
+        query["is_featured"] = is_featured
+    
+    cursor = db.treatment_centers.find(query, {"_id": 0}).sort("rating", -1).skip(skip).limit(limit)
+    results = await cursor.to_list(length=limit)
+    total = await db.treatment_centers.count_documents(query)
+    
+    return {
+        "centers": results,
+        "total": total,
+        "country_code": country_code.upper()
+    }
+
+# ============================================
+# TREATMENT CENTERS API (Enhanced for International)
+# ============================================
+
+@api_router.get("/treatment-centers/search")
+async def search_treatment_centers(
+    q: Optional[str] = None,
+    country_code: Optional[str] = None,
+    state_id: Optional[str] = None,
+    city: Optional[str] = None,
+    treatment_type: Optional[str] = None,
+    insurance: Optional[str] = None,
+    is_featured: Optional[bool] = None,
+    min_rating: Optional[float] = None,
+    skip: int = 0,
+    limit: int = 20
+):
+    """
+    Advanced search for treatment centers with multiple filters.
+    Supports international and US locations.
+    """
+    query = {"is_active": True}
+    
+    # Text search on name
+    if q:
+        query["name"] = {"$regex": q, "$options": "i"}
+    
+    # Location filters
+    if country_code:
+        query["country_code"] = country_code.upper()
+    if state_id:
+        query["state_id"] = state_id.upper()
+    if city:
+        query["city"] = {"$regex": city, "$options": "i"}
+    
+    # Service filters
+    if treatment_type:
+        query["treatment_types"] = treatment_type
+    if insurance:
+        query["insurance_accepted"] = insurance
+    
+    # Rating/featured filters
+    if is_featured is not None:
+        query["is_featured"] = is_featured
+    if min_rating:
+        query["rating"] = {"$gte": min_rating}
+    
+    cursor = db.treatment_centers.find(query, {"_id": 0}).sort([("is_featured", -1), ("rating", -1)]).skip(skip).limit(limit)
+    results = await cursor.to_list(length=limit)
+    total = await db.treatment_centers.count_documents(query)
+    
+    # Get filter options
+    all_countries = await db.treatment_centers.distinct("country_code", {"is_active": True})
+    all_types = await db.treatment_centers.distinct("treatment_types", {"is_active": True})
+    
+    return {
+        "centers": results,
+        "total": total,
+        "skip": skip,
+        "limit": limit,
+        "filters": {
+            "countries": all_countries,
+            "treatment_types": [t for t in all_types if t],
+        }
+    }
+
+# ============================================
+# CMS PAGES API (Legal/Static Pages)
+# ============================================
+
+@api_router.get("/pages/{slug}")
+async def get_cms_page(slug: str):
+    """Get CMS page content by slug (about-us, privacy-policy, etc.)"""
+    page = await db.cms_pages.find_one(
+        {"slug": slug, "is_published": True},
+        {"_id": 0}
+    )
+    if not page:
+        # Return default content if page doesn't exist
+        defaults = {
+            "about-us": {
+                "title": "About United Rehabs",
+                "content": "<h2>Our Mission</h2><p>United Rehabs is dedicated to connecting individuals struggling with addiction to quality treatment centers worldwide.</p>",
+            },
+            "privacy-policy": {
+                "title": "Privacy Policy",
+                "content": "<h2>Privacy Policy</h2><p>Your privacy is important to us. This policy outlines how we collect, use, and protect your information.</p>",
+            },
+            "terms-of-service": {
+                "title": "Terms of Service",
+                "content": "<h2>Terms of Service</h2><p>By using United Rehabs, you agree to these terms and conditions.</p>",
+            }
+        }
+        return defaults.get(slug, {"title": "Page Not Found", "content": ""})
+    return page
+
+@api_router.put("/pages/{slug}")
+async def update_cms_page(slug: str, data: CMSPageCreate, user: User = Depends(require_admin)):
+    """Update CMS page content (admin only)"""
+    existing = await db.cms_pages.find_one({"slug": slug})
+    
+    page_data = data.dict()
+    page_data["slug"] = slug
+    page_data["updated_at"] = datetime.utcnow()
+    page_data["last_edited_by"] = user.email
+    
+    if existing:
+        page_data["version"] = existing.get("version", 1) + 1
+        await db.cms_pages.update_one({"slug": slug}, {"$set": page_data})
+    else:
+        page_data["id"] = str(__import__("uuid").uuid4())
+        page_data["version"] = 1
+        page_data["created_at"] = datetime.utcnow()
+        page_data["published_at"] = datetime.utcnow() if data.is_published else None
+        await db.cms_pages.insert_one(page_data)
+    
+    # Log the change
+    await log_audit_entry("cms_pages", slug, "update", user.email, page_data)
+    
+    return {"success": True, "message": f"Page '{slug}' updated"}
+
+# ============================================
+# AUDIT LOG API (Version History)
+# ============================================
+
+async def log_audit_entry(collection: str, document_id: str, action: str, user_email: str, data: dict = None):
+    """Log an audit entry for tracking changes"""
+    entry = {
+        "id": str(__import__("uuid").uuid4()),
+        "collection": collection,
+        "document_id": document_id,
+        "action": action,
+        "user_email": user_email,
+        "changes": data,
+        "timestamp": datetime.utcnow()
+    }
+    await db.audit_log.insert_one(entry)
+
+@api_router.get("/audit/{collection}/{document_id}")
+async def get_audit_history(collection: str, document_id: str, user: User = Depends(require_admin)):
+    """Get change history for a document"""
+    cursor = db.audit_log.find(
+        {"collection": collection, "document_id": document_id},
+        {"_id": 0}
+    ).sort("timestamp", -1).limit(50)
+    
+    results = await cursor.to_list(length=50)
+    return {"history": results, "collection": collection, "document_id": document_id}
+
+# ============================================
+# GLOBAL STATISTICS API
+# ============================================
+
+@api_router.get("/global/statistics")
+async def get_global_statistics(year: int = 2025):
+    """Get aggregated global statistics across all countries"""
+    pipeline = [
+        {"$match": {"year": year}},
+        {"$group": {
+            "_id": None,
+            "total_countries": {"$sum": 1},
+            "total_affected": {"$sum": "$total_affected"},
+            "total_overdose_deaths": {"$sum": "$drug_overdose_deaths"},
+            "total_alcohol_deaths": {"$sum": "$alcohol_related_deaths"},
+            "total_treatment_centers": {"$sum": "$treatment_centers"},
+            "avg_treatment_gap": {"$avg": "$treatment_gap_percent"},
+            "total_economic_cost": {"$sum": "$economic_cost_billions"}
+        }}
+    ]
+    
+    result = await db.country_statistics.aggregate(pipeline).to_list(1)
+    stats = result[0] if result else {}
+    
+    # Get top countries by affected population
+    top_countries = await db.country_statistics.find(
+        {"year": year},
+        {"_id": 0, "country_code": 1, "country_name": 1, "total_affected": 1, "treatment_centers": 1}
+    ).sort("total_affected", -1).limit(10).to_list(10)
+    
+    return {
+        "year": year,
+        "global_stats": stats,
+        "top_countries": top_countries,
+        "data_sources": [
+            {"name": "UNODC World Drug Report 2024", "url": "https://www.unodc.org/wdr2024"},
+            {"name": "WHO Global Status Report on Alcohol 2024", "url": "https://www.who.int/publications/i/item/9789240089129"},
+        ]
+    }
+
+# ============================================
+# UPDATED HOMEPAGE API (With International Data)
+# ============================================
+
+@api_router.get("/homepage/data/international")
+async def get_homepage_data_international():
+    """
+    Enhanced homepage API that includes international data.
+    Single optimized call for maximum efficiency.
+    """
+    # Get global statistics aggregate
+    global_stats = await db.country_statistics.aggregate([
+        {"$match": {"year": 2025}},
+        {"$group": {
+            "_id": None,
+            "total_affected": {"$sum": "$total_affected"},
+            "total_overdose_deaths": {"$sum": "$drug_overdose_deaths"},
+            "total_treatment_centers": {"$sum": "$treatment_centers"},
+            "avg_treatment_gap": {"$avg": "$treatment_gap_percent"},
+            "countries_count": {"$sum": 1}
+        }}
+    ]).to_list(1)
+    
+    # Get top 10 countries by affected population
+    top_countries = await db.country_statistics.find(
+        {"year": 2025},
+        {"_id": 0, "country_code": 1, "country_name": 1, "total_affected": 1, "treatment_centers": 1, "primary_source": 1}
+    ).sort("total_affected", -1).limit(10).to_list(10)
+    
+    # Get countries grouped by region
+    countries_by_region = await db.countries.aggregate([
+        {"$match": {"is_active": True}},
+        {"$group": {
+            "_id": "$region",
+            "countries": {"$push": {"code": "$country_code", "name": "$country_name", "flag": "$flag_emoji"}}
+        }}
+    ]).to_list(10)
+    
+    # Get featured international treatment centers
+    featured_centers = await db.treatment_centers.find(
+        {"is_featured": True, "is_active": True},
+        {"_id": 0}
+    ).sort("rating", -1).limit(12).to_list(12)
+    
+    # Get US state counts (existing functionality)
+    state_counts = await db.state_addiction_statistics.aggregate([
+        {"$match": {"year": 2025}},
+        {"$project": {
+            "_id": 0,
+            "state_id": 1,
+            "state_name": 1,
+            "total_treatment_centers": 1
+        }},
+        {"$sort": {"total_treatment_centers": -1}}
+    ]).to_list(51)
+    
+    return {
+        "global_stats": global_stats[0] if global_stats else {},
+        "top_countries": top_countries,
+        "countries_by_region": {r["_id"]: r["countries"] for r in countries_by_region},
+        "featured_centers": featured_centers,
+        "us_state_counts": state_counts,
+        "data_year": 2025,
+        "data_sources": [
+            {"name": "SAMHSA NSDUH", "coverage": "United States"},
+            {"name": "UNODC World Drug Report", "coverage": "Global"},
+            {"name": "WHO Alcohol Report", "coverage": "Global"},
+            {"name": "EMCDDA", "coverage": "Europe"}
+        ]
+    }
+
+# ============================================
+# SEED INTERNATIONAL DATA ON STARTUP
+# ============================================
+
+@app.on_event("startup")
+async def startup_seed_data():
+    """Seed international data if not present"""
+    countries_count = await db.countries.count_documents({})
+    if countries_count == 0:
+        logger.info("Seeding international country data...")
+        try:
+            from country_data import seed_all_international_data
+            await seed_all_international_data(db)
+            logger.info("International data seeding complete")
+        except Exception as e:
+            logger.error(f"Error seeding international data: {e}")
+
 # Include the router in the main app
 app.include_router(api_router)
 
