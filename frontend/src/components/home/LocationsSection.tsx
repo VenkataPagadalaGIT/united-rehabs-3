@@ -2,34 +2,25 @@ import { Search, SlidersHorizontal, MapPin, Globe } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { WorldMap, countryData } from "./WorldMap";
+import { WorldMap } from "./WorldMap";
 
-// Verified data: SAMHSA N-SUMHSS 2024, AIHW 2023-24, OFDT 2024, EMCDDA 2023, WHO estimates
-// Note: International counts are estimates based on available registry data
+interface StateCount {
+  state_id: string;
+  state_name: string;
+  total_treatment_centers: number;
+}
+
+interface LocationsSectionProps {
+  stateCounts?: StateCount[];
+  isLoading?: boolean;
+}
+
+// Verified data for non-US countries (keeping for reference/future expansion)
 const countries = [
-  { id: "all", name: "All", totalCenters: 31000 },
-  { id: "us", name: "United States", totalCenters: 14620, code: "USA" },  // SAMHSA N-SUMHSS 2024 (SU facilities)
-  { id: "uk", name: "United Kingdom", totalCenters: 1850, code: "GBR" },  // OHID/NDTMS estimate 2024
-  { id: "ca", name: "Canada", totalCenters: 1200, code: "CAN" },  // CCSA estimate 2024
-  { id: "au", name: "Australia", totalCenters: 1304, code: "AUS" },  // AIHW AODTS 2023-24
-  { id: "de", name: "Germany", totalCenters: 1650, code: "DEU" },  // DBDD registry 2023
-  { id: "fr", name: "France", totalCenters: 500, code: "FRA" },  // OFDT CSAPA 2024
-  { id: "br", name: "Brazil", totalCenters: 2100, code: "BRA" },  // SENAD estimate 2023
-  { id: "mx", name: "Mexico", totalCenters: 1800, code: "MEX" },  // CONADIC registry 2023
-  { id: "in", name: "India", totalCenters: 850, code: "IND" },  // NIMHANS estimate 2023
-  { id: "cn", name: "China", totalCenters: 1200, code: "CHN" },  // WHO China estimate
-  { id: "jp", name: "Japan", totalCenters: 680, code: "JPN" },  // MHLW registry 2023
-  { id: "ru", name: "Russia", totalCenters: 950, code: "RUS" },  // WHO Europe estimate
-  { id: "es", name: "Spain", totalCenters: 580, code: "ESP" },  // EMCDDA 2023
-  { id: "it", name: "Italy", totalCenters: 620, code: "ITA" },  // EMCDDA 2023
-  { id: "th", name: "Thailand", totalCenters: 450, code: "THA" },  // WHO SEARO estimate
-  { id: "za", name: "South Africa", totalCenters: 320, code: "ZAF" },  // SACENDU estimate
-  { id: "nl", name: "Netherlands", totalCenters: 380, code: "NLD" },  // EMCDDA 2023
-  { id: "kr", name: "South Korea", totalCenters: 290, code: "KOR" },  // MOHW estimate
-  { id: "pl", name: "Poland", totalCenters: 340, code: "POL" },  // EMCDDA 2023
-  { id: "tr", name: "Turkey", totalCenters: 280, code: "TUR" },  // TUBİM estimate
+  { id: "us", name: "United States", totalCenters: 14620, code: "USA" },
 ];
 
 // Verified data from SAMHSA N-SUMHSS 2024 (Substance Use Facilities by State)
