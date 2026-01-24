@@ -1,9 +1,9 @@
 """
 Multi-Agent Data Pipeline for State Data Generation
-Agent 1: Research Agent - Gathers data from official sources
-Agent 2: Content Generator - Creates SEO content
-Agent 3: Fact Checker - Verifies data accuracy
-Agent 4: QA Agent - Ensures backend/frontend consistency
+Agent 1: Research Agent - Gathers data from official sources (Gemini 2.5 Flash)
+Agent 2: Content Generator - Creates SEO content (GPT-4o)
+Agent 3: Fact Checker - Verifies data accuracy (Claude Sonnet 4.5)
+Agent 4: QA Agent - Ensures backend/frontend consistency (No LLM)
 """
 import os
 import json
@@ -23,25 +23,32 @@ except ImportError:
 
 
 class StateDataPipeline:
-    """Multi-agent pipeline for comprehensive state data generation."""
+    """Multi-agent pipeline for comprehensive state data generation using 3 different LLMs."""
     
     def __init__(self, db):
         self.db = db
         self.api_key = os.environ.get("EMERGENT_LLM_KEY")
-        self.model_provider = "gemini"
-        self.model_name = "gemini-2.5-flash"
         self.api_calls = 0
         self.cached_research = {}
         
-    def _create_chat(self, session_id: str, system_message: str):
-        """Create LLM chat instance."""
+        # 3 Different LLMs for better validation
+        self.llm_config = {
+            "research": {"provider": "gemini", "model": "gemini-2.5-flash"},
+            "content": {"provider": "openai", "model": "gpt-4o"},
+            "factcheck": {"provider": "anthropic", "model": "claude-sonnet-4.5"}
+        }
+        
+    def _create_chat(self, session_id: str, system_message: str, agent_type: str = "research"):
+        """Create LLM chat instance with specific model based on agent type."""
         if not LLM_AVAILABLE or not self.api_key:
             return None
+        
+        config = self.llm_config.get(agent_type, self.llm_config["research"])
         return LlmChat(
             api_key=self.api_key,
             session_id=session_id,
             system_message=system_message
-        ).with_model(self.model_provider, self.model_name)
+        ).with_model(config["provider"], config["model"])
 
     # ==========================================
     # AGENT 1: RESEARCH AGENT
