@@ -134,7 +134,7 @@ function InteractiveGlobalMapComponent({
                       pressed: { outline: "none" },
                     }}
                     onClick={() => {
-                      console.log('Geography onClick fired for:', isoA3, countryCode);
+                      console.log('Geography onClick fired for:', geoId, countryCode);
                       if (country) {
                         handleCountryClick(country.code);
                       }
