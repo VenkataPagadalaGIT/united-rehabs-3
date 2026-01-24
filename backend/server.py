@@ -104,7 +104,10 @@ async def login(user_data: UserLogin):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
     logger.info(f"User doc keys: {list(user_doc.keys())}")
+    logger.info(f"Password hash from DB: {user_doc.get('password_hash', 'MISSING')[:30]}...")
+    
     user = User(**user_doc)
+    logger.info(f"User model password_hash: {user.password_hash[:30]}...")
     
     # Verify password
     is_valid = verify_password(user_data.password, user.password_hash)
