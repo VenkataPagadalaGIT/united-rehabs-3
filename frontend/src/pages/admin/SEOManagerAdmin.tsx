@@ -525,7 +525,6 @@ export default function SEOManagerAdmin() {
           isLoading={createRuleMutation.isPending || updateRuleMutation.isPending}
         />
       </div>
-    </AdminLayout>
   );
 }
 
