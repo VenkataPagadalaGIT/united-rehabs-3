@@ -43,7 +43,7 @@ const StateStatsPage = () => {
         <PageHero state={state} />
         
         <div className="py-8">
-          <StatisticsTab stateId={stateConfig.id} stateName={state.name} />
+          <StatisticsTab stateId={stateConfig.abbreviation} stateName={state.name} />
         </div>
       </main>
 

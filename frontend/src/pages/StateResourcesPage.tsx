@@ -43,7 +43,7 @@ const StateResourcesPage = () => {
         <PageHero state={state} />
         
         <div className="py-8">
-          <FreeResourcesTab stateId={stateConfig.id} stateName={state.name} />
+          <FreeResourcesTab stateId={stateConfig.abbreviation} stateName={state.name} />
         </div>
       </main>
 
