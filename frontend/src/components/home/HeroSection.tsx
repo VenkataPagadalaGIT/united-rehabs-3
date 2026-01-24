@@ -252,10 +252,21 @@ export function HeroSection() {
       
       <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
+          {/* Mission Words */}
+          <div className="flex justify-center items-center gap-3 md:gap-6 mb-6 flex-wrap">
+            <span className="text-primary font-bold text-lg md:text-xl tracking-wide">AWARE</span>
+            <span className="text-muted-foreground">•</span>
+            <span className="text-secondary font-bold text-lg md:text-xl tracking-wide">EDUCATE</span>
+            <span className="text-muted-foreground">•</span>
+            <span className="text-accent font-bold text-lg md:text-xl tracking-wide">SUPPORT</span>
+            <span className="text-muted-foreground">•</span>
+            <span className="text-green-500 font-bold text-lg md:text-xl tracking-wide">RECOVER</span>
+          </div>
+          
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 tracking-tight">
-            <span className="font-display">Your Journey To Wellness</span>
+            <span className="font-display">Find Your Path to</span>
             <br />
-            <span className="font-sans">Begins Here</span>
+            <span className="bg-gradient-to-r from-primary via-accent to-green-500 bg-clip-text text-transparent">Recovery</span>
           </h1>
           
           <p className="text-lg text-muted-foreground mb-8">
