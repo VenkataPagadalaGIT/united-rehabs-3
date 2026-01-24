@@ -133,7 +133,16 @@ curl -X POST "/api/pipeline/run" \
 - [x] Fixed Vite config to expose REACT_APP_BACKEND_URL
 - [x] All state pages now fetching live data from database
 
-#### Phase 10: Complete Data for All States × All Years ✅ (Latest)
+#### Phase 11: International Expansion & Treatment Centers ✅ (Latest - Jan 24, 2026)
+- [x] Treatment Center Listings Page (`/rehab-centers`) with search, filters, pagination
+- [x] International country data (20 countries with 7 years of stats)
+- [x] Data source citations (WHO, UNODC, EMCDDA, SAMHSA)
+- [x] Global statistics API endpoint
+- [x] CMS pages API for editable legal pages
+- [x] Version history/audit logging
+- [x] 104 treatment centers (84 US + 20 international)
+
+#### Phase 10: Complete Data for All States × All Years ✅
 - [x] Smart data generation using R&D baseline + trend extrapolation
 - [x] 357 statistics records (51 states × 7 years: 2019-2025)
 - [x] 357 substance statistics records (51 states × 7 years)
