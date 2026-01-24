@@ -1,12 +1,25 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Globe, MapPin } from "lucide-react";
 import type { FooterLinkGroup } from "@/types";
+import { ALL_COUNTRIES, COUNTRIES_BY_REGION } from "@/data/countryConfig";
+import { ALL_STATES } from "@/data/allStates";
 
 interface FooterProps {
   linkGroups: FooterLinkGroup[];
 }
 
 export function Footer({ linkGroups }: FooterProps) {
+  // Get top 10 US states by population for footer
+  const topStates = [...ALL_STATES]
+    .sort((a, b) => (b.population || 0) - (a.population || 0))
+    .slice(0, 10);
+
+  // Get all countries grouped by region
+  const europeanCountries = ALL_COUNTRIES.filter(c => c.region === "Europe");
+  const americasCountries = ALL_COUNTRIES.filter(c => ["North America", "South America"].includes(c.region));
+  const asiaOceaniaCountries = ALL_COUNTRIES.filter(c => ["Asia", "Oceania", "Africa"].includes(c.region));
+
   return (
     <footer className="bg-sidebar text-sidebar-foreground" role="contentinfo">
       <div className="container mx-auto px-4 py-12">
@@ -54,6 +67,96 @@ export function Footer({ linkGroups }: FooterProps) {
               </ul>
             </nav>
           ))}
+        </div>
+
+        {/* Browse By Country Section - SEO Links */}
+        <div className="mt-12 pt-8 border-t border-sidebar-border">
+          <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
+            <Globe className="h-5 w-5 text-primary" />
+            Browse by Country
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Europe */}
+            <div>
+              <h4 className="font-medium text-sidebar-foreground/80 mb-3 text-sm uppercase tracking-wide">Europe</h4>
+              <ul className="space-y-1.5">
+                {europeanCountries.map((country) => (
+                  <li key={country.code}>
+                    <Link
+                      to={`/${country.slug}-addiction-rehabs`}
+                      className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm flex items-center gap-2"
+                    >
+                      <span>{country.flag}</span>
+                      <span>{country.name}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Americas */}
+            <div>
+              <h4 className="font-medium text-sidebar-foreground/80 mb-3 text-sm uppercase tracking-wide">Americas</h4>
+              <ul className="space-y-1.5">
+                {americasCountries.map((country) => (
+                  <li key={country.code}>
+                    <Link
+                      to={`/${country.slug}-addiction-rehabs`}
+                      className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm flex items-center gap-2"
+                    >
+                      <span>{country.flag}</span>
+                      <span>{country.name}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Asia Pacific & Africa */}
+            <div>
+              <h4 className="font-medium text-sidebar-foreground/80 mb-3 text-sm uppercase tracking-wide">Asia Pacific & Africa</h4>
+              <ul className="space-y-1.5">
+                {asiaOceaniaCountries.map((country) => (
+                  <li key={country.code}>
+                    <Link
+                      to={`/${country.slug}-addiction-rehabs`}
+                      className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm flex items-center gap-2"
+                    >
+                      <span>{country.flag}</span>
+                      <span>{country.name}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Browse By US State Section - SEO Links */}
+        <div className="mt-8 pt-8 border-t border-sidebar-border">
+          <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
+            <MapPin className="h-5 w-5 text-primary" />
+            Browse by US State
+          </h3>
+          
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-x-4 gap-y-1.5">
+            {topStates.map((state) => (
+              <Link
+                key={state.id}
+                to={`/${state.slug}-addiction-rehabs`}
+                className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
+              >
+                {state.name}
+              </Link>
+            ))}
+            <Link
+              to="/"
+              className="text-primary hover:underline text-sm font-medium"
+            >
+              View All 51 States →
+            </Link>
+          </div>
         </div>
 
         {/* Legal Links */}
@@ -133,10 +236,10 @@ export function Footer({ linkGroups }: FooterProps) {
                 <strong>No Medical Advice:</strong> The information on this website is for general informational and educational purposes only. It is NOT a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider before making decisions about addiction treatment or recovery.
               </p>
               <p>
-                <strong>No Guarantee of Accuracy:</strong> Statistics are compiled from publicly available sources including CDC WONDER, SAMHSA, NIDA, and state health departments. While we strive for accuracy, we make NO WARRANTIES regarding completeness, accuracy, reliability, or timeliness of any data. Figures may be provisional, subject to revision, or reflect different collection methodologies. Any reliance on this information is STRICTLY AT YOUR OWN RISK.
+                <strong>No Guarantee of Accuracy:</strong> Statistics are compiled from publicly available sources including WHO, UNODC, CDC WONDER, SAMHSA, NIDA, EMCDDA, and national health departments worldwide. While we strive for accuracy, we make NO WARRANTIES regarding completeness, accuracy, reliability, or timeliness of any data. Figures may be provisional, subject to revision, or reflect different collection methodologies. Any reliance on this information is STRICTLY AT YOUR OWN RISK.
               </p>
               <p>
-                <strong>International Users:</strong> This data primarily reflects conditions within the United States. Laws, regulations, treatment protocols, and statistical methodologies vary by country. Users outside the U.S. should consult local authorities and healthcare systems.
+                <strong>International Users:</strong> This website contains data for multiple countries worldwide. Laws, regulations, treatment protocols, and statistical methodologies vary by country. Users should consult local authorities and healthcare systems for region-specific guidance.
               </p>
               <p>
                 <strong>Limitation of Liability:</strong> Under no circumstances shall United Rehabs, its operators, affiliates, or data providers be liable for any direct, indirect, incidental, special, consequential, or punitive damages arising from your use of or reliance upon information on this website. This limitation applies regardless of legal theory and in any jurisdiction worldwide.
@@ -160,7 +263,7 @@ export function Footer({ linkGroups }: FooterProps) {
             Get Help Now
           </Button>
           <p className="text-sidebar-foreground/60 text-sm">
-            © 2024 United Rehabs. All rights reserved.
+            © 2024 United Rehabs. All rights reserved. Serving {ALL_COUNTRIES.length} countries worldwide.
           </p>
         </div>
       </div>
