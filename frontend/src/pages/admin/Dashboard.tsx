@@ -1,77 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { dashboardApi } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, BookOpen, HelpCircle, Gift, Database, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
-  const { data: statsCount } = useQuery({
-    queryKey: ["admin-stats-count"],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from("state_addiction_statistics")
-        .select("*", { count: "exact", head: true });
-      return count || 0;
-    },
-  });
-
-  const { data: substanceCount } = useQuery({
-    queryKey: ["admin-substance-count"],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from("substance_statistics")
-        .select("*", { count: "exact", head: true });
-      return count || 0;
-    },
-  });
-
-  const { data: resourcesCount } = useQuery({
-    queryKey: ["admin-resources-count"],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from("free_resources")
-        .select("*", { count: "exact", head: true });
-      return count || 0;
-    },
-  });
-
-  const { data: sourcesCount } = useQuery({
-    queryKey: ["admin-sources-count"],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from("data_sources")
-        .select("*", { count: "exact", head: true });
-      return count || 0;
-    },
-  });
-
-  const { data: guidesCount } = useQuery({
-    queryKey: ["admin-guides-count"],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from("rehab_guides")
-        .select("*", { count: "exact", head: true });
-      return count || 0;
-    },
-  });
-
-  const { data: faqsCount } = useQuery({
-    queryKey: ["admin-faqs-count"],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from("faqs")
-        .select("*", { count: "exact", head: true });
-      return count || 0;
-    },
+  const { data: counts, isLoading } = useQuery({
+    queryKey: ["admin-dashboard-counts"],
+    queryFn: () => dashboardApi.getCounts(),
   });
 
   const cards = [
-    { title: "State Statistics", count: statsCount, icon: BarChart3, href: "/admin/statistics", color: "text-blue-500" },
-    { title: "Substance Stats", count: substanceCount, icon: Database, href: "/admin/substance", color: "text-purple-500" },
-    { title: "Free Resources", count: resourcesCount, icon: Gift, href: "/admin/resources", color: "text-green-500" },
-    { title: "Data Sources", count: sourcesCount, icon: FileText, href: "/admin/sources", color: "text-orange-500" },
-    { title: "Rehab Guides", count: guidesCount, icon: BookOpen, href: "/admin/guides", color: "text-cyan-500" },
-    { title: "FAQs", count: faqsCount, icon: HelpCircle, href: "/admin/faqs", color: "text-pink-500" },
+    { title: "State Statistics", count: counts?.statistics_count, icon: BarChart3, href: "/admin/statistics", color: "text-blue-500" },
+    { title: "Substance Stats", count: counts?.substance_count, icon: Database, href: "/admin/substance", color: "text-purple-500" },
+    { title: "Free Resources", count: counts?.resources_count, icon: Gift, href: "/admin/resources", color: "text-green-500" },
+    { title: "Data Sources", count: counts?.sources_count, icon: FileText, href: "/admin/sources", color: "text-orange-500" },
+    { title: "Rehab Guides", count: counts?.guides_count, icon: BookOpen, href: "/admin/guides", color: "text-cyan-500" },
+    { title: "FAQs", count: counts?.faqs_count, icon: HelpCircle, href: "/admin/faqs", color: "text-pink-500" },
   ];
 
   return (
@@ -94,7 +39,7 @@ const Dashboard = () => {
                 <card.icon className={`h-5 w-5 ${card.color}`} />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{card.count ?? "..."}</div>
+                <div className="text-3xl font-bold">{isLoading ? "..." : (card.count ?? 0)}</div>
                 <p className="text-xs text-muted-foreground mt-1">
                   Total records
                 </p>
