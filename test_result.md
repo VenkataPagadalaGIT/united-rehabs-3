@@ -245,15 +245,18 @@ backend:
 
   - task: "Articles CRUD API"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "CRUD implemented, needs testing."
+      - working: true
+        agent: "testing"
+        comment: "CRUD testing completed successfully. GET (found 0 records initially), POST (created test article with title, slug, content, author, category, tags, meta fields, published status). All endpoints working correctly."
 
 frontend:
   - task: "Remove Lovable/Supabase dependencies"
