@@ -82,6 +82,9 @@ const App = () => (
           {/* Treatment Centers - International */}
           <Route path="/rehab-centers" element={<RehabCenters />} />
           
+          {/* Country Comparison Tool */}
+          <Route path="/compare" element={<ComparePage />} />
+          
           {/* Blog, News, Articles routes */}
           <Route path="/blog" element={<ArticlesListPage />} />
           <Route path="/news" element={<ArticlesListPage />} />
