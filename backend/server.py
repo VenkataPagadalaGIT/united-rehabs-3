@@ -1557,16 +1557,6 @@ async def update_statistic_status(id: str, request: StatusUpdateRequest, user: U
     
     return {"success": True, "message": f"Status updated to {request.status}"}
 
-@api_router.get("/statistics/pending-review")
-async def get_pending_review_statistics(user: User = Depends(require_admin)):
-    """Get all statistics pending review"""
-    cursor = db.state_addiction_statistics.find(
-        {"status": "review"},
-        {"_id": 0}
-    ).sort("status_updated_at", 1)
-    results = await cursor.to_list(length=100)
-    return {"pending": results, "count": len(results)}
-
 @api_router.put("/countries/{code}/statistics/{year}/status")
 async def update_country_stat_status(code: str, year: int, request: StatusUpdateRequest, user: User = Depends(require_admin)):
     """Update status of a country statistic record"""
