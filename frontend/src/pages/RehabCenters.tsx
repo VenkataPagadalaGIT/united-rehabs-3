@@ -63,10 +63,12 @@ const RehabCenters = () => {
   if (selectedCountry && selectedCountry !== "all") filters.country_code = selectedCountry;
   if (selectedType && selectedType !== "all") filters.treatment_type = selectedType;
 
-  // Fetch treatment centers
+  // Fetch treatment centers - use search API when there's a search query
   const { data, isLoading, error } = useQuery({
     queryKey: ["treatment-centers", filters],
-    queryFn: () => treatmentCentersApi.getAll(filters),
+    queryFn: () => searchQuery 
+      ? treatmentCentersApi.search(filters) 
+      : treatmentCentersApi.getAll(filters),
     staleTime: 5 * 60 * 1000,
   });
 
