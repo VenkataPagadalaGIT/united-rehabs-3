@@ -601,6 +601,136 @@ async def delete_article(id: str, user: User = Depends(require_admin)):
     return {"message": "Deleted successfully"}
 
 # ============================================
+# OPTIMIZED HOMEPAGE API (Single call for all data)
+# ============================================
+
+@api_router.get("/homepage/data")
+async def get_homepage_data():
+    """
+    Single optimized API call that returns all homepage data.
+    Reduces multiple API calls to just ONE for maximum efficiency.
+    """
+    # Aggregate national statistics (sum of all states for latest year)
+    pipeline_national = [
+        {"$match": {"year": 2025}},
+        {"$group": {
+            "_id": None,
+            "total_affected": {"$sum": "$total_affected"},
+            "total_overdose_deaths": {"$sum": "$overdose_deaths"},
+            "total_treatment_centers": {"$sum": "$total_treatment_centers"},
+            "total_treatment_admissions": {"$sum": "$treatment_admissions"},
+            "avg_recovery_rate": {"$avg": "$recovery_rate"},
+            "total_economic_cost": {"$sum": "$economic_cost_billions"}
+        }}
+    ]
+    national_stats = await db.state_addiction_statistics.aggregate(pipeline_national).to_list(1)
+    
+    # Get top 10 states by affected population
+    pipeline_top_states = [
+        {"$match": {"year": 2025}},
+        {"$sort": {"total_affected": -1}},
+        {"$limit": 10},
+        {"$project": {
+            "_id": 0,
+            "state_id": 1,
+            "state_name": 1,
+            "total_affected": 1,
+            "overdose_deaths": 1,
+            "total_treatment_centers": 1,
+            "recovery_rate": 1
+        }}
+    ]
+    top_states = await db.state_addiction_statistics.aggregate(pipeline_top_states).to_list(10)
+    
+    # Get featured treatment centers (limit 8)
+    featured_centers = await db.treatment_centers.find(
+        {"is_featured": True, "is_active": True},
+        {"_id": 0}
+    ).sort("rating", -1).limit(8).to_list(8)
+    
+    # If no featured centers, get any active centers
+    if not featured_centers:
+        featured_centers = await db.treatment_centers.find(
+            {"is_active": True},
+            {"_id": 0}
+        ).sort("rating", -1).limit(8).to_list(8)
+    
+    # Get general FAQs (not state-specific) for homepage
+    general_faqs = await db.faqs.find(
+        {"$or": [{"state_id": None}, {"state_id": ""}], "is_active": True},
+        {"_id": 0}
+    ).limit(6).to_list(6)
+    
+    # If no general FAQs, get a sample from any state
+    if not general_faqs:
+        general_faqs = await db.faqs.find(
+            {"is_active": True},
+            {"_id": 0}
+        ).limit(6).to_list(6)
+    
+    # Get state counts for location section
+    state_counts = await db.state_addiction_statistics.aggregate([
+        {"$match": {"year": 2025}},
+        {"$project": {
+            "_id": 0,
+            "state_id": 1,
+            "state_name": 1,
+            "total_treatment_centers": 1
+        }},
+        {"$sort": {"total_treatment_centers": -1}}
+    ]).to_list(51)
+    
+    return {
+        "national_stats": national_stats[0] if national_stats else {},
+        "top_states": top_states,
+        "featured_centers": featured_centers,
+        "faqs": general_faqs,
+        "state_counts": state_counts,
+        "data_year": 2025
+    }
+
+# ============================================
+# TREATMENT CENTERS
+# ============================================
+
+@api_router.get("/treatment-centers")
+async def get_treatment_centers(
+    state_id: Optional[str] = None,
+    city: Optional[str] = None,
+    treatment_type: Optional[str] = None,
+    is_featured: Optional[bool] = None,
+    skip: int = 0,
+    limit: int = 20
+):
+    query = {"is_active": True}
+    if state_id:
+        query["state_id"] = state_id
+    if city:
+        query["city"] = {"$regex": city, "$options": "i"}
+    if treatment_type:
+        query["treatment_types"] = treatment_type
+    if is_featured is not None:
+        query["is_featured"] = is_featured
+    
+    cursor = db.treatment_centers.find(query, {"_id": 0}).sort("rating", -1).skip(skip).limit(limit)
+    results = await cursor.to_list(length=limit)
+    total = await db.treatment_centers.count_documents(query)
+    
+    return {
+        "centers": results,
+        "total": total,
+        "skip": skip,
+        "limit": limit
+    }
+
+@api_router.get("/treatment-centers/{id}")
+async def get_treatment_center(id: str):
+    result = await db.treatment_centers.find_one({"id": id}, {"_id": 0})
+    if not result:
+        raise HTTPException(status_code=404, detail="Treatment center not found")
+    return result
+
+# ============================================
 # HEALTH CHECK
 # ============================================
 
