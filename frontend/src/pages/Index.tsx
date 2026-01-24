@@ -1,33 +1,60 @@
+import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/listing/Header";
 import { Footer } from "@/components/listing/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
 import { TrustIndicators } from "@/components/home/TrustIndicators";
 import { LocationsSection } from "@/components/home/LocationsSection";
 import { StatisticsSection } from "@/components/home/StatisticsSection";
-import { FeaturedCenters } from "@/components/home/FeaturedCenters";
+import { DynamicFeaturedCenters } from "@/components/home/DynamicFeaturedCenters";
 import { HowItWorks } from "@/components/home/HowItWorks";
 import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { BrowseBySection } from "@/components/home/BrowseBySection";
 import { BrowseTabsSection } from "@/components/home/BrowseTabsSection";
 import { SupportCTA } from "@/components/home/SupportCTA";
-import { FAQ } from "@/components/listing/FAQ";
-import { mockNavItems, mockFooterLinks, mockFAQs } from "@/data/mockData";
+import { DynamicFAQ } from "@/components/listing/DynamicFAQ";
+import { mockNavItems, mockFooterLinks } from "@/data/mockData";
+import axios from "axios";
+
+const API_BASE_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
+
+// Single optimized API call for all homepage data
+const fetchHomepageData = async () => {
+  const response = await axios.get(`${API_BASE_URL}/api/homepage/data`);
+  return response.data;
+};
 
 const Index = () => {
+  // ONE API call for entire homepage - maximum efficiency
+  const { data: homepageData, isLoading } = useQuery({
+    queryKey: ["homepage-data"],
+    queryFn: fetchHomepageData,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    refetchOnWindowFocus: false,
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <Header navItems={mockNavItems} />
       
       <main>
         <HeroSection />
-        <TrustIndicators />
+        <TrustIndicators 
+          nationalStats={homepageData?.national_stats} 
+          isLoading={isLoading} 
+        />
         <BrowseTabsSection />
-        <LocationsSection />
+        <LocationsSection 
+          stateCounts={homepageData?.state_counts}
+          isLoading={isLoading}
+        />
         <StatisticsSection />
-        <FeaturedCenters />
+        <DynamicFeaturedCenters 
+          centers={homepageData?.featured_centers || []}
+          isLoading={isLoading}
+        />
         <HowItWorks />
         <TestimonialsSection />
-        <FAQ faqs={mockFAQs} />
+        <DynamicFAQ />
         <SupportCTA />
         <BrowseBySection />
       </main>
