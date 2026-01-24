@@ -492,6 +492,11 @@ export const countriesApi = {
     return response.data;
   },
   
+  getCountryStats: async (code: string, year?: number) => {
+    const response = await api.get(`/api/countries/${code}/statistics`, { params: { year } });
+    return response.data;
+  },
+  
   getCenters: async (code: string, params?: { city?: string; skip?: number; limit?: number }) => {
     const response = await api.get(`/api/countries/${code}/centers`, { params });
     return response.data;

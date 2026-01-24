@@ -38,6 +38,7 @@ import ContentGeneratorAdmin from "./pages/admin/ContentGeneratorAdmin";
 import DataCoverageAdmin from "./pages/admin/DataCoverageAdmin";
 import BulkImportAdmin from "./pages/admin/BulkImportAdmin";
 import CMSAdmin from "./pages/admin/CMSAdmin";
+import ComparePage from "./pages/ComparePage";
 import { CrisisHotlineBanner } from "./components/CrisisHotlineBanner";
 import { CookieConsentBanner } from "./components/CookieConsentBanner";
 import { isValidCountrySlug } from "./data/countryConfig";
