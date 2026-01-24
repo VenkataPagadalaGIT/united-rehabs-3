@@ -374,27 +374,153 @@ export const homepageApi = {
     const response = await api.get('/api/homepage/data');
     return response.data;
   },
+  
+  getInternationalData: async () => {
+    const response = await api.get('/api/homepage/data/international');
+    return response.data;
+  },
 };
 
 // ============================================
 // TREATMENT CENTERS API
 // ============================================
 
+export interface TreatmentCenterFilters {
+  q?: string;
+  country_code?: string;
+  state_id?: string;
+  city?: string;
+  treatment_type?: string;
+  insurance?: string;
+  is_featured?: boolean;
+  min_rating?: number;
+  skip?: number;
+  limit?: number;
+}
+
+export interface TreatmentCenterSearchResult {
+  centers: TreatmentCenter[];
+  total: number;
+  skip: number;
+  limit: number;
+  filters?: {
+    countries: string[];
+    treatment_types: string[];
+  };
+}
+
+export interface TreatmentCenter {
+  id: string;
+  name: string;
+  country_code: string;
+  country_name: string;
+  state_id?: string;
+  state_name?: string;
+  city: string;
+  address?: string;
+  zip_code?: string;
+  phone?: string;
+  website?: string;
+  rating?: number;
+  reviews_count?: number;
+  is_verified: boolean;
+  is_featured: boolean;
+  treatment_types?: string[];
+  services?: string[];
+  insurance_accepted?: string[];
+  image_url?: string;
+}
+
 export const treatmentCentersApi = {
-  getAll: async (params?: { 
-    state_id?: string; 
-    city?: string; 
-    treatment_type?: string; 
-    is_featured?: boolean;
-    skip?: number; 
-    limit?: number 
-  }) => {
+  getAll: async (params?: TreatmentCenterFilters): Promise<TreatmentCenterSearchResult> => {
     const response = await api.get('/api/treatment-centers', { params });
+    return response.data;
+  },
+  
+  search: async (params?: TreatmentCenterFilters): Promise<TreatmentCenterSearchResult> => {
+    const response = await api.get('/api/treatment-centers/search', { params });
     return response.data;
   },
   
   getById: async (id: string) => {
     const response = await api.get(`/api/treatment-centers/${id}`);
+    return response.data;
+  },
+};
+
+// ============================================
+// COUNTRIES API (International)
+// ============================================
+
+export interface Country {
+  id: string;
+  country_code: string;
+  country_name: string;
+  region: string;
+  population?: number;
+  flag_emoji?: string;
+}
+
+export interface CountryStatistics {
+  id: string;
+  country_code: string;
+  country_name: string;
+  year: number;
+  total_affected?: number;
+  prevalence_rate?: number;
+  drug_overdose_deaths?: number;
+  alcohol_related_deaths?: number;
+  treatment_centers?: number;
+  treatment_gap_percent?: number;
+  primary_source?: string;
+  primary_source_url?: string;
+}
+
+export const countriesApi = {
+  getAll: async (params?: { region?: string }) => {
+    const response = await api.get('/api/countries', { params });
+    return response.data;
+  },
+  
+  getByCode: async (code: string) => {
+    const response = await api.get(`/api/countries/${code}`);
+    return response.data;
+  },
+  
+  getStatistics: async (code: string, year?: number) => {
+    const response = await api.get(`/api/countries/${code}/statistics`, { params: { year } });
+    return response.data;
+  },
+  
+  getCenters: async (code: string, params?: { city?: string; skip?: number; limit?: number }) => {
+    const response = await api.get(`/api/countries/${code}/centers`, { params });
+    return response.data;
+  },
+};
+
+// ============================================
+// GLOBAL STATISTICS API
+// ============================================
+
+export const globalStatsApi = {
+  get: async (year?: number) => {
+    const response = await api.get('/api/global/statistics', { params: { year } });
+    return response.data;
+  },
+};
+
+// ============================================
+// CMS PAGES API
+// ============================================
+
+export const cmsApi = {
+  getPage: async (slug: string) => {
+    const response = await api.get(`/api/pages/${slug}`);
+    return response.data;
+  },
+  
+  updatePage: async (slug: string, data: { title: string; content: string; is_published?: boolean }) => {
+    const response = await api.put(`/api/pages/${slug}`, data);
     return response.data;
   },
 };
