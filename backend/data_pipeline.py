@@ -70,7 +70,7 @@ Your data sources include:
 IMPORTANT: Provide realistic, data-driven estimates based on known patterns and official reports.
 Format all responses as valid JSON that can be parsed."""
 
-        chat = self._create_chat(f"research-{state_abbrev}-bulk", system_message)
+        chat = self._create_chat(f"research-{state_abbrev}-bulk", system_message, agent_type="research")
         if not chat:
             return {"error": "LLM not available", "data": None}
 
