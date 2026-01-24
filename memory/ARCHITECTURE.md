@@ -167,29 +167,28 @@ MongoDB: united_rehabs
 - `GET /api/statistics` - US state statistics
 - `GET /api/treatment-centers` - Treatment centers
 
-### New Endpoints (To Implement)
+### New Endpoints (Implemented ✅)
 ```
-# Countries
+# Countries ✅
 GET  /api/countries                    # List all countries
 GET  /api/countries/{code}             # Single country details
 GET  /api/countries/{code}/statistics  # Country statistics
-GET  /api/countries/{code}/substances  # Substance breakdown
 GET  /api/countries/{code}/centers     # Treatment centers in country
 
-# Treatment Centers (Enhanced)
+# Treatment Centers (Enhanced) ✅
 GET  /api/treatment-centers            # With country filter
 GET  /api/treatment-centers/search     # Full-text search
 GET  /api/treatment-centers/{id}       # Single center
 
-# Data Sources
-GET  /api/data-sources                 # List all sources
-GET  /api/data-sources/{id}            # Source details
-
-# CMS/Legal Pages
+# CMS/Legal Pages ✅
 GET  /api/pages/{slug}                 # Get page content
 PUT  /api/pages/{slug}                 # Update page (admin)
 
-# Audit/Version History
+# Global Statistics ✅
+GET  /api/global/statistics            # Aggregated global stats
+GET  /api/homepage/data/international  # International homepage data
+
+# Audit/Version History ✅
 GET  /api/audit/{collection}/{id}      # Get change history
 ```
 
