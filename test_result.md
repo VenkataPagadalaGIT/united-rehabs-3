@@ -101,3 +101,230 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Migrate United Rehabs from Lovable to a clean FastAPI + MongoDB backend, removing all Supabase dependencies while preserving all features."
+
+backend:
+  - task: "Authentication API (register, login, me)"
+    implemented: true
+    working: true
+    file: "backend/server.py, backend/auth.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "JWT-based auth implemented with bcrypt. Register, login, and me endpoints tested with curl."
+
+  - task: "Dashboard counts API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "GET /api/dashboard/counts returns counts from all collections."
+
+  - task: "State Statistics CRUD API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Full CRUD for state_addiction_statistics. POST tested successfully."
+
+  - task: "Substance Statistics CRUD API"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "CRUD implemented, needs testing."
+
+  - task: "Free Resources CRUD API"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "CRUD implemented, needs testing."
+
+  - task: "FAQs CRUD API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Full CRUD for FAQs. POST tested successfully."
+
+  - task: "Data Sources CRUD API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Full CRUD for data_sources. POST tested successfully."
+
+  - task: "Rehab Guides CRUD API"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "CRUD implemented, needs testing."
+
+  - task: "Page Content CRUD API"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "CRUD implemented, needs testing."
+
+  - task: "Page SEO CRUD API"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "CRUD implemented, needs testing."
+
+  - task: "Articles CRUD API"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "CRUD implemented, needs testing."
+
+frontend:
+  - task: "Remove Lovable/Supabase dependencies"
+    implemented: true
+    working: true
+    file: "frontend/package.json, frontend/vite.config.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Removed lovable-tagger and @supabase/supabase-js. Updated vite config."
+
+  - task: "API client layer"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/lib/api.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created axios-based API client with auth interceptors."
+
+  - task: "Admin login page"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/AdminLogin.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated to use new auth API instead of Supabase."
+
+  - task: "Admin dashboard"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/admin/Dashboard.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated to use dashboardApi.getCounts()."
+
+  - task: "Statistics admin page"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/admin/StatisticsAdmin.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated to use new API."
+
+  - task: "All other admin pages"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/admin/*.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "SubstanceAdmin, FAQsAdmin, ResourcesAdmin, SourcesAdmin, GuidesAdmin, SEOAdmin, ContentAdmin, ArticlesAdmin, DataCoverageAdmin, ContentGeneratorAdmin all updated."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Authentication API"
+    - "Admin login page"
+    - "Admin dashboard"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Completed migration from Lovable/Supabase to FastAPI/MongoDB. Backend APIs are working (tested auth, statistics, faqs, data sources). Frontend has been updated to remove all Supabase imports and use new API client. Ready for comprehensive testing."
