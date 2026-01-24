@@ -120,9 +120,13 @@ Migrate the United Rehabs website from the "lovable" platform (using Supabase) t
 - [x] Added Stimulant Statistics section (Cocaine, Meth use and deaths)
 - [x] Added Cannabis Statistics section (Monthly use, Disorder)
 - [x] Added Treatment Access Gap donut chart
+- [x] Added "Opioid Use Trends" line chart (Rx Opioids, Heroin, Opioid Disorder over time)
+- [x] Added "Stimulant Use Trends" line chart (Cocaine, Meth over time)
+- [x] Added "Annual Deaths by Substance Type" stacked bar chart (Fentanyl, Alcohol, Meth, Cocaine)
 - [x] Added Data Methodology & Sources accordion section
 - [x] Added Official Government Data Sources links (SAMHSA, CDC, NIDA, TEDS)
-- [x] Added historical data for Florida (2019-2024) for trending charts
+- [x] Added historical data for Florida statistics (2019-2024)
+- [x] Added historical data for Florida substance statistics (2019-2024)
 
 ---
 
