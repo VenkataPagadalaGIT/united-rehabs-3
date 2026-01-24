@@ -255,12 +255,12 @@ export function HeroSection() {
           {/* Mission Words */}
           <div className="flex justify-center items-center gap-3 md:gap-6 mb-6 flex-wrap">
             <span className="text-primary font-bold text-lg md:text-xl tracking-wide uppercase">Aware</span>
-            <span className="text-muted-foreground/50">•</span>
-            <span className="text-blue-500 font-bold text-lg md:text-xl tracking-wide uppercase">Educate</span>
-            <span className="text-muted-foreground/50">•</span>
-            <span className="text-purple-500 font-bold text-lg md:text-xl tracking-wide uppercase">Support</span>
-            <span className="text-muted-foreground/50">•</span>
-            <span className="text-green-500 font-bold text-lg md:text-xl tracking-wide uppercase">Recover</span>
+            <span className="text-primary/40">•</span>
+            <span className="text-primary font-bold text-lg md:text-xl tracking-wide uppercase">Educate</span>
+            <span className="text-primary/40">•</span>
+            <span className="text-primary font-bold text-lg md:text-xl tracking-wide uppercase">Support</span>
+            <span className="text-primary/40">•</span>
+            <span className="text-primary font-bold text-lg md:text-xl tracking-wide uppercase">Recover</span>
           </div>
           
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 tracking-tight">
