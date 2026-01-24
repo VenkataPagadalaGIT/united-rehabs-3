@@ -13,27 +13,19 @@ import { BrowseTabsSection } from "@/components/home/BrowseTabsSection";
 import { SupportCTA } from "@/components/home/SupportCTA";
 import { DynamicFAQ } from "@/components/listing/DynamicFAQ";
 import { mockNavItems, mockFooterLinks } from "@/data/mockData";
-import axios from "axios";
-
-const API_BASE_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
-
-// Single optimized API call for all homepage data
-const fetchHomepageData = async () => {
-  const response = await axios.get(`${API_BASE_URL}/api/homepage/data`);
-  return response.data;
-};
+import { homepageApi, HomepageData } from "@/lib/api";
 
 const Index = () => {
   // ONE API call for entire homepage - maximum efficiency
-  const { data: homepageData, isLoading } = useQuery({
+  const { data: homepageData, isLoading, error } = useQuery<HomepageData>({
     queryKey: ["homepage-data"],
-    queryFn: fetchHomepageData,
+    queryFn: homepageApi.getData,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     refetchOnWindowFocus: false,
   });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" data-testid="homepage">
       <Header navItems={mockNavItems} />
       
       <main>
