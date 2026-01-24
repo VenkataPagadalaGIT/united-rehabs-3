@@ -2,7 +2,40 @@
 
 ## January 24, 2026
 
-### Phase 11: Multi-Language Support (i18n) ✅ (Latest - Jan 24, 2026)
+### Phase 12: Advanced Features (Interactive Map, Comparison, Export) ✅ (Latest - Jan 24, 2026)
+**Implemented interactive global map, country comparison tool, data export, and workflow management**
+
+#### New Features:
+- **Interactive Global Map**: Clickable world map on homepage - clicking any country navigates to its stats page
+  - Color-coded by region (Europe: blue, Asia: pink, Africa: yellow, Americas: green/purple, Oceania: cyan)
+  - Hover tooltips showing country name, flag, and region
+  - Legend showing region colors
+- **Country Comparison Tool** (`/compare`): Side-by-side comparison of up to 4 countries
+  - Default comparison: USA, UK, Germany
+  - Year selector (2019-2025)
+  - Bar charts: People Affected, Deaths Comparison (Drug Overdose + Alcohol)
+  - Horizontal bar chart: Treatment Centers Available
+  - Stat cards for each country
+- **Data Export API** (admin only):
+  - `GET /api/export/countries?format=csv|json&year=YYYY`
+  - `GET /api/export/statistics?format=csv|json&state_id=XX`
+  - `GET /api/export/treatment-centers?format=csv|json`
+- **Draft → Review → Publish Workflow**:
+  - `PUT /api/statistics/{id}/status` - Update status (draft/review/published/archived)
+  - `GET /api/statistics/pending-review` - Get records awaiting review
+  - Audit logging for status changes
+
+#### Files Created/Modified:
+- `/app/frontend/src/components/InteractiveGlobalMap.tsx` - NEW: Clickable world map
+- `/app/frontend/src/pages/ComparePage.tsx` - NEW: Country comparison tool
+- `/app/frontend/src/pages/Index.tsx` - Added map section to homepage
+- `/app/frontend/src/pages/AboutUs.tsx` - Updated with CMS integration
+- `/app/frontend/src/pages/PrivacyPolicy.tsx` - Updated with CMS integration
+- `/app/backend/server.py` - Added export endpoints and status workflow
+
+---
+
+### Phase 11: Multi-Language Support (i18n) ✅ (Jan 24, 2026)
 **Implemented full internationalization with 4 languages: English, Spanish, French, Portuguese**
 
 #### New Features:
