@@ -5,6 +5,7 @@ import type { FooterLinkGroup } from "@/types";
 import { ALL_COUNTRIES, COUNTRIES_BY_REGION, getTopCountriesByRegion } from "@/data/countryConfig";
 import { ALL_STATES } from "@/data/allStates";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Collapsible,
   CollapsibleContent,

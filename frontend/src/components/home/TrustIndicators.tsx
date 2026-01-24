@@ -1,5 +1,6 @@
 import { ShieldCheck, Users, Heart, Building2, TrendingUp, AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
 interface NationalStats {
   total_affected?: number;
@@ -23,12 +24,14 @@ const formatNumber = (num: number | undefined): string => {
 };
 
 export function TrustIndicators({ nationalStats, isLoading }: TrustIndicatorsProps) {
+  const { t } = useTranslation();
+  
   // Dynamic stats from backend
   const dynamicStats = [
     {
       icon: AlertTriangle,
       value: formatNumber(nationalStats?.total_affected),
-      label: "Americans Affected",
+      label: t('stats.peopleAffected'),
       description: "People impacted by addiction annually",
       color: "text-red-500",
       bgColor: "bg-red-500/10",
@@ -36,7 +39,7 @@ export function TrustIndicators({ nationalStats, isLoading }: TrustIndicatorsPro
     {
       icon: Building2,
       value: formatNumber(nationalStats?.total_treatment_centers),
-      label: "Treatment Centers",
+      label: t('stats.treatmentCenters'),
       description: "Verified facilities nationwide",
       color: "text-primary",
       bgColor: "bg-primary/10",
@@ -44,7 +47,7 @@ export function TrustIndicators({ nationalStats, isLoading }: TrustIndicatorsPro
     {
       icon: TrendingUp,
       value: nationalStats?.avg_recovery_rate ? `${nationalStats.avg_recovery_rate.toFixed(1)}%` : "---",
-      label: "Avg Recovery Rate",
+      label: t('stats.recoveryRate'),
       description: "Successful treatment outcomes",
       color: "text-green-500",
       bgColor: "bg-green-500/10",
@@ -52,7 +55,7 @@ export function TrustIndicators({ nationalStats, isLoading }: TrustIndicatorsPro
     {
       icon: Heart,
       value: formatNumber(nationalStats?.total_treatment_admissions),
-      label: "Treatment Admissions",
+      label: t('stats.treatmentAdmissions'),
       description: "Annual treatment enrollments",
       color: "text-pink-500",
       bgColor: "bg-pink-500/10",
@@ -63,13 +66,13 @@ export function TrustIndicators({ nationalStats, isLoading }: TrustIndicatorsPro
   const staticIndicators = [
     {
       icon: ShieldCheck,
-      title: "Only Verified Facilities",
-      description: "Rehabs that meet the highest standards of care.",
+      title: t('trustIndicators.verifiedFacilities'),
+      description: t('trustIndicators.verifiedDesc'),
     },
     {
       icon: Users,
-      title: "Personalized Approach",
-      description: "Tailored treatment options to suit your unique needs.",
+      title: t('trustIndicators.personalizedApproach'),
+      description: t('trustIndicators.personalizedDesc'),
     },
   ];
 
