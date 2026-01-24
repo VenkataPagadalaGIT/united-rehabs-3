@@ -314,3 +314,86 @@ export const articlesApi = {
     return response.data;
   },
 };
+
+// ============================================
+// HOMEPAGE API (Optimized single call)
+// ============================================
+
+export interface HomepageData {
+  national_stats: {
+    total_affected: number;
+    total_overdose_deaths: number;
+    total_treatment_centers: number;
+    total_treatment_admissions: number;
+    avg_recovery_rate: number;
+    total_economic_cost: number;
+  };
+  top_states: Array<{
+    state_id: string;
+    state_name: string;
+    total_affected: number;
+    overdose_deaths: number;
+    total_treatment_centers: number;
+    recovery_rate: number;
+  }>;
+  featured_centers: Array<{
+    id: string;
+    name: string;
+    address: string;
+    city: string;
+    state: string;
+    state_id: string;
+    zip_code: string;
+    phone: string;
+    website?: string;
+    rating: number;
+    reviews_count: number;
+    is_verified: boolean;
+    is_featured: boolean;
+    treatment_types: string[];
+    services: string[];
+    insurance_accepted: string[];
+    image_url?: string;
+  }>;
+  faqs: Array<{
+    id: string;
+    question: string;
+    answer: string;
+  }>;
+  state_counts: Array<{
+    state_id: string;
+    state_name: string;
+    total_treatment_centers: number;
+  }>;
+  data_year: number;
+}
+
+export const homepageApi = {
+  getData: async (): Promise<HomepageData> => {
+    const response = await api.get('/api/homepage/data');
+    return response.data;
+  },
+};
+
+// ============================================
+// TREATMENT CENTERS API
+// ============================================
+
+export const treatmentCentersApi = {
+  getAll: async (params?: { 
+    state_id?: string; 
+    city?: string; 
+    treatment_type?: string; 
+    is_featured?: boolean;
+    skip?: number; 
+    limit?: number 
+  }) => {
+    const response = await api.get('/api/treatment-centers', { params });
+    return response.data;
+  },
+  
+  getById: async (id: string) => {
+    const response = await api.get(`/api/treatment-centers/${id}`);
+    return response.data;
+  },
+};
