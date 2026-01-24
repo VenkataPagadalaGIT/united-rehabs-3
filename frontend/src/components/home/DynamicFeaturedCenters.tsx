@@ -130,7 +130,7 @@ export function DynamicFeaturedCenters({ centers, isLoading }: DynamicFeaturedCe
                 {/* Location */}
                 <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
                   <MapPin className="h-3 w-3" />
-                  {center.city}, {center.state}
+                  {center.city}, {center.state_name || center.state}
                 </div>
 
                 {/* Name & Verified */}
