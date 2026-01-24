@@ -1,0 +1,75 @@
+{
+  "summary": "Comprehensive testing of state pages (Statistics, Resources, FAQs) for Florida and California. All features working correctly after the fix to use stateConfig.abbreviation (uppercase like 'FL') instead of stateConfig.id (lowercase like 'fl') for API calls.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_state_pages_api.py",
+    "/app/test_reports/pytest/pytest_state_pages.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/backend/tests/test_state_pages_api.py"
+  ],
+  "success_rate": {
+    "backend": "100% (12/12 tests passed)",
+    "frontend": "100% (all pages loading and displaying data correctly)"
+  },
+  "test_credentials": {
+    "admin_email": "admin@unitedrehabs.com",
+    "admin_password": "admin_password"
+  },
+  "seed_data_creation": "Database already seeded with Florida (FL) and California (CA) data including statistics, resources, and FAQs",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "State pages are fully functional. The key fix was changing from stateConfig.id (lowercase) to stateConfig.abbreviation (uppercase) to match database state_id format. All API endpoints tested: /api/statistics, /api/resources, /api/faqs with state_id parameter.",
+  "features_tested": {
+    "florida_stats_page": {
+      "url": "/florida-addiction-stats",
+      "status": "PASS",
+      "details": "Displays Florida Addiction Statistics (2024) with Total Affected: 1,402,500, Overdose Deaths: 7,200, Opioid Deaths: 6,400, Recovery Rate: 42%. Also shows Treatment Facilities & Admissions, Age Demographics, Economic Impact sections."
+    },
+    "florida_resources_page": {
+      "url": "/florida-addiction-free-resources",
+      "status": "PASS",
+      "details": "Displays 3 resources: 1 Nationwide (SAMHSA National Helpline) and 2 Florida-specific (Florida Substance Abuse & Mental Health Helpline, Florida Department of Health)"
+    },
+    "florida_rehabs_page": {
+      "url": "/florida-addiction-rehabs",
+      "status": "PASS",
+      "details": "Statistics tab displays Florida statistics correctly. Resources tab shows nationwide and Florida-specific resources. FAQ section displays 7 FAQs."
+    },
+    "california_stats_page": {
+      "url": "/california-addiction-stats",
+      "status": "PASS",
+      "details": "Displays California Addiction Statistics (2024) with Total Affected: 2,350,000, Overdose Deaths: 10,345, Opioid Deaths: 6,789, Recovery Rate: 35.5%"
+    },
+    "dynamic_faq_component": {
+      "status": "PASS",
+      "details": "DynamicFAQ component loads and displays FAQs from database. Shows both state-specific and general FAQs."
+    },
+    "api_statistics_fl": {
+      "endpoint": "/api/statistics?state_id=FL",
+      "status": "PASS",
+      "details": "Returns Florida statistics with multiple years of data"
+    },
+    "api_resources_fl": {
+      "endpoint": "/api/resources?state_id=FL",
+      "status": "PASS",
+      "details": "Returns Florida resources including nationwide resources (is_nationwide=true)"
+    },
+    "api_faqs_fl": {
+      "endpoint": "/api/faqs?state_id=FL",
+      "status": "PASS",
+      "details": "Returns FAQs for Florida including general FAQs (state_id=null)"
+    }
+  },
+  "rca_of_the_issue": "The original issue was that frontend was using stateConfig.id (lowercase like 'fl') for API calls, but the database stores state_id in uppercase format (like 'FL'). The fix was to use stateConfig.abbreviation which contains the uppercase state abbreviation."
+}
