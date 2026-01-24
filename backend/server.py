@@ -18,7 +18,7 @@ from models import (
     DataSource, DataSourceCreate,
     RehabGuide, RehabGuideCreate,
     PageContent, PageContentCreate,
-    PageSEO, PageSEOCreate,
+    PageSEO, PageSEOCreate, GlobalSEOSettings, FolderSEORule,
     Article, ArticleCreate,
     PaginatedResponse, DashboardCounts,
     Country, CountryCreate, CountryStatistics, CountryStatisticsCreate,
