@@ -181,7 +181,7 @@ Create compassionate, accurate, and helpful content that:
 3. Includes calls to action
 4. Is optimized for search engines"""
 
-        chat = self._create_chat(f"content-{state_abbrev}", system_message)
+        chat = self._create_chat(f"content-{state_abbrev}", system_message, agent_type="content")
         if not chat:
             return {"error": "LLM not available"}
 
