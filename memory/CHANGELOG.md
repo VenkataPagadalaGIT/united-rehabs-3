@@ -2,7 +2,41 @@
 
 ## January 24, 2026
 
-### Phase 9: International Expansion & Treatment Centers ✅ (Latest)
+### Phase 9: Country Pages & Footer SEO ✅ (Latest - Jan 24, 2026)
+**Created country statistics pages with same URL structure as US states and added SEO footer links**
+
+#### New Features:
+- **Country Statistics Pages**: All 20 countries have dedicated pages at `/{country-slug}-addiction-rehabs`
+- **Same URL Pattern**: UK at `/united-kingdom-addiction-rehabs`, Germany at `/germany-addiction-rehabs`, etc.
+- **Year Selector**: Dropdown for 2019-2025 data selection
+- **Historical Charts**: Line chart (People Affected) and Bar chart (Drug vs Alcohol Deaths)
+- **Data Source Citations**: Each country shows source with "View Source" link (e.g., "ONS UK 2024")
+- **Treatment Centers Section**: Shows verified centers for each country with "View All" link
+- **Footer SEO Enhancement**: "Browse by Country" with 20 countries grouped by region with emoji flags
+- **Footer US States**: "Browse by US State" with top 10 states by population
+
+#### URLs Created:
+- `/united-kingdom-addiction-rehabs`
+- `/germany-addiction-rehabs`
+- `/france-addiction-rehabs`
+- `/australia-addiction-rehabs`
+- `/canada-addiction-rehabs`
+- `/thailand-addiction-rehabs`
+- `/japan-addiction-rehabs`
+- `/india-addiction-rehabs`
+- `/brazil-addiction-rehabs`
+- `/mexico-addiction-rehabs`
+- ... and 10 more countries
+
+#### Files Created/Modified:
+- `/app/frontend/src/pages/CountryPage.tsx` - NEW: Country statistics page
+- `/app/frontend/src/data/countryConfig.ts` - NEW: Country configuration with slugs
+- `/app/frontend/src/components/listing/Footer.tsx` - Updated with Browse by Country section
+- `/app/frontend/src/App.tsx` - Added LocationPage helper for routing
+
+---
+
+### Phase 8: International Expansion & Treatment Centers ✅
 **Expanded from US-only to international coverage with 20 countries**
 
 #### New Features:
