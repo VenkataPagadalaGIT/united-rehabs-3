@@ -1358,6 +1358,239 @@ async def get_homepage_data_international():
     }
 
 # ============================================
+# DATA EXPORT API (CSV/JSON)
+# ============================================
+
+from fastapi.responses import StreamingResponse
+import io
+import csv
+import json as json_lib
+
+@api_router.get("/export/statistics")
+async def export_statistics(
+    format: str = "csv",
+    state_id: Optional[str] = None,
+    year: Optional[int] = None,
+    user: User = Depends(require_admin)
+):
+    """Export state statistics as CSV or JSON"""
+    query = {}
+    if state_id:
+        query["state_id"] = state_id.upper()
+    if year:
+        query["year"] = year
+    
+    cursor = db.state_addiction_statistics.find(query, {"_id": 0})
+    results = await cursor.to_list(length=10000)
+    
+    if format == "json":
+        return {"data": results, "count": len(results)}
+    
+    # CSV export
+    if not results:
+        return StreamingResponse(
+            io.StringIO("No data found"),
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=statistics_export.csv"}
+        )
+    
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=results[0].keys())
+    writer.writeheader()
+    for row in results:
+        # Convert datetime to string
+        for key, value in row.items():
+            if isinstance(value, datetime):
+                row[key] = value.isoformat()
+        writer.writerow(row)
+    
+    output.seek(0)
+    return StreamingResponse(
+        output,
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=statistics_export_{state_id or 'all'}_{year or 'all'}.csv"}
+    )
+
+@api_router.get("/export/countries")
+async def export_country_statistics(
+    format: str = "csv",
+    country_code: Optional[str] = None,
+    year: Optional[int] = None,
+    user: User = Depends(require_admin)
+):
+    """Export country statistics as CSV or JSON"""
+    query = {}
+    if country_code:
+        query["country_code"] = country_code.upper()
+    if year:
+        query["year"] = year
+    
+    cursor = db.country_statistics.find(query, {"_id": 0})
+    results = await cursor.to_list(length=10000)
+    
+    if format == "json":
+        return {"data": results, "count": len(results)}
+    
+    # CSV export
+    if not results:
+        return StreamingResponse(
+            io.StringIO("No data found"),
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=countries_export.csv"}
+        )
+    
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=results[0].keys())
+    writer.writeheader()
+    for row in results:
+        for key, value in row.items():
+            if isinstance(value, datetime):
+                row[key] = value.isoformat()
+        writer.writerow(row)
+    
+    output.seek(0)
+    return StreamingResponse(
+        output,
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=countries_export_{country_code or 'all'}_{year or 'all'}.csv"}
+    )
+
+@api_router.get("/export/treatment-centers")
+async def export_treatment_centers(
+    format: str = "csv",
+    country_code: Optional[str] = None,
+    user: User = Depends(require_admin)
+):
+    """Export treatment centers as CSV or JSON"""
+    query = {"is_active": True}
+    if country_code:
+        query["country_code"] = country_code.upper()
+    
+    cursor = db.treatment_centers.find(query, {"_id": 0})
+    results = await cursor.to_list(length=10000)
+    
+    if format == "json":
+        return {"data": results, "count": len(results)}
+    
+    if not results:
+        return StreamingResponse(
+            io.StringIO("No data found"),
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=treatment_centers_export.csv"}
+        )
+    
+    # Flatten arrays for CSV
+    flat_results = []
+    for row in results:
+        flat_row = {k: v for k, v in row.items() if not isinstance(v, list)}
+        flat_row["treatment_types"] = "|".join(row.get("treatment_types", []))
+        flat_row["services"] = "|".join(row.get("services", []))
+        flat_row["insurance_accepted"] = "|".join(row.get("insurance_accepted", []))
+        flat_results.append(flat_row)
+    
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=flat_results[0].keys())
+    writer.writeheader()
+    writer.writerows(flat_results)
+    
+    output.seek(0)
+    return StreamingResponse(
+        output,
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=treatment_centers_export_{country_code or 'all'}.csv"}
+    )
+
+# ============================================
+# DRAFT -> REVIEW -> PUBLISH WORKFLOW
+# ============================================
+
+class ContentStatus:
+    DRAFT = "draft"
+    REVIEW = "review"
+    PUBLISHED = "published"
+    ARCHIVED = "archived"
+
+class StatusUpdateRequest(BaseModel):
+    status: str  # draft, review, published, archived
+    reviewer_notes: Optional[str] = None
+
+@api_router.put("/statistics/{id}/status")
+async def update_statistic_status(id: str, request: StatusUpdateRequest, user: User = Depends(require_admin)):
+    """Update status of a statistic record (draft -> review -> published)"""
+    result = await db.state_addiction_statistics.find_one({"id": id})
+    if not result:
+        raise HTTPException(status_code=404, detail="Statistic not found")
+    
+    valid_statuses = ["draft", "review", "published", "archived"]
+    if request.status not in valid_statuses:
+        raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {valid_statuses}")
+    
+    update_data = {
+        "status": request.status,
+        "status_updated_at": datetime.utcnow(),
+        "status_updated_by": user.email,
+        "updated_at": datetime.utcnow()
+    }
+    
+    if request.reviewer_notes:
+        update_data["reviewer_notes"] = request.reviewer_notes
+    
+    if request.status == "published":
+        update_data["published_at"] = datetime.utcnow()
+        update_data["published_by"] = user.email
+    
+    await db.state_addiction_statistics.update_one({"id": id}, {"$set": update_data})
+    
+    # Log the status change
+    await log_audit_entry("state_addiction_statistics", id, f"status_change:{request.status}", user.email, update_data)
+    
+    return {"success": True, "message": f"Status updated to {request.status}"}
+
+@api_router.get("/statistics/pending-review")
+async def get_pending_review_statistics(user: User = Depends(require_admin)):
+    """Get all statistics pending review"""
+    cursor = db.state_addiction_statistics.find(
+        {"status": "review"},
+        {"_id": 0}
+    ).sort("status_updated_at", 1)
+    results = await cursor.to_list(length=100)
+    return {"pending": results, "count": len(results)}
+
+@api_router.put("/countries/{code}/statistics/{year}/status")
+async def update_country_stat_status(code: str, year: int, request: StatusUpdateRequest, user: User = Depends(require_admin)):
+    """Update status of a country statistic record"""
+    result = await db.country_statistics.find_one({"country_code": code.upper(), "year": year})
+    if not result:
+        raise HTTPException(status_code=404, detail="Country statistic not found")
+    
+    valid_statuses = ["draft", "review", "published", "archived"]
+    if request.status not in valid_statuses:
+        raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {valid_statuses}")
+    
+    update_data = {
+        "status": request.status,
+        "status_updated_at": datetime.utcnow(),
+        "status_updated_by": user.email,
+        "updated_at": datetime.utcnow()
+    }
+    
+    if request.reviewer_notes:
+        update_data["reviewer_notes"] = request.reviewer_notes
+    
+    if request.status == "published":
+        update_data["published_at"] = datetime.utcnow()
+        update_data["published_by"] = user.email
+    
+    await db.country_statistics.update_one(
+        {"country_code": code.upper(), "year": year},
+        {"$set": update_data}
+    )
+    
+    await log_audit_entry("country_statistics", f"{code}-{year}", f"status_change:{request.status}", user.email, update_data)
+    
+    return {"success": True, "message": f"Status updated to {request.status}"}
+
+# ============================================
 # SEED INTERNATIONAL DATA ON STARTUP
 # ============================================
 
