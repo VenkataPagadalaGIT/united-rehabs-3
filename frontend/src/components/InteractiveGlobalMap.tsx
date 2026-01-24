@@ -62,8 +62,11 @@ function InteractiveGlobalMapComponent({
   const [tooltipContent, setTooltipContent] = useState<{ name: string; flag: string; region: string } | null>(null);
 
   const handleCountryClick = (countryCode: string) => {
+    console.log('Country clicked:', countryCode);
     const country = getCountryByCode(countryCode);
+    console.log('Country found:', country);
     if (country) {
+      console.log('Navigating to:', `/${country.slug}-addiction-rehabs`);
       navigate(`/${country.slug}-addiction-rehabs`);
     }
   };
