@@ -98,6 +98,27 @@ export function TrustIndicators({ nationalStats, isLoading }: TrustIndicatorsPro
   return (
     <section className="py-12 bg-background" data-testid="trust-indicators-section">
       <div className="container mx-auto px-4">
+        {/* Section Header with Data Scope */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+              Addiction Statistics at a Glance
+            </h2>
+            <p className="text-muted-foreground">
+              Real-time data from verified sources
+            </p>
+          </div>
+          <div className="mt-4 md:mt-0 flex items-center gap-2">
+            <span className="px-4 py-2 bg-primary/10 text-primary font-semibold rounded-full text-sm">
+              🇺🇸 USA Data
+            </span>
+            <span className="text-muted-foreground">|</span>
+            <a href="/compare" className="px-4 py-2 bg-muted hover:bg-muted/80 text-foreground font-medium rounded-full text-sm transition-colors">
+              🌍 View Worldwide
+            </a>
+          </div>
+        </div>
+
         {/* Dynamic National Statistics */}
         {nationalStats && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
