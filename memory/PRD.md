@@ -213,17 +213,16 @@ All critical features have been implemented.
 - All data cached with React Query (5-minute stale time)
 
 ### P2 - Medium Priority  
+- [ ] Connect Legal Pages to CMS backend (About, Privacy, Terms)
 - [ ] Implement Draft → Review → Publish workflow for data entries
 - [ ] Add version history for data records
 - [ ] Add data export functionality (CSV/JSON download)
-- [ ] Optimize Fact-Checker Agent (budget optimization)
-- [ ] Add rehab center management in admin panel
 
 ### P3 - Nice to Have
+- [ ] Live WHO/UNODC API Integration
 - [ ] Add user analytics/tracking
 - [ ] Implement caching layer for frequently accessed data
 - [ ] Add automated data refresh from external sources
-- [ ] Multi-language support
 
 ---
 
