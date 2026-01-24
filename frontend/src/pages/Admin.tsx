@@ -33,6 +33,7 @@ import {
   Brain,
   PieChart,
   Upload,
+  Globe,
 } from "lucide-react";
 
 const menuItems = [
@@ -41,6 +42,7 @@ const menuItems = [
   { title: "Bulk Import", url: "/admin/bulk-import", icon: Upload },
   { title: "Data Coverage", url: "/admin/data-coverage", icon: PieChart },
   { title: "Articles", url: "/admin/articles", icon: Newspaper },
+  { title: "CMS Pages", url: "/admin/cms", icon: Globe },
   { title: "Statistics", url: "/admin/statistics", icon: BarChart3 },
   { title: "Substance Stats", url: "/admin/substance", icon: Database },
   { title: "Free Resources", url: "/admin/resources", icon: Gift },
