@@ -1880,13 +1880,17 @@ async def generate_robots_txt():
     return Response(content="\n".join(lines), media_type="text/plain")
 
 # --- Bulk SEO Operations ---
+class BulkSEOUpdate(BaseModel):
+    updates: Dict[str, Any]
+
 @api_router.post("/seo/bulk-update")
 async def bulk_update_seo(
     page_type: str,
-    updates: Dict[str, Any],
+    body: BulkSEOUpdate,
     user: User = Depends(require_admin)
 ):
     """Bulk update SEO settings for a page type"""
+    updates = body.updates
     if not updates:
         raise HTTPException(status_code=400, detail="No updates provided")
     
