@@ -32,11 +32,13 @@ import {
   Shield,
   Brain,
   PieChart,
+  Upload,
 } from "lucide-react";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: Home },
   { title: "AI Generator", url: "/admin/content-generator", icon: Brain },
+  { title: "Bulk Import", url: "/admin/bulk-import", icon: Upload },
   { title: "Data Coverage", url: "/admin/data-coverage", icon: PieChart },
   { title: "Articles", url: "/admin/articles", icon: Newspaper },
   { title: "Statistics", url: "/admin/statistics", icon: BarChart3 },
