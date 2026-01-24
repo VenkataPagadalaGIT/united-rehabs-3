@@ -162,6 +162,15 @@ curl -X POST "/api/pipeline/run" \
 - [x] **CMS Integration**: About Us and Privacy Policy pages connected to admin CMS
 - [x] **Multi-Language Support**: EN/ES/FR/PT translations with language switcher
 
+#### Phase 13: Enhanced Country Pages ✅ (Latest - Jan 24, 2026)
+- [x] **USA Aggregated Page**: All 51 states combined into comprehensive national view
+- [x] **Historical Trend Charts**: Area, Line, Bar charts for 2019-2025 data
+- [x] **Demographics Visualizations**: Age group and facility type pie charts
+- [x] **Substance Statistics**: Detailed opioid, alcohol, stimulant, cannabis breakdowns (USA)
+- [x] **Economic Impact Charts**: Yearly cost in billions USD
+- [x] **Drug vs Alcohol Deaths**: Side-by-side mortality comparison
+- [x] **Data Methodology Section**: Expandable sources and limitations
+
 #### Phase 11: International Expansion ✅ (Jan 24, 2026)
 - [x] 195 countries with 7 years of historical data (2019-2025)
 - [x] Treatment Center Listings Page (`/rehab-centers`)
