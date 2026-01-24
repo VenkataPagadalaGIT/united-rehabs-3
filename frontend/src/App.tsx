@@ -112,6 +112,7 @@ const App = () => (
             <Route path="faqs" element={<FAQsAdmin />} />
             <Route path="content" element={<ContentAdmin />} />
             <Route path="seo" element={<SEOAdmin />} />
+            <Route path="seo-manager" element={<SEOManagerAdmin />} />
             <Route path="articles" element={<ArticlesAdmin />} />
             <Route path="urls" element={<URLsAdmin />} />
             <Route path="security" element={<SecurityAdmin />} />
