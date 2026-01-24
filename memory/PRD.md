@@ -154,6 +154,20 @@ curl -X POST "/api/pipeline/run" \
 - [x] COVID impact reflected in 2020-2021 data
 - [x] Frontend displaying all data correctly
 
+#### Phase 12: Advanced Features ✅ (Latest - Jan 24, 2026)
+- [x] **Interactive Global Map**: Clickable world map on homepage with navigation to country pages
+- [x] **Country Comparison Tool**: `/compare` page for side-by-side statistics comparison (up to 4 countries)
+- [x] **Data Export API**: CSV/JSON export endpoints for statistics, countries, and treatment centers
+- [x] **Draft → Review → Publish Workflow**: Status management for data records
+- [x] **CMS Integration**: About Us and Privacy Policy pages connected to admin CMS
+- [x] **Multi-Language Support**: EN/ES/FR/PT translations with language switcher
+
+#### Phase 11: International Expansion ✅ (Jan 24, 2026)
+- [x] 195 countries with 7 years of historical data (2019-2025)
+- [x] Treatment Center Listings Page (`/rehab-centers`)
+- [x] Data source citations (WHO, UNODC, EMCDDA, SAMHSA)
+- [x] Enhanced SEO footer with continent-based country navigation
+
 #### Phase 9: All 51 States Data Complete ✅
 - [x] R&D team data imported for all 51 states (alcohol statistics 2025)
 - [x] Standard FAQs generated for all 51 states (273 FAQs)
