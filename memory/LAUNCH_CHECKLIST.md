@@ -1,7 +1,7 @@
 # United Rehabs - Pre-Launch Checklist & Documentation
 
 **Document Created:** January 24, 2026  
-**Last Updated:** January 24, 2026 (22:15 UTC)  
+**Last Updated:** January 24, 2026 (22:25 UTC)  
 **Status:** READY FOR LAUNCH REVIEW
 
 ---
@@ -26,9 +26,12 @@
 | Multi-language Support | ✅ Done | Jan 24, 2026 | EN/ES/FR/PT |
 | Footer SEO links (195 countries) | ✅ Done | Jan 24, 2026 | Collapsible by region |
 | CMS Admin interface | ✅ Done | Jan 24, 2026 | /admin/cms |
-| CMS API endpoints | ✅ Done | Jan 24, 2026 | GET/PUT /api/pages |
 | Data Export (CSV/JSON) | ✅ Done | Jan 24, 2026 | Admin-only endpoints |
 | Draft→Review→Publish Workflow | ✅ Done | Jan 24, 2026 | Status management |
+| **SEO Manager (Global/Folder/Page)** | ✅ Done | Jan 24, 2026 | /admin/seo-manager |
+| **Sitemap.xml Generation** | ✅ Done | Jan 24, 2026 | Dynamic /api/seo/sitemap.xml |
+| **Robots.txt Generation** | ✅ Done | Jan 24, 2026 | Dynamic /api/seo/robots.txt |
+| **Georgia State Routing Fix** | ✅ Done | Jan 24, 2026 | US states prioritized |
 
 ### ⏳ PRE-LAUNCH REQUIREMENTS
 
