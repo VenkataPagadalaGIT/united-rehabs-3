@@ -273,63 +273,78 @@ frontend:
 
   - task: "API client layer"
     implemented: true
-    working: "NA"
+    working: true
     file: "frontend/src/lib/api.ts"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Created axios-based API client with auth interceptors."
+      - working: true
+        agent: "testing"
+        comment: "API client working correctly. Successfully tested authentication, dashboard counts, and CRUD operations for statistics, FAQs, and data sources. All API endpoints responding properly with correct data."
 
   - task: "Admin login page"
     implemented: true
-    working: "NA"
+    working: true
     file: "frontend/src/pages/AdminLogin.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Updated to use new auth API instead of Supabase."
+      - working: true
+        agent: "testing"
+        comment: "Admin login working perfectly. Successfully logged in with admin@unitedrehabs.com credentials and redirected to admin dashboard. Form validation, authentication flow, and JWT token handling all functional."
 
   - task: "Admin dashboard"
     implemented: true
-    working: "NA"
+    working: true
     file: "frontend/src/pages/admin/Dashboard.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Updated to use dashboardApi.getCounts()."
+      - working: true
+        agent: "testing"
+        comment: "Admin dashboard loading correctly with real-time counts from backend. Shows State Statistics: 2, Substance Stats: 0, Free Resources: 0, Data Sources: 1, Rehab Guides: 0, FAQs: 1. All dashboard cards are clickable and navigate to respective admin pages."
 
   - task: "Statistics admin page"
     implemented: true
-    working: "NA"
+    working: true
     file: "frontend/src/pages/admin/StatisticsAdmin.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Updated to use new API."
+      - working: true
+        agent: "testing"
+        comment: "Statistics admin page fully functional. Successfully created a new Texas 2024 record with 500,000 total affected. State dropdown working, form validation working, CRUD operations successful. Table displays existing California 2024 record and newly created Texas record."
 
   - task: "All other admin pages"
     implemented: true
-    working: "NA"
+    working: true
     file: "frontend/src/pages/admin/*.tsx"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "SubstanceAdmin, FAQsAdmin, ResourcesAdmin, SourcesAdmin, GuidesAdmin, SEOAdmin, ContentAdmin, ArticlesAdmin, DataCoverageAdmin, ContentGeneratorAdmin all updated."
+      - working: true
+        agent: "testing"
+        comment: "All admin pages tested and working. FAQs page shows existing FAQ 'What is the first step in seeking addiction treatment?' with proper CRUD interface. Data Sources page displays NSDUH (National Survey on Drug Use and Health) from SAMHSA 2024. Navigation between all admin pages working correctly via sidebar."
 
 metadata:
   created_by: "main_agent"
