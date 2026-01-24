@@ -349,3 +349,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Completed migration from Lovable/Supabase to FastAPI/MongoDB. Backend APIs are working (tested auth, statistics, faqs, data sources). Frontend has been updated to remove all Supabase imports and use new API client. Ready for comprehensive testing."
+  - agent: "testing"
+    message: "Comprehensive backend API testing completed successfully. All 25 tests passed including: Authentication (login, register, me), Dashboard counts, State Statistics CRUD, Substance Statistics CRUD, FAQs CRUD, Data Sources CRUD, Articles CRUD, Free Resources CRUD, Rehab Guides CRUD, Page Content CRUD, and Page SEO CRUD. All endpoints are working correctly with proper authentication, data validation, and CRUD operations. Backend migration from Supabase to FastAPI + MongoDB is fully functional."
