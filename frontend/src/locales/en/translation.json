@@ -47,6 +47,11 @@
     "personalizedApproach": "Personalized Approach",
     "personalizedDesc": "Tailored treatment options to suit your unique needs."
   },
+  "map": {
+    "exploreGlobally": "Explore Addiction Data Globally",
+    "clickCountry": "Click any country to view detailed statistics and treatment options",
+    "compareCountries": "Compare Countries"
+  },
   "locations": {
     "title": "Find A Best Centers Near You",
     "browseByCountry": "Browse by Country",
