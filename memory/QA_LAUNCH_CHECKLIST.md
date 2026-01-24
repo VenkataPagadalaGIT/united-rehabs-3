@@ -225,7 +225,7 @@
 
 | Purpose | URL |
 |---------|-----|
-| Preview Site | https://globaladdicts.preview.emergentagent.com |
+| Preview Site | https://globaladdiction.preview.emergentagent.com |
 | Sitemap | /api/seo/sitemap.xml |
 | Robots | /api/seo/robots.txt |
 | Health Check | /api/health |

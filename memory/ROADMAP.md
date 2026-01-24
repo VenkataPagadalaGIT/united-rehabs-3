@@ -116,7 +116,7 @@ All critical features implemented.
 - Password: `admin_password`
 
 ### API Base URL
-- `https://globaladdicts.preview.emergentagent.com/api`
+- `https://globaladdiction.preview.emergentagent.com/api`
 
 ### Key Environment Variables
 ```
@@ -126,5 +126,5 @@ DB_NAME=united_rehabs
 EMERGENT_LLM_KEY=<key>
 
 # Frontend (.env)
-REACT_APP_BACKEND_URL=https://globaladdicts.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://globaladdiction.preview.emergentagent.com
 ```
