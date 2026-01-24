@@ -267,6 +267,178 @@ class Article(ArticleCreate):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 # ============================================
+# COUNTRY MODELS (International Expansion)
+# ============================================
+
+class DataSourceAttribution(BaseModel):
+    """Attribution for a specific data field"""
+    field: str
+    source_name: str
+    source_url: Optional[str] = None
+    source_year: int
+    confidence: str = "high"  # high, medium, estimated
+
+class CountryCreate(BaseModel):
+    country_code: str  # ISO 3166-1 alpha-3 (USA, GBR, DEU)
+    country_name: str
+    region: str  # North America, Europe, Asia, etc.
+    sub_region: Optional[str] = None
+    population: Optional[int] = None
+    flag_emoji: Optional[str] = None
+    currency_code: Optional[str] = None
+    languages: Optional[List[str]] = None
+    is_active: bool = True
+
+class Country(CountryCreate):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class CountryStatisticsCreate(BaseModel):
+    country_code: str
+    country_name: str
+    year: int
+    
+    # Population & Prevalence
+    population: Optional[int] = None
+    total_affected: Optional[int] = None
+    prevalence_rate: Optional[float] = None  # % of population with SUD
+    
+    # Drug Statistics
+    drug_use_any: Optional[int] = None
+    drug_use_disorder: Optional[int] = None
+    drug_overdose_deaths: Optional[int] = None
+    opioid_use: Optional[int] = None
+    opioid_deaths: Optional[int] = None
+    cannabis_use: Optional[int] = None
+    cocaine_use: Optional[int] = None
+    amphetamine_use: Optional[int] = None
+    
+    # Alcohol Statistics
+    alcohol_use: Optional[int] = None
+    alcohol_use_disorder: Optional[int] = None
+    alcohol_related_deaths: Optional[int] = None
+    alcohol_per_capita_liters: Optional[float] = None
+    
+    # Treatment
+    treatment_centers: Optional[int] = None
+    treatment_capacity: Optional[int] = None
+    treatment_admissions: Optional[int] = None
+    treatment_gap_percent: Optional[float] = None  # % not receiving treatment
+    
+    # Economic Impact
+    economic_cost_billions: Optional[float] = None
+    healthcare_cost_billions: Optional[float] = None
+    
+    # Data Sources (for citations)
+    sources: Optional[List[DataSourceAttribution]] = None
+    primary_source: Optional[str] = None
+    primary_source_url: Optional[str] = None
+
+class CountryStatistics(CountryStatisticsCreate):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+# ============================================
+# TREATMENT CENTER (International)
+# ============================================
+
+class TreatmentCenterCreate(BaseModel):
+    name: str
+    
+    # Location
+    country_code: str = "USA"
+    country_name: str = "United States"
+    state_id: Optional[str] = None  # For US states
+    state_name: Optional[str] = None
+    city: str
+    address: Optional[str] = None
+    zip_code: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    
+    # Contact
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    website: Optional[str] = None
+    
+    # Services
+    treatment_types: Optional[List[str]] = None  # Inpatient, Outpatient, Detox
+    substances_treated: Optional[List[str]] = None  # Alcohol, Opioids, etc.
+    services: Optional[List[str]] = None  # Therapy types, MAT, etc.
+    insurance_accepted: Optional[List[str]] = None
+    payment_options: Optional[List[str]] = None
+    languages: Optional[List[str]] = None
+    
+    # Ratings & Verification
+    rating: Optional[float] = None
+    reviews_count: int = 0
+    is_verified: bool = False
+    is_featured: bool = False
+    verification_source: Optional[str] = None
+    
+    # Media
+    image_url: Optional[str] = None
+    gallery: Optional[List[str]] = None
+    description: Optional[str] = None
+    
+    is_active: bool = True
+
+class TreatmentCenter(TreatmentCenterCreate):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+# ============================================
+# CMS PAGE CONTENT (Enhanced for Legal Pages)
+# ============================================
+
+class CMSPageCreate(BaseModel):
+    slug: str  # about-us, privacy-policy, terms-of-service
+    title: str
+    content: str  # HTML or Markdown
+    content_format: str = "html"  # html, markdown
+    meta_title: Optional[str] = None
+    meta_description: Optional[str] = None
+    is_published: bool = True
+    last_edited_by: Optional[str] = None
+
+class CMSPage(CMSPageCreate):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    version: int = 1
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    published_at: Optional[datetime] = None
+
+# ============================================
+# AUDIT LOG (Version History)
+# ============================================
+
+class AuditLogEntry(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    collection: str  # Which collection was modified
+    document_id: str  # ID of the modified document
+    action: str  # create, update, delete, publish
+    user_id: Optional[str] = None
+    user_email: Optional[str] = None
+    changes: Optional[Dict[str, Any]] = None  # What changed
+    previous_data: Optional[Dict[str, Any]] = None  # Snapshot before change
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+# ============================================
+# DATA REVIEW WORKFLOW
+# ============================================
+
+class ReviewStatus(BaseModel):
+    status: str = "draft"  # draft, pending_review, approved, published, rejected
+    submitted_at: Optional[datetime] = None
+    submitted_by: Optional[str] = None
+    reviewed_at: Optional[datetime] = None
+    reviewed_by: Optional[str] = None
+    review_notes: Optional[str] = None
+
+# ============================================
 # API RESPONSE MODELS
 # ============================================
 
@@ -286,3 +458,5 @@ class DashboardCounts(BaseModel):
     faqs_count: int
     articles_count: int
     seo_count: int
+    countries_count: int = 0
+    treatment_centers_count: int = 0
