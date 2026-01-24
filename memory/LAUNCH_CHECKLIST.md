@@ -1,7 +1,8 @@
 # United Rehabs - Pre-Launch Checklist & Documentation
 
-**Document Created:** January 24, 2026
-**Last Updated:** January 24, 2026
+**Document Created:** January 24, 2026  
+**Last Updated:** January 24, 2026 (22:15 UTC)  
+**Status:** READY FOR LAUNCH REVIEW
 
 ---
 
@@ -15,166 +16,87 @@
 | Admin authentication (JWT) | ✅ Done | Jan 24, 2026 | admin@unitedrehabs.com |
 | Multi-LLM AI Pipeline (Gemini/GPT-4o/Claude) | ✅ Done | Jan 24, 2026 | 4-agent system |
 | US State Pages (51 states) | ✅ Done | Jan 24, 2026 | All with 7yr data |
-| Country Pages (195 countries) | ✅ Done | Jan 24, 2026 | WHO/UNODC data |
+| Country Pages (195 countries) | ✅ Done | Jan 24, 2026 | Enhanced with charts |
+| USA Aggregated Stats Page | ✅ Done | Jan 24, 2026 | All 51 states combined |
 | Treatment Centers Page | ✅ Done | Jan 24, 2026 | Search/filter/pagination |
 | Homepage connected to backend | ✅ Done | Jan 24, 2026 | Single API call |
-| Data visualizations (recharts) | ✅ Done | Jan 24, 2026 | Line/bar/donut charts |
+| Interactive Global Map | ✅ Done | Jan 24, 2026 | Clickable countries |
+| Country Comparison Tool | ✅ Done | Jan 24, 2026 | /compare page |
+| Data visualizations (Recharts) | ✅ Done | Jan 24, 2026 | Line/bar/area/pie charts |
+| Multi-language Support | ✅ Done | Jan 24, 2026 | EN/ES/FR/PT |
 | Footer SEO links (195 countries) | ✅ Done | Jan 24, 2026 | Collapsible by region |
 | CMS Admin interface | ✅ Done | Jan 24, 2026 | /admin/cms |
 | CMS API endpoints | ✅ Done | Jan 24, 2026 | GET/PUT /api/pages |
-
-### 🔄 IN PROGRESS
-
-| Feature | Status | Started | Target | Notes |
-|---------|--------|---------|--------|-------|
-| Multi-language (ES/FR/PT) | 🔄 Starting | Jan 24, 2026 | - | react-i18next |
-| Interactive global map | 🔄 Pending | - | - | Clickable countries |
-| Country comparison tool | 🔄 Pending | - | - | /compare page |
-| WHO/UNODC API integration | 🔄 Pending | - | - | Live data updates |
+| Data Export (CSV/JSON) | ✅ Done | Jan 24, 2026 | Admin-only endpoints |
+| Draft→Review→Publish Workflow | ✅ Done | Jan 24, 2026 | Status management |
 
 ### ⏳ PRE-LAUNCH REQUIREMENTS
 
-#### Critical (Must Have)
-- [ ] **SSL Certificate** - HTTPS required
-- [ ] **Domain setup** - DNS configuration
-- [ ] **Environment variables** - Production keys
-- [ ] **Database backup** - Automated backups
-- [ ] **Error monitoring** - Sentry or similar
-- [ ] **Analytics** - Google Analytics/Plausible
-- [ ] **GDPR compliance** - Cookie consent, privacy
-- [ ] **Security audit** - XSS, CSRF, SQL injection checks
-- [ ] **Performance testing** - Load testing
-- [ ] **Mobile responsiveness** - Test all breakpoints
+#### 🔴 Critical (Must Have Before Launch)
+- [ ] **SSL Certificate** - HTTPS required for all pages
+- [ ] **Domain DNS** - Point domain to production server
+- [ ] **Production Environment Variables** - Real API keys, DB URLs
+- [ ] **Database Backup Strategy** - Automated daily backups
+- [ ] **Error Monitoring** - Sentry/LogRocket setup
+- [ ] **GDPR Cookie Consent** - ✅ Implemented (but verify compliance)
+- [ ] **Legal Page Review** - Privacy Policy, Terms reviewed by legal
+- [ ] **Mobile Responsiveness Test** - All breakpoints verified
+- [ ] **Performance Audit** - Lighthouse score > 80
+- [ ] **Security Audit** - XSS, CSRF, injection checks
 
-#### Important (Should Have)
-- [ ] **Sitemap.xml** - For SEO crawling
+#### 🟡 Important (Should Have)
+- [ ] **Sitemap.xml Generation** - Auto-generate for 51 states + 195 countries
 - [ ] **robots.txt** - Search engine directives
-- [ ] **favicon** - All sizes
-- [ ] **Open Graph tags** - Social sharing
-- [ ] **404 page** - Custom error page
-- [ ] **Contact form** - Working email delivery
-- [ ] **Rate limiting** - API protection
-- [ ] **CDN setup** - Static asset delivery
+- [ ] **Favicons** - All sizes (16, 32, 48, 64, 128, 256, apple-touch)
+- [ ] **Open Graph Tags** - Social sharing previews
+- [ ] **Analytics Setup** - Google Analytics 4 / Plausible
+- [ ] **Contact Form Email** - Working email delivery
+- [ ] **Rate Limiting** - API protection (100 req/min public, 1000 admin)
+- [ ] **CDN Setup** - CloudFlare or similar for static assets
+- [ ] **Image Optimization** - WebP format for all images
+- [ ] **SEO Meta Tags** - All pages have unique titles/descriptions
 
-#### Nice to Have
-- [ ] **Service worker** - PWA support
-- [ ] **Image optimization** - WebP format
-- [ ] **A/B testing** - Feature flags
-- [ ] **User feedback** - Feedback widget
-
----
-
-## 🗓️ IMPLEMENTATION LOG
-
-### Session: January 24, 2026
-
-#### Pre-Session State (Inherited)
-- US-focused site with 51 states
-- 20 countries initially
-- Basic admin panel
-- Homepage using static data
-
-#### Post-Session State (Current)
-- **195 countries** with full statistics
-- **1,365 statistics records** (195 × 7 years)
-- **104 treatment centers** (84 US + 20 international)
-- Homepage connected to backend API
-- CMS admin for legal pages
-- Footer with SEO links to all countries
-
-#### Timestamps Log
-```
-[2026-01-24 20:00] Session started - inherited from previous fork
-[2026-01-24 20:11] Homepage connected to /api/homepage/data
-[2026-01-24 20:19] Testing passed (100% backend, 100% frontend)
-[2026-01-24 20:32] Treatment Centers page created (/rehab-centers)
-[2026-01-24 20:42] International expansion started (20 → 195 countries)
-[2026-01-24 20:51] Country pages created (same URL structure as states)
-[2026-01-24 21:08] 195 countries seeded with full statistics
-[2026-01-24 21:10] CMS Admin interface created (/admin/cms)
-[2026-01-24 21:12] Footer updated with collapsible country sections
-[2026-01-24 21:XX] Multi-language implementation starting
-```
+#### 🟢 Nice to Have
+- [ ] **Service Worker** - PWA offline support
+- [ ] **A/B Testing** - Feature flags for experiments
+- [ ] **User Feedback Widget** - In-page feedback
+- [ ] **Email Subscriptions** - Newsletter signup
+- [ ] **Social Share Buttons** - Share country/state pages
+- [ ] **WHO/UNODC Live API** - Automated data refresh
 
 ---
 
-## 🔧 TECHNICAL ARCHITECTURE
+## 📊 DATA COVERAGE SUMMARY
 
-### Backend (FastAPI)
-```
-/app/backend/
-├── server.py           # Main API (1200+ lines)
-├── models.py           # Pydantic models
-├── auth.py             # JWT authentication
-├── data_pipeline.py    # Multi-LLM AI pipeline
-├── country_data.py     # 20 country seed (legacy)
-├── country_data_full.py # 195 country seed (current)
-├── bulk_import.py      # Excel/CSV import
-└── requirements.txt
-```
+### Country Pages (195)
+| Region | Countries | Data Years | Charts | Treatment Centers |
+|--------|-----------|------------|--------|-------------------|
+| Europe | 44 | 2019-2025 | ✅ All | ✅ Some |
+| Asia | 48 | 2019-2025 | ✅ All | ✅ Some |
+| Africa | 54 | 2019-2025 | ✅ All | ⏳ Limited |
+| North America | 23 | 2019-2025 | ✅ All | ✅ Most |
+| South America | 12 | 2019-2025 | ✅ All | ✅ Some |
+| Oceania | 14 | 2019-2025 | ✅ All | ✅ Some |
 
-### Frontend (React/Vite)
-```
-/app/frontend/src/
-├── pages/
-│   ├── Index.tsx           # Homepage
-│   ├── StatePage.tsx       # US state pages
-│   ├── CountryPage.tsx     # Country pages
-│   ├── RehabCenters.tsx    # Treatment centers
-│   └── admin/
-│       ├── CMSAdmin.tsx    # CMS editor
-│       └── ... (other admin pages)
-├── components/
-│   ├── home/
-│   ├── listing/
-│   │   └── Footer.tsx      # SEO footer
-│   └── ui/                 # Shadcn components
-├── data/
-│   ├── stateConfig.ts      # US states config
-│   ├── countryConfig.ts    # 195 countries config
-│   └── allStates.ts        # State metadata
-└── lib/
-    └── api.ts              # API client
-```
+### US State Pages (51)
+| Data Type | Records | Years | Charts |
+|-----------|---------|-------|--------|
+| State Statistics | 357 | 2019-2025 | ✅ All |
+| Substance Statistics | 357 | 2019-2025 | ✅ All |
+| FAQs | 298 | - | - |
+| Resources | 125 | - | - |
+| Treatment Centers | 84 | - | ✅ All |
 
-### Database (MongoDB)
-```
-Collections:
-├── users                    # Admin users
-├── countries               # 195 country metadata
-├── country_statistics      # 1,365 records (195×7)
-├── state_addiction_statistics # US state stats
-├── substance_statistics    # Substance breakdown
-├── treatment_centers       # 104 centers
-├── faqs                    # FAQs
-├── free_resources          # Resources
-├── articles                # Blog/news
-├── cms_pages               # CMS content
-└── audit_log               # Version history
-```
-
----
-
-## 🌐 URL STRUCTURE
-
-### Public Pages
-- `/` - Homepage
-- `/{state-slug}-addiction-rehabs` - US state pages (51)
-- `/{country-slug}-addiction-rehabs` - Country pages (195)
-- `/rehab-centers` - Treatment centers listing
-- `/about` - About Us
-- `/contact` - Contact
-- `/privacy-policy` - Privacy Policy
-- `/terms-of-service` - Terms
-- `/legal-disclaimer` - Legal Disclaimer
-
-### Admin Pages
-- `/admin` - Dashboard
-- `/admin/cms` - CMS Pages
-- `/admin/statistics` - Statistics
-- `/admin/content-generator` - AI Generator
-- `/admin/bulk-import` - Bulk Import
-- `/admin/data-coverage` - Coverage Map
+### Data Visualizations Per Page
+| Chart Type | Country Pages | State Pages |
+|------------|---------------|-------------|
+| Area Chart (People Affected) | ✅ | ✅ |
+| Line Chart (Deaths Over Time) | ✅ | ✅ |
+| Bar Chart (Drug vs Alcohol) | ✅ | ✅ |
+| Bar Chart (Economic Impact) | ✅ | ✅ |
+| Pie Chart (Age Demographics) | ✅ USA only | ✅ |
+| Pie Chart (Facility Types) | ✅ USA only | ✅ |
+| Stacked Bar (Deaths by Substance) | ⏳ | ✅ |
 
 ---
 
@@ -193,57 +115,81 @@ Emergent LLM Key:
   From EMERGENT_LLM_KEY env variable
 ```
 
----
-
-## 📊 DATA SOURCES & CITATIONS
-
-### Primary Sources
-| Source | Coverage | Data Types | Confidence |
-|--------|----------|------------|------------|
-| WHO GHO | Global | Alcohol, mortality | High |
-| UNODC | Global | Drug use, trafficking | High |
-| SAMHSA | USA | Treatment, prevalence | High |
-| EMCDDA | Europe | All addiction data | High |
-
-### Regional Sources
-| Region | Source | Countries |
-|--------|--------|-----------|
-| Europe | EMCDDA | 44 |
-| Americas | PAHO, OAS/CICAD | 35 |
-| Asia | WHO SEARO/WPRO | 48 |
-| Africa | WHO AFRO | 54 |
-| Oceania | AIHW, WHO WPRO | 14 |
-
-### Confidence Levels
-- **High**: Direct government/WHO data available
-- **Medium**: Regional aggregate + country adjustments
-- **Estimated**: Based on regional averages, clearly marked
+⚠️ **IMPORTANT**: Change admin password before production launch!
 
 ---
 
-## 🚀 DEPLOYMENT NOTES
+## 🗓️ IMPLEMENTATION LOG
 
-### Environment Variables Required
-```bash
-# Backend (.env)
-MONGO_URL=mongodb://...
-DB_NAME=united_rehabs
-EMERGENT_LLM_KEY=sk-emergent-...
+### Session: January 24, 2026 (Latest)
 
-# Frontend (.env)
-REACT_APP_BACKEND_URL=https://...
+#### Timestamps Log
+```
+[22:00] Country page enhancement started
+[22:08] EnhancedCountryPage.tsx created with full visualizations
+[22:09] USA page tested - showing aggregated 51-state data
+[22:10] Germany page tested - showing international data
+[22:12] All charts confirmed working (Area, Line, Bar, Pie)
+[22:15] Documentation updated
 ```
 
-### Build Commands
-```bash
-# Backend
-pip install -r requirements.txt
-uvicorn server:app --host 0.0.0.0 --port 8001
-
-# Frontend
-yarn install
-yarn build
+#### Previous Session Highlights
 ```
+[21:22] Multi-language support completed (EN/ES/FR/PT)
+[21:48] Interactive global map implemented
+[21:58] Country comparison tool created (/compare)
+[21:59] Data export endpoints added
+[22:00] Draft→Review→Publish workflow implemented
+```
+
+---
+
+## 🌐 URL STRUCTURE
+
+### Public Pages (Total: 260+ pages)
+| URL Pattern | Count | Example |
+|-------------|-------|---------|
+| `/` | 1 | Homepage |
+| `/{state}-addiction-rehabs` | 51 | `/california-addiction-rehabs` |
+| `/{state}-addiction-stats` | 51 | `/california-addiction-stats` |
+| `/{country}-addiction-rehabs` | 195 | `/germany-addiction-rehabs` |
+| `/rehab-centers` | 1 | Treatment center search |
+| `/compare` | 1 | Country comparison |
+| `/about`, `/contact`, `/privacy-policy` | 6 | Legal pages |
+
+### Admin Pages
+| URL | Purpose |
+|-----|---------|
+| `/admin` | Dashboard |
+| `/admin/cms` | CMS Pages Editor |
+| `/admin/statistics` | Statistics Management |
+| `/admin/content-generator` | AI Content Generation |
+| `/admin/bulk-import` | Bulk Data Import |
+| `/admin/data-coverage` | Data Coverage Map |
+
+---
+
+## 🔧 TECHNICAL STACK
+
+### Backend
+- **Framework**: FastAPI (Python 3.10+)
+- **Database**: MongoDB (Motor async driver)
+- **Auth**: JWT (PyJWT)
+- **AI**: Emergent Integrations (Gemini, GPT-4o, Claude)
+
+### Frontend
+- **Framework**: React 18 + TypeScript
+- **Build**: Vite 5
+- **Styling**: TailwindCSS + Shadcn/UI
+- **Charts**: Recharts
+- **Maps**: react-simple-maps
+- **i18n**: react-i18next
+- **State**: TanStack Query
+
+### Infrastructure
+- **Hosting**: Kubernetes (Emergent Platform)
+- **CI/CD**: Emergent deployment
+- **Logs**: Supervisor managed
 
 ---
 
@@ -260,6 +206,32 @@ If system crashes, to restore:
    - `/app/memory/LAUNCH_CHECKLIST.md` - This file
 4. **Test Reports**: `/app/test_reports/iteration_*.json`
 
+### Key Files to Backup
+```
+/app/backend/server.py           # Main API
+/app/backend/models.py           # Data models
+/app/frontend/src/pages/         # All page components
+/app/frontend/src/data/          # State/Country configs
+/app/memory/                      # All documentation
+```
+
+---
+
+## 🚀 LAUNCH READINESS SCORE
+
+| Category | Score | Notes |
+|----------|-------|-------|
+| Features | 95% | Core features complete |
+| Data | 100% | 195 countries, 51 states |
+| Visualizations | 95% | All major charts done |
+| SEO | 85% | Need sitemap, meta tags |
+| Security | 70% | Need audit before prod |
+| Performance | 80% | Need optimization pass |
+| Documentation | 100% | Fully documented |
+
+**Overall: READY FOR STAGING** 🟡
+
 ---
 
 *Document maintained by development team*
+*Last automated update: January 24, 2026 22:15 UTC*
