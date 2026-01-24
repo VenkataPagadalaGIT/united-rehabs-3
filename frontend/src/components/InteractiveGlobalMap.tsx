@@ -91,9 +91,9 @@ function InteractiveGlobalMapComponent({
   };
 
   const getCountryColor = (geo: any) => {
-    const isoA3 = geo.properties?.ISO_A3 || geo.id;
-    const countryCode = countryCodeMap[isoA3] || isoA3;
-    const country = ALL_COUNTRIES.find(c => c.code === countryCode);
+    const geoId = geo.id || geo.properties?.id;
+    const countryCode = isoNumericToAlpha3[geoId] || null;
+    const country = countryCode ? ALL_COUNTRIES.find(c => c.code === countryCode) : null;
     
     if (!country) return "#374151"; // Default gray for unmapped countries
     
