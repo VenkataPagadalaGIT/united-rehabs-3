@@ -35,7 +35,7 @@ class StateDataPipeline:
         self.llm_config = {
             "research": {"provider": "gemini", "model": "gemini-2.5-flash"},
             "content": {"provider": "openai", "model": "gpt-4o"},
-            "factcheck": {"provider": "anthropic", "model": "claude-sonnet-4.5"}
+            "factcheck": {"provider": "anthropic", "model": "claude-sonnet-4-5-20250929"}
         }
         
     def _create_chat(self, session_id: str, system_message: str, agent_type: str = "research"):
