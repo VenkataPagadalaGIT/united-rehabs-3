@@ -1,151 +1,85 @@
-import { useState, useEffect } from "react";
-import { User, Session } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect, useCallback } from "react";
+import { authApi } from "@/lib/api";
+
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  mfa_enabled?: boolean;
+}
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let mounted = true;
+  const checkAuth = useCallback(async () => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      setUser(null);
+      setIsAdmin(false);
+      setLoading(false);
+      return;
+    }
 
-    // Server-side admin verification using edge function
-    const verifyAdminServerSide = async (accessToken: string): Promise<boolean> => {
-      try {
-        const { data, error } = await supabase.functions.invoke("verify-admin", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-
-        if (error) {
-          console.error("Server-side admin verification failed:", error);
-          return false;
-        }
-
-        return data?.isAdmin === true;
-      } catch (err) {
-        console.error("Error calling verify-admin function:", err);
-        // Fallback to client-side check if edge function fails
-        return false;
-      }
-    };
-
-    // Fallback client-side check (used only if server verification fails)
-    const checkAdminRoleFallback = async (userId: string): Promise<boolean> => {
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId)
-        .eq("role", "admin")
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error checking admin role:", error);
-        return false;
-      }
-      return !!data;
-    };
-
-    const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!mounted) return;
-      
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user && session.access_token) {
-        // Primary: Server-side verification
-        let adminStatus = await verifyAdminServerSide(session.access_token);
-        
-        // If server verification returns false, double-check with fallback
-        // This handles cases where the edge function might be unavailable
-        if (!adminStatus) {
-          adminStatus = await checkAdminRoleFallback(session.user.id);
-        }
-        
-        if (mounted) {
-          setIsAdmin(adminStatus);
-        }
-      }
-      
-      if (mounted) {
-        setLoading(false);
-      }
-    };
-
-    initAuth();
-
-    // Set up auth state listener - use sync callback, defer async work
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (!mounted) return;
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user && session.access_token) {
-          // Defer async work with setTimeout
-          setTimeout(async () => {
-            if (!mounted) return;
-            
-            // Primary: Server-side verification
-            let adminStatus = await verifyAdminServerSide(session.access_token);
-            
-            // Fallback if needed
-            if (!adminStatus) {
-              adminStatus = await checkAdminRoleFallback(session.user.id);
-            }
-            
-            if (mounted) {
-              setIsAdmin(adminStatus);
-            }
-          }, 0);
-        } else {
-          setIsAdmin(false);
-        }
-      }
-    );
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
+    try {
+      const userData = await authApi.getMe();
+      setUser(userData);
+      setIsAdmin(userData.role === 'admin');
+    } catch (error) {
+      // Token invalid or expired
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user');
+      setUser(null);
+      setIsAdmin(false);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
   const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    try {
+      const response = await authApi.login(email, password);
+      localStorage.setItem('auth_token', response.access_token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      setUser(response.user);
+      setIsAdmin(response.user.role === 'admin');
+      return { error: null };
+    } catch (error: any) {
+      const message = error.response?.data?.detail || 'Login failed';
+      return { error: { message } };
+    }
   };
 
   const signUp = async (email: string, password: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-      },
-    });
-    return { error };
+    try {
+      const response = await authApi.register(email, password);
+      localStorage.setItem('auth_token', response.access_token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      setUser(response.user);
+      setIsAdmin(response.user.role === 'admin');
+      return { error: null };
+    } catch (error: any) {
+      const message = error.response?.data?.detail || 'Registration failed';
+      return { error: { message } };
+    }
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user');
+    setUser(null);
     setIsAdmin(false);
-    return { error };
+    return { error: null };
   };
 
   return {
     user,
-    session,
+    session: user ? { user, access_token: localStorage.getItem('auth_token') } : null,
     isAdmin,
     loading,
     signIn,
