@@ -14,6 +14,7 @@ import DoNotSell from "./pages/DoNotSell";
 import AffiliateDisclosure from "./pages/AffiliateDisclosure";
 import LegalDisclaimer from "./pages/LegalDisclaimer";
 import StatePage from "./pages/StatePage";
+import RehabCenters from "./pages/RehabCenters";
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
 import Dashboard from "./pages/admin/Dashboard";
@@ -56,6 +57,9 @@ const App = () => (
           <Route path="/do-not-sell" element={<DoNotSell />} />
           <Route path="/affiliate-disclosure" element={<AffiliateDisclosure />} />
           <Route path="/legal-disclaimer" element={<LegalDisclaimer />} />
+          
+          {/* Treatment Centers - International */}
+          <Route path="/rehab-centers" element={<RehabCenters />} />
           
           {/* Blog, News, Articles routes */}
           <Route path="/blog" element={<ArticlesListPage />} />
