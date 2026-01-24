@@ -310,6 +310,6 @@ export default function CMSAdmin() {
           ))}
         </Tabs>
       </div>
-    </AdminLayout>
+    </div>
   );
 }
