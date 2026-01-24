@@ -2,7 +2,26 @@
 
 ## January 24, 2026
 
-### Phase 12: Advanced Features (Interactive Map, Comparison, Export) ✅ (Latest - Jan 24, 2026)
+### Phase 13: Enhanced Country Pages with Comprehensive Visualizations ✅ (Latest - Jan 24, 2026)
+**Upgraded country pages to match state page richness with full data visualizations**
+
+#### New Features:
+- **USA Aggregated Statistics**: Combines all 51 state data into comprehensive national view
+- **Historical Trend Charts**: Area, Line, and Bar charts for 2019-2025 data
+- **Age Demographics Pie Chart**: Shows affected population by age group
+- **Treatment Facilities Pie Chart**: Inpatient vs Outpatient breakdown
+- **Substance Statistics Section** (USA only): Detailed opioid, alcohol, stimulant, cannabis stats
+- **Economic Impact Charts**: Yearly economic cost in billions USD
+- **Drug vs Alcohol Deaths Comparison**: Side-by-side mortality analysis
+- **Data Methodology Accordion**: Sources, methodology, limitations explained
+
+#### Files Modified:
+- `/app/frontend/src/pages/EnhancedCountryPage.tsx` - NEW: Rich country page with full visualizations
+- `/app/frontend/src/App.tsx` - Updated to use EnhancedCountryPage
+
+---
+
+### Phase 12: Advanced Features (Interactive Map, Comparison, Export) ✅ (Jan 24, 2026)
 **Implemented interactive global map, country comparison tool, data export, and workflow management**
 
 #### New Features:
