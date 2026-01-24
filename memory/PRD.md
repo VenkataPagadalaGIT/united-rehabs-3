@@ -201,9 +201,9 @@ All critical features have been implemented.
 
 ### P1 - High Priority
 - [x] ~~Connect Homepage to backend for dynamic content~~ ✅ COMPLETED Jan 24, 2026
-- [ ] Build Treatment Center Listings Page (`/rehab-centers`)
-- [ ] Add search/filter functionality to treatment centers
-- [ ] Implement proper error boundaries for public pages
+- [x] ~~Multi-Language Support (i18n)~~ ✅ COMPLETED Jan 24, 2026
+- [ ] Interactive Global Map - Replace static map with clickable country navigation
+- [ ] Country Comparison Tool - Build `/compare` page for side-by-side stats
 
 ### Homepage Integration Details (Completed)
 - Single optimized API call (`/api/homepage/data`) returns all homepage data
