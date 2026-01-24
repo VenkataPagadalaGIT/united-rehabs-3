@@ -1365,14 +1365,20 @@ async def get_homepage_data_international():
 async def startup_seed_data():
     """Seed international data if not present"""
     countries_count = await db.countries.count_documents({})
-    if countries_count == 0:
-        logger.info("Seeding international country data...")
+    if countries_count < 50:  # If we don't have all 195 countries
+        logger.info("Seeding 195 countries data...")
         try:
-            from country_data import seed_all_international_data
-            await seed_all_international_data(db)
-            logger.info("International data seeding complete")
+            from country_data_full import seed_all_195_countries
+            await seed_all_195_countries(db)
+            logger.info("195 countries data seeding complete")
         except Exception as e:
-            logger.error(f"Error seeding international data: {e}")
+            logger.error(f"Error seeding country data: {e}")
+            # Fallback to basic 20 countries
+            try:
+                from country_data import seed_all_international_data
+                await seed_all_international_data(db)
+            except Exception as e2:
+                logger.error(f"Error with fallback seeding: {e2}")
 
 # Include the router in the main app
 app.include_router(api_router)
