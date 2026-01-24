@@ -8,7 +8,8 @@ interface TreatmentCenter {
   name: string;
   address: string;
   city: string;
-  state: string;
+  state?: string;
+  state_name?: string;
   state_id: string;
   zip_code: string;
   phone: string;
