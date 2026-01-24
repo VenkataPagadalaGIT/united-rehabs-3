@@ -15,7 +15,7 @@ import DoNotSell from "./pages/DoNotSell";
 import AffiliateDisclosure from "./pages/AffiliateDisclosure";
 import LegalDisclaimer from "./pages/LegalDisclaimer";
 import StatePage from "./pages/StatePage";
-import CountryPage from "./pages/CountryPage";
+import CountryPage from "./pages/EnhancedCountryPage";
 import RehabCenters from "./pages/RehabCenters";
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
