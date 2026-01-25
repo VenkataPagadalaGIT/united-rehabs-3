@@ -1,75 +1,75 @@
-# United Rehabs - Product Requirements Document
+# United Rehabs - Data Accuracy System
 
-## ✅ DATA ACCURACY FIXED (Jan 25, 2026)
+## ✅ DATA ACCURACY VERIFIED (Jan 25, 2026)
 
-### Critical Fix Applied
-- **Issue**: Frontend was showing rounded numbers (e.g., "4K" instead of "4,039")
-- **Issue**: Canada 2019 showed 6,375 deaths instead of actual 4,039
-- **Fix**: Now showing **EXACT numbers** from official government sources
-- **Verified**: All key countries match Google SERP results exactly
+### Verified Countries (Official Government Sources)
+| Country | 2022 Deaths | Source | URL |
+|---------|-------------|--------|-----|
+| USA | **107,941** | CDC NCHS | https://www.cdc.gov/nchs |
+| Canada | **7,525** | Health Canada | https://health-infobase.canada.ca |
+| UK | **4,907** | ONS | https://www.ons.gov.uk |
+| Germany | **1,990** | BKA | https://www.bka.de |
+| Australia | **1,874** | ABS | https://www.abs.gov.au |
+| Spain | **1,070** | EMCDDA | https://www.euda.europa.eu |
+| Sweden | **1,025** | Folkhälsomyndigheten | https://www.folkhalsomyndigheten.se |
+| Ireland | **343** | HRB NDRDI | https://www.hrb.ie |
+| Netherlands | **332** | EMCDDA | https://www.euda.europa.eu |
+| Norway | **324** | FHI | https://www.fhi.no |
+| Finland | **287** | THL | https://thl.fi |
+| Japan | **260** | MHLW | https://www.mhlw.go.jp |
+| Denmark | **254** | SST | https://www.sst.dk |
+| Italy | **227** | EMCDDA | https://www.euda.europa.eu |
+| Switzerland | **200** | BAG | https://www.bag.admin.ch |
+| Austria | **199** | EMCDDA | https://www.euda.europa.eu |
+| New Zealand | **155** | MOH NZ | https://www.health.govt.nz |
+| Portugal | **85** | EMCDDA | https://www.euda.europa.eu |
 
-### Verified Against Google SERP
-| Country | Year | Our Data | Google/Official | Status |
-|---------|------|----------|-----------------|--------|
-| USA | 2022 | 107,941 | 107,941 (CDC) | ✅ EXACT |
-| USA | 2021 | 106,699 | 106,699 (CDC) | ✅ EXACT |
-| USA | 2020 | 91,799 | 91,799 (CDC) | ✅ EXACT |
-| USA | 2019 | 70,630 | 70,630 (CDC) | ✅ EXACT |
-| Canada | 2022 | 7,525 | 7,525 (Health Canada) | ✅ EXACT |
-| Canada | 2021 | 7,993 | 7,993 (Health Canada) | ✅ EXACT |
-| Canada | 2020 | 6,412 | 6,412 (Statistics Canada) | ✅ EXACT |
-| Canada | 2019 | 4,039 | 4,039 (Statistics Canada) | ✅ EXACT |
-| UK | 2022 | 4,907 | 4,907 (ONS) | ✅ EXACT |
-| UK | 2021 | 4,859 | 4,859 (ONS) | ✅ EXACT |
-| Australia | 2022 | 1,874 | 1,874 (ABS) | ✅ EXACT |
-| Germany | 2022 | 1,990 | 1,990 (BKA) | ✅ EXACT |
+### US States - All 51 Verified (CDC WONDER)
+All US states verified with CDC WONDER data for 2022.
 
-### Changes Made
-1. **Frontend**: Removed K/M rounding - now shows exact numbers with commas
-2. **Database**: Updated with EXACT official figures from:
-   - CDC NCHS (USA)
-   - Health Canada / Statistics Canada (Canada)
-   - ONS (UK)
-   - ABS (Australia)
-   - BKA (Germany)
-3. **USA Page**: Now uses CDC national figures instead of state aggregation
+### Data Quality System
 
-### Official Data Sources
-| Country | Source | URL |
-|---------|--------|-----|
-| USA | CDC NCHS | https://www.cdc.gov/nchs/hus/topics/drug-overdose-deaths.htm |
-| Canada | Health Canada | https://health-infobase.canada.ca/substance-related-harms/opioids-stimulants/ |
-| UK | ONS | https://www.ons.gov.uk/.../deathsrelatedtodrugpoisoning |
-| Australia | ABS | https://www.abs.gov.au/statistics/health/causes-death |
-| Germany | BKA | https://www.bka.de/EN/OurTasks/AreasOfCrime/DrugRelatedCrime |
+#### Files Created
+- `/app/backend/comprehensive_official_data.py` - Single source of truth
+- `/app/backend/automated_serp_validator.py` - DataForSEO validation
+- `/app/backend/improved_serp_validator.py` - Improved extraction
+- `/app/backend/exact_verified_data.py` - Official government data
 
----
-
-## Files Modified
-- `/app/frontend/src/pages/EnhancedCountryPage.tsx` - Exact numbers, CDC national data for USA
-- `/app/frontend/src/pages/CountryPage.tsx` - Exact numbers
-- `/app/frontend/src/pages/ComparePage.tsx` - Exact numbers
-- `/app/frontend/src/components/listing/tabs/StatisticsTab.tsx` - Exact numbers
-- `/app/frontend/src/components/home/TrustIndicators.tsx` - Exact numbers
-- `/app/backend/exact_verified_data.py` - Official source data
-- `/app/backend/serp_crosscheck_validator.py` - Validation system
-
-## Test Credentials
-- **Admin Email**: admin@unitedrehabs.com
-- **Admin Password**: admin_password
-
-## Verification Commands
+#### How to Re-verify
 ```bash
-# Verify database accuracy
-cd /app/backend && python3 exact_verified_data.py
+# Apply official verified data
+cd /app/backend && python3 comprehensive_official_data.py
 
-# Check specific country
-curl https://truthful-stats.preview.emergentagent.com/api/countries/USA
-curl https://truthful-stats.preview.emergentagent.com/api/countries/CAN
+# Run SERP validation (uses DataForSEO credits)
+cd /app/backend && python3 improved_serp_validator.py
 ```
 
-## Google Spot-Check Queries
-Search these in Google to verify our data:
-- "drug overdose deaths united states 2022" → Should show ~107,941
-- "drug overdose deaths canada 2019" → Should show ~4,039
-- "drug poisoning deaths england wales 2022" → Should show ~4,907
+#### Data Sources Hierarchy
+1. **Gold Standard**: CDC, Health Canada, ONS, ABS (national agencies)
+2. **Silver Standard**: EMCDDA, UNODC (international organizations)
+3. **Bronze Standard**: SERP-verified estimates
+
+### Frontend Changes
+- Removed K/M rounding - now shows exact numbers (e.g., 107,941 not "108K")
+- USA page now uses CDC national figures instead of state aggregation
+- All pages show "View Source" link to official data
+
+### Google Spot-Check Queries
+Search these in Google to verify:
+- `"united states" drug overdose deaths 2022` → 107,941
+- `"canada" drug overdose deaths 2019` → 4,039
+- `"ireland" drug overdose deaths 2022` → 343
+- `"sweden" drug overdose deaths 2022` → 1,025
+
+## Test Credentials
+- **Admin**: admin@unitedrehabs.com / admin_password
+
+## API Endpoints for Verification
+```bash
+# Get country data
+curl https://truthful-stats.preview.emergentagent.com/api/countries/USA
+curl https://truthful-stats.preview.emergentagent.com/api/countries/CAN
+
+# Get QA dashboard
+curl https://truthful-stats.preview.emergentagent.com/api/qa/dashboard
+```
