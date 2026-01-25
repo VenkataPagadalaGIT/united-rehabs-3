@@ -162,6 +162,47 @@ async def get_me(user: User = Depends(get_current_user)):
         raise HTTPException(status_code=401, detail="Not authenticated")
     return {"id": user.id, "email": user.email, "role": user.role, "mfa_enabled": user.mfa_enabled}
 
+class PasswordChangeRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+@api_router.post("/auth/change-password")
+async def change_password(
+    request: PasswordChangeRequest,
+    user: User = Depends(get_current_user)
+):
+    """Change user password - requires current password verification"""
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    # Get full user from DB to verify current password
+    user_doc = await db.users.find_one({"id": user.id}, {"_id": 0})
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Verify current password
+    if not verify_password(request.current_password, user_doc["password_hash"]):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    
+    # Validate new password strength
+    if len(request.new_password) < 12:
+        raise HTTPException(status_code=400, detail="Password must be at least 12 characters")
+    if not any(c.isupper() for c in request.new_password):
+        raise HTTPException(status_code=400, detail="Password must contain uppercase letter")
+    if not any(c.islower() for c in request.new_password):
+        raise HTTPException(status_code=400, detail="Password must contain lowercase letter")
+    if not any(c.isdigit() for c in request.new_password):
+        raise HTTPException(status_code=400, detail="Password must contain a number")
+    
+    # Update password
+    new_hash = get_password_hash(request.new_password)
+    await db.users.update_one(
+        {"id": user.id},
+        {"$set": {"password_hash": new_hash, "updated_at": datetime.utcnow()}}
+    )
+    
+    return {"message": "Password changed successfully"}
+
 # ============================================
 # DASHBOARD
 # ============================================
