@@ -249,19 +249,19 @@ export function Footer({ linkGroups }: FooterProps) {
             <span className="text-sidebar-foreground/30">|</span>
             <ScrollLink to="/legal-disclaimer" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
               Legal Disclaimer
-            </Link>
+            </ScrollLink>
             <span className="text-sidebar-foreground/30">|</span>
-            <Link to="/accessibility" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
+            <ScrollLink to="/accessibility" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
               Accessibility
-            </Link>
+            </ScrollLink>
             <span className="text-sidebar-foreground/30">|</span>
-            <Link to="/affiliate-disclosure" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
+            <ScrollLink to="/affiliate-disclosure" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
               Affiliate Disclosure
-            </Link>
+            </ScrollLink>
             <span className="text-sidebar-foreground/30">|</span>
-            <Link to="/admin" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
+            <ScrollLink to="/admin" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
               Admin
-            </Link>
+            </ScrollLink>
           </div>
         </div>
 
@@ -280,9 +280,9 @@ export function Footer({ linkGroups }: FooterProps) {
                 <strong>No Endorsement:</strong> Facility listings do not constitute endorsement. Users must verify credentials and suitability independently.
               </p>
               <p className="pt-2 border-t border-sidebar-border/30">
-                <Link to="/legal-disclaimer" className="text-primary hover:underline">Full Legal Disclaimer</Link> |{" "}
-                <Link to="/terms-of-service" className="text-primary hover:underline">Terms</Link> |{" "}
-                <Link to="/privacy-policy" className="text-primary hover:underline">Privacy</Link>
+                <ScrollLink to="/legal-disclaimer" className="text-primary hover:underline">Full Legal Disclaimer</ScrollLink> |{" "}
+                <ScrollLink to="/terms-of-service" className="text-primary hover:underline">Terms</ScrollLink> |{" "}
+                <ScrollLink to="/privacy-policy" className="text-primary hover:underline">Privacy</ScrollLink>
               </p>
             </div>
           </div>
