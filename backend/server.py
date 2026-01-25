@@ -2548,6 +2548,254 @@ async def get_cost_savings():
         ]
     }
 
+# ============================================
+# COMPREHENSIVE VERIFICATION DASHBOARD ENDPOINTS
+# ============================================
+
+@api_router.get("/qa/dashboard")
+async def get_verification_dashboard():
+    """
+    Comprehensive verification dashboard showing:
+    - Overall verification coverage
+    - Source breakdown
+    - Last verification dates
+    - Cross-check status
+    """
+    from datetime import datetime, timezone
+    
+    # US States verification status
+    states_total = await db.state_addiction_statistics.count_documents({})
+    states_verified = await db.state_addiction_statistics.count_documents({'data_verified': True})
+    states_cdc_verified = await db.state_addiction_statistics.count_documents({'cdc_verified': True})
+    
+    # Countries verification status
+    countries_total = await db.country_statistics.count_documents({})
+    countries_verified = await db.country_statistics.count_documents({'data_verified': True})
+    countries_unodc = await db.country_statistics.count_documents({'unodc_verified': True})
+    countries_emcdda = await db.country_statistics.count_documents({'emcdda_verified': True})
+    countries_serp = await db.country_statistics.count_documents({'serp_verified': True})
+    
+    # Get latest verification dates
+    latest_state = await db.state_addiction_statistics.find_one(
+        {'verified_at': {'$exists': True}},
+        {'_id': 0, 'state_id': 1, 'year': 1, 'verified_at': 1},
+        sort=[('verified_at', -1)]
+    )
+    
+    latest_country = await db.country_statistics.find_one(
+        {'verified_at': {'$exists': True}},
+        {'_id': 0, 'country_code': 1, 'year': 1, 'verified_at': 1},
+        sort=[('verified_at', -1)]
+    )
+    
+    # Get verification reports
+    verification_reports = await db.verification_reports.find(
+        {},
+        {'_id': 0}
+    ).sort('created_at', -1).limit(5).to_list(length=5)
+    
+    return {
+        "summary": {
+            "total_records": states_total + countries_total,
+            "verified_records": states_verified + countries_verified,
+            "coverage_percent": round((states_verified + countries_verified) / max(states_total + countries_total, 1) * 100, 1)
+        },
+        "us_states": {
+            "total_records": states_total,
+            "verified": states_verified,
+            "cdc_verified": states_cdc_verified,
+            "coverage_percent": round(states_verified / max(states_total, 1) * 100, 1),
+            "last_verification": latest_state.get('verified_at').isoformat() if latest_state and latest_state.get('verified_at') else None
+        },
+        "countries": {
+            "total_records": countries_total,
+            "verified": countries_verified,
+            "by_source": {
+                "unodc": countries_unodc,
+                "emcdda": countries_emcdda,
+                "serp": countries_serp
+            },
+            "coverage_percent": round(countries_verified / max(countries_total, 1) * 100, 1),
+            "last_verification": latest_country.get('verified_at').isoformat() if latest_country and latest_country.get('verified_at') else None
+        },
+        "sources_used": [
+            {"name": "CDC WONDER", "type": "US Government", "url": "https://wonder.cdc.gov/"},
+            {"name": "UNODC World Drug Report", "type": "UN", "url": "https://www.unodc.org/unodc/en/data-and-analysis/world-drug-report-2024.html"},
+            {"name": "EMCDDA European Drug Report", "type": "EU", "url": "https://www.emcdda.europa.eu/"},
+            {"name": "Health Canada", "type": "National", "url": "https://health-infobase.canada.ca/"},
+            {"name": "ONS UK", "type": "National", "url": "https://www.ons.gov.uk/"},
+            {"name": "AIHW Australia", "type": "National", "url": "https://www.aihw.gov.au/"}
+        ],
+        "recent_reports": verification_reports
+    }
+
+
+@api_router.get("/qa/record/{location_type}/{location_id}/{year}")
+async def get_record_verification_details(location_type: str, location_id: str, year: int):
+    """
+    Get detailed verification metadata for a specific record.
+    
+    Args:
+        location_type: 'state' or 'country'
+        location_id: State code (e.g., 'CA') or country code (e.g., 'USA')
+        year: Year of the record
+    
+    Returns complete verification audit trail.
+    """
+    if location_type == 'state':
+        record = await db.state_addiction_statistics.find_one(
+            {'state_id': location_id.upper(), 'year': year},
+            {'_id': 0}
+        )
+        if not record:
+            raise HTTPException(status_code=404, detail=f"State record not found: {location_id}/{year}")
+    elif location_type == 'country':
+        record = await db.country_statistics.find_one(
+            {'country_code': location_id.upper(), 'year': year},
+            {'_id': 0}
+        )
+        if not record:
+            raise HTTPException(status_code=404, detail=f"Country record not found: {location_id}/{year}")
+    else:
+        raise HTTPException(status_code=400, detail="location_type must be 'state' or 'country'")
+    
+    # Extract verification-specific fields
+    verification_info = {
+        "location": {
+            "type": location_type,
+            "id": location_id.upper(),
+            "year": year
+        },
+        "data": {
+            "overdose_deaths": record.get('overdose_deaths') or record.get('drug_overdose_deaths'),
+            "opioid_deaths": record.get('opioid_deaths'),
+            "treatment_centers": record.get('total_treatment_centers') or record.get('treatment_centers')
+        },
+        "verification_status": {
+            "is_verified": record.get('data_verified', False),
+            "cdc_verified": record.get('cdc_verified', False),
+            "unodc_verified": record.get('unodc_verified', False),
+            "emcdda_verified": record.get('emcdda_verified', False),
+            "serp_verified": record.get('serp_verified', False)
+        },
+        "source_info": {
+            "primary_source": record.get('data_source') or record.get('primary_source'),
+            "primary_source_url": record.get('data_source_url') or record.get('primary_source_url'),
+            "primary_source_agency": record.get('data_source_agency') or record.get('primary_source_agency'),
+            "national_source": record.get('national_source'),
+            "reliability_score": record.get('reliability_score')
+        },
+        "timestamps": {
+            "verified_at": record.get('verified_at').isoformat() if record.get('verified_at') else None,
+            "last_verification_date": record.get('last_verification_date').isoformat() if record.get('last_verification_date') else None,
+            "next_verification_due": record.get('next_verification_due').isoformat() if record.get('next_verification_due') else None,
+            "updated_at": record.get('updated_at').isoformat() if record.get('updated_at') else None
+        },
+        "methodology": {
+            "verification_method": record.get('verification_method'),
+            "baseline_year": record.get('baseline_year'),
+            "trend_factor": record.get('trend_factor')
+        },
+        "cross_check_sources": record.get('cross_check_sources', []),
+        "verification_history": record.get('verification_history', [])
+    }
+    
+    return verification_info
+
+
+@api_router.get("/qa/unverified")
+async def get_unverified_records(location_type: str = "all", limit: int = 100):
+    """
+    Get list of unverified records that need attention.
+    
+    Args:
+        location_type: 'state', 'country', or 'all'
+        limit: Maximum records to return
+    """
+    results = {
+        "states": [],
+        "countries": []
+    }
+    
+    if location_type in ['state', 'all']:
+        cursor = db.state_addiction_statistics.find(
+            {'data_verified': {'$ne': True}},
+            {'_id': 0, 'state_id': 1, 'state_name': 1, 'year': 1, 'overdose_deaths': 1}
+        ).limit(limit)
+        results["states"] = await cursor.to_list(length=limit)
+    
+    if location_type in ['country', 'all']:
+        cursor = db.country_statistics.find(
+            {'data_verified': {'$ne': True}},
+            {'_id': 0, 'country_code': 1, 'country_name': 1, 'year': 1, 'drug_overdose_deaths': 1}
+        ).limit(limit)
+        results["countries"] = await cursor.to_list(length=limit)
+    
+    return {
+        "unverified_states_count": len(results["states"]),
+        "unverified_countries_count": len(results["countries"]),
+        "states": results["states"],
+        "countries": results["countries"]
+    }
+
+
+@api_router.get("/qa/sources-summary")
+async def get_sources_summary():
+    """
+    Get summary of all verification sources used across the database.
+    """
+    # Aggregate sources from states
+    state_sources = await db.state_addiction_statistics.aggregate([
+        {'$match': {'data_verified': True}},
+        {'$group': {
+            '_id': '$data_source',
+            'count': {'$sum': 1},
+            'avg_reliability': {'$avg': '$reliability_score'}
+        }}
+    ]).to_list(length=100)
+    
+    # Aggregate sources from countries
+    country_sources = await db.country_statistics.aggregate([
+        {'$match': {'data_verified': True}},
+        {'$group': {
+            '_id': '$primary_source',
+            'count': {'$sum': 1},
+            'avg_reliability': {'$avg': '$reliability_score'}
+        }}
+    ]).to_list(length=100)
+    
+    return {
+        "state_sources": [
+            {
+                "source": s['_id'],
+                "records_verified": s['count'],
+                "avg_reliability_score": round(s['avg_reliability'], 1) if s['avg_reliability'] else None
+            }
+            for s in state_sources if s['_id']
+        ],
+        "country_sources": [
+            {
+                "source": s['_id'],
+                "records_verified": s['count'],
+                "avg_reliability_score": round(s['avg_reliability'], 1) if s['avg_reliability'] else None
+            }
+            for s in country_sources if s['_id']
+        ],
+        "official_sources": {
+            "us_government": ["CDC WONDER", "SAMHSA NSDUH", "DEA"],
+            "un_agencies": ["UNODC World Drug Report"],
+            "eu_agencies": ["EMCDDA European Drug Report"],
+            "national_agencies": [
+                "Health Canada",
+                "ONS (UK)",
+                "AIHW (Australia)",
+                "MHLW (Japan)",
+                "NCRB (India)"
+            ]
+        }
+    }
+
+
 # Include the router in the main app
 app.include_router(api_router)
 
