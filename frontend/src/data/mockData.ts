@@ -341,10 +341,11 @@ export const mockStatisticsCards: StatisticsCard[] = [
 
 export const mockNavItems: NavItem[] = [
   { id: "nav1", label: "Locations", hasDropdown: true, order: 1 },
-  { id: "nav2", label: "Insurance", hasDropdown: true, order: 2 },
-  { id: "nav3", label: "Conditions", hasDropdown: true, order: 3 },
-  { id: "nav4", label: "Treatments", hasDropdown: true, order: 4 },
-  { id: "nav5", label: "More", hasDropdown: true, order: 5 },
+  { id: "nav2", label: "Compare", hasDropdown: false, href: "/compare", order: 2 },
+  { id: "nav3", label: "Treatment Centers", hasDropdown: false, href: "/rehab-centers", order: 3 },
+  { id: "nav4", label: "Blog", hasDropdown: false, href: "/blog", order: 4 },
+  { id: "nav5", label: "About", hasDropdown: false, href: "/about", order: 5 },
+  { id: "nav6", label: "Contact", hasDropdown: false, href: "/contact", order: 6 },
 ];
 
 export const mockFooterLinks: FooterLinkGroup[] = [
