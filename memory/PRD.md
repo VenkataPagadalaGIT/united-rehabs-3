@@ -78,6 +78,12 @@ Search these in Google to verify:
 ## Test Credentials
 - **Admin**: admin@unitedrehabs.com / admin_password
 
+## Upcoming Tasks
+- **P1: Build Automated SERP Validation System** - Use DataForSEO API to periodically cross-check data
+- **P1: Automated Quarterly Data Refresh** - Productionize refresh scripts as scheduled tasks
+- **P2: Geographic Expansion** - Adapt verification system for city-level data
+- **P2: Admin Data Workflow** - Implement Draft → Review → Publish workflow
+
 ## API Endpoints for Verification
 ```bash
 # Get country data
