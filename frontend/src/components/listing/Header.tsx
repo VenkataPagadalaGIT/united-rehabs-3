@@ -118,6 +118,7 @@ export function Header({ navItems }: HeaderProps) {
                     <button
                       onClick={() => setLocationsMenuOpen(!locationsMenuOpen)}
                       className="flex items-center justify-between w-full py-3 text-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-4"
+                      data-testid={`mobile-nav-${item.label.toLowerCase()}`}
                     >
                       {item.label}
                       <ChevronDown 
@@ -131,9 +132,19 @@ export function Header({ navItems }: HeaderProps) {
                       isMobile={true}
                     />
                   </>
+                ) : item.href && !item.hasDropdown ? (
+                  <Link
+                    to={item.href}
+                    className="flex items-center justify-between w-full py-3 text-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-4"
+                    onClick={() => setMobileMenuOpen(false)}
+                    data-testid={`mobile-nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    {item.label}
+                  </Link>
                 ) : (
                   <button
                     className="flex items-center justify-between w-full py-3 text-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-4"
+                    data-testid={`mobile-nav-${item.label.toLowerCase().replace(/\s+/g, '-')}-dropdown`}
                   >
                     {item.label}
                     {item.hasDropdown && <ChevronDown className="h-4 w-4" aria-hidden="true" />}
