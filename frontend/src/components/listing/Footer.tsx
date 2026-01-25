@@ -207,47 +207,47 @@ export function Footer({ linkGroups }: FooterProps) {
           
           <div className="grid grid-cols-3 md:grid-cols-6 gap-x-4 gap-y-1.5">
             {topStates.map((state) => (
-              <Link
+              <ScrollLink
                 key={state.id}
                 to={`/${state.slug}-addiction-rehabs`}
                 className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
               >
                 {state.name}
-              </Link>
+              </ScrollLink>
             ))}
-            <Link
+            <ScrollLink
               to="/"
               className="text-primary hover:underline text-sm font-medium col-span-2"
             >
               View All 51 States →
-            </Link>
+            </ScrollLink>
           </div>
         </div>
 
         {/* Quick Links */}
         <div className="mt-8 pt-6 border-t border-sidebar-border">
           <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-            <Link to="/rehab-centers" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
+            <ScrollLink to="/rehab-centers" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
               Treatment Centers
-            </Link>
+            </ScrollLink>
             <span className="text-sidebar-foreground/30">|</span>
-            <Link to="/about" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
+            <ScrollLink to="/about" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
               About Us
-            </Link>
+            </ScrollLink>
             <span className="text-sidebar-foreground/30">|</span>
-            <Link to="/contact" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
+            <ScrollLink to="/contact" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
               Contact
-            </Link>
+            </ScrollLink>
             <span className="text-sidebar-foreground/30">|</span>
-            <Link to="/privacy-policy" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
+            <ScrollLink to="/privacy-policy" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
               Privacy Policy
-            </Link>
+            </ScrollLink>
             <span className="text-sidebar-foreground/30">|</span>
-            <Link to="/terms-of-service" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
+            <ScrollLink to="/terms-of-service" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
               Terms of Service
-            </Link>
+            </ScrollLink>
             <span className="text-sidebar-foreground/30">|</span>
-            <Link to="/legal-disclaimer" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
+            <ScrollLink to="/legal-disclaimer" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
               Legal Disclaimer
             </Link>
             <span className="text-sidebar-foreground/30">|</span>
