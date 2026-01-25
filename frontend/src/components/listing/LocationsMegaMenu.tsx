@@ -188,8 +188,8 @@ export function LocationsMegaMenu({ isOpen, onClose, isMobile = false }: Locatio
           >
             <Globe className="h-4 w-4" />
             International
-            <span className="text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded-full">
-              Coming Soon
+            <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
+              195 Countries
             </span>
           </button>
         </div>
