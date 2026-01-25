@@ -173,13 +173,13 @@ export function Footer({ linkGroups }: FooterProps) {
                             .sort((a, b) => a.name.localeCompare(b.name))
                             .map((country) => (
                               <li key={country.code}>
-                                <Link
+                                <ScrollLink
                                   to={`/${country.slug}-addiction-rehabs`}
                                   className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm flex items-center gap-1.5"
                                 >
                                   <span className="text-xs">{country.flag}</span>
                                   <span>{country.name}</span>
-                                </Link>
+                                </ScrollLink>
                               </li>
                             ))}
                         </ul>
