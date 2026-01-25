@@ -53,10 +53,15 @@ export function Footer({ linkGroups }: FooterProps) {
         <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
           {/* Logo & Description */}
           <div className="col-span-2 md:col-span-1">
-            <div className="flex flex-col mb-4">
+            <button
+              onClick={scrollToTop}
+              className="flex flex-col mb-4 cursor-pointer hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
+              aria-label="Scroll to top"
+              data-testid="footer-logo-scroll-top"
+            >
               <span className="text-primary font-bold text-lg">united</span>
               <span className="text-sidebar-foreground font-bold text-lg">rehabs</span>
-            </div>
+            </button>
             <p className="text-sidebar-foreground/60 text-sm mb-4">
               Global addiction treatment directory covering {ALL_COUNTRIES.length} countries worldwide.
             </p>
