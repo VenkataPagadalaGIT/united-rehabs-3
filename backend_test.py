@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://globaladdiction.preview.emergentagent.com/api"
+BASE_URL = "https://truthful-stats.preview.emergentagent.com/api"
 ADMIN_EMAIL = "admin@unitedrehabs.com"
 ADMIN_PASSWORD = "Admin123!"
 

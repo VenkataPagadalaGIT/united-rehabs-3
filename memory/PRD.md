@@ -312,7 +312,7 @@ All critical features have been implemented.
 - **Admin Password**: admin_password
 
 ## API Base URL
-- **Production/Preview**: https://globaladdiction.preview.emergentagent.com/api
+- **Production/Preview**: https://truthful-stats.preview.emergentagent.com/api
 
 ## Key API Endpoints
 - `GET /api/statistics?state_id=FL` - Get statistics for a state
