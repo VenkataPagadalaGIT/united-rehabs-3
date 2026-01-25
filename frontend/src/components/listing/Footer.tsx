@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Globe, MapPin, ChevronDown, ChevronRight } from "lucide-react";
+import { Globe, MapPin, ChevronDown, ChevronRight, ArrowUp } from "lucide-react";
 import type { FooterLinkGroup } from "@/types";
 import { ALL_COUNTRIES, COUNTRIES_BY_REGION, getTopCountriesByRegion } from "@/data/countryConfig";
 import { ALL_STATES } from "@/data/allStates";
