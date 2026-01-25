@@ -104,6 +104,14 @@ const EnhancedCountryPage = () => {
     staleTime: 5 * 60 * 1000,
   });
 
+  // Also fetch USA national data for EXACT CDC figures
+  const { data: usaNationalData } = useQuery({
+    queryKey: ["usa-national-stats"],
+    queryFn: () => countriesApi.getStatistics("USA"),
+    enabled: isUSA,
+    staleTime: 5 * 60 * 1000,
+  });
+
   const { data: usaSubstanceStats = [] } = useQuery({
     queryKey: ["usa-substance-stats"],
     queryFn: () => substanceStatisticsApi.getAll({ limit: 500 }),
