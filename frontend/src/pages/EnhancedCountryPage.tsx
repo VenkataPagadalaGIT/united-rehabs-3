@@ -127,9 +127,21 @@ const EnhancedCountryPage = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Aggregate USA data by year
+  // Aggregate USA data by year, use OFFICIAL CDC national figures for deaths
   const usaAggregatedStats = useMemo(() => {
     if (!isUSA || !usaStateStats.length) return [];
+    
+    // Get official CDC national data
+    const nationalStats = usaNationalData?.statistics || [];
+    const nationalByYear: Record<number, any> = {};
+    nationalStats.forEach((stat: any) => {
+      nationalByYear[stat.year] = {
+        drug_overdose_deaths: stat.drug_overdose_deaths,
+        opioid_deaths: stat.opioid_deaths,
+        primary_source: stat.primary_source,
+        primary_source_url: stat.primary_source_url,
+      };
+    });
     
     const byYear: Record<number, any> = {};
     usaStateStats.forEach((stat: any) => {
@@ -173,15 +185,24 @@ const EnhancedCountryPage = () => {
       }
     });
 
-    return Object.values(byYear).map((stat: any) => ({
-      ...stat,
-      recovery_rate: stat.recovery_count > 0 ? stat.recovery_rate / stat.recovery_count : 0,
-      prevalence_rate: (stat.total_affected / stat.population) * 100,
-      treatment_gap_percent: stat.total_affected > 0 
-        ? ((stat.total_affected - stat.treatment_admissions) / stat.total_affected) * 100 
-        : 85,
-    })).sort((a, b) => b.year - a.year);
-  }, [isUSA, usaStateStats]);
+    // Override with OFFICIAL CDC national figures for drug overdose deaths
+    return Object.values(byYear).map((stat: any) => {
+      const national = nationalByYear[stat.year];
+      return {
+        ...stat,
+        // Use OFFICIAL CDC figures if available
+        drug_overdose_deaths: national?.drug_overdose_deaths || stat.drug_overdose_deaths,
+        opioid_deaths: national?.opioid_deaths || stat.opioid_deaths,
+        primary_source: national?.primary_source || 'CDC WONDER',
+        primary_source_url: national?.primary_source_url || 'https://wonder.cdc.gov/',
+        recovery_rate: stat.recovery_count > 0 ? stat.recovery_rate / stat.recovery_count : 0,
+        prevalence_rate: (stat.total_affected / stat.population) * 100,
+        treatment_gap_percent: stat.total_affected > 0 
+          ? ((stat.total_affected - stat.treatment_admissions) / stat.total_affected) * 100 
+          : 85,
+      };
+    }).sort((a, b) => b.year - a.year);
+  }, [isUSA, usaStateStats, usaNationalData]);
 
   // Aggregate USA substance stats
   const usaAggregatedSubstance = useMemo(() => {
