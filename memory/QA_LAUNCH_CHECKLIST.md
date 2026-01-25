@@ -225,7 +225,7 @@
 
 | Purpose | URL |
 |---------|-----|
-| Preview Site | https://truthful-stats.preview.emergentagent.com |
+| Preview Site | https://drugstats.preview.emergentagent.com |
 | Sitemap | /api/seo/sitemap.xml |
 | Robots | /api/seo/robots.txt |
 | Health Check | /api/health |
