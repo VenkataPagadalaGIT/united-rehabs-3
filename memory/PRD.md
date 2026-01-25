@@ -1,5 +1,19 @@
 # United Rehabs - Data Accuracy System
 
+## ✅ UI/UX IMPROVEMENTS COMPLETED (Jan 25, 2026)
+
+### Navigation & Footer Enhancements
+- **Main Navigation Fixed**: Added direct links to Compare, Treatment Centers, Blog, About, and Contact pages
+- **Footer Scroll-to-Top**: Added "Back to Top" button with smooth scroll functionality
+- **Logo Scroll-to-Top**: Footer logo now scrolls to top on click
+
+### Files Modified
+- `/app/frontend/src/data/mockData.ts` - Updated navigation items with actual href links
+- `/app/frontend/src/components/listing/Header.tsx` - Added Link component support for navigation
+- `/app/frontend/src/components/listing/Footer.tsx` - Added scroll-to-top button and logo click handler
+
+---
+
 ## ✅ DATA ACCURACY VERIFIED (Jan 25, 2026)
 
 ### Verified Countries (Official Government Sources)
