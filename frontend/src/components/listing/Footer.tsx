@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Globe, MapPin, ChevronDown, ChevronRight, ArrowUp } from "lucide-react";
 import type { FooterLinkGroup } from "@/types";
@@ -11,6 +11,23 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+
+// Custom link that scrolls to top on navigation
+const ScrollLink = ({ to, children, className }: { to: string; children: React.ReactNode; className?: string }) => {
+  const navigate = useNavigate();
+  
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    navigate(to);
+  };
+  
+  return (
+    <a href={to} onClick={handleClick} className={className}>
+      {children}
+    </a>
+  );
+};
 
 interface FooterProps {
   linkGroups: FooterLinkGroup[];
