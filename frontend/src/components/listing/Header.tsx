@@ -55,18 +55,29 @@ export function Header({ navItems }: HeaderProps) {
                 onMouseEnter={() => handleNavItemHover(item)}
                 onMouseLeave={() => handleNavItemLeave(item)}
               >
-                <button
-                  className={`flex items-center gap-1 text-foreground hover:text-primary transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-2 py-1 ${
-                    item.label.toLowerCase() === "locations" && locationsMenuOpen ? "text-primary" : ""
-                  }`}
-                  aria-expanded={item.hasDropdown ? (item.label.toLowerCase() === "locations" ? locationsMenuOpen : false) : undefined}
-                  aria-haspopup={item.hasDropdown ? "true" : undefined}
-                >
-                  {item.label}
-                  {item.hasDropdown && <ChevronDown className={`h-4 w-4 transition-transform ${
-                    item.label.toLowerCase() === "locations" && locationsMenuOpen ? "rotate-180" : ""
-                  }`} aria-hidden="true" />}
-                </button>
+                {item.href && !item.hasDropdown ? (
+                  <Link
+                    to={item.href}
+                    className="flex items-center gap-1 text-foreground hover:text-primary transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-2 py-1"
+                    data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  <button
+                    className={`flex items-center gap-1 text-foreground hover:text-primary transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-2 py-1 ${
+                      item.label.toLowerCase() === "locations" && locationsMenuOpen ? "text-primary" : ""
+                    }`}
+                    aria-expanded={item.hasDropdown ? (item.label.toLowerCase() === "locations" ? locationsMenuOpen : false) : undefined}
+                    aria-haspopup={item.hasDropdown ? "true" : undefined}
+                    data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}-dropdown`}
+                  >
+                    {item.label}
+                    {item.hasDropdown && <ChevronDown className={`h-4 w-4 transition-transform ${
+                      item.label.toLowerCase() === "locations" && locationsMenuOpen ? "rotate-180" : ""
+                    }`} aria-hidden="true" />}
+                  </button>
+                )}
               </div>
             ))}
           </nav>
