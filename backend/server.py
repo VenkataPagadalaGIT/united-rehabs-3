@@ -2337,6 +2337,95 @@ async def apply_serp_fix(
     }
 
 # ============================================
+# SERP VERIFICATION SCHEDULING
+# ============================================
+
+class SERPScheduleSettings(BaseModel):
+    enabled: bool = False
+    frequency: str = "monthly"  # monthly, quarterly
+    next_run: Optional[str] = None
+    last_run: Optional[str] = None
+    query_limit: int = 500
+
+@api_router.get("/qa/serp/schedule")
+async def get_serp_schedule(user: User = Depends(require_admin)):
+    """Get current SERP validation schedule settings"""
+    settings = await db.serp_schedule.find_one({"_id": "schedule_settings"})
+    
+    if not settings:
+        # Return default settings
+        return {
+            "enabled": False,
+            "frequency": "monthly",
+            "next_run": None,
+            "last_run": None,
+            "query_limit": 500,
+            "message": "SERP validation not scheduled. Enable to auto-verify data monthly."
+        }
+    
+    settings.pop("_id", None)
+    return settings
+
+@api_router.post("/qa/serp/schedule")
+async def update_serp_schedule(settings: SERPScheduleSettings, user: User = Depends(require_admin)):
+    """Update SERP validation schedule"""
+    from datetime import datetime, timedelta
+    
+    # Calculate next run date based on frequency
+    now = datetime.utcnow()
+    if settings.frequency == "monthly":
+        # First day of next month
+        if now.month == 12:
+            next_run = datetime(now.year + 1, 1, 1, 2, 0)  # 2 AM UTC
+        else:
+            next_run = datetime(now.year, now.month + 1, 1, 2, 0)
+    else:  # quarterly
+        # First day of next quarter
+        quarter_month = ((now.month - 1) // 3 + 1) * 3 + 1
+        if quarter_month > 12:
+            next_run = datetime(now.year + 1, quarter_month - 12, 1, 2, 0)
+        else:
+            next_run = datetime(now.year, quarter_month, 1, 2, 0)
+    
+    schedule_doc = {
+        "_id": "schedule_settings",
+        "enabled": settings.enabled,
+        "frequency": settings.frequency,
+        "next_run": next_run.isoformat() if settings.enabled else None,
+        "query_limit": settings.query_limit,
+        "updated_at": datetime.utcnow().isoformat(),
+        "updated_by": user.email
+    }
+    
+    await db.serp_schedule.replace_one(
+        {"_id": "schedule_settings"},
+        schedule_doc,
+        upsert=True
+    )
+    
+    return {
+        "status": "success",
+        "message": f"SERP validation {'enabled' if settings.enabled else 'disabled'}",
+        "next_run": schedule_doc.get("next_run"),
+        "frequency": settings.frequency
+    }
+
+@api_router.get("/qa/serp/history")
+async def get_serp_validation_history(limit: int = 10, user: User = Depends(require_admin)):
+    """Get history of SERP validation runs"""
+    cursor = db.serp_verification_reports.find(
+        {},
+        {"_id": 0}
+    ).sort("started_at", -1).limit(limit)
+    
+    history = await cursor.to_list(length=limit)
+    
+    return {
+        "total_runs": len(history),
+        "runs": history
+    }
+
+# ============================================
 # BULK OFFICIAL API ENDPOINTS
 # ============================================
 
