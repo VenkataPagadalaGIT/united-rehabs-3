@@ -2192,6 +2192,150 @@ async def get_city_scale_assessment(num_cities: int = 5000, user: User = Depends
     strategy = ScalableVerificationStrategy(db)
     return await strategy.get_city_scale_assessment(num_cities)
 
+# ============================================
+# DATAFORSEO SERP VERIFICATION ENDPOINTS
+# ============================================
+
+@api_router.get("/qa/dataforseo/cost-estimate")
+async def estimate_dataforseo_cost(num_queries: int = 5000):
+    """Estimate cost for DataForSEO SERP verification"""
+    from dataforseo_verifier import estimate_dataforseo_cost
+    return estimate_dataforseo_cost(num_queries)
+
+@api_router.post("/qa/dataforseo/start-verification")
+async def start_dataforseo_verification(
+    background_tasks: BackgroundTasks,
+    limit: int = 100,
+    user: User = Depends(require_admin)
+):
+    """
+    Start DataForSEO SERP verification for all countries.
+    
+    Args:
+        limit: Number of queries to run (for testing). Set to None for full run.
+    
+    Requires DATAFORSEO_USERNAME and DATAFORSEO_PASSWORD in environment.
+    """
+    username = os.environ.get("DATAFORSEO_USERNAME")
+    password = os.environ.get("DATAFORSEO_PASSWORD")
+    
+    if not username or not password:
+        raise HTTPException(
+            status_code=400, 
+            detail="DataForSEO credentials not configured. Set DATAFORSEO_USERNAME and DATAFORSEO_PASSWORD."
+        )
+    
+    from dataforseo_verifier import DataForSEOVerifier
+    verifier = DataForSEOVerifier(username, password, db)
+    
+    # Generate queries first to show what will be submitted
+    queries = await verifier.generate_all_queries(years=[2022])
+    
+    if limit:
+        queries = queries[:limit]
+    
+    # Estimate cost
+    cost = len(queries) * 0.0015
+    
+    # Start verification in background
+    async def run_verification():
+        await verifier.run_full_verification(limit=limit)
+    
+    background_tasks.add_task(run_verification)
+    
+    return {
+        "status": "started",
+        "queries_to_submit": len(queries),
+        "estimated_cost": f"${cost:.2f}",
+        "message": "Verification started in background. Check /qa/dataforseo/status for progress."
+    }
+
+@api_router.get("/qa/dataforseo/status")
+async def get_dataforseo_status(user: User = Depends(require_admin)):
+    """Get status of DataForSEO verification"""
+    # Get latest report
+    report = await db.serp_verification_reports.find_one(
+        {},
+        sort=[("started_at", -1)]
+    )
+    
+    if report:
+        report.pop("_id", None)
+        return report
+    
+    # Get task counts
+    submitted = await db.serp_tasks.count_documents({"status": "submitted"})
+    completed = await db.serp_tasks.count_documents({"status": "completed"})
+    
+    return {
+        "tasks_submitted": submitted,
+        "tasks_completed": completed,
+        "no_report_yet": True
+    }
+
+@api_router.get("/qa/dataforseo/discrepancies")
+async def get_serp_discrepancies(user: User = Depends(require_admin)):
+    """Get list of discrepancies found by SERP verification"""
+    cursor = db.serp_discrepancies.find(
+        {"status": "pending_review"},
+        {"_id": 0}
+    ).sort("diff_percent", -1).limit(100)
+    
+    discrepancies = await cursor.to_list(length=100)
+    
+    return {
+        "total": len(discrepancies),
+        "discrepancies": discrepancies
+    }
+
+@api_router.post("/qa/dataforseo/apply-fix")
+async def apply_serp_fix(
+    country_code: str,
+    year: int,
+    metric: str,
+    user: User = Depends(require_admin)
+):
+    """Apply SERP-verified value to database"""
+    # Get discrepancy
+    discrepancy = await db.serp_discrepancies.find_one({
+        "country_code": country_code,
+        "year": year,
+        "metric": metric,
+        "status": "pending_review"
+    })
+    
+    if not discrepancy:
+        raise HTTPException(status_code=404, detail="Discrepancy not found")
+    
+    # Update database with SERP value
+    db_field = "opioid_deaths" if metric == "opioid_deaths" else "drug_overdose_deaths"
+    
+    result = await db.country_statistics.update_one(
+        {"country_code": country_code, "year": year},
+        {"$set": {
+            db_field: discrepancy["serp_value"],
+            "serp_verified": True,
+            "serp_verified_at": datetime.utcnow(),
+            "data_verified": True,
+            "verified_at": datetime.utcnow()
+        }}
+    )
+    
+    # Mark discrepancy as resolved
+    await db.serp_discrepancies.update_one(
+        {"_id": discrepancy["_id"]},
+        {"$set": {"status": "resolved", "resolved_at": datetime.utcnow()}}
+    )
+    
+    return {
+        "status": "success",
+        "country_code": country_code,
+        "year": year,
+        "metric": metric,
+        "old_value": discrepancy["db_value"],
+        "new_value": discrepancy["serp_value"]
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
