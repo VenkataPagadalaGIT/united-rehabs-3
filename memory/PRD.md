@@ -1,5 +1,24 @@
 # United Rehabs - Data Accuracy System
 
+## ✅ SECURITY AUDIT COMPLETED (Jan 25, 2026)
+
+### Security Improvements Implemented
+- **JWT Security**: Removed hardcoded default secret key - now requires `JWT_SECRET_KEY` env variable
+- **CORS Hardening**: Changed from `*` to specific allowed domains
+- **Rate Limiting**: Added on login (5/min) and registration (3/min) endpoints
+- **Security Headers**: X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, CSP, Referrer-Policy
+- **Password Policy**: Strong password enforcement (12+ chars, mixed case, numbers)
+- **Password Change**: Added admin password change functionality
+
+### Pre-Launch Action Required
+⚠️ **CHANGE ADMIN PASSWORD** via Admin > Security before going public
+
+### Security Files
+- `/app/SECURITY_AUDIT.md` - Complete security audit report
+- `/app/backend/.env` - Contains JWT_SECRET_KEY (generated)
+
+---
+
 ## ✅ UI/UX IMPROVEMENTS COMPLETED (Jan 25, 2026)
 
 ### Navigation & Footer Enhancements
