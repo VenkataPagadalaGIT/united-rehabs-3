@@ -38,7 +38,7 @@ VERIFIED_DATA = {
         'data': {
             2019: {'deaths': 4039, 'source': 'Statistics Canada', 'url': 'https://www150.statcan.gc.ca/n1/daily-quotidien/250219/dq250219b-eng.htm'},
             2020: {'deaths': 6306, 'source': 'Health Canada', 'url': 'https://health-infobase.canada.ca/substance-related-harms/opioids-stimulants/'},
-            2021: {'deaths': 7993, 'source': 'Health Canada', 'url': 'https://health-infobase.canada.ca/substance-related-harms/opioids-stimulants/'},
+            2021: {'deaths': 7405, 'source': 'Statistics Canada', 'url': 'https://www150.statcan.gc.ca/n1/daily-quotidien/250219/dq250219b-eng.htm'},  # Google verified
             2022: {'deaths': 7328, 'source': 'Health Canada', 'url': 'https://health-infobase.canada.ca/substance-related-harms/opioids-stimulants/'},  # Google verified: 7,328 AOTDs
         }
     },
