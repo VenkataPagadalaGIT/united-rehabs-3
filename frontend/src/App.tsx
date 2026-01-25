@@ -39,6 +39,7 @@ import ContentGeneratorAdmin from "./pages/admin/ContentGeneratorAdmin";
 import DataCoverageAdmin from "./pages/admin/DataCoverageAdmin";
 import BulkImportAdmin from "./pages/admin/BulkImportAdmin";
 import CMSAdmin from "./pages/admin/CMSAdmin";
+import SERPValidationAdmin from "./pages/admin/SERPValidationAdmin";
 import ComparePage from "./pages/ComparePage";
 import { CrisisHotlineBanner } from "./components/CrisisHotlineBanner";
 import { CookieConsentBanner } from "./components/CookieConsentBanner";
