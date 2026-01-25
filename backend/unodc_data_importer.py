@@ -169,9 +169,19 @@ class UNODCDataImporter:
                 report["errors"].append(f"{country_code}: {str(e)}")
         
         # Save import report
-        await self.db.unodc_import_reports.insert_one(report)
+        report_to_save = report.copy()
+        await self.db.unodc_import_reports.insert_one(report_to_save)
         
-        return report
+        # Return without _id
+        return {
+            "imported_at": report["imported_at"],
+            "year": report["year"],
+            "countries_updated": report["countries_updated"],
+            "countries_added": report["countries_added"],
+            "errors": report["errors"][:10],  # Limit errors shown
+            "total_errors": len(report["errors"]),
+            "data_source": report["data_source"]
+        }
     
     async def get_import_status(self) -> Dict:
         """
