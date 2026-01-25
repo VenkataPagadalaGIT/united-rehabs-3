@@ -2336,6 +2336,91 @@ async def apply_serp_fix(
         "new_value": discrepancy["serp_value"]
     }
 
+# ============================================
+# BULK OFFICIAL API ENDPOINTS
+# ============================================
+
+@api_router.get("/qa/bulk/status")
+async def get_bulk_verification_status():
+    """Get verification coverage status from all bulk APIs"""
+    from bulk_api_integrations import BulkDataVerificationController
+    controller = BulkDataVerificationController(db)
+    return await controller.get_verification_status()
+
+@api_router.post("/qa/bulk/run-all")
+async def run_bulk_verification(
+    background_tasks: BackgroundTasks,
+    year: int = 2022,
+    user: User = Depends(require_admin)
+):
+    """
+    Run verification using ALL bulk official APIs:
+    - CDC WONDER (US States)
+    - Health Canada (Canada)
+    - WHO GHO (Global)
+    """
+    from bulk_api_integrations import BulkDataVerificationController
+    controller = BulkDataVerificationController(db)
+    
+    async def run_verification():
+        return await controller.run_full_verification(year)
+    
+    background_tasks.add_task(run_verification)
+    
+    return {
+        "status": "started",
+        "year": year,
+        "message": "Bulk verification started. Check /qa/bulk/reports for results.",
+        "apis_being_queried": ["CDC WONDER", "Health Canada", "WHO GHO", "EMCDDA"]
+    }
+
+@api_router.get("/qa/bulk/reports")
+async def get_bulk_verification_reports(user: User = Depends(require_admin)):
+    """Get latest bulk verification reports"""
+    cursor = db.bulk_verification_reports.find(
+        {},
+        {"_id": 0}
+    ).sort("started_at", -1).limit(10)
+    
+    reports = await cursor.to_list(length=10)
+    return {"reports": reports}
+
+@api_router.post("/qa/cdc/fetch-states")
+async def fetch_cdc_state_data(
+    year: int = 2022,
+    user: User = Depends(require_admin)
+):
+    """Fetch drug overdose deaths for all US states from CDC WONDER"""
+    from bulk_api_integrations import CDCWonderAPI
+    cdc = CDCWonderAPI(db)
+    return await cdc.update_all_states(year)
+
+@api_router.post("/qa/health-canada/fetch")
+async def fetch_health_canada_data(user: User = Depends(require_admin)):
+    """Fetch opioid death data from Health Canada"""
+    from bulk_api_integrations import HealthCanadaAPI
+    hc = HealthCanadaAPI(db)
+    return await hc.update_canada_data()
+
+@api_router.get("/qa/who/indicators")
+async def search_who_indicators(search_term: str = "drug"):
+    """Search WHO GHO for available indicators"""
+    from bulk_api_integrations import WHOGlobalHealthAPI
+    who = WHOGlobalHealthAPI(db)
+    indicators = await who.get_available_indicators(search_term)
+    return {
+        "search_term": search_term,
+        "indicators_found": len(indicators),
+        "indicators": indicators[:20]  # Limit to first 20
+    }
+
+@api_router.post("/qa/who/fetch-global")
+async def fetch_who_global_data(user: User = Depends(require_admin)):
+    """Fetch mortality data from WHO Global Health Observatory"""
+    from bulk_api_integrations import WHOGlobalHealthAPI
+    who = WHOGlobalHealthAPI(db)
+    return await who.fetch_all_mortality_data()
+
 # Include the router in the main app
 app.include_router(api_router)
 
