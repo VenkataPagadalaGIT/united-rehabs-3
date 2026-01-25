@@ -20,6 +20,10 @@ export function Footer({ linkGroups }: FooterProps) {
   const [expandedRegions, setExpandedRegions] = useState<string[]>([]);
   const { t } = useTranslation();
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Get top US states by population
   const topStates = [...ALL_STATES]
     .sort((a, b) => (b.population || 0) - (a.population || 0))
