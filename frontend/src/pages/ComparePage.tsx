@@ -86,11 +86,10 @@ export default function ComparePage() {
     return ALL_COUNTRIES.find(c => c.code === code);
   };
 
+  // Show EXACT numbers - NO rounding to K/M
   const formatNumber = (num: number | undefined): string => {
-    if (!num) return "N/A";
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(0)}K`;
-    return num.toLocaleString();
+    if (!num && num !== 0) return "N/A";
+    return num.toLocaleString(); // Shows exact numbers
   };
 
   // Prepare chart data
