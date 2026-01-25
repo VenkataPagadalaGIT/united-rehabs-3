@@ -31,6 +31,7 @@ from models import (
     TreatmentCenter, TreatmentCenterCreate,
     CMSPage, CMSPageCreate, AuditLogEntry
 )
+from pydantic import BaseModel
 from auth import verify_password, get_password_hash, create_access_token, decode_token
 
 # Import data validation middleware to prevent bad data
