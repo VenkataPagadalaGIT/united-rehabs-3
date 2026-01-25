@@ -2112,6 +2112,65 @@ async def get_authoritative_sources():
         "total_authoritative_records": len(sources)
     }
 
+@api_router.get("/qa/refresh/check")
+async def check_data_refresh_status(user: User = Depends(require_admin)):
+    """Check for available data updates from authoritative sources"""
+    try:
+        from quarterly_data_refresh import DataRefreshSystem
+        system = DataRefreshSystem(db)
+        return await system.check_for_updates()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/qa/refresh/report")
+async def get_refresh_report(user: User = Depends(require_admin)):
+    """Generate comprehensive data refresh report"""
+    try:
+        from quarterly_data_refresh import DataRefreshSystem
+        system = DataRefreshSystem(db)
+        return await system.generate_refresh_report()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/qa/refresh")
+async def trigger_data_refresh(force: bool = False, user: User = Depends(require_admin)):
+    """
+    Trigger a data refresh check.
+    
+    This does NOT automatically update data - it generates a report
+    of what needs to be updated for admin review.
+    
+    Args:
+        force: Force refresh check even if not due
+    """
+    try:
+        from quarterly_data_refresh import handle_data_refresh_request
+        return await handle_data_refresh_request(db, force=force)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/qa/schedule")
+async def get_refresh_schedule():
+    """Get the quarterly data refresh schedule"""
+    from quarterly_data_refresh import QuarterlyScheduler, DATA_SOURCES
+    
+    return {
+        "next_refresh_date": QuarterlyScheduler.get_next_refresh_date().isoformat(),
+        "cron_schedule": QuarterlyScheduler.get_cron_schedule(),
+        "refresh_frequency": "quarterly",
+        "sources_tracked": len(DATA_SOURCES),
+        "source_list": [
+            {
+                "country": code,
+                "name": source["name"],
+                "url": source["url"],
+                "frequency": source.get("update_frequency"),
+                "data_lag_months": source.get("data_lag_months")
+            }
+            for code, source in DATA_SOURCES.items()
+        ]
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
