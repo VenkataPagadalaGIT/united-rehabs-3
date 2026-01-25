@@ -28,11 +28,10 @@ const COLORS = {
 
 const PIE_COLORS = [COLORS.primary, COLORS.secondary, COLORS.success, COLORS.purple];
 
+// Show EXACT numbers - NO rounding to K/M
 const formatNumber = (num: number | null | undefined): string => {
   if (num === null || num === undefined) return "N/A";
-  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-  if (num >= 1000) return `${(num / 1000).toFixed(0)}K`;
-  return num.toLocaleString();
+  return num.toLocaleString(); // Shows exact: 10,898 not "11K"
 };
 
 const StatCard = ({ 
