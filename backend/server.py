@@ -1955,6 +1955,155 @@ async def startup_seed_data():
             except Exception as e2:
                 logger.error(f"Error with fallback seeding: {e2}")
 
+# ============================================
+# DATA QUALITY ASSURANCE API
+# ============================================
+
+class DataValidationRequest(BaseModel):
+    country_code: str
+    year: int
+    opioid_deaths: Optional[int] = None
+    drug_overdose_deaths: Optional[int] = None
+
+@api_router.get("/qa/audit")
+async def run_data_qa_audit(user: User = Depends(require_admin)):
+    """Run comprehensive data quality audit against authoritative sources"""
+    try:
+        from data_qa_system import DataQASystem
+        qa = DataQASystem(db)
+        report = await qa.audit_all_country_data()
+        return report
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/qa/fix-discrepancies")
+async def fix_data_discrepancies(user: User = Depends(require_admin)):
+    """Fix all identified data discrepancies with authoritative values"""
+    try:
+        from data_qa_system import DataQASystem
+        qa = DataQASystem(db)
+        result = await qa.fix_discrepancies()
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/qa/report/csv")
+async def get_qa_csv_report(user: User = Depends(require_admin)):
+    """Get CSV report of all data for manual review"""
+    try:
+        from data_qa_system import DataQASystem
+        qa = DataQASystem(db)
+        csv_content = await qa.generate_csv_report()
+        return StreamingResponse(
+            io.StringIO(csv_content),
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=data_qa_report.csv"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/qa/validate")
+async def validate_data_entry(data: DataValidationRequest, user: User = Depends(require_admin)):
+    """
+    Validate a data entry against authoritative sources BEFORE saving.
+    This prevents bad data from ever entering the database.
+    """
+    from data_qa_system import AUTHORITATIVE_DATA
+    
+    result = {
+        "valid": True,
+        "warnings": [],
+        "errors": [],
+        "authoritative_data": None
+    }
+    
+    # Check if we have authoritative data
+    if data.country_code in AUTHORITATIVE_DATA:
+        if data.year in AUTHORITATIVE_DATA[data.country_code]:
+            auth = AUTHORITATIVE_DATA[data.country_code][data.year]
+            result["authoritative_data"] = auth
+            
+            # Validate opioid deaths
+            if data.opioid_deaths and auth.get("opioid_deaths"):
+                diff = abs(data.opioid_deaths - auth["opioid_deaths"]) / auth["opioid_deaths"] * 100
+                if diff > 50:
+                    result["valid"] = False
+                    result["errors"].append({
+                        "field": "opioid_deaths",
+                        "message": f"Value {data.opioid_deaths} differs by {diff:.1f}% from authoritative value {auth['opioid_deaths']}",
+                        "authoritative_value": auth["opioid_deaths"],
+                        "source": auth.get("source")
+                    })
+                elif diff > 20:
+                    result["warnings"].append({
+                        "field": "opioid_deaths",
+                        "message": f"Value differs by {diff:.1f}% from authoritative value",
+                        "authoritative_value": auth["opioid_deaths"]
+                    })
+            
+            # Validate drug overdose deaths
+            if data.drug_overdose_deaths and auth.get("drug_overdose_deaths"):
+                diff = abs(data.drug_overdose_deaths - auth["drug_overdose_deaths"]) / auth["drug_overdose_deaths"] * 100
+                if diff > 50:
+                    result["valid"] = False
+                    result["errors"].append({
+                        "field": "drug_overdose_deaths",
+                        "message": f"Value {data.drug_overdose_deaths} differs by {diff:.1f}% from authoritative value {auth['drug_overdose_deaths']}",
+                        "authoritative_value": auth["drug_overdose_deaths"],
+                        "source": auth.get("source")
+                    })
+                elif diff > 20:
+                    result["warnings"].append({
+                        "field": "drug_overdose_deaths",
+                        "message": f"Value differs by {diff:.1f}% from authoritative value",
+                        "authoritative_value": auth["drug_overdose_deaths"]
+                    })
+    else:
+        result["warnings"].append({
+            "field": "country_code",
+            "message": f"No authoritative data available for {data.country_code}. Data will be accepted but not verified."
+        })
+    
+    return result
+
+@api_router.get("/qa/sources")
+async def get_authoritative_sources():
+    """Get list of all authoritative data sources used for validation"""
+    from data_qa_system import AUTHORITATIVE_DATA
+    
+    sources = []
+    for country_code, years in AUTHORITATIVE_DATA.items():
+        for year, data in years.items():
+            source = {
+                "country_code": country_code,
+                "year": year,
+                "source_name": data.get("source"),
+                "source_url": data.get("source_url")
+            }
+            if source not in sources:
+                sources.append(source)
+    
+    # Get unique sources
+    unique_sources = {}
+    for s in sources:
+        name = s["source_name"]
+        if name not in unique_sources:
+            unique_sources[name] = {
+                "name": name,
+                "url": s["source_url"],
+                "countries": [],
+                "years": []
+            }
+        if s["country_code"] not in unique_sources[name]["countries"]:
+            unique_sources[name]["countries"].append(s["country_code"])
+        if s["year"] not in unique_sources[name]["years"]:
+            unique_sources[name]["years"].append(s["year"])
+    
+    return {
+        "sources": list(unique_sources.values()),
+        "total_authoritative_records": len(sources)
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
