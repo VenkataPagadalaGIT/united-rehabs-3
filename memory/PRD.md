@@ -287,6 +287,9 @@ All critical features have been implemented.
 - `POST /api/pipeline/run` - Run AI data pipeline for a state
 - `POST /api/bulk/import` - Import bulk data manually
 - `POST /api/auth/login` - Admin authentication
+- `GET /api/qa/audit` - Run data quality audit
+- `POST /api/qa/validate` - Validate data before saving
+- `GET /api/qa/sources` - List authoritative data sources
 
 ## Database Configuration
 - **Database Name**: `united_rehabs` (set in `/app/backend/.env` as `DB_NAME`)
