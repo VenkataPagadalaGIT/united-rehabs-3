@@ -2421,6 +2421,35 @@ async def fetch_who_global_data(user: User = Depends(require_admin)):
     who = WHOGlobalHealthAPI(db)
     return await who.fetch_all_mortality_data()
 
+# ============================================
+# UNODC DATA IMPORT ENDPOINTS
+# ============================================
+
+@api_router.post("/qa/unodc/import")
+async def import_unodc_data(user: User = Depends(require_admin)):
+    """
+    Import UNODC World Drug Report 2024 data.
+    
+    This imports pre-verified data for 50+ countries.
+    """
+    from unodc_data_importer import UNODCDataImporter
+    importer = UNODCDataImporter(db)
+    return await importer.import_2022_data()
+
+@api_router.get("/qa/unodc/status")
+async def get_unodc_import_status():
+    """Get UNODC data import status"""
+    from unodc_data_importer import UNODCDataImporter
+    importer = UNODCDataImporter(db)
+    return await importer.get_import_status()
+
+@api_router.get("/qa/unodc/coverage")
+async def get_unodc_coverage():
+    """Get UNODC data coverage by region"""
+    from unodc_data_importer import UNODCDataImporter
+    importer = UNODCDataImporter(db)
+    return await importer.get_coverage_by_region()
+
 # Include the router in the main app
 app.include_router(api_router)
 
