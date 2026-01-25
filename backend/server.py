@@ -114,7 +114,8 @@ async def require_admin(authorization: Optional[str] = Header(None)) -> User:
 # ============================================
 
 @api_router.post("/auth/register", response_model=Token)
-async def register(user_data: UserCreate):
+@limiter.limit("3/minute")  # Prevent spam registrations
+async def register(request: Request, user_data: UserCreate):
     # Check if user exists
     existing = await db.users.find_one({"email": user_data.email})
     if existing:
