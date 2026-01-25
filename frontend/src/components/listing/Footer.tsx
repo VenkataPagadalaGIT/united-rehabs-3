@@ -268,9 +268,21 @@ export function Footer({ linkGroups }: FooterProps) {
 
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row items-center justify-between pt-4 border-t border-sidebar-border">
-          <Button className="bg-primary hover:bg-primary/90 mb-4 md:mb-0" data-testid="footer-get-help-btn">
-            {t('common.getHelpNow')}
-          </Button>
+          <div className="flex items-center gap-4 mb-4 md:mb-0">
+            <Button className="bg-primary hover:bg-primary/90" data-testid="footer-get-help-btn">
+              {t('common.getHelpNow')}
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={scrollToTop}
+              className="flex items-center gap-2 bg-sidebar-accent/50 hover:bg-sidebar-accent border-sidebar-border text-sidebar-foreground"
+              data-testid="footer-scroll-to-top-btn"
+            >
+              <ArrowUp className="h-4 w-4" />
+              Back to Top
+            </Button>
+          </div>
           <p className="text-sidebar-foreground/60 text-sm text-center md:text-right">
             © 2024 United Rehabs. {t('footer.allRightsReserved')}<br/>
             <span className="text-xs">{t('footer.serving')} {ALL_COUNTRIES.length} {t('footer.countriesWorldwide')} • 51 US {t('common.states')} • {t('footer.globalCoverage')}</span>
