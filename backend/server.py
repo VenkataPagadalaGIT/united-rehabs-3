@@ -2796,6 +2796,58 @@ async def get_sources_summary():
     }
 
 
+# ============================================
+# DATA SEGMENTATION ENDPOINTS
+# ============================================
+
+@api_router.get("/qa/segments")
+async def get_data_segments():
+    """
+    Get data segmentation report with verification status by segment.
+    """
+    from data_segmentation import generate_segment_report
+    return await generate_segment_report()
+
+
+@api_router.get("/qa/segments/{segment_id}")
+async def get_segment_details(segment_id: str):
+    """
+    Get detailed data for a specific segment.
+    
+    Available segments:
+    - tier_1_high_priority: Major economies with high drug death rates
+    - tier_2_europe: EU and EFTA countries (EMCDDA data)
+    - tier_3_asia_pacific: Major Asia-Pacific countries
+    - tier_4_americas: Central and South American countries
+    - tier_5_mena: Middle East & North Africa
+    - tier_6_africa: Sub-Saharan Africa
+    - us_states: All 50 US states + DC
+    """
+    from data_segmentation import get_segment_details as get_details
+    return await get_details(segment_id)
+
+
+@api_router.get("/qa/verification-reports")
+async def get_verification_reports(limit: int = 10):
+    """
+    Get recent verification reports with timestamps and sources.
+    """
+    reports = await db.verification_reports.find(
+        {},
+        {'_id': 0}
+    ).sort('created_at', -1).limit(limit).to_list(length=limit)
+    
+    # Convert datetime objects
+    for r in reports:
+        if r.get('created_at'):
+            r['created_at'] = r['created_at'].isoformat()
+    
+    return {
+        "total_reports": await db.verification_reports.count_documents({}),
+        "reports": reports
+    }
+
+
 # Include the router in the main app
 app.include_router(api_router)
 
