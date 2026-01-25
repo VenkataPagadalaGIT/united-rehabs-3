@@ -115,20 +115,43 @@ export function LocationsMegaMenu({ isOpen, onClose, isMobile = false }: Locatio
           </Accordion>
         ) : (
           <div className="p-4 space-y-3">
-            {INTERNATIONAL_REGIONS.map((region) => (
-              <div
-                key={region.id}
-                className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-              >
-                <div className="flex items-center gap-2">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">{region.name}</span>
-                </div>
-                <span className="text-xs bg-accent text-accent-foreground px-2 py-1 rounded-full">
-                  Coming Soon
-                </span>
-              </div>
-            ))}
+            {INTERNATIONAL_REGIONS.map((region) => {
+              const regionCountries = COUNTRIES_BY_REGION[region.name] || [];
+              const topCountries = getTopCountriesByRegion(region.name, 6);
+              return (
+                <Accordion type="single" collapsible key={region.id}>
+                  <AccordionItem value={region.id} className="border-none">
+                    <AccordionTrigger className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:no-underline">
+                      <div className="flex items-center gap-2">
+                        <span>{region.emoji}</span>
+                        <span className="font-medium">{region.name}</span>
+                        <span className="text-xs text-muted-foreground">({regionCountries.length})</span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-2 pl-4">
+                      <div className="space-y-1">
+                        {topCountries.map((country) => (
+                          <Link
+                            key={country.code}
+                            to={`/${country.slug}-addiction-rehabs`}
+                            onClick={onClose}
+                            className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:text-primary hover:bg-primary/5 rounded-md transition-colors"
+                          >
+                            <span className="text-base">{country.flag}</span>
+                            {country.name}
+                          </Link>
+                        ))}
+                        {regionCountries.length > 6 && (
+                          <p className="text-xs text-primary px-3 py-1">
+                            +{regionCountries.length - 6} more countries
+                          </p>
+                        )}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              );
+            })}
           </div>
         )}
       </div>
