@@ -2171,6 +2171,27 @@ async def get_refresh_schedule():
         ]
     }
 
+@api_router.get("/qa/verification-status")
+async def get_verification_status():
+    """Get current data verification status across all locations"""
+    from serp_verification_system import SERPVerificationPipeline
+    pipeline = SERPVerificationPipeline(db)
+    return await pipeline.get_verification_status()
+
+@api_router.get("/qa/verification-plan")
+async def get_verification_plan(user: User = Depends(require_admin)):
+    """Get the tiered verification plan for scaling data accuracy"""
+    from scalable_verification_strategy import ScalableVerificationStrategy
+    strategy = ScalableVerificationStrategy(db)
+    return await strategy.get_verification_plan()
+
+@api_router.get("/qa/city-assessment")
+async def get_city_scale_assessment(num_cities: int = 5000, user: User = Depends(require_admin)):
+    """Assess what's needed to add city-level data verification"""
+    from scalable_verification_strategy import ScalableVerificationStrategy
+    strategy = ScalableVerificationStrategy(db)
+    return await strategy.get_city_scale_assessment(num_cities)
+
 # Include the router in the main app
 app.include_router(api_router)
 
