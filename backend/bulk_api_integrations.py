@@ -216,22 +216,18 @@ class WHOGlobalHealthAPI:
     
     Retrieves mortality data for 194 countries.
     Endpoint: https://ghoapi.azureedge.net/api/
+    
+    NOTE: WHO drug-specific mortality data is limited (only 2008).
+    Better to use UNODC World Drug Report for recent data.
     """
     
     BASE_URL = "https://ghoapi.azureedge.net/api"
     
     # Relevant indicator codes
     INDICATORS = {
-        "substance_use_deaths": "GHED_CHE_pc_US_PPP",  # Example - need to find exact code
-        "alcohol_deaths": "SA_0000001688",  # Alcohol-attributable deaths
-        "drug_disorders_daly": "MH_10",  # DALYs due to drug use disorders
-    }
-    
-    # ISO 3166-1 alpha-3 to WHO country code mapping
-    COUNTRY_MAP = {
-        "USA": "USA", "CAN": "CAN", "GBR": "GBR", "AUS": "AUS", "DEU": "DEU",
-        "FRA": "FRA", "JPN": "JPN", "IND": "IND", "BRA": "BRA", "MEX": "MEX",
-        # WHO uses same ISO codes
+        "drug_disorders_deaths": "RSUD_3",  # Drug use disorders death rate (2008 only)
+        "poisoning_mortality": "SDGPOISON",  # Unintentional poisoning (includes some drug ODs)
+        "alcohol_deaths": "SA_0000001473",  # Alcohol-related disease mortality
     }
     
     def __init__(self, db):
@@ -253,15 +249,20 @@ class WHOGlobalHealthAPI:
             
         return []
     
-    async def fetch_indicator_data(self, indicator_code: str, year: int = None) -> List[Dict]:
+    async def fetch_poisoning_mortality(self, year: int = 2019) -> Dict:
         """
-        Fetch data for a specific indicator across all countries.
+        Fetch unintentional poisoning mortality data.
+        This includes some drug overdoses but is broader.
         """
-        url = f"{self.BASE_URL}/{indicator_code}"
-        params = {}
+        url = f"{self.BASE_URL}/SDGPOISON"
+        params = {"$filter": f"TimeDim eq {year}"}
         
-        if year:
-            params["$filter"] = f"TimeDim eq {year}"
+        results = {
+            "indicator": "SDGPOISON",
+            "indicator_name": "Mortality rate attributed to unintentional poisoning",
+            "year": year,
+            "data": {}
+        }
         
         try:
             async with httpx.AsyncClient() as client:
@@ -269,12 +270,21 @@ class WHOGlobalHealthAPI:
                 
                 if response.status_code == 200:
                     data = response.json()
-                    return data.get("value", [])
                     
+                    for record in data.get("value", []):
+                        country_code = record.get("SpatialDim")
+                        value = record.get("NumericValue")
+                        
+                        if country_code and value is not None:
+                            results["data"][country_code] = {
+                                "rate_per_100k": value,
+                                "year": year
+                            }
+                            
         except Exception as e:
             print(f"WHO GHO API error: {e}")
         
-        return []
+        return results
     
     async def fetch_all_mortality_data(self) -> Dict:
         """
@@ -283,35 +293,16 @@ class WHOGlobalHealthAPI:
         results = {
             "fetched_at": datetime.now(timezone.utc).isoformat(),
             "countries": {},
-            "indicators_used": []
+            "indicators_used": [],
+            "notes": "WHO data is limited for drug-specific mortality. Use UNODC for comprehensive data."
         }
         
-        # Try different indicator codes
-        indicator_codes = [
-            "SA_0000001688",  # Alcohol-attributable fractions
-            "MH_10",  # Mental health/substance
-            "GHED_CHE_pc_US_PPP",  # Health expenditure (as proxy)
-        ]
+        # Get poisoning mortality (most relevant available)
+        poisoning = await self.fetch_poisoning_mortality(2019)
         
-        for code in indicator_codes:
-            data = await self.fetch_indicator_data(code)
-            
-            if data:
-                results["indicators_used"].append(code)
-                
-                for record in data:
-                    country_code = record.get("SpatialDim")
-                    year = record.get("TimeDim")
-                    value = record.get("NumericValue")
-                    
-                    if country_code and value:
-                        if country_code not in results["countries"]:
-                            results["countries"][country_code] = {}
-                        
-                        if year not in results["countries"][country_code]:
-                            results["countries"][country_code][year] = {}
-                        
-                        results["countries"][country_code][year][code] = value
+        if poisoning.get("data"):
+            results["indicators_used"].append("SDGPOISON")
+            results["countries"] = poisoning["data"]
         
         return results
 
