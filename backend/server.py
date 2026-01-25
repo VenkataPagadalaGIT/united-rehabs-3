@@ -135,7 +135,8 @@ async def register(user_data: UserCreate):
     )
 
 @api_router.post("/auth/login", response_model=Token)
-async def login(user_data: UserLogin):
+@limiter.limit("5/minute")  # Prevent brute force attacks
+async def login(request: Request, user_data: UserLogin):
     # Find user
     user_doc = await db.users.find_one({"email": user_data.email}, {"_id": 0})
     if not user_doc:
