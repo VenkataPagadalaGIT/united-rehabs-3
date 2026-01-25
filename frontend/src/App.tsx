@@ -118,6 +118,7 @@ const App = () => (
             <Route path="urls" element={<URLsAdmin />} />
             <Route path="security" element={<SecurityAdmin />} />
             <Route path="content-generator" element={<ContentGeneratorAdmin />} />
+            <Route path="serp-validation" element={<SERPValidationAdmin />} />
             <Route path="data-coverage" element={<DataCoverageAdmin />} />
             <Route path="bulk-import" element={<BulkImportAdmin />} />
             <Route path="cms" element={<CMSAdmin />} />
