@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight, Globe, MapPin } from "lucide-react";
 import { ALL_STATES, type StateBasicConfig } from "@/data/allStates";
+import { COUNTRIES_BY_REGION, getTopCountriesByRegion } from "@/data/countryConfig";
 import {
   Accordion,
   AccordionContent,
@@ -28,13 +29,14 @@ function getStatesByRegion(): Record<Region, StateBasicConfig[]> {
   }, {} as Record<Region, StateBasicConfig[]>);
 }
 
-// Future international regions placeholder
+// International regions with actual country data
 const INTERNATIONAL_REGIONS = [
-  { id: "europe", name: "Europe", count: 24, comingSoon: true },
-  { id: "asia", name: "Asia Pacific", count: 18, comingSoon: true },
-  { id: "latam", name: "Latin America", count: 12, comingSoon: true },
-  { id: "canada", name: "Canada", count: 13, comingSoon: true },
-  { id: "middleeast", name: "Middle East", count: 8, comingSoon: true },
+  { id: "europe", name: "Europe", emoji: "🇪🇺" },
+  { id: "asia", name: "Asia", emoji: "🌏" },
+  { id: "northamerica", name: "North America", emoji: "🌎" },
+  { id: "southamerica", name: "South America", emoji: "🌎" },
+  { id: "oceania", name: "Oceania", emoji: "🌏" },
+  { id: "africa", name: "Africa", emoji: "🌍" },
 ];
 
 interface LocationsMegaMenuProps {
