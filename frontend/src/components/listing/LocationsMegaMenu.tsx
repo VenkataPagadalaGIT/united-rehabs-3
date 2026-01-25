@@ -48,6 +48,7 @@ interface LocationsMegaMenuProps {
 export function LocationsMegaMenu({ isOpen, onClose, isMobile = false }: LocationsMegaMenuProps) {
   const [activeTab, setActiveTab] = useState<"us" | "international">("us");
   const [activeRegion, setActiveRegion] = useState<Region>("northeast");
+  const [activeInternationalRegion, setActiveInternationalRegion] = useState<string>("Europe");
   const statesByRegion = getStatesByRegion();
 
   if (!isOpen) return null;
