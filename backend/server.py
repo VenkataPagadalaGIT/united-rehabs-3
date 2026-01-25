@@ -28,6 +28,14 @@ from models import (
 )
 from auth import verify_password, get_password_hash, create_access_token, decode_token
 
+# Import data validation middleware to prevent bad data
+from data_validation_middleware import (
+    validate_country_statistic,
+    pre_save_validate,
+    DataValidationError,
+    AUTHORITATIVE_DATA
+)
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
