@@ -2450,6 +2450,104 @@ async def get_unodc_coverage():
     importer = UNODCDataImporter(db)
     return await importer.get_coverage_by_region()
 
+# ============================================
+# COST-OPTIMIZED DATAFORSEO ENDPOINTS
+# ============================================
+
+@api_router.get("/qa/optimized/estimate-cost")
+async def estimate_optimized_cost():
+    """
+    Estimate cost to verify all remaining countries using optimized approach.
+    Shows savings vs naive approach.
+    """
+    from cost_optimized_dataforseo import estimate_verification_cost
+    return await estimate_verification_cost(db)
+
+@api_router.post("/qa/optimized/run")
+async def run_optimized_verification(
+    background_tasks: BackgroundTasks,
+    max_queries: int = 50,
+    user: User = Depends(require_admin)
+):
+    """
+    Run cost-optimized DataForSEO verification.
+    
+    Optimizations:
+    - Skips already verified countries (UNODC, manual)
+    - Skips small countries with no reliable data
+    - Validates extracted values against population
+    - Caches results to prevent duplicates
+    - Only queries opioid_deaths (most important metric)
+    
+    Args:
+        max_queries: Maximum queries to run (default 50, cost ~$0.075)
+    """
+    username = os.environ.get("DATAFORSEO_USERNAME")
+    password = os.environ.get("DATAFORSEO_PASSWORD")
+    
+    if not username or not password:
+        raise HTTPException(status_code=400, detail="DataForSEO credentials not configured")
+    
+    from cost_optimized_dataforseo import CostOptimizedDataForSEO
+    verifier = CostOptimizedDataForSEO(username, password, db)
+    
+    # Run in background
+    async def run_verification():
+        result = await verifier.run_optimized_verification(max_queries=max_queries)
+        # Save report
+        await db.optimized_verification_reports.insert_one(result)
+    
+    background_tasks.add_task(run_verification)
+    
+    return {
+        "status": "started",
+        "max_queries": max_queries,
+        "estimated_max_cost": f"${max_queries * 0.0015:.3f}",
+        "message": "Optimized verification started. Check /qa/optimized/status for results."
+    }
+
+@api_router.get("/qa/optimized/status")
+async def get_optimized_verification_status(user: User = Depends(require_admin)):
+    """Get latest optimized verification report"""
+    report = await db.optimized_verification_reports.find_one(
+        {},
+        {"_id": 0},
+        sort=[("started_at", -1)]
+    )
+    
+    if report:
+        return report
+    
+    return {"status": "no_reports_yet"}
+
+@api_router.get("/qa/optimized/savings")
+async def get_cost_savings():
+    """
+    Show cost savings from optimized approach vs naive approach.
+    """
+    from cost_optimized_dataforseo import estimate_verification_cost
+    estimate = await estimate_verification_cost(db)
+    
+    return {
+        "optimized_approach": {
+            "queries": estimate["queries_needed"],
+            "cost": f"${estimate['estimated_cost_usd']}"
+        },
+        "naive_approach": {
+            "queries": estimate["vs_naive_approach"]["naive_queries"],
+            "cost": f"${estimate['vs_naive_approach']['naive_cost']}"
+        },
+        "savings": estimate["vs_naive_approach"]["savings"],
+        "optimization_methods": [
+            "Skip already verified countries (UNODC, manual SERP)",
+            "Skip small countries with no reliable data (~30 countries)",
+            "Only query opioid_deaths (most important metric)",
+            "Query only 2022 (most recent reliable year)",
+            "Validate extracted values against population (reject false positives)",
+            "Cache results to prevent duplicate queries"
+        ]
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
