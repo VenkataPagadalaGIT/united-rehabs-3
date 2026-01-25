@@ -242,23 +242,60 @@ export function LocationsMegaMenu({ isOpen, onClose, isMobile = false }: Locatio
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-4">
-            {INTERNATIONAL_REGIONS.map((region) => (
-              <div
-                key={region.id}
-                className="p-4 rounded-xl border border-border bg-muted/30 hover:bg-muted/50 transition-colors cursor-not-allowed"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold text-foreground">{region.name}</h4>
-                  <span className="text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded-full">
-                    Coming Soon
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {region.count} countries planned
-                </p>
+          <div className="flex gap-8">
+            {/* Region Sidebar */}
+            <div className="w-48 flex-shrink-0">
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                Regions
+              </h3>
+              <nav className="space-y-1">
+                {INTERNATIONAL_REGIONS.map((region) => {
+                  const regionCountries = COUNTRIES_BY_REGION[region.name] || [];
+                  return (
+                    <button
+                      key={region.id}
+                      onClick={() => setActiveInternationalRegion(region.name)}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        activeInternationalRegion === region.name
+                          ? "bg-primary/10 text-primary"
+                          : "text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2">
+                        <span>{region.emoji}</span>
+                        {region.name}
+                      </span>
+                      <span className="text-xs text-muted-foreground">{regionCountries.length}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+
+            {/* Countries Grid */}
+            <div className="flex-1">
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                {activeInternationalRegion} Countries
+              </h3>
+              <div className="grid grid-cols-4 gap-2">
+                {(COUNTRIES_BY_REGION[activeInternationalRegion] || []).slice(0, 16).map((country) => (
+                  <Link
+                    key={country.code}
+                    to={`/${country.slug}-addiction-rehabs`}
+                    onClick={onClose}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
+                  >
+                    <span className="text-base">{country.flag}</span>
+                    {country.name}
+                  </Link>
+                ))}
               </div>
-            ))}
+              {(COUNTRIES_BY_REGION[activeInternationalRegion] || []).length > 16 && (
+                <p className="text-xs text-muted-foreground mt-3 text-center">
+                  +{(COUNTRIES_BY_REGION[activeInternationalRegion] || []).length - 16} more countries available
+                </p>
+              )}
+            </div>
           </div>
         )}
       </div>
