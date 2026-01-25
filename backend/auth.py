@@ -1,8 +1,14 @@
 from datetime import datetime, timedelta
 from typing import Optional
+from pathlib import Path
 import jwt
 import bcrypt
 import os
+from dotenv import load_dotenv
+
+# Load environment variables
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')
 
 # JWT settings
 SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
