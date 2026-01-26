@@ -231,6 +231,10 @@ export function Footer({ linkGroups }: FooterProps) {
               Treatment Centers
             </ScrollLink>
             <span className="text-sidebar-foreground/30">|</span>
+            <ScrollLink to="/data-methodology" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
+              Data Methodology
+            </ScrollLink>
+            <span className="text-sidebar-foreground/30">|</span>
             <ScrollLink to="/about" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
               About Us
             </ScrollLink>
