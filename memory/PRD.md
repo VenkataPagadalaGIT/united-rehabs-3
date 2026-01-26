@@ -19,6 +19,30 @@
 
 ---
 
+## ✅ GLOBAL COMPLIANCE PAGES (Jan 26, 2026)
+
+### Compliance Pages Created/Updated
+All pages now support international compliance (GDPR, CCPA, LGPD, PIPEDA, etc.):
+
+| Page | URL | Compliance Coverage |
+|------|-----|---------------------|
+| **Privacy Policy** | `/privacy-policy` | GDPR, UK GDPR, CCPA/CPRA, LGPD, PIPEDA, Privacy Act 1988, POPIA |
+| **Terms of Service** | `/terms-of-service` | International - US, EU, UK, AU, CA governing law |
+| **Cookie Policy** | `/cookie-policy` | EU ePrivacy, GDPR, UK PECR, CCPA |
+| **Legal Disclaimer** | `/legal-disclaimer` | Medical, Data, HIPAA, Facility disclaimers |
+| **Accessibility** | `/accessibility` | WCAG 2.1 AA, ADA, Section 508, Equality Act, EAA |
+| **Do Not Sell** | `/do-not-sell` | CCPA, CPRA, VCDPA, CPA (US state laws) |
+| **Affiliate Disclosure** | `/affiliate-disclosure` | FTC, ASA (UK), EU regulations |
+
+### Features
+- Rights-at-a-glance summaries
+- Jurisdiction-specific sections
+- Clear cookie tables
+- Contact information for privacy inquiries
+- Emergency helpline numbers (911 US, 999 UK, 112 EU)
+
+---
+
 ## ✅ UI/UX IMPROVEMENTS COMPLETED (Jan 25, 2026)
 
 ### Navigation & Footer Enhancements
