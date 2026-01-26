@@ -77,6 +77,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route path="/accessibility" element={<AccessibilityStatement />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<Contact />} />
