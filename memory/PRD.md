@@ -33,6 +33,7 @@ All pages now support international compliance (GDPR, CCPA, LGPD, PIPEDA, etc.):
 | **Accessibility** | `/accessibility` | WCAG 2.1 AA, ADA, Section 508, Equality Act, EAA |
 | **Do Not Sell** | `/do-not-sell` | CCPA, CPRA, VCDPA, CPA (US state laws) |
 | **Affiliate Disclosure** | `/affiliate-disclosure` | FTC, ASA (UK), EU regulations |
+| **Data Methodology** | `/data-methodology` | Sources, verification process, update frequency |
 
 ### Features
 - Rights-at-a-glance summaries
