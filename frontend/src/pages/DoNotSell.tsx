@@ -1,136 +1,218 @@
 import { Header } from "@/components/listing/Header";
 import { Footer } from "@/components/listing/Footer";
 import { mockFooterLinks, mockNavItems } from "@/data/mockData";
-import { Shield, CheckCircle } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ShieldX, Globe, CheckCircle, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function DoNotSell() {
+  const lastUpdated = "January 26, 2026";
+
   return (
     <div className="min-h-screen bg-background">
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Do Not Sell or Share My Personal Information</h1>
-          <p className="text-muted-foreground mb-8">California Consumer Privacy Act (CCPA) Disclosure</p>
-          
-          <div className="prose prose-slate max-w-none space-y-8">
-            {/* Good News Banner */}
-            <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-8 flex items-start gap-4">
-              <CheckCircle className="h-8 w-8 text-green-600 shrink-0 mt-1" />
-              <div>
-                <h2 className="text-xl font-semibold text-foreground mb-2 mt-0">We Do Not Sell Your Personal Information</h2>
-                <p className="text-muted-foreground mb-0">
-                  United Rehabs does not sell, rent, or share your personal information with third parties for 
-                  their direct marketing purposes. We have never sold user data and have no plans to do so.
-                </p>
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-foreground mb-2">Do Not Sell or Share My Personal Information</h1>
+            <p className="text-muted-foreground">Last updated: {lastUpdated}</p>
+          </div>
+
+          {/* Key Message */}
+          <Card className="mb-8 bg-green-500/5 border-green-500/20">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-6 w-6 text-green-500 flex-shrink-0 mt-1" />
+                <div>
+                  <h2 className="font-semibold text-foreground mb-2">United Rehabs Does NOT Sell Your Personal Information</h2>
+                  <p className="text-sm text-muted-foreground">
+                    We do not sell, rent, trade, or share your personal information with third parties for monetary consideration. This has always been our practice and remains our commitment.
+                  </p>
+                </div>
               </div>
-            </div>
+            </CardContent>
+          </Card>
+
+          <div className="prose prose-slate max-w-none space-y-8">
+            <section>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">Your Rights Under Privacy Laws</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                Various privacy laws around the world grant you the right to opt out of the "sale" or "sharing" of your personal information. This page explains these rights and how they apply to United Rehabs.
+              </p>
+            </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-foreground mb-4">Your Rights Under CCPA</h2>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                The California Consumer Privacy Act (CCPA) gives California residents specific rights regarding their personal information:
+              <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Globe className="h-6 w-6 text-primary" />
+                Applicable Laws
+              </h2>
+              
+              <div className="grid md:grid-cols-2 gap-4 mt-4">
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="font-medium text-foreground mb-2">🇺🇸 California (CCPA/CPRA)</h3>
+                    <p className="text-sm text-muted-foreground">
+                      California residents have the right to opt out of the "sale" or "sharing" of personal information. Under CPRA, "sharing" includes cross-context behavioral advertising.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="font-medium text-foreground mb-2">🇺🇸 Virginia (VCDPA)</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Virginia residents can opt out of the sale of personal data and targeted advertising.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="font-medium text-foreground mb-2">🇺🇸 Colorado (CPA)</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Colorado residents have rights to opt out of targeted advertising, sale of data, and profiling.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="font-medium text-foreground mb-2">🇺🇸 Connecticut, Utah, etc.</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Multiple US states have enacted similar privacy laws with opt-out rights.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">What "Sale" and "Sharing" Mean</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                Under various privacy laws:
               </p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-2">
-                <li><strong>Right to Know:</strong> You can request what personal information we collect, use, disclose, and sell</li>
-                <li><strong>Right to Delete:</strong> You can request deletion of your personal information</li>
-                <li><strong>Right to Opt-Out:</strong> You can opt-out of the sale of your personal information</li>
-                <li><strong>Right to Non-Discrimination:</strong> We will not discriminate against you for exercising your CCPA rights</li>
+              <ul className="list-disc pl-6 text-muted-foreground space-y-2">
+                <li><strong>"Sale"</strong> typically means exchanging personal information for monetary or other valuable consideration</li>
+                <li><strong>"Sharing"</strong> (under CPRA) means making personal information available for cross-context behavioral advertising</li>
+                <li>These definitions may include sharing data with advertising partners for targeted ads</li>
               </ul>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-foreground mb-4">What Information We Collect</h2>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                We may collect the following categories of personal information:
+              <h2 className="text-2xl font-semibold text-foreground mb-4">Our Practices</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                <strong>United Rehabs does NOT:</strong>
               </p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-2">
-                <li><strong>Identifiers:</strong> Name, email address (only if you contact us)</li>
-                <li><strong>Internet Activity:</strong> Browsing history, search queries, interaction with our website</li>
-                <li><strong>Geolocation:</strong> Approximate location based on IP address</li>
+              <ul className="list-disc pl-6 text-muted-foreground space-y-2">
+                <li>Sell your personal information to third parties for money</li>
+                <li>Share your personal information for cross-context behavioral advertising</li>
+                <li>Provide your data to data brokers</li>
+                <li>Trade your information for services</li>
               </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-foreground mb-4">How We Use Your Information</h2>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                We use the information we collect for the following business purposes only:
+              
+              <p className="text-muted-foreground leading-relaxed mt-4">
+                <strong>We may share data with:</strong>
               </p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-2">
-                <li>To provide and maintain our website and services</li>
-                <li>To respond to your inquiries and communications</li>
-                <li>To analyze and improve our website performance</li>
-                <li>To detect and prevent security threats</li>
-                <li>To comply with legal obligations</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-foreground mb-4">Third-Party Sharing</h2>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                We may share your information with the following categories of service providers for business purposes:
-              </p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-2">
-                <li><strong>Analytics Providers:</strong> To help us understand website usage</li>
-                <li><strong>Hosting Providers:</strong> To store and serve our website</li>
-                <li><strong>Security Services:</strong> To protect against fraud and abuse</li>
+              <ul className="list-disc pl-6 text-muted-foreground space-y-2">
+                <li>Service providers who assist in operating our website (under contract)</li>
+                <li>Analytics providers (with anonymization/aggregation where possible)</li>
+                <li>Legal authorities when required by law</li>
               </ul>
               <p className="text-muted-foreground leading-relaxed mt-4">
-                These service providers are contractually obligated to use your information only for the purposes we specify 
-                and are prohibited from selling your personal information.
+                These disclosures are generally NOT considered "sales" under privacy laws as they are for operational purposes under contracts that restrict further use.
               </p>
             </section>
 
             <section>
-              <div className="flex items-start gap-4">
-                <Shield className="h-8 w-8 text-primary shrink-0 mt-1" />
-                <div>
-                  <h2 className="text-2xl font-semibold text-foreground mb-4 mt-0">Exercising Your Rights</h2>
-                  <p className="text-muted-foreground leading-relaxed mb-4">
-                    To exercise any of your CCPA rights, you may:
-                  </p>
-                  <ul className="list-disc list-inside text-muted-foreground space-y-2">
-                    <li>Submit a request through our <a href="/contact" className="text-primary hover:underline">Contact page</a></li>
-                    <li>Include "CCPA Request" in your subject line</li>
-                    <li>Specify which right(s) you wish to exercise</li>
-                  </ul>
-                  <p className="text-muted-foreground leading-relaxed mt-4">
-                    We will respond to verifiable consumer requests within 45 days. If we need more time (up to 90 days total), 
-                    we will inform you of the reason and extension period in writing.
-                  </p>
+              <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Settings className="h-6 w-6 text-primary" />
+                How to Exercise Your Rights
+              </h2>
+              <p className="text-muted-foreground leading-relaxed">
+                Although we do not sell your personal information, we honor your privacy preferences:
+              </p>
+              
+              <div className="bg-muted/30 p-6 rounded-lg mt-4">
+                <h3 className="font-medium text-foreground mb-4">Opt-Out Options</h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <p className="font-medium text-foreground">1. Global Privacy Control (GPC)</p>
+                    <p className="text-sm text-muted-foreground">
+                      We honor GPC signals. Enable GPC in your browser, and we will treat this as a valid opt-out request.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <p className="font-medium text-foreground">2. Cookie Preferences</p>
+                    <p className="text-sm text-muted-foreground">
+                      Use our cookie banner to manage non-essential cookies, including any used for analytics or advertising.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <p className="font-medium text-foreground">3. Direct Request</p>
+                    <p className="text-sm text-muted-foreground">
+                      Email us at privacy@unitedrehabs.com with "Do Not Sell" in the subject line.
+                    </p>
+                  </div>
                 </div>
               </div>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-foreground mb-4">Verification Process</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                To protect your privacy, we must verify your identity before fulfilling your request. We may ask you to 
-                provide information that matches what we have on file. If we cannot verify your identity, we may deny your request.
-              </p>
-            </section>
-
-            <section>
               <h2 className="text-2xl font-semibold text-foreground mb-4">Authorized Agents</h2>
               <p className="text-muted-foreground leading-relaxed">
-                You may designate an authorized agent to make a request on your behalf. Authorized agents must submit 
-                proof of authorization (such as a power of attorney or signed permission) along with the request.
+                You may designate an authorized agent to submit opt-out requests on your behalf. The agent must:
+              </p>
+              <ul className="list-disc pl-6 text-muted-foreground space-y-2">
+                <li>Provide proof of authorization (power of attorney or signed permission)</li>
+                <li>Verify their identity</li>
+                <li>Provide your identity verification</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">Non-Discrimination</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                We will not discriminate against you for exercising your privacy rights. You will receive the same service quality and pricing regardless of your privacy choices.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-foreground mb-4">Updates to This Notice</h2>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">Response Timeframe</h2>
               <p className="text-muted-foreground leading-relaxed">
-                We may update this notice from time to time. The most current version will always be available on this page. 
-                We encourage you to review this notice periodically.
+                We will respond to opt-out requests within the timeframes required by applicable law:
               </p>
+              <ul className="list-disc pl-6 text-muted-foreground space-y-2">
+                <li>CCPA/CPRA: 15 business days to process, with confirmation</li>
+                <li>Other state laws: As required by each respective law</li>
+              </ul>
             </section>
 
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-4">Contact Us</h2>
+              <div className="bg-muted/30 p-6 rounded-lg">
+                <p className="text-foreground font-medium mb-4">To exercise your rights or ask questions:</p>
+                <p className="text-muted-foreground">Email: privacy@unitedrehabs.com</p>
+                <p className="text-muted-foreground">Subject: "Do Not Sell Request" or "Privacy Rights"</p>
+                
+                <div className="mt-6">
+                  <Link to="/privacy-policy">
+                    <Button variant="outline">
+                      View Full Privacy Policy
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">Verification</h2>
               <p className="text-muted-foreground leading-relaxed">
-                If you have questions about this notice or your CCPA rights, please contact us through our{" "}
-                <a href="/contact" className="text-primary hover:underline">Contact page</a>.
+                We may need to verify your identity before processing certain requests. This helps protect your privacy and prevent fraudulent requests. We will only use information provided for verification purposes.
               </p>
             </section>
           </div>
