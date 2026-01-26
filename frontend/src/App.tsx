@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CookiePolicy from "./pages/CookiePolicy";
+import DataMethodology from "./pages/DataMethodology";
 import AccessibilityStatement from "./pages/AccessibilityStatement";
 import AboutUs from "./pages/AboutUs";
 import Contact from "./pages/Contact";
