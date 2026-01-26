@@ -1,149 +1,209 @@
 import { Header } from "@/components/listing/Header";
 import { Footer } from "@/components/listing/Footer";
-import { mockNavItems, mockFooterLinks } from "@/data/mockData";
-import { AlertTriangle, DollarSign, Shield, FileText } from "lucide-react";
+import { mockFooterLinks, mockNavItems } from "@/data/mockData";
+import { Card, CardContent } from "@/components/ui/card";
+import { DollarSign, Link2, AlertTriangle, Building2, CheckCircle } from "lucide-react";
 
 export default function AffiliateDisclosure() {
+  const lastUpdated = "January 26, 2026";
+
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen bg-background">
       <Header navItems={mockNavItems} />
       
-      <main id="main-content" className="flex-1">
-        <div className="container mx-auto px-4 py-12 max-w-4xl">
-          <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mb-8 flex items-start gap-3">
-            <AlertTriangle className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" aria-hidden="true" />
-            <div>
-              <h1 className="text-2xl font-bold text-foreground mb-2">Affiliate & Advertising Disclosure</h1>
-              <p className="text-muted-foreground">
-                <strong>FTC Compliance Notice:</strong> This disclosure is provided in accordance with the Federal Trade Commission's 16 CFR Part 255 guidelines concerning the use of endorsements and testimonials in advertising.
-              </p>
-            </div>
+      <main className="container mx-auto px-4 py-12">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-foreground mb-2">Affiliate & Advertising Disclosure</h1>
+            <p className="text-muted-foreground">Last updated: {lastUpdated}</p>
           </div>
-          
-          <p className="text-sm text-muted-foreground mb-8">Last updated: January 16, 2026</p>
-          
-          {/* Material Connection Disclosure */}
-          <section className="mb-10" aria-labelledby="material-connection">
-            <div className="flex items-center gap-3 mb-4">
-              <DollarSign className="h-6 w-6 text-primary" aria-hidden="true" />
-              <h2 id="material-connection" className="text-xl font-semibold text-foreground">Material Connection Disclosure</h2>
-            </div>
-            <div className="bg-card border border-border rounded-lg p-6">
-              <p className="text-foreground mb-4">
-                United Rehabs may receive compensation when you click on links to treatment centers listed on our website and/or submit a form requesting information or assistance. This compensation may impact:
+
+          {/* Transparency Notice */}
+          <Card className="mb-8 bg-primary/5 border-primary/20">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                <div>
+                  <h2 className="font-semibold text-foreground mb-2">Our Commitment to Transparency</h2>
+                  <p className="text-sm text-muted-foreground">
+                    At United Rehabs, we believe in full transparency about our business relationships. This disclosure explains how we may receive compensation and how it affects (or doesn't affect) the information we provide.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="prose prose-slate max-w-none space-y-8">
+            <section>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">What This Disclosure Covers</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                This disclosure is provided in accordance with guidelines from the U.S. Federal Trade Commission (FTC), Advertising Standards Authority (UK), and similar regulatory bodies worldwide. It applies to all content on unitedrehabs.com.
               </p>
-              <ul className="list-disc list-inside space-y-2 text-foreground mb-4">
-                <li>How and where treatment centers appear on our website</li>
-                <li>The order in which they appear in listings</li>
-                <li>Whether a treatment center is featured or highlighted</li>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Building2 className="h-6 w-6 text-primary" />
+                Treatment Facility Relationships
+              </h2>
+              <p className="text-muted-foreground leading-relaxed">
+                United Rehabs may have financial relationships with some treatment facilities listed on our website. These relationships may include:
+              </p>
+              <ul className="list-disc pl-6 text-muted-foreground space-y-2">
+                <li><strong>Referral fees:</strong> We may receive compensation when users contact or are admitted to certain facilities</li>
+                <li><strong>Advertising fees:</strong> Facilities may pay for enhanced listings or sponsored placements</li>
+                <li><strong>Partnership arrangements:</strong> Some facilities may be featured through paid partnerships</li>
               </ul>
-              <p className="text-foreground">
-                <strong>Important:</strong> Our acceptance of compensation does not constitute an endorsement of any treatment center. Compensation does not influence our editorial content, reviews, or data-driven statistics sourced from government databases.
+              
+              <div className="bg-yellow-500/10 border border-yellow-500/30 p-4 rounded-lg mt-4">
+                <p className="text-foreground font-medium flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                  Important Disclosure
+                </p>
+                <p className="text-muted-foreground text-sm mt-2">
+                  Financial relationships DO NOT influence which facilities appear in our search results or how they are ranked. Our editorial content and data remain independent of advertising relationships.
+                </p>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Link2 className="h-6 w-6 text-primary" />
+                Affiliate Links
+              </h2>
+              <p className="text-muted-foreground leading-relaxed">
+                Some links on our website may be "affiliate links." This means:
               </p>
-            </div>
-          </section>
-          
-          {/* Types of Compensation */}
-          <section className="mb-10" aria-labelledby="compensation-types">
-            <div className="flex items-center gap-3 mb-4">
-              <FileText className="h-6 w-6 text-primary" aria-hidden="true" />
-              <h2 id="compensation-types" className="text-xl font-semibold text-foreground">Types of Compensation We May Receive</h2>
-            </div>
-            <div className="bg-card border border-border rounded-lg p-6 space-y-4">
-              <div>
-                <h3 className="font-semibold text-foreground mb-2">1. Referral Fees</h3>
-                <p className="text-muted-foreground">
-                  We may receive a fee when a user contacts a treatment center through our website and subsequently enrolls in their program.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground mb-2">2. Advertising Fees</h3>
-                <p className="text-muted-foreground">
-                  Treatment centers may pay for enhanced visibility, featured placement, or promotional content on our website.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground mb-2">3. Lead Generation Fees</h3>
-                <p className="text-muted-foreground">
-                  We may receive compensation when users submit inquiry forms or request call-backs from treatment centers.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground mb-2">4. Pay-Per-Call Fees</h3>
-                <p className="text-muted-foreground">
-                  Some phone numbers displayed on our website may connect to call centers, and we may receive compensation for calls that meet certain duration or qualification criteria.
-                </p>
-              </div>
-            </div>
-          </section>
-          
-          {/* Editorial Independence */}
-          <section className="mb-10" aria-labelledby="editorial-independence">
-            <div className="flex items-center gap-3 mb-4">
-              <Shield className="h-6 w-6 text-primary" aria-hidden="true" />
-              <h2 id="editorial-independence" className="text-xl font-semibold text-foreground">Editorial Independence</h2>
-            </div>
-            <div className="bg-card border border-border rounded-lg p-6">
-              <p className="text-foreground mb-4">
-                Despite our financial relationships with some treatment centers, we are committed to providing accurate, unbiased information to help you make informed decisions about addiction treatment:
-              </p>
-              <ul className="list-disc list-inside space-y-2 text-foreground">
-                <li><strong>Statistics and Data:</strong> All statistics are sourced from official government databases (SAMHSA, CDC, NIDA) and are not influenced by advertising relationships</li>
-                <li><strong>Verification Status:</strong> Treatment center verification is based on objective licensing and accreditation criteria, not payment</li>
-                <li><strong>User Reviews:</strong> We do not modify or suppress user reviews based on advertising relationships</li>
-                <li><strong>Educational Content:</strong> Our articles, guides, and resources are created independently and are not sponsored content unless explicitly labeled</li>
+              <ul className="list-disc pl-6 text-muted-foreground space-y-2">
+                <li>If you click on certain links and take action (such as contacting a facility), we may receive a commission</li>
+                <li>The price you pay is NOT affected by affiliate commissions</li>
+                <li>Affiliate relationships do not influence our editorial recommendations</li>
               </ul>
-            </div>
-          </section>
-          
-          {/* Sponsored Content */}
-          <section className="mb-10" aria-labelledby="sponsored-content">
-            <h2 id="sponsored-content" className="text-xl font-semibold text-foreground mb-4">Identifying Sponsored Content</h2>
-            <div className="bg-card border border-border rounded-lg p-6">
-              <p className="text-foreground mb-4">
-                When content is sponsored or paid for by a treatment center, we clearly identify it with labels such as:
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                <DollarSign className="h-6 w-6 text-primary" />
+                How We're Compensated
+              </h2>
+              <p className="text-muted-foreground leading-relaxed">
+                United Rehabs may receive revenue through:
               </p>
-              <ul className="list-disc list-inside space-y-2 text-foreground mb-4">
+              
+              <div className="grid md:grid-cols-2 gap-4 mt-4">
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="font-medium text-foreground mb-2">Call Tracking</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Phone calls to listed facilities may be routed through tracking numbers. We may receive compensation for calls that result in admissions.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="font-medium text-foreground mb-2">Form Submissions</h3>
+                    <p className="text-sm text-muted-foreground">
+                      When you submit inquiry forms for certain facilities, we may receive compensation for qualified leads.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="font-medium text-foreground mb-2">Sponsored Listings</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Some listings may be marked as "Sponsored" or "Featured." These facilities pay for enhanced visibility.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="font-medium text-foreground mb-2">Display Advertising</h3>
+                    <p className="text-sm text-muted-foreground">
+                      We may display advertisements from advertising networks. Ad content is not endorsed by us.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">How to Identify Paid Content</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                We clearly identify paid or sponsored content using labels such as:
+              </p>
+              <ul className="list-disc pl-6 text-muted-foreground space-y-2">
                 <li>"Sponsored"</li>
                 <li>"Featured Partner"</li>
-                <li>"Advertisement"</li>
-                <li>"Paid Placement"</li>
+                <li>"Advertisement" or "Ad"</li>
+                <li>"Paid Listing"</li>
+                <li>"Partner Content"</li>
               </ul>
-              <p className="text-muted-foreground">
-                Treatment center cards may display an "Ad" indicator when that listing is a paid placement.
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">Editorial Independence</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                Despite financial relationships, we maintain strict editorial independence:
               </p>
-            </div>
-          </section>
-          
-          {/* Your Responsibility */}
-          <section className="mb-10" aria-labelledby="your-responsibility">
-            <h2 id="your-responsibility" className="text-xl font-semibold text-foreground mb-4">Your Responsibility</h2>
-            <div className="bg-muted border border-border rounded-lg p-6">
-              <p className="text-foreground mb-4">
-                We encourage you to:
-              </p>
-              <ul className="list-disc list-inside space-y-2 text-foreground">
-                <li>Conduct your own research on any treatment center before making a decision</li>
-                <li>Verify licensing and accreditation directly with state agencies</li>
-                <li>Consult with healthcare professionals about your treatment options</li>
-                <li>Read reviews from multiple sources</li>
-                <li>Contact treatment centers directly to verify information</li>
+              <ul className="list-disc pl-6 text-muted-foreground space-y-2">
+                <li><strong>Statistics and data</strong> are sourced from official government agencies and are not influenced by advertisers</li>
+                <li><strong>Educational content</strong> is written by qualified professionals without advertiser input</li>
+                <li><strong>Search rankings</strong> are based on objective criteria, not payment</li>
+                <li><strong>Negative information</strong> about paying partners is not suppressed</li>
               </ul>
-            </div>
-          </section>
-          
-          {/* Contact */}
-          <section aria-labelledby="disclosure-contact">
-            <h2 id="disclosure-contact" className="text-xl font-semibold text-foreground mb-4">Questions About This Disclosure</h2>
-            <div className="bg-card border border-border rounded-lg p-6">
-              <p className="text-foreground">
-                If you have questions about our advertising relationships or this disclosure, please contact us at{" "}
-                <a href="mailto:advertising@unitedrehabs.org" className="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded">
-                  advertising@unitedrehabs.org
-                </a>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">Our Recommendations</h2>
+              <div className="bg-muted/30 p-4 rounded-lg">
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong>We strongly recommend that you:</strong>
+                </p>
+                <ul className="list-disc pl-6 text-muted-foreground space-y-2 mt-2">
+                  <li>Research multiple treatment options before making decisions</li>
+                  <li>Verify facility credentials, licensing, and accreditation independently</li>
+                  <li>Consult with healthcare professionals about treatment options</li>
+                  <li>Contact your insurance provider about coverage</li>
+                  <li>Read reviews from multiple sources</li>
+                </ul>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">International Compliance</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                This disclosure complies with advertising regulations in multiple jurisdictions:
               </p>
-            </div>
-          </section>
+              <ul className="list-disc pl-6 text-muted-foreground space-y-2">
+                <li><strong>United States:</strong> FTC Endorsement Guides (16 CFR Part 255)</li>
+                <li><strong>United Kingdom:</strong> ASA CAP Code</li>
+                <li><strong>European Union:</strong> Unfair Commercial Practices Directive</li>
+                <li><strong>Australia:</strong> Australian Consumer Law</li>
+                <li><strong>Canada:</strong> Competition Act advertising provisions</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">Questions About Compensation</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                If you have questions about our business relationships or how we're compensated, please contact us:
+              </p>
+              <div className="bg-muted/30 p-6 rounded-lg mt-4">
+                <p className="text-muted-foreground">Email: partnerships@unitedrehabs.com</p>
+                <p className="text-muted-foreground">Subject: Affiliate/Advertising Inquiry</p>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">Updates to This Disclosure</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                We may update this disclosure as our business relationships change. The "Last updated" date at the top of this page indicates when it was last revised.
+              </p>
+            </section>
+          </div>
         </div>
       </main>
       
