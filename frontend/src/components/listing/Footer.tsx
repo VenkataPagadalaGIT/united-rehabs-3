@@ -243,6 +243,10 @@ export function Footer({ linkGroups }: FooterProps) {
               Privacy Policy
             </ScrollLink>
             <span className="text-sidebar-foreground/30">|</span>
+            <ScrollLink to="/cookie-policy" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
+              Cookie Policy
+            </ScrollLink>
+            <span className="text-sidebar-foreground/30">|</span>
             <ScrollLink to="/terms-of-service" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
               Terms of Service
             </ScrollLink>
@@ -257,6 +261,10 @@ export function Footer({ linkGroups }: FooterProps) {
             <span className="text-sidebar-foreground/30">|</span>
             <ScrollLink to="/affiliate-disclosure" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
               Affiliate Disclosure
+            </ScrollLink>
+            <span className="text-sidebar-foreground/30">|</span>
+            <ScrollLink to="/do-not-sell" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
+              Do Not Sell My Info
             </ScrollLink>
             <span className="text-sidebar-foreground/30">|</span>
             <ScrollLink to="/admin" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
