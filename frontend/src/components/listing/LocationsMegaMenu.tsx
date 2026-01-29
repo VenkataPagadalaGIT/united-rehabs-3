@@ -100,7 +100,7 @@ export function LocationsMegaMenu({ isOpen, onClose, isMobile = false }: Locatio
                     {statesByRegion[region.id]?.map((state) => (
                       <Link
                         key={state.id}
-                        to={`/states/${state.id}`}
+                        to={`/${state.slug}-addiction-rehabs`}
                         onClick={onClose}
                         className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:text-primary hover:bg-primary/5 rounded-md transition-colors"
                       >
