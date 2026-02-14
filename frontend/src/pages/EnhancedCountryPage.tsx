@@ -727,6 +727,36 @@ const EnhancedCountryPage = () => {
         </div>
       </section>
 
+      {/* Year-based internal links for SEO */}
+      <nav className="container mx-auto px-4 py-8 border-t" aria-label="Historical data by year" data-testid="country-year-links">
+        <div className="flex items-center gap-2 mb-4">
+          <Calendar className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-semibold text-foreground">
+            {countryConfig?.name} Addiction Data by Year
+          </h3>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {[2025, 2024, 2023, 2022, 2021, 2020, 2019].map((year) => (
+            <Link
+              key={year}
+              to={`/${countrySlug}-addiction-stats-${year}`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                selectedYear === year
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-card text-muted-foreground border-border hover:border-primary hover:text-primary'
+              }`}
+            >
+              {year}
+            </Link>
+          ))}
+        </div>
+        {isUSA && (
+          <div className="mt-4 flex flex-wrap gap-3 text-sm">
+            <Link to="/compare" className="text-primary hover:underline">Compare with Other Countries</Link>
+          </div>
+        )}
+      </nav>
+
       <Footer linkGroups={mockFooterLinks} />
     </div>
   );
