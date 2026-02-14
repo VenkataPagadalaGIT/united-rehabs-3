@@ -1,6 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart3, Building2 } from "lucide-react";
+import { BarChart3, Building2, Gift } from "lucide-react";
 import { StatisticsTab } from "./tabs/StatisticsTab";
+import { FreeResourcesTab } from "./tabs/FreeResourcesTab";
 import { Link } from "react-router-dom";
 
 interface StateTabsProps {
@@ -16,19 +17,29 @@ export const StateTabs = ({
 }: StateTabsProps) => {
   return (
     <Tabs defaultValue="statistics" className="w-full">
-      <TabsList className="grid w-full grid-cols-2 mb-8 h-12 bg-muted p-1 rounded-lg gap-1">
+      <TabsList className="grid w-full grid-cols-3 mb-8 h-12 bg-muted p-1 rounded-lg gap-1">
         <TabsTrigger value="statistics" className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
           <BarChart3 className="h-4 w-4" />
-          Statistics
+          <span className="hidden sm:inline">Statistics</span>
+          <span className="sm:hidden">Stats</span>
+        </TabsTrigger>
+        <TabsTrigger value="resources" className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+          <Gift className="h-4 w-4" />
+          Resources
         </TabsTrigger>
         <TabsTrigger value="listings" className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
           <Building2 className="h-4 w-4" />
-          Rehab Listings
+          <span className="hidden sm:inline">Rehab Listings</span>
+          <span className="sm:hidden">Rehabs</span>
         </TabsTrigger>
       </TabsList>
 
       <TabsContent value="statistics">
         <StatisticsTab stateId={stateId} stateName={stateName} />
+      </TabsContent>
+
+      <TabsContent value="resources">
+        <FreeResourcesTab stateId={stateId} stateName={stateName} />
       </TabsContent>
 
       <TabsContent value="listings">
@@ -39,7 +50,7 @@ export const StateTabs = ({
           </h3>
           <p className="text-muted-foreground max-w-md mx-auto mb-6">
             We're building a comprehensive directory of verified treatment centers in {stateName}. 
-            In the meantime, explore the addiction statistics above.
+            In the meantime, explore the addiction statistics and resources above.
           </p>
           <div className="flex justify-center gap-3">
             <Link 
