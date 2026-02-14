@@ -64,15 +64,15 @@ const Admin = () => {
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate("/admin/login");
+      navigate("/you-are-the-admin/login");
     } else if (!loading && user && !isAdmin) {
-      navigate("/admin/login");
+      navigate("/you-are-the-admin/login");
     }
   }, [user, isAdmin, loading, navigate]);
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/admin/login");
+    navigate("/you-are-the-admin/login");
   };
 
   if (loading) {
