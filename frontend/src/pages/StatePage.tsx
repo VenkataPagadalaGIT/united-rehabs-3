@@ -1,7 +1,6 @@
 import { useParams, Navigate } from "react-router-dom";
 import StateStatsPage from "./StateStatsPage";
 import StateRehabsPage from "./StateRehabsPage";
-import StateResourcesPage from "./StateResourcesPage";
 import NotFound from "./NotFound";
 import { isValidStateSlug } from "@/data/stateConfig";
 
@@ -12,35 +11,39 @@ const StatePage = () => {
     return <Navigate to="/" replace />;
   }
 
-  // Determine which type of page based on suffix
-  if (slug.endsWith("-addiction-stats")) {
-    const stateKey = slug.replace(/-addiction-stats$/, "");
+  // Year-based URLs: /state-addiction-rehabs-2025, /state-addiction-stats-2024
+  const yearMatch = slug.match(/-(\d{4})$/);
+  const baseSlug = yearMatch ? slug.replace(/-\d{4}$/, "") : slug;
+
+  // Stats pages
+  if (baseSlug.endsWith("-addiction-stats")) {
+    const stateKey = baseSlug.replace(/-addiction-stats$/, "");
     if (isValidStateSlug(stateKey)) {
       return <StateStatsPage />;
     }
   }
   
-  // Support both -addiction-rehabs and -addiction-rehab-centers
-  if (slug.endsWith("-addiction-rehab-centers") || slug.endsWith("-addiction-rehabs")) {
-    const stateKey = slug.replace(/-addiction-rehab-centers$/, "").replace(/-addiction-rehabs$/, "");
+  // Rehabs pages (including year-based)
+  if (baseSlug.endsWith("-addiction-rehab-centers") || baseSlug.endsWith("-addiction-rehabs")) {
+    const stateKey = baseSlug.replace(/-addiction-rehab-centers$/, "").replace(/-addiction-rehabs$/, "");
     if (isValidStateSlug(stateKey)) {
       return <StateRehabsPage />;
     }
   }
   
-  if (slug.endsWith("-addiction-free-resources")) {
-    const stateKey = slug.replace(/-addiction-free-resources$/, "");
+  // Free resources - redirect to stats
+  if (baseSlug.endsWith("-addiction-free-resources")) {
+    const stateKey = baseSlug.replace(/-addiction-free-resources$/, "");
     if (isValidStateSlug(stateKey)) {
-      return <StateResourcesPage />;
+      return <Navigate to={`/${stateKey}-addiction-stats`} replace />;
     }
   }
 
-  // Handle bare state names (e.g., /california) - redirect to rehabs page
+  // Bare state names - redirect to stats page
   if (isValidStateSlug(slug)) {
-    return <Navigate to={`/${slug}-addiction-rehabs`} replace />;
+    return <Navigate to={`/${slug}-addiction-stats`} replace />;
   }
 
-  // Not a valid state page - render NotFound directly
   return <NotFound />;
 };
 
