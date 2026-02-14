@@ -56,7 +56,7 @@ const ShortcodeShowcase = () => {
       <Header navItems={mockNavItems} />
 
       <main className="container mx-auto px-4 py-8">
-        <Link to="/admin/articles">
+        <Link to="/you-are-the-admin/articles">
           <Button variant="ghost" className="mb-6 -ml-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Articles Admin
