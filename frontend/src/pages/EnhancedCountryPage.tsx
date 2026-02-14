@@ -71,7 +71,7 @@ const EnhancedCountryPage = () => {
   const { t } = useTranslation();
   const [selectedYear, setSelectedYear] = useState<number>(2025);
 
-  const countrySlug = slug?.replace(/-addiction-rehabs$/, "").replace(/-addiction-stats$/, "") || "";
+  const countrySlug = slug?.replace(/-addiction-rehabs$/, "").replace(/-addiction-stats$/, "").replace(/-\d{4}$/, "") || "";
 
   if (!isValidCountrySlug(countrySlug)) {
     return <NotFound />;
