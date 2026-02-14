@@ -3,22 +3,21 @@ import { Header } from "@/components/listing/Header";
 import { Footer } from "@/components/listing/Footer";
 import { mockFooterLinks, mockNavItems } from "@/data/mockData";
 import { cmsApi } from "@/lib/api";
-import { Shield, Users, Heart, Target, Award, BookOpen, Loader2 } from "lucide-react";
+import { Shield, Users, Target, BarChart3, Globe, Database, FileText, TrendingUp } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Link } from "react-router-dom";
 
 export default function AboutUs() {
-  // Fetch content from CMS
-  const { data: pageContent, isLoading, error } = useQuery({
+  const { data: pageContent, isLoading } = useQuery({
     queryKey: ["cms-page", "about-us"],
     queryFn: () => cmsApi.getPage("about-us"),
     staleTime: 5 * 60 * 1000,
   });
 
-  // Check if we have CMS content or should use default
   const hasCMSContent = pageContent?.content && pageContent.content.length > 100;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" data-testid="about-page">
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4 py-12">
@@ -30,7 +29,6 @@ export default function AboutUs() {
               <Skeleton className="h-64 w-full" />
             </div>
           ) : hasCMSContent ? (
-            // CMS-driven content
             <div>
               <h1 className="text-4xl font-bold text-foreground mb-4">
                 {pageContent?.title || "About United Rehabs"}
@@ -41,137 +39,202 @@ export default function AboutUs() {
               />
             </div>
           ) : (
-            // Default static content
             <>
-              <h1 className="text-4xl font-bold text-foreground mb-4">About United Rehabs</h1>
-              <p className="text-xl text-muted-foreground mb-12">
-                Connecting individuals and families with trusted addiction treatment resources worldwide.
+              {/* Page Header */}
+              <h1 className="text-4xl font-bold text-foreground mb-3" data-testid="about-heading">
+                About United Rehabs
+              </h1>
+              <p className="text-lg text-muted-foreground mb-12 max-w-2xl">
+                The most comprehensive open resource for global addiction statistics, 
+                covering 195 countries and all 51 US states with data from the world's 
+                leading health organizations.
               </p>
               
-              <div className="prose prose-slate max-w-none space-y-12">
-                {/* Mission Section */}
-                <section className="bg-primary/5 rounded-xl p-8 border border-primary/20">
+              <div className="space-y-14">
+                {/* Mission */}
+                <section className="bg-primary/5 rounded-xl p-8 border border-primary/10" data-testid="about-mission">
                   <div className="flex items-start gap-4">
-                    <Target className="h-8 w-8 text-primary shrink-0 mt-1" />
+                    <Target className="h-7 w-7 text-primary shrink-0 mt-1" />
                     <div>
-                      <h2 className="text-2xl font-semibold text-foreground mb-4 mt-0">Our Mission</h2>
-                      <p className="text-muted-foreground leading-relaxed mb-0">
-                        Our mission is to provide accessible, accurate, and comprehensive information about addiction treatment options 
-                        to help individuals and their loved ones make informed decisions on the path to recovery. We believe that 
-                        everyone deserves access to quality resources when seeking help for substance use disorders.
-                      </p>
-                    </div>
-                  </div>
-                </section>
-
-                {/* What We Do */}
-                <section>
-                  <h2 className="text-2xl font-semibold text-foreground mb-6">What We Do</h2>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="bg-card rounded-lg p-6 border">
-                      <BookOpen className="h-6 w-6 text-primary mb-3" />
-                      <h3 className="text-lg font-medium text-foreground mb-2">Treatment Directory</h3>
-                      <p className="text-muted-foreground text-sm">
-                        We maintain a comprehensive directory of addiction treatment centers, rehabilitation facilities, 
-                        and recovery programs across 195 countries worldwide.
-                      </p>
-                    </div>
-                    <div className="bg-card rounded-lg p-6 border">
-                      <Award className="h-6 w-6 text-primary mb-3" />
-                      <h3 className="text-lg font-medium text-foreground mb-2">Educational Resources</h3>
-                      <p className="text-muted-foreground text-sm">
-                        We provide educational content about addiction, treatment options, recovery processes, 
-                        and related topics to help individuals understand their options.
-                      </p>
-                    </div>
-                    <div className="bg-card rounded-lg p-6 border">
-                      <Shield className="h-6 w-6 text-primary mb-3" />
-                      <h3 className="text-lg font-medium text-foreground mb-2">Data & Statistics</h3>
-                      <p className="text-muted-foreground text-sm">
-                        We compile and present addiction statistics from authoritative sources 
-                        like WHO, UNODC, SAMHSA, CDC, and national health departments.
-                      </p>
-                    </div>
-                    <div className="bg-card rounded-lg p-6 border">
-                      <Heart className="h-6 w-6 text-primary mb-3" />
-                      <h3 className="text-lg font-medium text-foreground mb-2">Free Resources</h3>
-                      <p className="text-muted-foreground text-sm">
-                        We connect visitors with free and low-cost treatment options, crisis hotlines, 
-                        and community support programs.
-                      </p>
-                    </div>
-                  </div>
-                </section>
-
-                {/* Important Disclaimers */}
-                <section className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-8">
-                  <h2 className="text-2xl font-semibold text-foreground mb-4">Important Information</h2>
-                  <div className="space-y-4 text-muted-foreground">
-                    <p>
-                      <strong className="text-foreground">We Are Not Healthcare Providers:</strong> United Rehabs is an informational 
-                      directory website. We do not provide medical advice, diagnosis, or treatment. We are not a healthcare facility, 
-                      and our team does not include licensed medical professionals providing clinical services through this website.
-                    </p>
-                    <p>
-                      <strong className="text-foreground">No Endorsements:</strong> The treatment centers listed on our website are 
-                      provided for informational purposes only. We do not endorse, recommend, or guarantee any specific treatment 
-                      center, program, or service. We encourage all users to conduct their own research and verification.
-                    </p>
-                    <p>
-                      <strong className="text-foreground">HIPAA Notice:</strong> We are not a "covered entity" under HIPAA. 
-                      We do not collect, store, or transmit Protected Health Information (PHI). Please do not submit sensitive 
-                      medical information through our website.
-                    </p>
-                  </div>
-                </section>
-
-                {/* Our Team */}
-                <section>
-                  <div className="flex items-start gap-4">
-                    <Users className="h-8 w-8 text-primary shrink-0 mt-1" />
-                    <div>
-                      <h2 className="text-2xl font-semibold text-foreground mb-4 mt-0">Our Commitment</h2>
-                      <p className="text-muted-foreground leading-relaxed mb-4">
-                        We are committed to maintaining an accurate, up-to-date, and user-friendly resource for those seeking 
-                        addiction treatment information. Our content team regularly reviews and updates facility information, 
-                        statistics, and educational materials.
-                      </p>
+                      <h2 className="text-2xl font-semibold text-foreground mb-3">Our Mission</h2>
                       <p className="text-muted-foreground leading-relaxed">
-                        We believe in transparency, accuracy, and compassion. If you find any information on our website that 
-                        appears to be inaccurate or outdated, please contact us so we can investigate and make corrections.
+                        Substance use disorders affect over 292 million people worldwide, yet reliable data 
+                        remains scattered across hundreds of reports and databases. United Rehabs exists to 
+                        change that. We aggregate, verify, and present addiction statistics from authoritative 
+                        global sources in one accessible platform — empowering researchers, policymakers, 
+                        journalists, educators, and families with the information they need.
+                      </p>
+                    </div>
+                  </div>
+                </section>
+
+                {/* What We Provide */}
+                <section data-testid="about-services">
+                  <h2 className="text-2xl font-semibold text-foreground mb-6">What We Provide</h2>
+                  <div className="grid md:grid-cols-2 gap-5">
+                    <div className="bg-card rounded-xl p-6 border hover:shadow-md transition-shadow">
+                      <BarChart3 className="h-6 w-6 text-primary mb-3" />
+                      <h3 className="text-base font-semibold text-foreground mb-2">Addiction Statistics</h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        Detailed substance use data including prevalence rates, overdose deaths, 
+                        treatment admissions, and recovery rates — broken down by country and US state.
+                      </p>
+                    </div>
+                    <div className="bg-card rounded-xl p-6 border hover:shadow-md transition-shadow">
+                      <Globe className="h-6 w-6 text-primary mb-3" />
+                      <h3 className="text-base font-semibold text-foreground mb-2">Global Coverage</h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        Statistics for 195 countries across every continent, with interactive maps 
+                        and a comparison tool to analyze trends across regions.
+                      </p>
+                    </div>
+                    <div className="bg-card rounded-xl p-6 border hover:shadow-md transition-shadow">
+                      <TrendingUp className="h-6 w-6 text-primary mb-3" />
+                      <h3 className="text-base font-semibold text-foreground mb-2">Trend Analysis</h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        Year-over-year data visualization showing how substance use disorders, 
+                        overdose deaths, and treatment access are changing over time.
+                      </p>
+                    </div>
+                    <div className="bg-card rounded-xl p-6 border hover:shadow-md transition-shadow">
+                      <Database className="h-6 w-6 text-primary mb-3" />
+                      <h3 className="text-base font-semibold text-foreground mb-2">US State Data</h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        In-depth statistics for all 51 US states and territories, sourced from 
+                        SAMHSA NSDUH surveys, CDC WONDER, and state health departments.
                       </p>
                     </div>
                   </div>
                 </section>
 
                 {/* Data Sources */}
-                <section>
+                <section data-testid="about-data-sources">
                   <h2 className="text-2xl font-semibold text-foreground mb-4">Our Data Sources</h2>
-                  <p className="text-muted-foreground leading-relaxed mb-4">
-                    The statistics and data presented on our website are compiled from authoritative sources, including:
+                  <p className="text-muted-foreground leading-relaxed mb-5">
+                    Every statistic on United Rehabs is traceable to an official source. We compile data from 
+                    the world's most authoritative health organizations:
                   </p>
-                  <ul className="list-disc list-inside text-muted-foreground space-y-2">
-                    <li>World Health Organization (WHO) Global Health Observatory</li>
-                    <li>United Nations Office on Drugs and Crime (UNODC) World Drug Report</li>
-                    <li>European Monitoring Centre for Drugs and Drug Addiction (EMCDDA)</li>
-                    <li>Substance Abuse and Mental Health Services Administration (SAMHSA)</li>
-                    <li>Centers for Disease Control and Prevention (CDC)</li>
-                    <li>National Institute on Drug Abuse (NIDA)</li>
-                    <li>National health ministries and vital statistics offices</li>
-                  </ul>
-                  <p className="text-muted-foreground leading-relaxed mt-4">
-                    Data may have a 1-2 year lag due to official reporting timelines. For the most current data, 
-                    we encourage visitors to consult the source agencies directly.
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {[
+                      { org: "WHO", full: "World Health Organization — Global Health Observatory" },
+                      { org: "UNODC", full: "United Nations Office on Drugs and Crime — World Drug Report" },
+                      { org: "SAMHSA", full: "Substance Abuse and Mental Health Services Administration (US)" },
+                      { org: "CDC", full: "Centers for Disease Control and Prevention — WONDER Database" },
+                      { org: "NIDA", full: "National Institute on Drug Abuse (US)" },
+                      { org: "EMCDDA", full: "European Monitoring Centre for Drugs and Drug Addiction" },
+                    ].map((source) => (
+                      <div key={source.org} className="flex items-start gap-3 py-2">
+                        <span className="text-primary font-bold text-sm mt-0.5 min-w-[60px]">{source.org}</span>
+                        <span className="text-muted-foreground text-sm">{source.full}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-4">
+                    Official data may carry a 1–2 year reporting lag. Where country-specific data is unavailable, 
+                    we note estimates derived from regional averages. See our{" "}
+                    <Link to="/data-methodology" className="text-primary hover:underline">Data Methodology</Link> for 
+                    full details on collection and verification.
                   </p>
                 </section>
 
-                {/* Contact */}
-                <section>
-                  <h2 className="text-2xl font-semibold text-foreground mb-4">Contact Us</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Have questions, feedback, or concerns? We'd love to hear from you. Please visit our{" "}
-                    <a href="/contact" className="text-primary hover:underline">Contact page</a> to get in touch with our team.
+                {/* Our Standards */}
+                <section data-testid="about-standards">
+                  <div className="flex items-start gap-4">
+                    <Shield className="h-7 w-7 text-primary shrink-0 mt-1" />
+                    <div>
+                      <h2 className="text-2xl font-semibold text-foreground mb-3">Our Standards</h2>
+                      <div className="space-y-3 text-muted-foreground leading-relaxed">
+                        <p>
+                          <strong className="text-foreground">Accuracy First:</strong> Every data point is 
+                          cross-referenced against official publications. We clearly label estimates and 
+                          distinguish them from confirmed figures.
+                        </p>
+                        <p>
+                          <strong className="text-foreground">Transparency:</strong> All statistics include 
+                          source attribution, year of publication, and methodology notes. We don't round 
+                          numbers to appear more impressive — we show exact figures.
+                        </p>
+                        <p>
+                          <strong className="text-foreground">Regular Updates:</strong> Our data team monitors 
+                          new releases from WHO, SAMHSA, CDC, and other agencies to keep statistics current.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Who Uses Our Data */}
+                <section data-testid="about-audience">
+                  <div className="flex items-start gap-4">
+                    <Users className="h-7 w-7 text-primary shrink-0 mt-1" />
+                    <div>
+                      <h2 className="text-2xl font-semibold text-foreground mb-3">Who Uses Our Data</h2>
+                      <p className="text-muted-foreground leading-relaxed mb-4">
+                        United Rehabs serves a diverse audience of professionals and individuals seeking 
+                        reliable addiction data:
+                      </p>
+                      <ul className="space-y-2 text-muted-foreground">
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary mt-1.5 text-xs">&#9679;</span>
+                          <span><strong className="text-foreground">Researchers & Academics</strong> — citing statistics in studies and publications</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary mt-1.5 text-xs">&#9679;</span>
+                          <span><strong className="text-foreground">Policymakers</strong> — using data to inform public health decisions</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary mt-1.5 text-xs">&#9679;</span>
+                          <span><strong className="text-foreground">Journalists</strong> — referencing verified statistics in reporting</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary mt-1.5 text-xs">&#9679;</span>
+                          <span><strong className="text-foreground">Educators</strong> — teaching about the global impact of substance use</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary mt-1.5 text-xs">&#9679;</span>
+                          <span><strong className="text-foreground">Families & Individuals</strong> — understanding the scope of addiction in their region</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Important Disclaimers */}
+                <section className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-8" data-testid="about-disclaimer">
+                  <h2 className="text-2xl font-semibold text-foreground mb-4">Important Information</h2>
+                  <div className="space-y-3 text-muted-foreground text-sm leading-relaxed">
+                    <p>
+                      <strong className="text-foreground">Not a Healthcare Provider:</strong> United Rehabs is a 
+                      data and information resource. We do not provide medical advice, diagnosis, or treatment. 
+                      Always consult a qualified healthcare professional for medical decisions.
+                    </p>
+                    <p>
+                      <strong className="text-foreground">No Endorsements:</strong> References to treatment 
+                      facilities or programs are informational only. We do not endorse, recommend, or guarantee 
+                      any specific provider.
+                    </p>
+                    <p>
+                      <strong className="text-foreground">Privacy:</strong> We are not a HIPAA-covered entity. 
+                      We do not collect or store Protected Health Information. 
+                      See our <Link to="/privacy-policy" className="text-primary hover:underline">Privacy Policy</Link> for details.
+                    </p>
+                  </div>
+                </section>
+
+                {/* Contact CTA */}
+                <section className="text-center py-4" data-testid="about-contact-cta">
+                  <h2 className="text-2xl font-semibold text-foreground mb-3">Get in Touch</h2>
+                  <p className="text-muted-foreground mb-5">
+                    Found an error in our data? Have a question or partnership inquiry? We'd like to hear from you.
                   </p>
+                  <Link 
+                    to="/contact" 
+                    className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold text-sm px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors"
+                    data-testid="about-contact-button"
+                  >
+                    <FileText className="h-4 w-4" />
+                    Contact Us
+                  </Link>
                 </section>
               </div>
             </>
