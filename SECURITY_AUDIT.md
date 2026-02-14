@@ -15,7 +15,7 @@
 **File:** `/app/backend/.env`
 **Fix:** Changed from `*` to specific domains:
 ```
-CORS_ORIGINS="https://drugstats.preview.emergentagent.com,https://unitedrehabs.com,https://www.unitedrehabs.com"
+CORS_ORIGINS="https://trust-accuracy-fix.preview.emergentagent.com,https://unitedrehabs.com,https://www.unitedrehabs.com"
 ```
 
 ### 3. Rate Limiting - FIXED ✅

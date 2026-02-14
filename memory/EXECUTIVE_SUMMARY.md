@@ -221,7 +221,7 @@
 
 ### Current Environment
 - **Platform:** Emergent Cloud (Kubernetes)
-- **Preview URL:** https://drugstats.preview.emergentagent.com
+- **Preview URL:** https://trust-accuracy-fix.preview.emergentagent.com
 - **Backend Port:** 8001 (internal)
 - **Frontend Port:** 3000
 - **Database:** MongoDB Atlas

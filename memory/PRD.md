@@ -163,9 +163,9 @@ Search these in Google to verify:
 ## API Endpoints for Verification
 ```bash
 # Get country data
-curl https://drugstats.preview.emergentagent.com/api/countries/USA
-curl https://drugstats.preview.emergentagent.com/api/countries/CAN
+curl https://trust-accuracy-fix.preview.emergentagent.com/api/countries/USA
+curl https://trust-accuracy-fix.preview.emergentagent.com/api/countries/CAN
 
 # Get QA dashboard
-curl https://drugstats.preview.emergentagent.com/api/qa/dashboard
+curl https://trust-accuracy-fix.preview.emergentagent.com/api/qa/dashboard
 ```
