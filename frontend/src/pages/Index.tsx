@@ -59,7 +59,7 @@ const Index = () => {
           </div>
         </section>
         
-        <BrowseTabsSection />
+        <BrowseBySection />
         <StatisticsSection />
         <DynamicFAQ />
         <BrowseBySection />
