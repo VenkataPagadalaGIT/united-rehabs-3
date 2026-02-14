@@ -35,7 +35,7 @@ export const StateTabs = ({
       </TabsList>
 
       <TabsContent value="statistics">
-        <StatisticsTab stateId={stateId} stateName={stateName} />
+        <StatisticsTab stateId={stateId} stateName={stateName} stateSlug={stateSlug} />
       </TabsContent>
 
       <TabsContent value="resources">
