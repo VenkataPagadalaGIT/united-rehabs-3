@@ -309,13 +309,6 @@ export function Footer({ linkGroups }: FooterProps) {
         <div className="flex flex-col md:flex-row items-center justify-between pt-4 border-t border-sidebar-border">
           <div className="flex items-center gap-4 mb-4 md:mb-0">
             <Button 
-              className="bg-primary hover:bg-primary/90" 
-              data-testid="footer-get-help-btn"
-              onClick={() => window.location.href = 'tel:988'}
-            >
-              {t('common.getHelpNow')}
-            </Button>
-            <Button 
               variant="outline" 
               size="sm"
               onClick={scrollToTop}

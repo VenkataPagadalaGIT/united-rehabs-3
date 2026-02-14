@@ -82,16 +82,9 @@ export function Header({ navItems }: HeaderProps) {
             ))}
           </nav>
 
-          {/* Language & CTA */}
+          {/* Language & Mobile Menu */}
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
-            <Button 
-              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition-all" 
-              data-testid="get-help-now-btn"
-              onClick={() => window.location.href = 'tel:988'}
-            >
-              {t('common.getHelpNow')}
-            </Button>
             <button
               className="lg:hidden focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-lg p-2 hover:bg-muted transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
