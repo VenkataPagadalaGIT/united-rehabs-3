@@ -3,113 +3,33 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { ALL_COUNTRIES } from "@/data/countryConfig";
+import { ALL_STATES } from "@/data/allStates";
 
-const stateKeywords: Record<string, string> = {
-  california: "california",
-  texas: "texas",
-  florida: "florida",
-  "new york": "new-york",
-  newyork: "new-york",
-  pennsylvania: "pennsylvania",
-  ohio: "ohio",
-  illinois: "illinois",
-  arizona: "arizona",
-  georgia: "georgia",
-  "north carolina": "north-carolina",
-  michigan: "michigan",
-  "new jersey": "new-jersey",
-  virginia: "virginia",
-  washington: "washington",
-  massachusetts: "massachusetts",
-  colorado: "colorado",
-  tennessee: "tennessee",
-  indiana: "indiana",
-  missouri: "missouri",
-  maryland: "maryland",
-  wisconsin: "wisconsin",
-  minnesota: "minnesota",
-  oregon: "oregon",
-  alabama: "alabama",
-  louisiana: "louisiana",
-  kentucky: "kentucky",
-  oklahoma: "oklahoma",
-  connecticut: "connecticut",
-  utah: "utah",
-  iowa: "iowa",
-  nevada: "nevada",
-  arkansas: "arkansas",
-  mississippi: "mississippi",
-  kansas: "kansas",
-  "new mexico": "new-mexico",
-  nebraska: "nebraska",
-  "west virginia": "west-virginia",
-  idaho: "idaho",
-  hawaii: "hawaii",
-  "new hampshire": "new-hampshire",
-  maine: "maine",
-  montana: "montana",
-  "rhode island": "rhode-island",
-  delaware: "delaware",
-  "south dakota": "south-dakota",
-  "north dakota": "north-dakota",
-  alaska: "alaska",
-  vermont: "vermont",
-  wyoming: "wyoming",
-  "south carolina": "south-carolina",
-};
+// Combined location data for search
+interface LocationItem {
+  name: string;
+  slug: string;
+  type: "state" | "country";
+  flag?: string;
+}
 
-const stateDisplayNames: Record<string, string> = {
-  california: "California",
-  texas: "Texas",
-  florida: "Florida",
-  "new york": "New York",
-  pennsylvania: "Pennsylvania",
-  ohio: "Ohio",
-  illinois: "Illinois",
-  arizona: "Arizona",
-  georgia: "Georgia",
-  "north carolina": "North Carolina",
-  michigan: "Michigan",
-  "new jersey": "New Jersey",
-  virginia: "Virginia",
-  washington: "Washington",
-  massachusetts: "Massachusetts",
-  colorado: "Colorado",
-  tennessee: "Tennessee",
-  indiana: "Indiana",
-  missouri: "Missouri",
-  maryland: "Maryland",
-  wisconsin: "Wisconsin",
-  minnesota: "Minnesota",
-  oregon: "Oregon",
-  alabama: "Alabama",
-  louisiana: "Louisiana",
-  kentucky: "Kentucky",
-  oklahoma: "Oklahoma",
-  connecticut: "Connecticut",
-  utah: "Utah",
-  iowa: "Iowa",
-  nevada: "Nevada",
-  arkansas: "Arkansas",
-  mississippi: "Mississippi",
-  kansas: "Kansas",
-  "new mexico": "New Mexico",
-  nebraska: "Nebraska",
-  "west virginia": "West Virginia",
-  idaho: "Idaho",
-  hawaii: "Hawaii",
-  "new hampshire": "New Hampshire",
-  maine: "Maine",
-  montana: "Montana",
-  "rhode island": "Rhode Island",
-  delaware: "Delaware",
-  "south dakota": "South Dakota",
-  "north dakota": "North Dakota",
-  alaska: "Alaska",
-  vermont: "Vermont",
-  wyoming: "Wyoming",
-  "south carolina": "South Carolina",
-};
+const allLocations: LocationItem[] = [
+  // US States
+  ...ALL_STATES.map(state => ({
+    name: state.name,
+    slug: state.slug,
+    type: "state" as const,
+    flag: "🇺🇸"
+  })),
+  // Countries
+  ...ALL_COUNTRIES.map(country => ({
+    name: country.name,
+    slug: country.slug,
+    type: "country" as const,
+    flag: country.flag
+  }))
+];
 
 export function HeroSection() {
   const [searchQuery, setSearchQuery] = useState("");
