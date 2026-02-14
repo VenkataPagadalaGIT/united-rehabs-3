@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertTriangle, Scale, FileText } from "lucide-react";
@@ -10,13 +11,21 @@ export function DisclaimerConsent() {
   const [showModal, setShowModal] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [understood, setUnderstood] = useState(false);
+  const location = useLocation();
+
+  // Don't show on admin pages
+  const isAdminPage = location.pathname.startsWith("/you-are-the-admin");
 
   useEffect(() => {
+    if (isAdminPage) {
+      setShowModal(false);
+      return;
+    }
     const consent = localStorage.getItem(CONSENT_KEY);
     if (!consent || JSON.parse(consent).version !== CONSENT_VERSION) {
       setShowModal(true);
     }
-  }, []);
+  }, [isAdminPage]);
 
   const handleAccept = () => {
     if (agreed && understood) {
