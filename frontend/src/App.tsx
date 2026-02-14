@@ -19,6 +19,7 @@ import LegalDisclaimer from "./pages/LegalDisclaimer";
 import StatePage from "./pages/StatePage";
 import CountryPage from "./pages/EnhancedCountryPage";
 import RehabCenters from "./pages/RehabCenters";
+import ComingSoon from "./pages/ComingSoon";
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
 import Dashboard from "./pages/admin/Dashboard";
@@ -88,17 +89,17 @@ const App = () => (
           <Route path="/affiliate-disclosure" element={<AffiliateDisclosure />} />
           <Route path="/legal-disclaimer" element={<LegalDisclaimer />} />
           
-          {/* Treatment Centers - International */}
-          <Route path="/rehab-centers" element={<RehabCenters />} />
+          {/* Treatment Centers - Coming Soon */}
+          <Route path="/rehab-centers" element={<ComingSoon />} />
           
           {/* Country Comparison Tool */}
           <Route path="/compare" element={<ComparePage />} />
           
-          {/* Blog, News, Articles routes */}
-          <Route path="/blog" element={<ArticlesListPage />} />
-          <Route path="/news" element={<ArticlesListPage />} />
-          <Route path="/article" element={<ArticlesListPage />} />
-          <Route path="/guide" element={<ArticlesListPage />} />
+          {/* Blog, News, Articles routes - Coming Soon */}
+          <Route path="/blog" element={<ComingSoon />} />
+          <Route path="/news" element={<ComingSoon />} />
+          <Route path="/article" element={<ComingSoon />} />
+          <Route path="/guide" element={<ComingSoon />} />
           <Route path="/shortcodes" element={<ShortcodeShowcase />} />
           <Route path="/:type/:slug" element={<ArticlePage />} />
           
