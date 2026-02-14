@@ -5,7 +5,6 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { TrustIndicators } from "@/components/home/TrustIndicators";
 import { StatisticsSection } from "@/components/home/StatisticsSection";
 import { BrowseBySection } from "@/components/home/BrowseBySection";
-import { BrowseTabsSection } from "@/components/home/BrowseTabsSection";
 import { DynamicFAQ } from "@/components/listing/DynamicFAQ";
 import { InteractiveGlobalMap } from "@/components/InteractiveGlobalMap";
 import { mockNavItems, mockFooterLinks } from "@/data/mockData";
