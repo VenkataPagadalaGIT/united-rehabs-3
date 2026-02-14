@@ -218,7 +218,7 @@ export function Footer({ linkGroups }: FooterProps) {
             {topStates.map((state) => (
               <ScrollLink
                 key={state.id}
-                to={`/${state.slug}-addiction-rehabs`}
+                to={`/${state.slug}-addiction-stats`}
                 className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
               >
                 {state.name}
