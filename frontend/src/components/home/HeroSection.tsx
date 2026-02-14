@@ -139,16 +139,18 @@ export function HeroSection() {
             {/* Autocomplete Suggestions */}
             {showSuggestions && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-background border rounded-lg shadow-lg z-20 overflow-hidden">
-                {suggestions.map((stateKey) => (
+                {suggestions.map((location) => (
                   <button
-                    key={stateKey}
+                    key={`${location.type}-${location.slug}`}
                     type="button"
                     className="w-full px-4 py-3 text-left hover:bg-muted transition-colors flex items-center gap-3"
-                    onClick={() => handleSuggestionClick(stateKey)}
+                    onClick={() => handleSuggestionClick(location)}
                   >
-                    <Search className="h-4 w-4 text-muted-foreground" />
-                    <span>{stateDisplayNames[stateKey]}</span>
-                    <span className="ml-auto text-sm text-muted-foreground">View Statistics</span>
+                    <span className="text-lg">{location.flag}</span>
+                    <span>{location.name}</span>
+                    <span className="ml-auto text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                      {location.type === "state" ? "US State" : "Country"}
+                    </span>
                   </button>
                 ))}
               </div>
