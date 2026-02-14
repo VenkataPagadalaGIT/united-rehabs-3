@@ -133,6 +133,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
         <CookieConsentBanner />
+        <DisclaimerConsent />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
