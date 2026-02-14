@@ -67,8 +67,14 @@ const StatCard = ({
   </div>
 );
 
-export const StatisticsTab = ({ stateId, stateName }: StatisticsTabProps) => {
-  const [selectedYear, setSelectedYear] = useState<string>("latest");
+export const StatisticsTab = ({ stateId, stateName, stateSlug, urlYear }: StatisticsTabProps) => {
+  const navigate = useNavigate();
+  const [selectedYear, setSelectedYear] = useState<string>(urlYear ? String(urlYear) : "latest");
+
+  // Sync with URL year when it changes
+  useEffect(() => {
+    setSelectedYear(urlYear ? String(urlYear) : "latest");
+  }, [urlYear]);
 
   const { data: allStatistics = [], isLoading } = useQuery({
     queryKey: ["state-statistics", stateId],
