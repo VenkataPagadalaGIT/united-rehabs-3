@@ -67,7 +67,7 @@ export default function Contact() {
     setIsSubmitted(true);
     toast({
       title: "Message Sent",
-      description: "Thank you for contacting us. We'll respond within 2 business days.",
+      description: "Thank you for contacting us. We'll review your message.",
     });
   };
 
@@ -117,8 +117,8 @@ export default function Contact() {
                   <div className="flex items-start gap-3">
                     <Clock className="h-5 w-5 text-primary mt-0.5" />
                     <div>
-                      <p className="font-medium text-foreground">Response Time</p>
-                      <p className="text-sm text-muted-foreground">Within 2 business days</p>
+                      <p className="font-medium text-foreground">Contact Form</p>
+                      <p className="text-sm text-muted-foreground">We'll get back to you</p>
                     </div>
                   </div>
                 </div>
@@ -140,7 +140,7 @@ export default function Contact() {
                   <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
                   <h2 className="text-2xl font-semibold text-foreground mb-2">Thank You!</h2>
                   <p className="text-muted-foreground mb-6">
-                    Your message has been received. We'll review it and respond within 2 business days.
+                    Your message has been received. We appreciate you reaching out.
                   </p>
                   <Button onClick={() => setIsSubmitted(false)} variant="outline">
                     Send Another Message
