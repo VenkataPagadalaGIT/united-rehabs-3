@@ -5,155 +5,68 @@
 /* ==========================================================================
    UNITED REHABS - PREMIUM TYPOGRAPHY SYSTEM
    Inspired by: Stripe, Linear, Vercel, Notion
+   
+   IMPORTANT: All heading/body styles MUST be inside @layer base so that
+   Tailwind utility classes (text-sm, text-2xl, etc.) can properly override them.
    ========================================================================== */
 
-/* Premium Typography Variables */
-:root {
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  
-  /* Consistent spacing scale */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-  --space-12: 3rem;
-  --space-16: 4rem;
-}
-
-/* Global Typography Reset */
-html {
-  font-size: 16px;
-  -webkit-text-size-adjust: 100%;
-  text-rendering: optimizeLegibility;
-}
-
-body {
-  font-family: var(--font-sans);
-  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  line-height: 1.6;
-  letter-spacing: -0.011em;
-}
-
-/* ==========================================================================
-   Typography Scale - Consistent & Premium
-   ========================================================================== */
-
-/* Display - Hero headlines */
-.text-display {
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
-}
-
-/* Headings */
-h1, .h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
-}
-
-h2, .h2 {
-  font-size: 1.875rem;
-  font-weight: 600;
-  letter-spacing: -0.025em;
-  line-height: 1.2;
-}
-
-h3, .h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.25;
-}
-
-h4, .h4 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  line-height: 1.3;
-}
-
-h5, .h5 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.4;
-}
-
-h6, .h6 {
-  font-size: 1rem;
-  font-weight: 600;
-  letter-spacing: 0;
-  line-height: 1.5;
-}
-
-/* Body text */
-p, .body {
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.6;
-  letter-spacing: -0.011em;
-}
-
-.body-lg {
-  font-size: 1.125rem;
-  line-height: 1.7;
-}
-
-.body-sm {
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-
-/* Captions and small text */
-.caption {
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  line-height: 1.4;
-}
-
-/* Labels - Uppercase small text */
-.label {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  line-height: 1.2;
-}
-
-/* Numbers - Tabular figures for data */
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
-}
-
-/* ==========================================================================
-   Responsive Typography
-   ========================================================================== */
-
-@media (min-width: 640px) {
-  h1, .h1 {
-    font-size: 3rem;
+@layer base {
+  /* Premium Typography Variables */
+  :root {
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
-  h2, .h2 {
-    font-size: 2.25rem;
-  }
-  h3, .h3 {
-    font-size: 1.75rem;
-  }
-}
 
-@media (min-width: 1024px) {
-  h1, .h1 {
-    font-size: 3.5rem;
+  /* Global Typography Reset */
+  html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
   }
-  h2, .h2 {
-    font-size: 2.5rem;
+
+  body {
+    font-family: var(--font-sans);
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.6;
+    letter-spacing: -0.011em;
+  }
+
+  /* Headings - base defaults that Tailwind utilities can override */
+  h1 {
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+  }
+
+  h2 {
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+  }
+
+  h3 {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  h4 {
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+  }
+
+  h5 {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+  }
+
+  h6 {
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.5;
   }
 }
 
