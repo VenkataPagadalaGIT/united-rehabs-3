@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
 
-const states = [
+const usStates = [
   "Arizona", "California", "Colorado", "Delaware", "District of Columbia",
   "Florida", "Georgia", "Idaho", "Iowa", "Maryland",
   "Massachusetts", "Minnesota", "Missouri", "Nevada", "New Mexico",
@@ -10,8 +10,19 @@ const states = [
   "Virginia", "Washington", "West Virginia", "Wyoming",
 ];
 
+const popularCountries = [
+  "United States", "United Kingdom", "Canada", "Australia", "Germany",
+  "France", "Brazil", "Mexico", "India", "China",
+  "Japan", "South Korea", "Russia", "Italy", "Spain",
+  "Netherlands", "Sweden", "Switzerland", "Thailand", "South Africa",
+];
+
 const stateToSlug = (state: string) => {
   return state.toLowerCase().replace(/\s+/g, '-');
+};
+
+const countryToSlug = (country: string) => {
+  return country.toLowerCase().replace(/\s+/g, '-');
 };
 
 export function BrowseBySection() {
@@ -19,58 +30,34 @@ export function BrowseBySection() {
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-10">
-          <p className="text-primary font-medium mb-2">Find More</p>
+          <p className="text-primary font-medium mb-2">Explore Data</p>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            Browse By
+            Browse Statistics By Region
           </h2>
         </div>
 
-        <Tabs defaultValue="state" className="w-full">
+        <Tabs defaultValue="us-states" className="w-full">
           <TabsList className="flex flex-wrap justify-center gap-2 h-auto bg-transparent mb-8">
             <TabsTrigger
-              value="state"
+              value="us-states"
               className="data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-2"
             >
-              Browse by state
+              US States
             </TabsTrigger>
             <TabsTrigger
-              value="city"
+              value="countries"
               className="data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-2"
             >
-              Browse by city
-            </TabsTrigger>
-            <TabsTrigger
-              value="neighborhood"
-              className="data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-2"
-            >
-              Browse by neighborhood
-            </TabsTrigger>
-            <TabsTrigger
-              value="popular"
-              className="data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-2"
-            >
-              Popular searches
-            </TabsTrigger>
-            <TabsTrigger
-              value="new"
-              className="data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-2"
-            >
-              New listing
-            </TabsTrigger>
-            <TabsTrigger
-              value="updated"
-              className="data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-2"
-            >
-              Recently updated listing
+              Countries
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="state" className="mt-0">
+          <TabsContent value="us-states" className="mt-0">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {states.map((state) => (
+              {usStates.map((state) => (
                 <Link
                   key={state}
-                  to={`/${stateToSlug(state)}-addiction-rehabs`}
+                  to={`/${stateToSlug(state)}-addiction-stats`}
                   className="text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
                   {state}
@@ -79,33 +66,25 @@ export function BrowseBySection() {
             </div>
           </TabsContent>
 
-          <TabsContent value="city" className="mt-0">
-            <div className="text-center py-8 text-muted-foreground">
-              City listings coming soon...
+          <TabsContent value="countries" className="mt-0">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {popularCountries.map((country) => (
+                <Link
+                  key={country}
+                  to={`/${countryToSlug(country)}-addiction-stats`}
+                  className="text-muted-foreground hover:text-primary transition-colors text-sm"
+                >
+                  {country}
+                </Link>
+              ))}
             </div>
-          </TabsContent>
-
-          <TabsContent value="neighborhood" className="mt-0">
-            <div className="text-center py-8 text-muted-foreground">
-              Neighborhood listings coming soon...
-            </div>
-          </TabsContent>
-
-          <TabsContent value="popular" className="mt-0">
-            <div className="text-center py-8 text-muted-foreground">
-              Popular searches coming soon...
-            </div>
-          </TabsContent>
-
-          <TabsContent value="new" className="mt-0">
-            <div className="text-center py-8 text-muted-foreground">
-              New listings coming soon...
-            </div>
-          </TabsContent>
-
-          <TabsContent value="updated" className="mt-0">
-            <div className="text-center py-8 text-muted-foreground">
-              Recently updated listings coming soon...
+            <div className="text-center mt-6">
+              <Link 
+                to="/compare" 
+                className="text-primary hover:underline font-medium"
+              >
+                View all 195 countries →
+              </Link>
             </div>
           </TabsContent>
         </Tabs>
