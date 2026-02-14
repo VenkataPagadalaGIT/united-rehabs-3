@@ -106,9 +106,9 @@ const App = () => (
           <Route path="/:slug" element={<LocationPage />} />
           
           
-          {/* Admin Routes */}
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin" element={<Admin />}>
+          {/* Admin Routes - Hidden URL for security */}
+          <Route path="/you-are-the-admin/login" element={<AdminLogin />} />
+          <Route path="/you-are-the-admin" element={<Admin />}>
             <Route index element={<Dashboard />} />
             <Route path="statistics" element={<StatisticsAdmin />} />
             <Route path="substance" element={<SubstanceAdmin />} />
