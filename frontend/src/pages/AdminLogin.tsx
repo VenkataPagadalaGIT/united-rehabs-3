@@ -61,7 +61,7 @@ const AdminLogin = () => {
 
   useEffect(() => {
     if (!loading && user && isAdmin) {
-      navigate("/admin");
+      navigate("/you-are-the-admin");
     }
   }, [user, isAdmin, loading, navigate]);
 
