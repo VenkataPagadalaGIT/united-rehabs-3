@@ -55,12 +55,13 @@ const queryClient = new QueryClient();
 // Helper component to route between state and country pages
 // Handles: /state-addiction-stats, /state-addiction-rehabs, /state-addiction-stats-2025, etc.
 const LocationPage = () => {
+  // IMPORTANT: Strip year suffix FIRST, then strip type suffixes
   const slug = window.location.pathname.slice(1)
+    .replace(/-\d{4}$/, "") // Strip year suffix FIRST (e.g., -2025, -2024)
     .replace(/-addiction-rehabs$/, "")
     .replace(/-addiction-rehab-centers$/, "")
     .replace(/-addiction-stats$/, "")
-    .replace(/-addiction-free-resources$/, "")
-    .replace(/-\d{4}$/, ""); // Strip year suffix
+    .replace(/-addiction-free-resources$/, "");
   
   // US States take priority over countries with same name
   if (isValidStateSlug(slug)) {
