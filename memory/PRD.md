@@ -1,101 +1,71 @@
 # United Rehabs - Product Requirements Document
 
 ## Original Problem Statement
-Build a global addiction data resource where trust and accuracy are the highest priority. The platform provides comprehensive addiction statistics and recovery resources across 195 countries and 51 US states.
+Build a global addiction data resource website that provides:
+- Addiction statistics for 195 countries worldwide
+- State-by-state data for the United States
+- Treatment center directory (Coming Soon)
+- Educational resources and blog content (Coming Soon)
+- Crisis hotline resources (988 & SAMHSA)
 
-## Core Mission
-- **AWARE** - Raise awareness about addiction statistics globally
-- **EDUCATE** - Provide accurate, verified data from official sources
-- **SUPPORT** - Connect users with recovery resources
-- **RECOVER** - Guide users toward recovery paths
+## Core Features (Implemented)
 
-## User Personas
-1. **Researchers/Journalists** - Need accurate addiction statistics with verified sources
-2. **Healthcare Professionals** - Require regional data for treatment planning
-3. **Policy Makers** - Need comparative data across regions
-4. **Individuals/Families** - Seeking information about addiction in their area
+### Data & Statistics
+- Global addiction statistics from WHO, UNODC, SAMHSA, CDC
+- 195 country coverage with country-specific pages
+- US state-by-state statistics pages
+- Data comparison tool
 
-## What's Been Implemented
+### Legal & Compliance
+- GDPR/CCPA compliant privacy policy
+- Click-wrap consent modal for legal protection
+- Comprehensive Terms of Service
+- Legal disclaimer
+- Cookie consent banner
+- Data methodology documentation
 
-### Data & Statistics (Completed)
-- All major country and US state data verified against official sources (CDC, WHO, SAMHSA)
-- Frontend displays exact, non-rounded numbers
-- Verification history tracked in database
-- Data Methodology page explaining sources and processes
+### SEO & Analytics
+- Google Analytics integration (G-QXZLSZGM9P)
+- robots.txt blocking admin pages
+- sitemap.xml for all public pages
+- Meta tags and Open Graph support
 
-### Search & Navigation (Completed - Feb 14, 2026)
-- **Search works for 195 countries + 51 US states**
-- Shows country flags with "Country" vs "US State" labels for disambiguation
-- Autocomplete suggestions with proper navigation
-- Removed irrelevant rehab-specific filters (Treatment Type, Insurance, Amenities)
-- Footer links all working (tested 100% pass rate)
-- "Coming Soon" labels for unimplemented features
-
-### Security (Completed)
-- JWT secret in environment variable
-- Rate limiting on auth endpoints (5/min login, 3/min register)
-- Security headers (CSP, HSTS, X-Frame-Options, etc.)
-- Admin password change functionality
-
-### Compliance (Completed)
-- Privacy Policy (GDPR/CCPA compliant)
-- Terms of Service
-- Cookie Policy with consent banner
-- Legal Disclaimer
-- Accessibility Statement
-- Affiliate Disclosure
-- Do Not Sell My Info page
-
-### Admin Features (Completed)
-- SERP validation panel (manual trigger + scheduling)
+### Admin Panel
+- Secure admin URL: `/you-are-the-admin/login`
 - Statistics management
+- SERP validation system (DataForSEO)
 - Content management
-- Security settings
+- Data coverage monitoring
 
-## Technical Architecture
+## Coming Soon Features
+- `/rehab-centers` - Treatment Centers Directory
+- `/blog` - Blog & Articles
+- `/news` - News content
+- `/guide` - Recovery guides
 
-### Frontend (React + TypeScript)
-- `/app/frontend/src/components/home/HeroSection.tsx` - Hero with search
-- `/app/frontend/src/components/listing/Footer.tsx` - Footer with all links
-- `/app/frontend/src/data/mockData.ts` - Footer link configuration
+## Tech Stack
+- **Frontend:** React + TypeScript + Vite + Tailwind CSS + Shadcn/UI
+- **Backend:** FastAPI + Python
+- **Database:** MongoDB
+- **Analytics:** Google Analytics
+- **Validation:** DataForSEO API
 
-### Backend (FastAPI + MongoDB)
-- `/app/backend/server.py` - Main server with security headers
-- `/app/backend/auth.py` - Authentication with rate limiting
-
-### Key Routes
-- `/{state}-addiction-rehabs` - US state statistics pages
-- `/{country}-addiction-rehabs` - Country statistics pages
-- `/data-methodology` - Data sources explanation
-- `/admin/*` - Admin panel routes
-
-## Prioritized Backlog
-
-### P0 - Launch Ready ✅
-- [x] Fix all broken footer links
-- [x] Update search bar for data focus
-- [x] Complete security audit
-- [x] Update compliance pages
-
-### P1 - Post-Launch
-- [ ] Change default admin password
-- [ ] Enable SERP validation scheduling
-- [ ] Monitor automated data verification
-
-### P2 - Future Features
-- [ ] Implement Insurance pages (currently "Coming Soon")
-- [ ] Implement Treatments pages (currently "Coming Soon")
-- [ ] Implement Conditions pages (currently "Coming Soon")
-- [ ] Monetization (Premium Facility Listings)
-- [ ] Geographic expansion to city-level data
-- [ ] Admin Draft → Review → Publish workflow
-
-## 3rd Party Integrations
-- **DataForSEO** - SERP validation system (credentials in backend/.env)
+## Key Pages
+| Page | Status | Route |
+|------|--------|-------|
+| Home | ✅ Live | `/` |
+| Country Stats | ✅ Live | `/:country-addiction-stats` |
+| State Stats | ✅ Live | `/:state-addiction-rehabs` |
+| Compare Tool | ✅ Live | `/compare` |
+| About | ✅ Live | `/about` |
+| Contact | ✅ Live | `/contact` |
+| Treatment Centers | 🚧 Coming Soon | `/rehab-centers` |
+| Blog | 🚧 Coming Soon | `/blog` |
+| Admin | ✅ Live | `/you-are-the-admin` |
 
 ## Credentials
-- Admin: admin@unitedrehabs.com (password should be changed after launch)
+- **Admin Email:** admin@unitedrehabs.com
+- **Admin URL:** /you-are-the-admin/login
 
-## Documents
-- `/app/SECURITY_AUDIT.md` - Security audit report
-- `/app/memory/REVENUE_MODEL.md` - Monetization strategies
+## Last Updated
+February 14, 2025 - QA fixes for Coming Soon pages and Contact page
