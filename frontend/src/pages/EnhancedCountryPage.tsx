@@ -308,7 +308,11 @@ const EnhancedCountryPage = () => {
           {/* Year Selector */}
           <div className="mt-6 flex items-center gap-4">
             <span className="text-sm font-medium">Select Year:</span>
-            <Select value={String(selectedYear)} onValueChange={(v) => setSelectedYear(Number(v))}>
+            <Select value={String(selectedYear)} onValueChange={(v) => {
+              const year = Number(v);
+              setSelectedYear(year);
+              navigate(`/${countrySlug}-addiction-stats-${year}`);
+            }}>
               <SelectTrigger className="w-32" data-testid="year-selector">
                 <Calendar className="h-4 w-4 mr-2" />
                 <SelectValue />
