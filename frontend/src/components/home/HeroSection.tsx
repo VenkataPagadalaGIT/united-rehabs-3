@@ -94,38 +94,38 @@ export function HeroSection() {
       />
       <div className="absolute inset-0 bg-gradient-to-b from-card/80 via-card/60 to-background" />
       
-      <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
+      <div className="container mx-auto px-4 py-20 md:py-28 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
-          {/* Mission Words */}
-          <div className="flex justify-center items-center gap-3 md:gap-6 mb-6 flex-wrap">
-            <span className="text-primary font-bold text-lg md:text-xl tracking-wide uppercase">Data</span>
-            <span className="text-primary/40">•</span>
-            <span className="text-primary font-bold text-lg md:text-xl tracking-wide uppercase">Research</span>
-            <span className="text-primary/40">•</span>
-            <span className="text-primary font-bold text-lg md:text-xl tracking-wide uppercase">Inform</span>
-            <span className="text-primary/40">•</span>
-            <span className="text-primary font-bold text-lg md:text-xl tracking-wide uppercase">Support</span>
+          {/* Mission Words - Premium Label Style */}
+          <div className="flex justify-center items-center gap-4 md:gap-8 mb-8 flex-wrap">
+            <span className="text-primary font-semibold text-xs md:text-sm tracking-[0.15em] uppercase">Data</span>
+            <span className="w-1 h-1 rounded-full bg-primary/40" />
+            <span className="text-primary font-semibold text-xs md:text-sm tracking-[0.15em] uppercase">Research</span>
+            <span className="w-1 h-1 rounded-full bg-primary/40" />
+            <span className="text-primary font-semibold text-xs md:text-sm tracking-[0.15em] uppercase">Inform</span>
+            <span className="w-1 h-1 rounded-full bg-primary/40" />
+            <span className="text-primary font-semibold text-xs md:text-sm tracking-[0.15em] uppercase">Support</span>
           </div>
           
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 tracking-tight">
-            <span className="font-display">Global Addiction</span>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 tracking-[-0.03em] leading-[1.1]">
+            Global Addiction
             <br />
             <span className="text-primary">Statistics & Data</span>
           </h1>
           
-          <p className="text-lg text-muted-foreground mb-8">
+          <p className="text-lg md:text-xl text-muted-foreground mb-10 leading-relaxed max-w-2xl mx-auto">
             Research-backed addiction statistics and data for 195 countries and all US states
           </p>
 
           {/* Search Bar with Autocomplete */}
-          <div ref={wrapperRef} className="relative max-w-2xl mx-auto mb-6">
-            <form onSubmit={handleSearch} className="flex items-center bg-background rounded-lg border shadow-lg">
+          <div ref={wrapperRef} className="relative max-w-xl mx-auto mb-6">
+            <form onSubmit={handleSearch} className="flex items-center bg-background rounded-xl border shadow-premium-lg hover:shadow-xl transition-shadow">
               <div className="flex-1 flex items-center px-4">
                 <Search className="h-5 w-5 text-muted-foreground mr-3" />
                 <Input 
                   type="text"
                   placeholder="Search locations, e.g. 'California' or 'Germany'..."
-                  className="border-0 shadow-none focus-visible:ring-0 text-base"
+                  className="border-0 shadow-none focus-visible:ring-0 text-base py-4"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
@@ -138,7 +138,7 @@ export function HeroSection() {
 
             {/* Autocomplete Suggestions */}
             {showSuggestions && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-background border rounded-lg shadow-lg z-20 overflow-hidden">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-background border rounded-xl shadow-premium-lg z-20 overflow-hidden">
                 {suggestions.map((location) => (
                   <button
                     key={`${location.type}-${location.slug}`}
@@ -147,8 +147,8 @@ export function HeroSection() {
                     onClick={() => handleSuggestionClick(location)}
                   >
                     <span className="text-lg">{location.flag}</span>
-                    <span>{location.name}</span>
-                    <span className="ml-auto text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                    <span className="font-medium">{location.name}</span>
+                    <span className="ml-auto text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md font-medium">
                       {location.type === "state" ? "US State" : "Country"}
                     </span>
                   </button>
