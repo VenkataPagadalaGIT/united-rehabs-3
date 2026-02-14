@@ -45,6 +45,7 @@ import SERPValidationAdmin from "./pages/admin/SERPValidationAdmin";
 import ComparePage from "./pages/ComparePage";
 import { CrisisHotlineBanner } from "./components/CrisisHotlineBanner";
 import { CookieConsentBanner } from "./components/CookieConsentBanner";
+import { DisclaimerConsent } from "./components/DisclaimerConsent";
 import { isValidCountrySlug } from "./data/countryConfig";
 import { isValidStateSlug } from "./data/stateConfig";
 
