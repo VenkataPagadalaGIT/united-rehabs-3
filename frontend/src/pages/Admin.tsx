@@ -103,7 +103,7 @@ const Admin = () => {
                       <SidebarMenuButton asChild>
                         <NavLink
                           to={item.url}
-                          end={item.url === "/admin"}
+                          end={item.url === "/you-are-the-admin"}
                           className="hover:bg-muted/50"
                           activeClassName="bg-muted text-primary font-medium"
                         >
@@ -145,8 +145,8 @@ const Admin = () => {
               <div className="flex-1">
                 <h1 className="text-lg font-semibold">
                   {menuItems.find((item) => 
-                    item.url === "/admin" 
-                      ? location.pathname === "/admin" 
+                    item.url === "/you-are-the-admin" 
+                      ? location.pathname === "/you-are-the-admin" 
                       : location.pathname.startsWith(item.url)
                   )?.title || "Admin"}
                 </h1>
