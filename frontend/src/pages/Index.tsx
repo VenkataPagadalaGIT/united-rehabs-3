@@ -61,19 +61,8 @@ const Index = () => {
         </section>
         
         <BrowseTabsSection />
-        <LocationsSection 
-          stateCounts={homepageData?.state_counts}
-          isLoading={isLoading}
-        />
         <StatisticsSection />
-        <DynamicFeaturedCenters 
-          centers={homepageData?.featured_centers || []}
-          isLoading={isLoading}
-        />
-        <HowItWorks />
-        <TestimonialsSection />
         <DynamicFAQ />
-        <SupportCTA />
         <BrowseBySection />
       </main>
 
