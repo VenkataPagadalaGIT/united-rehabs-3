@@ -35,6 +35,10 @@ Global addiction data resource website that provides comprehensive addiction sta
 - [x] **Typography fix (Feb 2026)**: Moved heading styles into @layer base, fixed FAQ accordion oversized text
 - [x] **Removed "Get Help Now" button (Feb 2026)**: Removed from header and footer since no rehab listings exist yet
 - [x] **Deep QA pass (Feb 2026)**: All pages, links, and content verified production-ready
+- [x] **State page cleanup (Feb 2026)**: Removed filter dropdowns, 3 tabs (Statistics | Resources | Rehab Listings Coming Soon), no dummy content
+- [x] **Year-based SEO URLs (Feb 2026)**: Dedicated URLs per year for all states and countries (e.g., /connecticut-addiction-stats-2025)
+- [x] **Internal linking (Feb 2026)**: Year links on state/country pages, cross-links to rehabs and compare pages
+- [x] **Sitemap expansion (Feb 2026)**: 823 URLs including year-based variants for all states and countries
 
 ## Prioritized Backlog
 
