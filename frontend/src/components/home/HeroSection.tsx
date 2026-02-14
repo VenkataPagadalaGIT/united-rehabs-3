@@ -280,7 +280,7 @@ export function HeroSection() {
                 <Search className="h-5 w-5 text-muted-foreground mr-3" />
                 <Input 
                   type="text"
-                  placeholder="Search by state, e.g. 'California'..."
+                  placeholder="Search locations, e.g. 'California' or 'Germany'..."
                   className="border-0 shadow-none focus-visible:ring-0 text-base"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
