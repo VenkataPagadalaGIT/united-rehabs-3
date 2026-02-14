@@ -4,39 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const filterOptions = {
-  treatmentType: [
-    { id: "inpatient", label: "Inpatient" },
-    { id: "outpatient", label: "Outpatient" },
-    { id: "detox", label: "Detox" },
-    { id: "residential", label: "Residential" },
-    { id: "php", label: "Partial Hospitalization (PHP)" },
-    { id: "iop", label: "Intensive Outpatient (IOP)" },
-  ],
-  insurance: [
-    { id: "medicaid", label: "Medicaid" },
-    { id: "medicare", label: "Medicare" },
-    { id: "private", label: "Private Insurance" },
-    { id: "selfpay", label: "Self-Pay" },
-    { id: "sliding", label: "Sliding Scale" },
-  ],
-  amenities: [
-    { id: "pool", label: "Pool" },
-    { id: "gym", label: "Gym/Fitness" },
-    { id: "private", label: "Private Rooms" },
-    { id: "holistic", label: "Holistic Therapy" },
-    { id: "pet", label: "Pet-Friendly" },
-  ],
-};
-const quickTags = [
-  { label: "Alcohol Addiction", search: "alcohol" },
-  { label: "Drug Addiction", search: "drug" },
-  { label: "Depression", search: "depression" },
-  { label: "Anxiety", search: "anxiety" },
-  { label: "Eating Disorders", search: "eating disorders" },
-  { label: "ADHD", search: "adhd" },
-];
-
 const stateKeywords: Record<string, string> = {
   california: "california",
   texas: "texas",
