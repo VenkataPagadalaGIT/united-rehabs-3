@@ -80,7 +80,7 @@ export function Footer({ linkGroups }: FooterProps) {
               <span className="text-sidebar-foreground font-bold text-lg">rehabs</span>
             </button>
             <p className="text-sidebar-foreground/60 text-sm mb-4">
-              Global addiction treatment directory covering {ALL_COUNTRIES.length} countries worldwide.
+              Global addiction statistics resource covering {ALL_COUNTRIES.length} countries worldwide.
             </p>
             <div className="flex gap-3" role="list" aria-label="Social media links">
               {[
