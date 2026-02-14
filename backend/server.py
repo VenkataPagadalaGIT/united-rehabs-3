@@ -1883,16 +1883,36 @@ async def generate_sitemap():
     <priority>{page['priority']}</priority>
   </url>""")
     
-    # State pages (51 states)
+    # State pages (51 states) - base + year-based URLs
     states = await db.state_addiction_statistics.distinct("state_id")
+    years = [2025, 2024, 2023, 2022, 2021, 2020, 2019]
     for state_id in states:
         state = await db.state_addiction_statistics.find_one({"state_id": state_id}, {"state_name": 1})
         if state:
             slug = state.get("state_name", "").lower().replace(" ", "-")
+            # Base stats page
+            xml_parts.append(f"""  <url>
+    <loc>{base_url}/{slug}-addiction-stats</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>""")
+            # Base rehabs page
             xml_parts.append(f"""  <url>
     <loc>{base_url}/{slug}-addiction-rehabs</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+  </url>""")
+            # Year-based URLs
+            for year in years:
+                xml_parts.append(f"""  <url>
+    <loc>{base_url}/{slug}-addiction-stats-{year}</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>""")
+                xml_parts.append(f"""  <url>
+    <loc>{base_url}/{slug}-addiction-rehabs-{year}</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
   </url>""")
     
     # Country pages (195 countries)
