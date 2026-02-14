@@ -1,11 +1,9 @@
 import { ChevronDown, Menu, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { NavItem } from "@/types";
 import { LocationsMegaMenu } from "./LocationsMegaMenu";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { useTranslation } from "react-i18next";
 
 interface HeaderProps {
   navItems: NavItem[];
