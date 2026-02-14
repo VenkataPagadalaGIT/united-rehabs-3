@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { statisticsApi, substanceStatisticsApi } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,6 +14,8 @@ import {
 interface StatisticsTabProps {
   stateId?: string;
   stateName?: string;
+  stateSlug?: string;
+  urlYear?: number | null;
 }
 
 const COLORS = {
