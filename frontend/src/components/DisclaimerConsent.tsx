@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { AlertTriangle, Scale, FileText } from "lucide-react";
+import { AlertTriangle, X, Info } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const CONSENT_KEY = "unitedrehabs_disclaimer_consent";
-const CONSENT_VERSION = "1.0"; // Increment to re-show consent after major changes
+const CONSENT_VERSION = "1.0";
 
 export function DisclaimerConsent() {
-  const [showModal, setShowModal] = useState(false);
-  const [agreed, setAgreed] = useState(false);
-  const [understood, setUnderstood] = useState(false);
+  const [showBanner, setShowBanner] = useState(false);
   const location = useLocation();
 
   // Don't show on admin pages
@@ -18,121 +16,77 @@ export function DisclaimerConsent() {
 
   useEffect(() => {
     if (isAdminPage) {
-      setShowModal(false);
+      setShowBanner(false);
       return;
     }
     const consent = localStorage.getItem(CONSENT_KEY);
     if (!consent || JSON.parse(consent).version !== CONSENT_VERSION) {
-      setShowModal(true);
+      // Small delay to let page render first - better for SEO
+      const timer = setTimeout(() => setShowBanner(true), 1000);
+      return () => clearTimeout(timer);
     }
   }, [isAdminPage]);
 
   const handleAccept = () => {
-    if (agreed && understood) {
-      localStorage.setItem(CONSENT_KEY, JSON.stringify({
-        version: CONSENT_VERSION,
-        timestamp: new Date().toISOString(),
-        agreed: true
-      }));
-      setShowModal(false);
-    }
+    localStorage.setItem(CONSENT_KEY, JSON.stringify({
+      version: CONSENT_VERSION,
+      timestamp: new Date().toISOString(),
+      agreed: true
+    }));
+    setShowBanner(false);
   };
 
-  if (!showModal) return null;
+  const handleDismiss = () => {
+    // Allow dismissing without full acceptance, but show again next visit
+    setShowBanner(false);
+  };
+
+  if (!showBanner) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-background border rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="bg-primary/10 p-6 border-b">
-          <div className="flex items-center gap-3">
-            <Scale className="h-8 w-8 text-primary" />
-            <div>
-              <h2 className="text-2xl font-bold text-foreground">Important Legal Notice</h2>
-              <p className="text-muted-foreground text-sm">Please read before continuing</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="p-6 space-y-6">
-          {/* Medical Disclaimer */}
-          <div className="flex gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
-            <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-foreground">Not Medical Advice</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                This website provides <strong>general information only</strong>. It is NOT a substitute for professional medical advice, diagnosis, or treatment. Always consult qualified healthcare providers for medical decisions.
+    <div 
+      className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t shadow-lg animate-in slide-in-from-bottom duration-300"
+      role="alert"
+      aria-label="Legal disclaimer"
+    >
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+          {/* Icon and Message */}
+          <div className="flex items-start gap-3 flex-1">
+            <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="text-foreground">
+                <strong>Important:</strong> This website provides general information only and is not a substitute for professional medical advice.
+                Statistics are for informational purposes only.
+              </p>
+              <p className="text-muted-foreground mt-1">
+                By using this site, you agree to our{" "}
+                <Link to="/legal-disclaimer" className="text-primary hover:underline">Legal Disclaimer</Link>,{" "}
+                <Link to="/terms-of-service" className="text-primary hover:underline">Terms of Service</Link>, and{" "}
+                <Link to="/privacy-policy" className="text-primary hover:underline">Privacy Policy</Link>.
               </p>
             </div>
           </div>
 
-          {/* Data Disclaimer */}
-          <div className="flex gap-3 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-            <FileText className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-foreground">Data & Statistics</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Statistics are compiled from official sources but may contain errors, be outdated, or use estimates. Data is for <strong>informational purposes only</strong> and should not be used for medical, legal, or policy decisions without independent verification.
-              </p>
-            </div>
+          {/* Actions */}
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <Button 
+              onClick={handleAccept}
+              size="sm"
+              className="flex-1 md:flex-none"
+            >
+              I Understand
+            </Button>
+            <Button
+              onClick={handleDismiss}
+              variant="ghost"
+              size="sm"
+              className="px-2"
+              aria-label="Dismiss"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </div>
-
-          {/* No Endorsement */}
-          <div className="flex gap-3 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-            <Scale className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-foreground">No Endorsement</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Any treatment facilities or resources mentioned are for informational purposes only. We do <strong>NOT endorse, recommend, or guarantee</strong> the quality of any facility or service.
-              </p>
-            </div>
-          </div>
-
-          {/* Checkboxes */}
-          <div className="space-y-4 pt-4 border-t">
-            <div className="flex items-start gap-3">
-              <Checkbox 
-                id="agree" 
-                checked={agreed} 
-                onCheckedChange={(checked) => setAgreed(checked === true)}
-                className="mt-1"
-              />
-              <label htmlFor="agree" className="text-sm text-foreground cursor-pointer">
-                I have read and agree to the{" "}
-                <a href="/legal-disclaimer" target="_blank" className="text-primary hover:underline">Legal Disclaimer</a>,{" "}
-                <a href="/terms-of-service" target="_blank" className="text-primary hover:underline">Terms of Service</a>, and{" "}
-                <a href="/privacy-policy" target="_blank" className="text-primary hover:underline">Privacy Policy</a>.
-              </label>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <Checkbox 
-                id="understand" 
-                checked={understood} 
-                onCheckedChange={(checked) => setUnderstood(checked === true)}
-                className="mt-1"
-              />
-              <label htmlFor="understand" className="text-sm text-foreground cursor-pointer">
-                I understand this website does <strong>NOT provide medical advice</strong> and I will consult healthcare professionals for any treatment decisions.
-              </label>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="p-6 border-t bg-muted/30">
-          <Button 
-            onClick={handleAccept} 
-            disabled={!agreed || !understood}
-            className="w-full"
-            size="lg"
-          >
-            I Understand - Continue to Website
-          </Button>
-          <p className="text-xs text-muted-foreground text-center mt-3">
-            By clicking continue, you acknowledge that you have read and understood these disclaimers.
-          </p>
         </div>
       </div>
     </div>
