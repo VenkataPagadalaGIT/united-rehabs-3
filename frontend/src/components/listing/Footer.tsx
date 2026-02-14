@@ -66,8 +66,8 @@ export function Footer({ linkGroups }: FooterProps) {
 
   return (
     <footer className="bg-sidebar text-sidebar-foreground" role="contentinfo">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
+      <div className="container mx-auto px-4 py-16">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-8 md:gap-12">
           {/* Logo & Description */}
           <div className="col-span-2 md:col-span-1">
             <button
@@ -76,10 +76,10 @@ export function Footer({ linkGroups }: FooterProps) {
               aria-label="Scroll to top"
               data-testid="footer-logo-scroll-top"
             >
-              <span className="text-primary font-bold text-lg">united</span>
-              <span className="text-sidebar-foreground font-bold text-lg">rehabs</span>
+              <span className="text-primary font-bold text-lg tracking-[-0.02em]">United</span>
+              <span className="text-sidebar-foreground font-bold text-lg tracking-[-0.02em]">Rehabs</span>
             </button>
-            <p className="text-sidebar-foreground/60 text-sm mb-4">
+            <p className="text-sidebar-foreground/60 text-sm leading-relaxed mb-5">
               Global addiction statistics resource covering {ALL_COUNTRIES.length} countries worldwide.
             </p>
             <div className="flex gap-3" role="list" aria-label="Social media links">
@@ -92,7 +92,7 @@ export function Footer({ linkGroups }: FooterProps) {
                 <a
                   key={social.icon}
                   href="#"
-                  className="w-8 h-8 rounded-full bg-sidebar-accent flex items-center justify-center text-sm hover:bg-primary transition-colors"
+                  className="w-8 h-8 rounded-full bg-sidebar-accent flex items-center justify-center text-xs font-medium hover:bg-primary transition-colors"
                   aria-label={`Follow us on ${social.label}`}
                 >
                   {social.icon}
@@ -104,8 +104,8 @@ export function Footer({ linkGroups }: FooterProps) {
           {/* Link Columns */}
           {linkGroups.map((group) => (
             <nav key={group.title} aria-label={group.title}>
-              <h4 className="font-semibold mb-4">{group.title}</h4>
-              <ul className="space-y-2">
+              <h4 className="font-semibold text-sm mb-4 tracking-[-0.01em]">{group.title}</h4>
+              <ul className="space-y-2.5">
                 {group.links.map((link, index) => {
                   const isComingSoon = link.href === "#" || link.label.includes("Coming Soon");
                   return (
