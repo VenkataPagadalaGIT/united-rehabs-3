@@ -287,94 +287,9 @@ export function HeroSection() {
                   onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
                 />
               </div>
-              <Button type="submit" variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+              <Button type="submit" variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground mr-2">
                 <Search className="h-5 w-5" />
               </Button>
-              <Popover open={filterOpen} onOpenChange={setFilterOpen}>
-                <PopoverTrigger asChild>
-                  <Button type="button" className="m-1 bg-primary hover:bg-primary/90 relative">
-                    <SlidersHorizontal className="h-5 w-5" />
-                    {activeFilterCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                        {activeFilterCount}
-                      </span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80 p-0 bg-background border shadow-xl z-50" align="end">
-                  <div className="p-4 border-b flex items-center justify-between">
-                    <h3 className="font-semibold">Filters</h3>
-                    {activeFilterCount > 0 && (
-                      <Button variant="ghost" size="sm" onClick={clearFilters} className="text-muted-foreground hover:text-foreground">
-                        Clear all
-                      </Button>
-                    )}
-                  </div>
-                  <div className="p-4 space-y-6 max-h-[400px] overflow-y-auto">
-                    {/* Treatment Type */}
-                    <div>
-                      <h4 className="font-medium mb-3 text-sm">Treatment Type</h4>
-                      <div className="space-y-2">
-                        {filterOptions.treatmentType.map((option) => (
-                          <div key={option.id} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`treatment-${option.id}`}
-                              checked={selectedFilters.treatmentType.includes(option.id)}
-                              onCheckedChange={() => toggleFilter("treatmentType", option.id)}
-                            />
-                            <Label htmlFor={`treatment-${option.id}`} className="text-sm cursor-pointer">
-                              {option.label}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Insurance */}
-                    <div>
-                      <h4 className="font-medium mb-3 text-sm">Insurance Accepted</h4>
-                      <div className="space-y-2">
-                        {filterOptions.insurance.map((option) => (
-                          <div key={option.id} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`insurance-${option.id}`}
-                              checked={selectedFilters.insurance.includes(option.id)}
-                              onCheckedChange={() => toggleFilter("insurance", option.id)}
-                            />
-                            <Label htmlFor={`insurance-${option.id}`} className="text-sm cursor-pointer">
-                              {option.label}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Amenities */}
-                    <div>
-                      <h4 className="font-medium mb-3 text-sm">Amenities</h4>
-                      <div className="space-y-2">
-                        {filterOptions.amenities.map((option) => (
-                          <div key={option.id} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`amenity-${option.id}`}
-                              checked={selectedFilters.amenities.includes(option.id)}
-                              onCheckedChange={() => toggleFilter("amenities", option.id)}
-                            />
-                            <Label htmlFor={`amenity-${option.id}`} className="text-sm cursor-pointer">
-                              {option.label}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-4 border-t">
-                    <Button className="w-full" onClick={() => setFilterOpen(false)}>
-                      Apply Filters
-                    </Button>
-                  </div>
-                </PopoverContent>
-              </Popover>
             </form>
 
             {/* Autocomplete Suggestions */}
