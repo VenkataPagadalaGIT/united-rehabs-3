@@ -1,0 +1,161 @@
+{
+  "summary": "Comprehensive e2e QA testing of United Rehabs website. CRITICAL BUG FOUND: 'Get Help Now' buttons (header and footer) have NO onClick handler - clicking does nothing. All other functionality working correctly.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Header - Get Help Now Button",
+        "issue": "CRITICAL: Button has no onClick handler. Clicking does nothing.",
+        "selector": "[data-testid='get-help-now-btn']",
+        "priority": "CRITICAL",
+        "file": "/app/frontend/src/components/listing/Header.tsx",
+        "line": 88,
+        "fix": "Add onClick handler to navigate to help resources or open modal with crisis info"
+      },
+      {
+        "component": "Footer - Get Help Now Button",
+        "issue": "CRITICAL: Button has no onClick handler. Clicking does nothing.",
+        "selector": "[data-testid='footer-get-help-btn']",
+        "priority": "CRITICAL",
+        "file": "/app/frontend/src/components/listing/Footer.tsx",
+        "line": 315,
+        "fix": "Add onClick handler to navigate to help resources or open modal with crisis info"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_8.json"
+  ],
+  "action_items": [
+    "CRITICAL: Add onClick handler to 'Get Help Now' button in Header.tsx (line 88) - either navigate to /contact or open modal with 988/SAMHSA crisis info",
+    "CRITICAL: Add onClick handler to 'Get Help Now' button in Footer.tsx (line 315) - same behavior as header button"
+  ],
+  "critical_code_review_comments": [
+    "Header.tsx line 88: <Button> has no onClick - should navigate to help or open crisis modal",
+    "Footer.tsx line 315: <Button> has no onClick - should navigate to help or open crisis modal",
+    "Suggested fix: onClick={() => window.location.href = 'tel:988'} or onClick={() => navigate('/contact')}"
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "N/A - frontend only testing",
+    "frontend": "95% - only Get Help Now buttons not working"
+  },
+  "test_credentials": {
+    "admin_email": "admin@unitedrehabs.com",
+    "admin_password": "Admin_password@9164"
+  },
+  "seed_data_creation": "",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Get Help Now button bug confirmed in Header.tsx (line 88) and Footer.tsx (line 315). All other features working: search, navigation, consent modals, admin login, state/country pages, compare page, treatment centers, mobile responsiveness.",
+  "features_tested": {
+    "get_help_now_header": {
+      "status": "FAIL",
+      "details": "Button exists but has no onClick handler - clicking does nothing"
+    },
+    "get_help_now_footer": {
+      "status": "FAIL",
+      "details": "Button exists but has no onClick handler - clicking does nothing"
+    },
+    "search_bar": {
+      "status": "PASS",
+      "details": "Autocomplete works, navigation to location pages works"
+    },
+    "navigation_menu": {
+      "status": "PASS",
+      "details": "All nav links work: Compare, Treatment Centers, Blog, About, Contact"
+    },
+    "locations_dropdown": {
+      "status": "PASS",
+      "details": "Mega menu opens on hover showing US states by region and 195 countries"
+    },
+    "cookie_consent_banner": {
+      "status": "PASS",
+      "details": "Accept All, Essential Only, and Cookie Settings buttons visible and working"
+    },
+    "disclaimer_consent_modal": {
+      "status": "PASS",
+      "details": "Modal appears, checkboxes work, Continue button enables when both checked"
+    },
+    "crisis_hotline_banner": {
+      "status": "PASS",
+      "details": "988 link (tel:988) and SAMHSA link (tel:1-800-662-4357) both working"
+    },
+    "contact_form": {
+      "status": "PASS",
+      "details": "Form loads with Name, Email, Subject, Message fields. Submit button present."
+    },
+    "california_state_page": {
+      "status": "PASS",
+      "details": "Page loads with stats, maps, treatment center filters"
+    },
+    "florida_state_page": {
+      "status": "PASS",
+      "details": "Page loads correctly with Florida-specific data"
+    },
+    "germany_country_page": {
+      "status": "PASS",
+      "details": "Page loads with Germany flag, Key Statistics 2025, Historical Trends"
+    },
+    "uk_country_page": {
+      "status": "PASS",
+      "details": "Page accessible via /united-kingdom-addiction-rehabs"
+    },
+    "compare_page": {
+      "status": "PASS",
+      "details": "Shows US, UK, Germany comparison with charts. Add/remove countries working."
+    },
+    "treatment_centers_page": {
+      "status": "PASS",
+      "details": "Shows 104 centers with filters (country, type). Featured cards with ratings."
+    },
+    "admin_login": {
+      "status": "PASS",
+      "details": "Login successful with provided credentials. Dashboard shows stats."
+    },
+    "mobile_responsiveness": {
+      "status": "PASS",
+      "details": "Mobile menu hamburger works, Get Help Now visible, search bar accessible"
+    },
+    "footer_scroll_to_top": {
+      "status": "PASS",
+      "details": "Back to Top button present in footer"
+    }
+  },
+  "screenshots": [
+    ".screenshots/initial_page_with_modal.png",
+    ".screenshots/homepage_after_consent.png",
+    ".screenshots/after_get_help_click.png",
+    ".screenshots/california_page.png",
+    ".screenshots/full_homepage.png",
+    ".screenshots/footer_section.png",
+    ".screenshots/admin_login_clean.png",
+    ".screenshots/admin_dashboard_success.png",
+    ".screenshots/contact_page.png",
+    ".screenshots/contact_form_filled.png",
+    ".screenshots/mobile_homepage.png",
+    ".screenshots/mobile_menu_open.png",
+    ".screenshots/florida_page.png",
+    ".screenshots/germany_page.png",
+    ".screenshots/compare_page_v2.png",
+    ".screenshots/locations_mega_menu.png",
+    ".screenshots/treatment_centers.png"
+  ],
+  "rca_of_issue": {
+    "bug": "Get Help Now button not working",
+    "root_cause": "Button component in Header.tsx (line 88) and Footer.tsx (line 315) has no onClick handler attached",
+    "reproduction_steps": [
+      "1. Go to homepage",
+      "2. Accept disclaimer and cookie consent",
+      "3. Click 'Get Help Now' button in header or footer",
+      "4. Observe: Nothing happens - no navigation, no modal, no action"
+    ],
+    "expected_behavior": "Button should either: (a) navigate to contact/help page, (b) open modal with 988/SAMHSA crisis info, or (c) call crisis number directly",
+    "mitigation": "Add onClick handler: onClick={() => window.location.href = 'tel:988'} or use navigate to crisis resources page"
+  }
+}
