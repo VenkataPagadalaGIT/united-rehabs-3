@@ -49,7 +49,7 @@ const StateStatsPage = () => {
         <PageHero state={state} />
         
         <div className="py-8">
-          <StatisticsTab stateId={stateConfig.abbreviation} stateName={state.name} />
+          <StatisticsTab stateId={stateConfig.abbreviation} stateName={state.name} stateSlug={stateKey} urlYear={selectedYear} />
         </div>
 
         {/* Year-based internal links for SEO */}
