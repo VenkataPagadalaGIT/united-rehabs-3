@@ -173,10 +173,6 @@ export function HeroSection() {
     navigate(`/${stateKeywords[stateKey]}-addiction-rehabs`);
   };
 
-  const handleTagClick = (search: string) => {
-    setSearchQuery(search);
-  };
-
   return (
     <section className="relative bg-gradient-to-b from-card to-background overflow-hidden">
       <div 
