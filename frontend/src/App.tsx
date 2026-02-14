@@ -53,9 +53,14 @@ import { isValidStateSlug } from "./data/stateConfig";
 const queryClient = new QueryClient();
 
 // Helper component to route between state and country pages
-// IMPORTANT: Check US states FIRST since US is primary market and some names overlap (e.g., Georgia)
+// Handles: /state-addiction-stats, /state-addiction-rehabs, /state-addiction-stats-2025, etc.
 const LocationPage = () => {
-  const slug = window.location.pathname.slice(1).replace(/-addiction-rehabs$/, "").replace(/-addiction-stats$/, "");
+  const slug = window.location.pathname.slice(1)
+    .replace(/-addiction-rehabs$/, "")
+    .replace(/-addiction-rehab-centers$/, "")
+    .replace(/-addiction-stats$/, "")
+    .replace(/-addiction-free-resources$/, "")
+    .replace(/-\d{4}$/, ""); // Strip year suffix
   
   // US States take priority over countries with same name
   if (isValidStateSlug(slug)) {
