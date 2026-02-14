@@ -1,4 +1,4 @@
-import { ShieldCheck, Users, Heart, Building2, TrendingUp, AlertTriangle } from "lucide-react";
+import { Database, Globe, BarChart3, FileText, TrendingUp, AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
 
@@ -25,53 +25,53 @@ const formatNumber = (num: number | undefined): string => {
 export function TrustIndicators({ nationalStats, isLoading }: TrustIndicatorsProps) {
   const { t } = useTranslation();
   
-  // Dynamic stats from backend
+  // Dynamic stats from backend - focused on data/statistics
   const dynamicStats = [
     {
       icon: AlertTriangle,
       value: formatNumber(nationalStats?.total_affected),
-      label: t('stats.peopleAffected'),
-      description: "People impacted by addiction annually",
+      label: "People Affected",
+      description: "Impacted by substance use disorders",
       color: "text-red-500",
       bgColor: "bg-red-500/10",
     },
     {
-      icon: Building2,
-      value: formatNumber(nationalStats?.total_treatment_centers),
-      label: t('stats.treatmentCenters'),
-      description: "Verified facilities nationwide",
-      color: "text-primary",
-      bgColor: "bg-primary/10",
-    },
-    {
       icon: TrendingUp,
       value: nationalStats?.avg_recovery_rate ? `${nationalStats.avg_recovery_rate.toFixed(1)}%` : "---",
-      label: t('stats.recoveryRate'),
+      label: "Recovery Rate",
       description: "Successful treatment outcomes",
       color: "text-green-500",
       bgColor: "bg-green-500/10",
     },
     {
-      icon: Heart,
-      value: formatNumber(nationalStats?.total_treatment_admissions),
-      label: t('stats.treatmentAdmissions'),
-      description: "Annual treatment enrollments",
-      color: "text-pink-500",
-      bgColor: "bg-pink-500/10",
+      icon: BarChart3,
+      value: formatNumber(nationalStats?.total_overdose_deaths),
+      label: "Annual Deaths",
+      description: "Overdose fatalities reported",
+      color: "text-orange-500",
+      bgColor: "bg-orange-500/10",
+    },
+    {
+      icon: Database,
+      value: "195+",
+      label: "Countries",
+      description: "Global data coverage",
+      color: "text-primary",
+      bgColor: "bg-primary/10",
     },
   ];
 
-  // Static trust indicators
+  // Static trust indicators - focused on data quality
   const staticIndicators = [
     {
-      icon: ShieldCheck,
-      title: t('trustIndicators.verifiedFacilities'),
-      description: t('trustIndicators.verifiedDesc'),
+      icon: FileText,
+      title: "Verified Data Sources",
+      description: "Statistics compiled from WHO, UNODC, SAMHSA, CDC, and national health ministries",
     },
     {
-      icon: Users,
-      title: t('trustIndicators.personalizedApproach'),
-      description: t('trustIndicators.personalizedDesc'),
+      icon: Globe,
+      title: "Global Coverage",
+      description: "Comprehensive addiction data for 195 countries and all 51 US states",
     },
   ];
 
@@ -101,10 +101,10 @@ export function TrustIndicators({ nationalStats, isLoading }: TrustIndicatorsPro
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-              Addiction Statistics at a Glance
+              Key Statistics at a Glance
             </h2>
             <p className="text-muted-foreground">
-              Real-time data from verified sources
+              Data from verified official sources
             </p>
           </div>
           <div className="mt-4 md:mt-0 flex items-center gap-2">
@@ -119,30 +119,28 @@ export function TrustIndicators({ nationalStats, isLoading }: TrustIndicatorsPro
         </div>
 
         {/* Dynamic National Statistics */}
-        {nationalStats && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            {dynamicStats.map((stat) => (
-              <div
-                key={stat.label}
-                className="flex flex-col items-center text-center p-4 rounded-xl border bg-card hover:shadow-lg transition-shadow"
-                data-testid={`stat-${stat.label.toLowerCase().replace(/\s/g, '-')}`}
-              >
-                <div className={`w-12 h-12 rounded-full ${stat.bgColor} flex items-center justify-center mb-3`}>
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
-                <span className="text-2xl md:text-3xl font-bold text-foreground">
-                  {stat.value}
-                </span>
-                <span className="text-sm font-medium text-foreground mt-1">
-                  {stat.label}
-                </span>
-                <span className="text-xs text-muted-foreground mt-1">
-                  {stat.description}
-                </span>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {dynamicStats.map((stat) => (
+            <div
+              key={stat.label}
+              className="flex flex-col items-center text-center p-4 rounded-xl border bg-card hover:shadow-lg transition-shadow"
+              data-testid={`stat-${stat.label.toLowerCase().replace(/\s/g, '-')}`}
+            >
+              <div className={`w-12 h-12 rounded-full ${stat.bgColor} flex items-center justify-center mb-3`}>
+                <stat.icon className={`h-6 w-6 ${stat.color}`} />
               </div>
-            ))}
-          </div>
-        )}
+              <span className="text-2xl md:text-3xl font-bold text-foreground">
+                {stat.value}
+              </span>
+              <span className="text-sm font-medium text-foreground mt-1">
+                {stat.label}
+              </span>
+              <span className="text-xs text-muted-foreground mt-1">
+                {stat.description}
+              </span>
+            </div>
+          ))}
+        </div>
 
         {/* Static Trust Indicators */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
