@@ -83,26 +83,26 @@ export function Header({ navItems }: HeaderProps) {
           </nav>
 
           {/* Language & CTA */}
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-3">
             <LanguageSwitcher />
             <Button 
-              className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold" 
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition-all" 
               data-testid="get-help-now-btn"
               onClick={() => window.location.href = 'tel:988'}
             >
               {t('common.getHelpNow')}
             </Button>
             <button
-              className="lg:hidden focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded p-1"
+              className="lg:hidden focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-lg p-2 hover:bg-muted transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-menu"
             >
               {mobileMenuOpen ? (
-                <X className="h-6 w-6" aria-hidden="true" />
+                <X className="h-5 w-5" aria-hidden="true" />
               ) : (
-                <Menu className="h-6 w-6" aria-hidden="true" />
+                <Menu className="h-5 w-5" aria-hidden="true" />
               )}
             </button>
           </div>
