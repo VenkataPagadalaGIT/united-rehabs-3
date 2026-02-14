@@ -2,102 +2,253 @@
 @tailwind components;
 @tailwind utilities;
 
-/* United Rehabs Design System - Clean white with dark accents */
+/* ==========================================================================
+   UNITED REHABS - PREMIUM TYPOGRAPHY SYSTEM
+   Inspired by: Stripe, Linear, Vercel, Notion
+   ========================================================================== */
 
-/* Professional Typography System */
+/* Premium Typography Variables */
 :root {
-  --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
-  --font-display: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  /* Consistent spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+}
+
+/* Global Typography Reset */
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
 }
 
 body {
   font-family: var(--font-sans);
-  font-optical-sizing: auto;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+  letter-spacing: -0.011em;
 }
+
+/* ==========================================================================
+   Typography Scale - Consistent & Premium
+   ========================================================================== */
+
+/* Display - Hero headlines */
+.text-display {
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+}
+
+/* Headings */
+h1, .h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+h2, .h2 {
+  font-size: 1.875rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+h3, .h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+h4, .h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+}
+
+h5, .h5 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+h6, .h6 {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.5;
+}
+
+/* Body text */
+p, .body {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: -0.011em;
+}
+
+.body-lg {
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+
+.body-sm {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Captions and small text */
+.caption {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+
+/* Labels - Uppercase small text */
+.label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+/* Numbers - Tabular figures for data */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Responsive Typography
+   ========================================================================== */
+
+@media (min-width: 640px) {
+  h1, .h1 {
+    font-size: 3rem;
+  }
+  h2, .h2 {
+    font-size: 2.25rem;
+  }
+  h3, .h3 {
+    font-size: 1.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  h1, .h1 {
+    font-size: 3.5rem;
+  }
+  h2, .h2 {
+    font-size: 2.5rem;
+  }
+}
+
+/* ==========================================================================
+   Color System - Premium & Clean
+   ========================================================================== */
 
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 220 15% 15%;
+    --foreground: 224 71% 4%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 15% 15%;
+    --card-foreground: 224 71% 4%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 15%;
+    --popover-foreground: 224 71% 4%;
 
-    --primary: 25 95% 53%;
+    /* Primary - Vibrant Orange */
+    --primary: 24 95% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 15% 96%;
-    --secondary-foreground: 220 15% 15%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 224 71% 4%;
 
-    --muted: 220 15% 96%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 152 60% 40%;
+    /* Accent - Teal/Green for positive */
+    --accent: 158 64% 40%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 90%;
-    --input: 220 15% 90%;
-    --ring: 25 95% 53%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 24 95% 50%;
 
-    --radius: 0.5rem;
+    --radius: 0.625rem;
 
-    --sidebar-background: 220 20% 18%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 25 95% 53%;
+    /* Footer/Sidebar - Dark slate */
+    --sidebar-background: 224 71% 4%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 24 95% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 20% 25%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 220 20% 25%;
-    --sidebar-ring: 25 95% 53%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 217 33% 17%;
+    --sidebar-ring: 24 95% 50%;
   }
 
   .dark {
-    --background: 220 20% 10%;
-    --foreground: 0 0% 100%;
+    --background: 224 71% 4%;
+    --foreground: 210 20% 98%;
 
-    --card: 220 20% 15%;
-    --card-foreground: 0 0% 100%;
+    --card: 224 71% 6%;
+    --card-foreground: 210 20% 98%;
 
-    --popover: 220 20% 15%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 224 71% 6%;
+    --popover-foreground: 210 20% 98%;
 
-    --primary: 25 95% 53%;
+    --primary: 24 95% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 20% 20%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 20% 98%;
 
-    --muted: 220 20% 25%;
-    --muted-foreground: 220 10% 65%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 152 60% 40%;
+    --accent: 158 64% 40%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 20% 98%;
 
-    --border: 220 20% 25%;
-    --input: 220 20% 25%;
-    --ring: 25 95% 53%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 24 95% 50%;
 
-    --sidebar-background: 220 20% 8%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 25 95% 53%;
+    --sidebar-background: 224 71% 3%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 24 95% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 20% 15%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 220 20% 15%;
-    --sidebar-ring: 25 95% 53%;
+    --sidebar-accent: 217 33% 12%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 217 33% 12%;
+    --sidebar-ring: 24 95% 50%;
   }
 }
+
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
 
 @layer base {
   * {
@@ -108,22 +259,22 @@ body {
     @apply bg-background text-foreground;
   }
 
-  /* Accessibility: Visible focus indicators for all interactive elements */
+  /* Premium focus states */
   :focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 
-  /* Skip link styling - visible only on focus */
+  /* Skip link for accessibility */
   .sr-only-focusable:focus {
     @apply not-sr-only absolute top-2 left-2 z-[100] bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium;
   }
-  
-  /* Ensure sufficient color contrast for links */
+
+  /* Smooth link transitions */
   a {
-    @apply transition-colors;
+    @apply transition-colors duration-150;
   }
 
-  /* Reduced motion preference */
+  /* Respect reduced motion */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -134,4 +285,77 @@ body {
       scroll-behavior: auto !important;
     }
   }
+}
+
+/* ==========================================================================
+   Component Utilities
+   ========================================================================== */
+
+@layer components {
+  /* Premium card hover effect */
+  .card-hover {
+    @apply transition-all duration-200;
+  }
+  .card-hover:hover {
+    @apply shadow-lg -translate-y-0.5;
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
+  }
+
+  /* Premium button styles */
+  .btn-premium {
+    @apply font-semibold transition-all duration-200;
+  }
+  .btn-premium:hover {
+    @apply shadow-lg -translate-y-0.5;
+  }
+  .btn-premium:active {
+    @apply translate-y-0 shadow-md;
+  }
+
+  /* Stat number styling */
+  .stat-number {
+    @apply font-bold tabular-nums tracking-tight;
+  }
+
+  /* Section title */
+  .section-title {
+    @apply text-2xl md:text-3xl font-bold tracking-tight;
+  }
+
+  /* Section subtitle */
+  .section-subtitle {
+    @apply text-muted-foreground text-base md:text-lg;
+  }
+}
+
+/* ==========================================================================
+   Selection & Scrollbar
+   ========================================================================== */
+
+::selection {
+  background-color: hsl(var(--primary) / 0.2);
+  color: hsl(var(--foreground));
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
 }
