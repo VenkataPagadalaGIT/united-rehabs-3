@@ -270,7 +270,7 @@ export function HeroSection() {
           </h1>
           
           <p className="text-lg text-muted-foreground mb-8">
-            Connecting you with top-rated rehabs for addiction, mental health, and more
+            Comprehensive addiction statistics and recovery resources across 195 countries
           </p>
 
           {/* Search Bar with Autocomplete */}
