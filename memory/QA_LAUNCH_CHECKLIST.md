@@ -225,7 +225,7 @@
 
 | Purpose | URL |
 |---------|-----|
-| Preview Site | https://addon-data-live.preview.emergentagent.com |
+| Preview Site | https://data-qa-pass.preview.emergentagent.com |
 | Sitemap | /api/seo/sitemap.xml |
 | Robots | /api/seo/robots.txt |
 | Health Check | /api/health |

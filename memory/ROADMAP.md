@@ -116,7 +116,7 @@ All critical features implemented.
 - Password: `admin_password`
 
 ### API Base URL
-- `https://addon-data-live.preview.emergentagent.com/api`
+- `https://data-qa-pass.preview.emergentagent.com/api`
 
 ### Key Environment Variables
 ```
@@ -126,5 +126,5 @@ DB_NAME=united_rehabs
 EMERGENT_LLM_KEY=<key>
 
 # Frontend (.env)
-REACT_APP_BACKEND_URL=https://addon-data-live.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://data-qa-pass.preview.emergentagent.com
 ```

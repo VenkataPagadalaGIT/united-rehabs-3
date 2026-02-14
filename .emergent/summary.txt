@@ -1,66 +1,73 @@
-<analysis>**original_problem_statement:**
-The user wants to launch their global addiction data resource website. The primary goals were to fix data inaccuracies, implement systemic prevention of such inaccuracies, improve UI/UX, harden security, ensure global legal compliance, and finally, prepare the application for a public launch. The immediate request is to make the application live on a custom domain registered with Namecheap.
+<analysis>original_problem_statement:
+Initially, the user wanted to launch their global addiction data resource website on a custom Namecheap domain. However, during the final review process, the user identified several critical UI/UX issues, including dummy content, unwanted CTAs, and inconsistent design. The priority has shifted to performing a thorough quality assurance pass to fix all visual and content-related problems before proceeding with the deployment.
+
+Specifically, the user has requested:
+1.  Creation of Coming Soon pages for  and .
+2.  Addition of the Blog link to the main navigation.
+3.  Completion of the  page and removal of promises from the  page.
+4.  Removal of all dummy content, rehab-related CTAs, and fake testimonials/reviews from the homepage and other pages like .
+5.  Replacement of the site-blocking disclaimer popup with a less intrusive alternative for better SEO.
+6.  A complete overhaul of the site's typography to make it look like a billion-dollar site, ensuring font consistency across all pages and components.
+7.  Fix the FAQ page font size, which currently looks spammy.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The application is a full-stack project (React frontend, FastAPI backend, MongoDB) that is feature-complete and ready for launch. It has undergone extensive data verification, UI/UX refinement, security hardening, and legal compliance updates. Key features include a SERP validation admin panel, a Data Methodology page, comprehensive and internationally compliant legal pages (Privacy, ToS, etc.), a click-wrap consent modal for legal protection, and Google Analytics integration. The search functionality has been enhanced to cover 195 countries.
+The application is a full-stack project (React frontend, FastAPI backend, MongoDB). A significant amount of work has been done in this session to pivot from a rehab-focused site to a data and statistics resource. This involved removing multiple components with dummy content, updating the homepage layout, replacing the intrusive disclaimer modal with a banner, and initiating a major typography overhaul by implementing the Inter font and updating several key components. However, the UI/UX work is not complete, as inconsistencies still exist.
 
 **Last working item**:
--   **Last item agent was working:** The user requested to make the site live on their Namecheap domain. The agent correctly identified that this requires a specialized deployment process and invoked the  with the registrar namecheap to get the necessary DNS instructions.
+-   **Last item agent was working:** The agent was addressing a direct user complaint about inconsistent font sizes across the application, specifically pointing out that the FAQ page's font size is too large and looks unprofessional. The agent acknowledged the mistake and was about to begin a thorough review and fix.
 -   **Status:** IN PROGRESS
--   **Agent Testing Done:** N/A
--   **Which testing method agent to use?** Manual verification after deployment. The agent needs to guide the user on applying DNS changes and then check if the domain resolves correctly.
+-   **Agent Testing Done:** N
+-   **Which testing method agent to use?** screenshot tool. The agent should navigate to all pages (Homepage, About, Contact, Coming Soon, etc.) and visually inspect all components for font and style consistency before showing the user. A full end-to-end visual QA is required.
 -   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
--   **Issue 1: Complete Website Deployment (P0)**
-    -   **Description:** The final step is to deploy the application to the user's custom domain from Namecheap. The  has been called to provide the required DNS records.
-    -   **Status:** IN PROGRESS
-
-Issues Detail:
--   **Issue 1: Complete Website Deployment**
-    -   **Attempted fixes:** The  has been invoked. The agent is currently waiting for the response.
+-   **Issue 1: Fix Font and Design Inconsistency Across the Entire Site (P0)**
+    -   **Description:** The user is dissatisfied with the visual state of the application, pointing out that the FAQ font size is too large and other inconsistencies exist. A full-site QA pass is required to standardize all typography (font sizes, weights, letter spacing) and styling to match the new premium design system.
+    -   **Attempted fixes:** The agent introduced the Inter font and updated several homepage components, but this was an incomplete, half job that missed other pages/components like the FAQ.
     -   **Next debug checklist:**
-        1.  Receive and parse the DNS configuration instructions from the  response.
-        2.  Present the instructions clearly to the user, explaining what records (e.g., A, CNAME) need to be created or modified in their Namecheap account.
-        3.  Wait for the user to confirm they have updated the DNS settings.
-        4.  After DNS propagation, verify that the custom domain correctly points to the application.
-    -   **Why fix this issue and what will be achieved with the fix?** This is the ultimate goal of the project: making the website publicly accessible on the user's domain.
+        1.  List all pages and unique components in the application.
+        2.  Inspect  and fix the oversized font classes.
+        3.  Systematically go through every other page (, , , , etc.) and their sub-components.
+        4.  Apply the new typography classes (, , , etc.) consistently for headings, body text, buttons, and other elements.
+        5.  Ensure no component uses the old  or  unless it's an intentional heading style.
+        6.  Take screenshots of each updated page to verify the changes.
+    -   **Why fix this issue and what will be achieved with the fix?** To meet the user's quality standards and create a professional, trustworthy-looking website, which is a blocker for deployment.
     -   **Status:** IN PROGRESS
-    -   **Is recurring issue?** N
-    -   **Should Test frontend/backend/both after fix?** Both (a full end-to-end check of the live site).
-    -   **Blocked on other issue:** None. The agent is blocked on the 's response.
+    -   **Is recurring issue?** Y
+    -   **Should Test frontend/backend/both after fix?** Frontend.
+    -   **Blocked on other issue:** None.
 
 **In progress Task List**:
--   **Task 1: Guide User Through DNS Configuration (P0)**
-    -   **Where to resume:** Wait for the 's output, then present the DNS instructions to the user.
-    -   **What will be achieved with this?** The website will be successfully deployed and live on the user's custom domain.
-    -   **Status:** IN PROGRESS
+-   **Task 1: Complete Website Deployment (P1)**
+    -   **Description:** The original goal was to deploy the application to the user's custom domain from Namecheap. This task is paused until all UI/UX issues are resolved to the user's satisfaction.
+    -   **Where to resume:** After the UI is approved, the agent needs to guide the user on how to use the Deploy and Link domain features within the Emergent platform to get the necessary DNS records for Namecheap.
+    -   **What will be achieved with this?** The website will be publicly accessible on the user's custom domain.
+    -   **Status:** BLOCKED
     -   **Should Test frontend/backend/both after fix?** Both.
-    -   **Blocked on something:**  response.
+    -   **Blocked on something:** Issue 1: Fix Font and Design Inconsistency.
 
 **Upcoming and Future Tasks**
 -   **Upcoming Tasks:**
     -   **P1: Post-Launch Monitoring:** Monitor Google Analytics for traffic and Google Search Console for indexing status.
-    -   **P1: Enable and Monitor Automated SERP Validation:** The admin panel functionality is ready; the schedule needs to be enabled and monitored for cost and correctness.
+    -   **P1: Enable and Monitor Automated SERP Validation:** The admin panel functionality is ready; the schedule needs to be enabled and monitored.
 -   **Future Tasks:**
     -   **P1: Monetization:** Implement a revenue model (e.g., Premium Facility Listings) as detailed in .
     -   **P2: Geographic Expansion:** Adapt the system to handle city-level data.
     -   **P2: Admin Data Workflow:** Implement a  workflow for new data updates.
 
 **Completed work in this session**
--   **Launch Readiness & Hardening:**
-    -   **Footer Links Fixed:** Corrected all dynamically generated footer links and added Coming Soon placeholders for future pages.
-    -   **Search Functionality Overhauled:** Repurposed the main search to focus on data/statistics instead of rehab centers, updated UI text, removed irrelevant filters, and expanded search to include 195 countries.
-    -   **Get Help Now Buttons Fixed:** Corrected the header and footer Get Help Now buttons to initiate a call to the 988 crisis line.
-    -   **Legal Click-Wrap Consent Added:** Implemented a mandatory consent modal on the first visit to enhance legal protection.
-    -   **FAANG CEO Audit:** Performed a final audit, which led to adding Google Analytics and fixing SEO meta tags.
--   **SEO & Security:**
-    -   **Admin URL Obscured:** Changed the admin URL from  to  for security.
-    -   ** &  Created:** Generated  to block admin pages from crawlers and  to aid indexing of public pages.
-    -   **Admin Password Changed:** Securely updated the admin password as requested.
-    -   **Admin Link Removed:** Removed the public-facing link to the admin panel from the footer.
+-   **Content & Page Updates:**
+    -   Created a Coming Soon page at  and routed  and  to it.
+    -   Removed the Response Time promise from the  page.
+    -   Removed multiple dummy/rehab-focused sections from the homepage (), including , , , and .
+    -   Updated text across the homepage (, ), navigation, and  to align with a data/statistics focus rather than a rehab focus.
+    -   Removed the Treatment Centers link from the main navigation in .
+-   **UI/UX Improvements:**
+    -   Replaced the intrusive, site-blocking disclaimer modal () with a non-blocking banner at the bottom of the page.
+    -   Initiated a major typography overhaul by adding the Inter font to  and .
+    -   Applied new, premium typography styles to several components: , , , , and .
 
 **Earlier issues found/mentioned but not fixed**
 -   The original plan for a fully automated, intelligent SERP validation system that can extract data reliably is a long-term task. The current implementation provides a manual trigger and scheduling framework.
@@ -72,11 +79,10 @@ Issues Detail:
 
 
 **Key Technical Concepts**
--   SEO (sitemap.xml, robots.txt, meta tags)
--   Web Analytics (Google Analytics)
--   Legal Tech (Click-wrap consent using localStorage)
--   Deployment (DNS configuration)
--   Security through Obscurity (Changing admin URLs)
+-   React Routing ()
+-   Component-based architecture
+-   Tailwind CSS for styling and theming (custom fonts, spacing, effects)
+-   State management with  and  for the consent banner.
 
 **key DB schema**
 -   No changes to the database schema were made in this session.
@@ -85,54 +91,52 @@ Issues Detail:
 -   None.
 
 **All files of reference**
--   : Contains Google Analytics script and main SEO meta tags.
--   : Defines all application routes, including the new admin URL.
--   : Contains the refactored search component.
--   : The new legal consent modal.
--   : Instructs search engine crawlers.
--   : Provides a map of the site for indexing.
+-   : The file with the immediate font size issue reported by the user.
+-   : Defines the site's design system, including the newly added 'Inter' font.
+-   : Where the 'Inter' font is imported from Google Fonts.
+-   : The homepage, which had significant content and component removal.
+-   : The component that was refactored from a modal to a banner.
+-   All component files under  and page files under  need to be reviewed for font consistency.
 
 **Areas that need refactoring**:
--   The backend still contains several single-use verification scripts that could be consolidated into a unified QA framework for better long-term maintenance.
+-   A full-site audit for styling and typography consistency is required. Many components were updated, but others (like the FAQ page) were missed, creating a disjointed user experience. All CSS classes related to fonts and text should be standardized.
 
 **key api endpoints**
--   : Used to update the admin password.
+-   No new API endpoints were used or created in this session.
 
 **Critical Info for New Agent**
--   The user's number one priority is to go live. The deployment process is already in motion.
--   Your immediate task is to receive the output from the , interpret it, and provide clear, step-by-step instructions to the user on how to update their DNS records at Namecheap.
--   Do not begin any new feature work or refactoring. Focus exclusively on completing the launch.
--   After the user confirms the DNS changes have been made, you must verify that the site is live and fully functional on the custom domain.
+-   **User's #1 Priority is UI/UX Quality:** The user is very detail-oriented and will not approve deployment until the site looks professional and consistent. Do not consider tasks done after a partial implementation. A thorough, end-to-end check of all pages and components is mandatory.
+-   **The user's feedback is direct:** you cant be lazy, make it like a billion dollar site, looks like a spam. Take this feedback seriously and prioritize a comprehensive QA pass over speed.
+-   **Deployment is Blocked:** Do not attempt to proceed with deployment steps until the user explicitly confirms they are happy with the site's visual appearance.
+-   **Start with the FAQ page:** The most immediate fix required is the font size on the FAQ page (). Use this as the starting point for a site-wide consistency check.
 
 **documents and test reports created in this job**
--   
--   
+-   None.
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User:** I have a Namecheap domain and want to make the site live. (Status: IN PROGRESS,  called)
-2.  **User:** Ensure all pages are crawlable, hide the admin URL, and change it to . (Status: COMPLETED)
-3.  **User:** Think like a FAANG CEO and tell me what to check. (Status: COMPLETED, led to adding GA and fixing SEO tags)
-4.  **User:** Provided Google Analytics code. (Status: COMPLETED)
-5.  **User:** The Get Help Now button is not working; do a deep QA. (Status: COMPLETED)
-6.  **User:** Are we covered internationally for legal compliance? (Status: COMPLETED)
-7.  **User:** Approved adding a click-wrap consent modal. (Status: COMPLETED)
-8.  **User:** How can I ensure we don't get sued? (Status: COMPLETED, led to click-wrap suggestion)
-9.  **User:** Provided the new admin password. (Status: COMPLETED)
-10. **User:** Let's fix the P0 issue (change admin password). (Status: COMPLETED)
+1.  **User:** Font is inconsistent everywhere, review and make it look like a billion-dollar site. (Status: IN PROGRESS)
+2.  **User:** You can't be lazy and do half jobs if I ask for QA or font consistency. The FAQ font size is like spam. (Status: IN PROGRESS, this is the current blocker)
+3.  **User:** Pointed out unwanted CTAs, dummy rehab content, fake reviews on  and the homepage. (Status: Mostly COMPLETED, but requires final verification)
+4.  **User:** The main popup is bad for SEO. (Status: COMPLETED, replaced with a banner)
+5.  **User:** You missed all QA. Listed several pages (, , , ) that need to be fixed or created as Coming Soon. (Status: COMPLETED)
+6.  **User:** What do I need to do after linking the custom domain? (Status: Answered, but the task is now blocked)
+7.  **User:** Asked for clarification on what to add in Namecheap DNS settings. (Status: Answered)
+8.  **User:** Initial request to get the site live on a Namecheap domain. (Status: BLOCKED)
 
 **Project Health Check:**
--   **Broken:** None.
+-   **Broken:** The UI/UX is considered broken from the user's perspective due to design inconsistencies.
 -   **Mocked:** None.
 
 **3rd Party Integrations**
 -   **DataForSEO:** Used for the SERP validation system. Requires a User API Key.
 -   **Google Analytics:** Integrated into  with ID .
+-   **Google Fonts:** Used to import the 'Inter' font.
 
 **Testing status**
 -   **Testing agent used after significant changes:** NO
 -   **Troubleshoot agent used after agent stuck in loop:** NO
 -   **Test files created:** None.
--   **Known regressions:** None.
+-   **Known regressions:** The typography overhaul was incomplete, leading to visual regressions and inconsistencies on pages not yet updated.
 
 **Credentials to test flow:**
 -   **Admin User:** 
@@ -140,4 +144,4 @@ Issues Detail:
 -   **Admin URL:** 
 
 **What agent forgot to execute**
--   Nothing was forgotten. The agent is correctly waiting for the  to respond before proceeding with the final launch steps.</analysis>
+-   The agent failed to perform a comprehensive, site-wide quality assurance check after implementing a major design change (the typography overhaul). It updated several components on the homepage but neglected to check other pages and components (like the FAQ page), leading to the user finding obvious inconsistencies.</analysis>
