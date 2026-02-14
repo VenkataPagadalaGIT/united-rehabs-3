@@ -14,7 +14,7 @@ export default function AboutUs() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const hasCMSContent = pageContent?.content && pageContent.content.length > 100;
+  const hasCMSContent = pageContent?.content && pageContent.content.length > 500;
 
   return (
     <div className="min-h-screen bg-background" data-testid="about-page">
