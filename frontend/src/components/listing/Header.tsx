@@ -85,7 +85,11 @@ export function Header({ navItems }: HeaderProps) {
           {/* Language & CTA */}
           <div className="flex items-center gap-2 sm:gap-4">
             <LanguageSwitcher />
-            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold" data-testid="get-help-now-btn">
+            <Button 
+              className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold" 
+              data-testid="get-help-now-btn"
+              onClick={() => window.location.href = 'tel:988'}
+            >
               {t('common.getHelpNow')}
             </Button>
             <button
