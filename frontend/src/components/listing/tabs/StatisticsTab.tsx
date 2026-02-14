@@ -197,7 +197,16 @@ export const StatisticsTab = ({ stateId, stateName, stateSlug, urlYear }: Statis
           <h2 className="text-2xl font-bold">{displayName} Addiction Statistics</h2>
           <p className="text-sm text-muted-foreground">Data sourced from CDC/SAMHSA</p>
         </div>
-        <Select value={selectedYear} onValueChange={setSelectedYear}>
+        <Select value={selectedYear} onValueChange={(val) => {
+          setSelectedYear(val);
+          if (stateSlug) {
+            if (val === "latest") {
+              navigate(`/${stateSlug}-addiction-stats`);
+            } else {
+              navigate(`/${stateSlug}-addiction-stats-${val}`);
+            }
+          }
+        }}>
           <SelectTrigger className="w-[140px]" data-testid="year-selector">
             <SelectValue placeholder="Select Year" />
           </SelectTrigger>
