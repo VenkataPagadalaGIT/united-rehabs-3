@@ -27,7 +27,7 @@ export function Header({ navItems }: HeaderProps) {
   };
 
   return (
-    <header className="bg-card border-b border-border sticky top-0 z-50">
+    <header className="bg-card/95 backdrop-blur-md border-b border-border sticky top-0 z-50">
       {/* Skip to main content link */}
       <a 
         href="#main-content" 
@@ -41,13 +41,13 @@ export function Header({ navItems }: HeaderProps) {
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded" aria-label="United Rehabs Home">
             <div className="flex flex-col leading-none">
-              <span className="text-primary font-bold text-xl tracking-tight" style={{ fontFamily: 'var(--font-sans)' }}>United</span>
-              <span className="text-foreground font-bold text-xl tracking-tight" style={{ fontFamily: 'var(--font-sans)' }}>Rehabs</span>
+              <span className="text-primary font-bold text-lg tracking-[-0.02em]">United</span>
+              <span className="text-foreground font-bold text-lg tracking-[-0.02em]">Rehabs</span>
             </div>
           </a>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-6" aria-label="Main navigation">
+          <nav className="hidden lg:flex items-center gap-1" aria-label="Main navigation">
             {navItems.map((item) => (
               <div
                 key={item.id}
@@ -58,15 +58,15 @@ export function Header({ navItems }: HeaderProps) {
                 {item.href && !item.hasDropdown ? (
                   <Link
                     to={item.href}
-                    className="flex items-center gap-1 text-foreground hover:text-primary transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-2 py-1"
+                    className="flex items-center gap-1 text-foreground/80 hover:text-foreground transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-lg px-3 py-2 hover:bg-muted"
                     data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                   >
                     {item.label}
                   </Link>
                 ) : (
                   <button
-                    className={`flex items-center gap-1 text-foreground hover:text-primary transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-2 py-1 ${
-                      item.label.toLowerCase() === "locations" && locationsMenuOpen ? "text-primary" : ""
+                    className={`flex items-center gap-1 text-foreground/80 hover:text-foreground transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-lg px-3 py-2 hover:bg-muted ${
+                      item.label.toLowerCase() === "locations" && locationsMenuOpen ? "text-foreground bg-muted" : ""
                     }`}
                     aria-expanded={item.hasDropdown ? (item.label.toLowerCase() === "locations" ? locationsMenuOpen : false) : undefined}
                     aria-haspopup={item.hasDropdown ? "true" : undefined}
