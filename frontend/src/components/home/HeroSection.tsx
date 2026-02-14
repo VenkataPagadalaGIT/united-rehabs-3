@@ -34,7 +34,7 @@ const allLocations: LocationItem[] = [
 export function HeroSection() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<LocationItem[]>([]);
   const navigate = useNavigate();
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -51,11 +51,11 @@ export function HeroSection() {
   useEffect(() => {
     if (searchQuery.trim().length > 0) {
       const query = searchQuery.toLowerCase().trim();
-      const matchingStates = Object.keys(stateDisplayNames)
-        .filter((key) => key.includes(query) || stateDisplayNames[key].toLowerCase().includes(query))
-        .slice(0, 5);
-      setSuggestions(matchingStates);
-      setShowSuggestions(matchingStates.length > 0);
+      const matching = allLocations
+        .filter((loc) => loc.name.toLowerCase().includes(query))
+        .slice(0, 6);
+      setSuggestions(matching);
+      setShowSuggestions(matching.length > 0);
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
@@ -64,33 +64,24 @@ export function HeroSection() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    navigateToState(searchQuery);
-  };
-
-  const navigateToState = (query: string) => {
-    const normalized = query.toLowerCase().trim();
-    if (!normalized) return;
-
-    for (const [keyword, slug] of Object.entries(stateKeywords)) {
-      if (normalized.includes(keyword)) {
-        if (normalized.includes("stat") || normalized.includes("data")) {
-          navigate(`/${slug}-addiction-statistics`);
-        } else if (normalized.includes("resource") || normalized.includes("free") || normalized.includes("help")) {
-          navigate(`/${slug}-free-resources`);
-        } else {
-          navigate(`/${slug}-addiction-rehabs`);
-        }
-        setShowSuggestions(false);
-        return;
-      }
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return;
+    
+    const match = allLocations.find(loc => 
+      loc.name.toLowerCase() === query || 
+      loc.name.toLowerCase().includes(query)
+    );
+    
+    if (match) {
+      navigate(`/${match.slug}-addiction-rehabs`);
     }
-    navigate("/");
+    setShowSuggestions(false);
   };
 
-  const handleSuggestionClick = (stateKey: string) => {
-    setSearchQuery(stateDisplayNames[stateKey]);
+  const handleSuggestionClick = (location: LocationItem) => {
+    setSearchQuery(location.name);
     setShowSuggestions(false);
-    navigate(`/${stateKeywords[stateKey]}-addiction-rehabs`);
+    navigate(`/${location.slug}-addiction-rehabs`);
   };
 
   return (
