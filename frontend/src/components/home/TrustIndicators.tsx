@@ -95,23 +95,23 @@ export function TrustIndicators({ nationalStats, isLoading }: TrustIndicatorsPro
   }
 
   return (
-    <section className="py-12 bg-background" data-testid="trust-indicators-section">
+    <section className="py-16 bg-background" data-testid="trust-indicators-section">
       <div className="container mx-auto px-4">
-        {/* Section Header with Data Scope */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2 tracking-[-0.02em]">
               Key Statistics at a Glance
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-base md:text-lg">
               Data from verified official sources
             </p>
           </div>
-          <div className="mt-4 md:mt-0 flex items-center gap-2">
+          <div className="mt-4 md:mt-0 flex items-center gap-3">
             <span className="px-4 py-2 bg-primary/10 text-primary font-semibold rounded-full text-sm">
               🇺🇸 USA Data
             </span>
-            <span className="text-muted-foreground">|</span>
+            <span className="text-muted-foreground/50">|</span>
             <a href="/compare" className="px-4 py-2 bg-muted hover:bg-muted/80 text-foreground font-medium rounded-full text-sm transition-colors">
               🌍 View Worldwide
             </a>
@@ -119,20 +119,20 @@ export function TrustIndicators({ nationalStats, isLoading }: TrustIndicatorsPro
         </div>
 
         {/* Dynamic National Statistics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-10">
           {dynamicStats.map((stat) => (
             <div
               key={stat.label}
-              className="flex flex-col items-center text-center p-4 rounded-xl border bg-card hover:shadow-lg transition-shadow"
+              className="flex flex-col items-center text-center p-6 rounded-xl border bg-card hover:shadow-premium-lg transition-all duration-200"
               data-testid={`stat-${stat.label.toLowerCase().replace(/\s/g, '-')}`}
             >
-              <div className={`w-12 h-12 rounded-full ${stat.bgColor} flex items-center justify-center mb-3`}>
+              <div className={`w-12 h-12 rounded-full ${stat.bgColor} flex items-center justify-center mb-4`}>
                 <stat.icon className={`h-6 w-6 ${stat.color}`} />
               </div>
-              <span className="text-2xl md:text-3xl font-bold text-foreground">
+              <span className="text-3xl md:text-4xl font-bold text-foreground tracking-[-0.02em] tabular-nums">
                 {stat.value}
               </span>
-              <span className="text-sm font-medium text-foreground mt-1">
+              <span className="text-sm font-semibold text-foreground mt-2">
                 {stat.label}
               </span>
               <span className="text-xs text-muted-foreground mt-1">
@@ -143,19 +143,19 @@ export function TrustIndicators({ nationalStats, isLoading }: TrustIndicatorsPro
         </div>
 
         {/* Static Trust Indicators */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
           {staticIndicators.map((item) => (
             <div
               key={item.title}
-              className="flex flex-col items-center text-center p-6 rounded-xl border bg-card hover:shadow-lg transition-shadow"
+              className="flex flex-col items-center text-center p-8 rounded-xl border bg-card hover:shadow-premium-lg transition-all duration-200"
             >
-              <div className="w-14 h-14 rounded-full bg-accent/20 flex items-center justify-center mb-4">
+              <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mb-5">
                 <item.icon className="h-7 w-7 text-accent" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">
+              <h3 className="text-lg font-semibold text-foreground mb-2 tracking-[-0.01em]">
                 {item.title}
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {item.description}
               </p>
             </div>
