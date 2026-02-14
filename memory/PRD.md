@@ -33,6 +33,8 @@ Global addiction data resource website that provides comprehensive addiction sta
 - [x] Crisis hotline banner, cookie consent, disclaimer consent banners
 - [x] Premium typography system (Inter font, consistent hierarchy)
 - [x] **Typography fix (Feb 2026)**: Moved heading styles into @layer base, fixed FAQ accordion oversized text
+- [x] **Removed "Get Help Now" button (Feb 2026)**: Removed from header and footer since no rehab listings exist yet
+- [x] **Deep QA pass (Feb 2026)**: All pages, links, and content verified production-ready
 
 ## Prioritized Backlog
 
