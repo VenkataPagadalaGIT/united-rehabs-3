@@ -69,7 +69,12 @@ const StatCard = ({
 const EnhancedCountryPage = () => {
   const { slug } = useParams();
   const { t } = useTranslation();
-  const [selectedYear, setSelectedYear] = useState<number>(2025);
+  const navigate = useNavigate();
+  
+  // Parse year from URL
+  const urlYearMatch = slug?.match(/-(\d{4})$/);
+  const urlYear = urlYearMatch ? parseInt(urlYearMatch[1]) : null;
+  const [selectedYear, setSelectedYear] = useState<number>(urlYear || 2025);
 
   const countrySlug = slug?.replace(/-addiction-rehabs$/, "").replace(/-addiction-stats$/, "").replace(/-\d{4}$/, "") || "";
 
