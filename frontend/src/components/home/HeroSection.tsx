@@ -98,23 +98,23 @@ export function HeroSection() {
         <div className="max-w-3xl mx-auto text-center">
           {/* Mission Words */}
           <div className="flex justify-center items-center gap-3 md:gap-6 mb-6 flex-wrap">
-            <span className="text-primary font-bold text-lg md:text-xl tracking-wide uppercase">Aware</span>
+            <span className="text-primary font-bold text-lg md:text-xl tracking-wide uppercase">Data</span>
             <span className="text-primary/40">•</span>
-            <span className="text-primary font-bold text-lg md:text-xl tracking-wide uppercase">Educate</span>
+            <span className="text-primary font-bold text-lg md:text-xl tracking-wide uppercase">Research</span>
+            <span className="text-primary/40">•</span>
+            <span className="text-primary font-bold text-lg md:text-xl tracking-wide uppercase">Inform</span>
             <span className="text-primary/40">•</span>
             <span className="text-primary font-bold text-lg md:text-xl tracking-wide uppercase">Support</span>
-            <span className="text-primary/40">•</span>
-            <span className="text-primary font-bold text-lg md:text-xl tracking-wide uppercase">Recover</span>
           </div>
           
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 tracking-tight">
-            <span className="font-display">Find Your Path to</span>
+            <span className="font-display">Global Addiction</span>
             <br />
-            <span className="text-primary">Recovery</span>
+            <span className="text-primary">Statistics & Data</span>
           </h1>
           
           <p className="text-lg text-muted-foreground mb-8">
-            Comprehensive addiction statistics and recovery resources across 195 countries
+            Research-backed addiction statistics and data for 195 countries and all US states
           </p>
 
           {/* Search Bar with Autocomplete */}
