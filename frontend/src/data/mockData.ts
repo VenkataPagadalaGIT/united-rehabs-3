@@ -342,47 +342,39 @@ export const mockStatisticsCards: StatisticsCard[] = [
 export const mockNavItems: NavItem[] = [
   { id: "nav1", label: "Locations", hasDropdown: true, order: 1 },
   { id: "nav2", label: "Compare", hasDropdown: false, href: "/compare", order: 2 },
-  { id: "nav3", label: "Treatment Centers", hasDropdown: false, href: "/rehab-centers", order: 3 },
-  { id: "nav4", label: "Blog", hasDropdown: false, href: "/blog", order: 4 },
-  { id: "nav5", label: "About", hasDropdown: false, href: "/about", order: 5 },
-  { id: "nav6", label: "Contact", hasDropdown: false, href: "/contact", order: 6 },
+  { id: "nav4", label: "Blog", hasDropdown: false, href: "/blog", order: 3 },
+  { id: "nav5", label: "About", hasDropdown: false, href: "/about", order: 4 },
+  { id: "nav6", label: "Contact", hasDropdown: false, href: "/contact", order: 5 },
 ];
 
 export const mockFooterLinks: FooterLinkGroup[] = [
-  { title: "Locations", links: [
-    { label: "California", href: "/california-addiction-rehabs" },
-    { label: "Florida", href: "/florida-addiction-rehabs" },
-    { label: "Texas", href: "/texas-addiction-rehabs" },
-    { label: "New York", href: "/new-york-addiction-rehabs" },
-    { label: "Arizona", href: "/arizona-addiction-rehabs" },
+  { title: "Statistics", links: [
+    { label: "California", href: "/california-addiction-stats" },
+    { label: "Florida", href: "/florida-addiction-stats" },
+    { label: "Texas", href: "/texas-addiction-stats" },
+    { label: "New York", href: "/new-york-addiction-stats" },
+    { label: "Arizona", href: "/arizona-addiction-stats" },
   ]},
-  { title: "Insurance", links: [
-    { label: "Aetna (Coming Soon)", href: "#" },
-    { label: "Blue Cross (Coming Soon)", href: "#" },
-    { label: "Cigna (Coming Soon)", href: "#" },
-    { label: "UnitedHealthcare (Coming Soon)", href: "#" },
-    { label: "Humana (Coming Soon)", href: "#" },
+  { title: "Global Data", links: [
+    { label: "United States", href: "/united-states-addiction-stats" },
+    { label: "United Kingdom", href: "/united-kingdom-addiction-stats" },
+    { label: "Canada", href: "/canada-addiction-stats" },
+    { label: "Australia", href: "/australia-addiction-stats" },
+    { label: "Germany", href: "/germany-addiction-stats" },
   ]},
-  { title: "Treatments", links: [
-    { label: "Detox (Coming Soon)", href: "#" },
-    { label: "Inpatient (Coming Soon)", href: "#" },
-    { label: "Outpatient (Coming Soon)", href: "#" },
-    { label: "PHP (Coming Soon)", href: "#" },
-    { label: "IOP (Coming Soon)", href: "#" },
-  ]},
-  { title: "Conditions", links: [
-    { label: "Alcohol Addiction (Coming Soon)", href: "#" },
-    { label: "Drug Addiction (Coming Soon)", href: "#" },
-    { label: "Opioid Addiction (Coming Soon)", href: "#" },
-    { label: "Mental Health (Coming Soon)", href: "#" },
-    { label: "Dual Diagnosis (Coming Soon)", href: "#" },
-  ]},
-  { title: "More", links: [
-    { label: "About Us", href: "/about" },
-    { label: "Contact", href: "/contact" },
-    { label: "Blog", href: "/blog" },
+  { title: "Resources", links: [
+    { label: "Data Methodology", href: "/data-methodology" },
+    { label: "Compare Countries", href: "/compare" },
+    { label: "Blog (Coming Soon)", href: "/blog" },
     { label: "Privacy Policy", href: "/privacy-policy" },
     { label: "Terms of Service", href: "/terms-of-service" },
+  ]},
+  { title: "Company", links: [
+    { label: "About Us", href: "/about" },
+    { label: "Contact", href: "/contact" },
+    { label: "Legal Disclaimer", href: "/legal-disclaimer" },
+    { label: "Accessibility", href: "/accessibility" },
+    { label: "Cookie Policy", href: "/cookie-policy" },
   ]},
 ];
 
