@@ -236,8 +236,8 @@ export function Footer({ linkGroups }: FooterProps) {
         {/* Quick Links */}
         <div className="mt-8 pt-6 border-t border-sidebar-border">
           <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-            <ScrollLink to="/rehab-centers" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
-              Treatment Centers
+            <ScrollLink to="/compare" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
+              Compare Countries
             </ScrollLink>
             <span className="text-sidebar-foreground/30">|</span>
             <ScrollLink to="/data-methodology" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
