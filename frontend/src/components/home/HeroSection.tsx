@@ -115,30 +115,8 @@ export function HeroSection() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({
-    treatmentType: [],
-    insurance: [],
-    amenities: [],
-  });
-  const [filterOpen, setFilterOpen] = useState(false);
   const navigate = useNavigate();
   const wrapperRef = useRef<HTMLDivElement>(null);
-
-  const toggleFilter = (category: string, id: string) => {
-    setSelectedFilters((prev) => {
-      const current = prev[category] || [];
-      if (current.includes(id)) {
-        return { ...prev, [category]: current.filter((item) => item !== id) };
-      }
-      return { ...prev, [category]: [...current, id] };
-    });
-  };
-
-  const clearFilters = () => {
-    setSelectedFilters({ treatmentType: [], insurance: [], amenities: [] });
-  };
-
-  const activeFilterCount = Object.values(selectedFilters).flat().length;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
