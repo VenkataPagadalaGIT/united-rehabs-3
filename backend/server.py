@@ -1915,15 +1915,26 @@ async def generate_sitemap():
     <priority>0.6</priority>
   </url>""")
     
-    # Country pages (195 countries)
+    # Country pages (195 countries) - base + year-based URLs
     countries = await db.countries.find({}, {"slug": 1}).to_list(length=200)
     for country in countries:
         slug = country.get("slug", "")
         if slug:
             xml_parts.append(f"""  <url>
+    <loc>{base_url}/{slug}-addiction-stats</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>""")
+            xml_parts.append(f"""  <url>
     <loc>{base_url}/{slug}-addiction-rehabs</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+  </url>""")
+            for year in years:
+                xml_parts.append(f"""  <url>
+    <loc>{base_url}/{slug}-addiction-stats-{year}</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
   </url>""")
     
     # Published articles
