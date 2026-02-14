@@ -310,23 +310,6 @@ export function HeroSection() {
               </div>
             )}
           </div>
-
-          {/* Quick Tags */}
-          <div className="flex flex-wrap justify-center gap-2">
-            {quickTags.map((tag) => (
-              <Badge 
-                key={tag.label}
-                variant="secondary"
-                className="cursor-pointer hover:bg-secondary/80 transition-colors px-3 py-1"
-                onClick={() => handleTagClick(tag.search)}
-              >
-                {tag.label}
-              </Badge>
-            ))}
-            <Badge variant="outline" className="cursor-pointer px-3 py-1">
-              ...
-            </Badge>
-          </div>
         </div>
       </div>
     </section>
