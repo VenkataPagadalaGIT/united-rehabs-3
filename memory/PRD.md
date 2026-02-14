@@ -15,10 +15,11 @@ Build a global addiction data resource website that provides:
 - 195 country coverage with country-specific pages
 - US state-by-state statistics pages
 - Data comparison tool
+- Key stats: People Affected, Recovery Rate, Annual Deaths, Countries Covered
 
 ### Legal & Compliance
 - GDPR/CCPA compliant privacy policy
-- Click-wrap consent modal for legal protection
+- **Non-blocking disclaimer banner** (SEO-friendly, at bottom of page)
 - Comprehensive Terms of Service
 - Legal disclaimer
 - Cookie consent banner
@@ -55,17 +56,30 @@ Build a global addiction data resource website that provides:
 |------|--------|-------|
 | Home | ✅ Live | `/` |
 | Country Stats | ✅ Live | `/:country-addiction-stats` |
-| State Stats | ✅ Live | `/:state-addiction-rehabs` |
+| State Stats | ✅ Live | `/:state-addiction-stats` |
 | Compare Tool | ✅ Live | `/compare` |
 | About | ✅ Live | `/about` |
 | Contact | ✅ Live | `/contact` |
+| Data Methodology | ✅ Live | `/data-methodology` |
 | Treatment Centers | 🚧 Coming Soon | `/rehab-centers` |
 | Blog | 🚧 Coming Soon | `/blog` |
 | Admin | ✅ Live | `/you-are-the-admin` |
+
+## QA Fixes Applied (Feb 14, 2025)
+- Removed all dummy/fake content from homepage:
+  - Fake treatment center counts
+  - Fake featured centers with fake reviews
+  - Fake testimonials ("50,000+ People Found Their Place")
+  - Fake "Recovery Advocate Magdalena"
+- Updated Hero: "Global Addiction Statistics & Data"
+- Updated Trust Indicators to show real statistics
+- Fixed disclaimer popup to non-blocking banner (SEO-friendly)
+- Removed "Treatment Centers" from main navigation
+- Updated all footer links to point to stats pages
 
 ## Credentials
 - **Admin Email:** admin@unitedrehabs.com
 - **Admin URL:** /you-are-the-admin/login
 
 ## Last Updated
-February 14, 2025 - QA fixes for Coming Soon pages and Contact page
+February 14, 2025 - Removed all dummy content, fixed SEO-blocking popup
