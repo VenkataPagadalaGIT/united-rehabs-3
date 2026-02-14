@@ -304,7 +304,7 @@ export function HeroSection() {
                   >
                     <Search className="h-4 w-4 text-muted-foreground" />
                     <span>{stateDisplayNames[stateKey]}</span>
-                    <span className="ml-auto text-sm text-muted-foreground">View Rehabs</span>
+                    <span className="ml-auto text-sm text-muted-foreground">View Statistics</span>
                   </button>
                 ))}
               </div>
