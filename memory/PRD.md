@@ -1,85 +1,63 @@
 # United Rehabs - Product Requirements Document
 
 ## Original Problem Statement
-Build a global addiction data resource website that provides:
-- Addiction statistics for 195 countries worldwide
-- State-by-state data for the United States
-- Treatment center directory (Coming Soon)
-- Educational resources and blog content (Coming Soon)
-- Crisis hotline resources (988 & SAMHSA)
+Global addiction data resource website that provides comprehensive addiction statistics and data for 195 countries and all US states. The site needs to be professional, consistent, and deployable to a custom Namecheap domain.
 
-## Core Features (Implemented)
+## Core Requirements
+- Global addiction statistics from WHO, CDC, SAMHSA, UNODC
+- Country and US state-level data pages
+- Interactive global map
+- Country comparison tool
+- Professional, premium typography (Inter font)
+- SEO-optimized pages
+- Legal compliance (GDPR, CCPA, Privacy Policy, Terms)
+- Admin panel for content management
 
-### Data & Statistics
-- Global addiction statistics from WHO, UNODC, SAMHSA, CDC
-- 195 country coverage with country-specific pages
-- US state-by-state statistics pages
-- Data comparison tool
-- Key stats: People Affected, Recovery Rate, Annual Deaths, Countries Covered
+## Architecture
+- **Frontend**: React + TypeScript + Vite + Tailwind CSS + Shadcn/UI
+- **Backend**: FastAPI + MongoDB
+- **Fonts**: Inter (Google Fonts)
+- **Analytics**: Google Analytics (G-QXZLSZGM9P)
+- **3rd Party**: DataForSEO (SERP validation)
 
-### Legal & Compliance
-- GDPR/CCPA compliant privacy policy
-- **Non-blocking disclaimer banner** (SEO-friendly, at bottom of page)
-- Comprehensive Terms of Service
-- Legal disclaimer
-- Cookie consent banner
-- Data methodology documentation
+## What's Been Implemented
+- [x] Homepage with hero, trust indicators, global map, browse sections, FAQ, statistics
+- [x] State pages (51 US states) with addiction statistics
+- [x] Country pages (195 countries) with detailed data
+- [x] Country comparison tool
+- [x] Legal pages (Terms, Privacy, Cookie Policy, Accessibility, Legal Disclaimer, DNSMPI, Affiliate Disclosure, Data Methodology)
+- [x] About page with CMS integration
+- [x] Contact page with form
+- [x] Coming Soon pages for /blog and /rehab-centers
+- [x] Admin panel with dashboard, statistics, content management, SEO, SERP validation
+- [x] Crisis hotline banner, cookie consent, disclaimer consent banners
+- [x] Premium typography system (Inter font, consistent hierarchy)
+- [x] **Typography fix (Feb 2026)**: Moved heading styles into @layer base, fixed FAQ accordion oversized text
 
-### SEO & Analytics
-- Google Analytics integration (G-QXZLSZGM9P)
-- robots.txt blocking admin pages
-- sitemap.xml for all public pages
-- Meta tags and Open Graph support
+## Prioritized Backlog
 
-### Admin Panel
-- Secure admin URL: `/you-are-the-admin/login`
-- Statistics management
-- SERP validation system (DataForSEO)
-- Content management
-- Data coverage monitoring
+### P0 - Complete
+- [x] Fix font/design inconsistency across entire site
 
-## Coming Soon Features
-- `/rehab-centers` - Treatment Centers Directory
-- `/blog` - Blog & Articles
-- `/news` - News content
-- `/guide` - Recovery guides
+### P1 - Next
+- [ ] Deploy to custom Namecheap domain
+- [ ] Post-launch monitoring (Google Analytics, Search Console)
+- [ ] Enable automated SERP validation
 
-## Tech Stack
-- **Frontend:** React + TypeScript + Vite + Tailwind CSS + Shadcn/UI
-- **Backend:** FastAPI + Python
-- **Database:** MongoDB
-- **Analytics:** Google Analytics
-- **Validation:** DataForSEO API
+### P2 - Future
+- [ ] Monetization (Premium Facility Listings) - see REVENUE_MODEL.md
+- [ ] Geographic expansion (city-level data)
+- [ ] Admin data workflow (Draft -> Review -> Publish)
 
-## Key Pages
-| Page | Status | Route |
-|------|--------|-------|
-| Home | ✅ Live | `/` |
-| Country Stats | ✅ Live | `/:country-addiction-stats` |
-| State Stats | ✅ Live | `/:state-addiction-stats` |
-| Compare Tool | ✅ Live | `/compare` |
-| About | ✅ Live | `/about` |
-| Contact | ✅ Live | `/contact` |
-| Data Methodology | ✅ Live | `/data-methodology` |
-| Treatment Centers | 🚧 Coming Soon | `/rehab-centers` |
-| Blog | 🚧 Coming Soon | `/blog` |
-| Admin | ✅ Live | `/you-are-the-admin` |
+## Key Files
+- `frontend/src/index.css` - Typography system and color variables
+- `frontend/tailwind.config.ts` - Tailwind configuration with Inter font
+- `frontend/src/components/ui/accordion.tsx` - Fixed accordion trigger text size
+- `frontend/src/App.tsx` - All routes
+- `frontend/src/pages/` - All page components
+- `frontend/src/components/` - All shared components
 
-## QA Fixes Applied (Feb 14, 2025)
-- Removed all dummy/fake content from homepage:
-  - Fake treatment center counts
-  - Fake featured centers with fake reviews
-  - Fake testimonials ("50,000+ People Found Their Place")
-  - Fake "Recovery Advocate Magdalena"
-- Updated Hero: "Global Addiction Statistics & Data"
-- Updated Trust Indicators to show real statistics
-- Fixed disclaimer popup to non-blocking banner (SEO-friendly)
-- Removed "Treatment Centers" from main navigation
-- Updated all footer links to point to stats pages
-
-## Credentials
-- **Admin Email:** admin@unitedrehabs.com
-- **Admin URL:** /you-are-the-admin/login
-
-## Last Updated
-February 14, 2025 - Removed all dummy content, fixed SEO-blocking popup
+## Admin Access
+- URL: /you-are-the-admin/login
+- Email: admin@unitedrehabs.com
+- Password: Admin_password@9164
