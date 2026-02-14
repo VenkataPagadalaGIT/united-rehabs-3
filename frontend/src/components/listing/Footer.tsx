@@ -106,16 +106,25 @@ export function Footer({ linkGroups }: FooterProps) {
             <nav key={group.title} aria-label={group.title}>
               <h4 className="font-semibold mb-4">{group.title}</h4>
               <ul className="space-y-2">
-                {group.links.map((link, index) => (
-                  <li key={index}>
-                    <a
-                      href={link.href}
-                      className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
-                    >
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
+                {group.links.map((link, index) => {
+                  const isComingSoon = link.href === "#" || link.label.includes("Coming Soon");
+                  return (
+                    <li key={index}>
+                      {isComingSoon ? (
+                        <span className="text-sidebar-foreground/40 text-sm cursor-default">
+                          {link.label}
+                        </span>
+                      ) : (
+                        <ScrollLink
+                          to={link.href}
+                          className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm"
+                        >
+                          {link.label}
+                        </ScrollLink>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </nav>
           ))}
