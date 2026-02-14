@@ -12,7 +12,6 @@ interface HeaderProps {
 export function Header({ navItems }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [locationsMenuOpen, setLocationsMenuOpen] = useState(false);
-  const { t } = useTranslation();
 
   const handleNavItemHover = (item: NavItem) => {
     if (item.label.toLowerCase() === "locations") {
