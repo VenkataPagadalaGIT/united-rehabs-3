@@ -294,7 +294,7 @@ export function Footer({ linkGroups }: FooterProps) {
                 <strong>Medical Disclaimer:</strong> This website provides general information only and is NOT a substitute for professional medical advice. Always consult qualified healthcare providers for treatment decisions.
               </p>
               <p>
-                <strong>No Endorsement:</strong> Facility listings do not constitute endorsement. Users must verify credentials and suitability independently.
+                <strong>No Endorsement:</strong> Any treatment facility references are informational only. Users must verify credentials and suitability independently.
               </p>
               <p className="pt-2 border-t border-sidebar-border/30">
                 <ScrollLink to="/legal-disclaimer" className="text-primary hover:underline">Full Legal Disclaimer</ScrollLink> |{" "}
