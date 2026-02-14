@@ -24,9 +24,10 @@ Build a global addiction data resource where trust and accuracy are the highest 
 - Data Methodology page explaining sources and processes
 
 ### Search & Navigation (Completed - Feb 14, 2026)
-- Search bar repurposed for location search (states/countries)
-- Autocomplete with "View Statistics" labels
-- Removed irrelevant rehab-specific filters
+- **Search works for 195 countries + 51 US states**
+- Shows country flags with "Country" vs "US State" labels for disambiguation
+- Autocomplete suggestions with proper navigation
+- Removed irrelevant rehab-specific filters (Treatment Type, Insurance, Amenities)
 - Footer links all working (tested 100% pass rate)
 - "Coming Soon" labels for unimplemented features
 
