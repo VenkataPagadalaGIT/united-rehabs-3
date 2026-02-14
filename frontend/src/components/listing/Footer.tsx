@@ -163,7 +163,7 @@ export function Footer({ linkGroups }: FooterProps) {
                       {topCountries.map((country) => (
                         <li key={country.code}>
                           <ScrollLink
-                            to={`/${country.slug}-addiction-rehabs`}
+                            to={`/${country.slug}-addiction-stats`}
                             className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm flex items-center gap-1.5"
                           >
                             <span className="text-xs">{country.flag}</span>
