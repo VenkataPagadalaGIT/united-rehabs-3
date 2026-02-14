@@ -73,7 +73,7 @@ export function HeroSection() {
     );
     
     if (match) {
-      navigate(`/${match.slug}-addiction-rehabs`);
+      navigate(`/${match.slug}-addiction-stats`);
     }
     setShowSuggestions(false);
   };
@@ -81,7 +81,7 @@ export function HeroSection() {
   const handleSuggestionClick = (location: LocationItem) => {
     setSearchQuery(location.name);
     setShowSuggestions(false);
-    navigate(`/${location.slug}-addiction-rehabs`);
+    navigate(`/${location.slug}-addiction-stats`);
   };
 
   return (
