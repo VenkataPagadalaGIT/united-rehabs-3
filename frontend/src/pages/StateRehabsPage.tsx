@@ -28,11 +28,7 @@ const StateRehabsPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead 
-        pageSlug={slug || ""} 
-        fallbackTitle={`${state.name} Addiction Treatment & Statistics`}
-        fallbackDescription={`Addiction statistics and treatment information for ${state.name}`}
-      />
+      <SEOHead {...stateRehabsSEO(state.name, stateKey)} />
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4">
