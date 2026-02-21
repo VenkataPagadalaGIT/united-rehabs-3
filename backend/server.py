@@ -1856,7 +1856,7 @@ async def generate_sitemap():
     """Generate dynamic sitemap.xml"""
     from fastapi.responses import Response
     
-    base_url = "https://unitedrehabs.com"  # Replace with actual domain
+    base_url = os.environ.get('APP_URL', 'https://unitedrehabs.com').rstrip('/')
     
     # Start XML
     xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>']
