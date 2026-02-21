@@ -1,4 +1,27 @@
 import { Helmet } from "react-helmet-async";
+import { useQuery } from "@tanstack/react-query";
+import { pageSeoApi } from "@/lib/api";
+
+export const usePageSEO = (pageSlug?: string) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["page-seo", pageSlug],
+    queryFn: async () => {
+      if (!pageSlug) return null;
+      return await pageSeoApi.getBySlug(pageSlug);
+    },
+    enabled: !!pageSlug,
+  });
+  return {
+    seo: data as any,
+    isLoading,
+    error,
+    title: data?.meta_title || "",
+    description: data?.meta_description || "",
+    h1: data?.h1_title || "",
+    intro: data?.intro_text || "",
+  };
+};
+
 
 const BASE_URL = "https://unitedrehabs.com";
 const SITE_NAME = "United Rehabs";
