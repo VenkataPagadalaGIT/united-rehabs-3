@@ -5,7 +5,7 @@ import { PageHero } from "@/components/listing/PageHero";
 import { StatisticsTab } from "@/components/listing/tabs/StatisticsTab";
 import { DynamicFAQ } from "@/components/listing/DynamicFAQ";
 import { Footer } from "@/components/listing/Footer";
-import { SEOHead } from "@/components/SEOHead";
+import { SEOHead, stateStatsSEO } from "@/components/SEOHead";
 import { mockNavItems, mockFooterLinks } from "@/data/mockData";
 import { getStateBySlug, toState } from "@/data/stateConfig";
 import { Calendar } from "lucide-react";
