@@ -5,6 +5,7 @@ import { mockFooterLinks, mockNavItems } from "@/data/mockData";
 import { cmsApi } from "@/lib/api";
 import { Shield, Users, Target, BarChart3, Globe, Database, FileText, TrendingUp } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SEOHead } from "@/components/SEOHead";
 import { Link } from "react-router-dom";
 
 export default function AboutUs() {
