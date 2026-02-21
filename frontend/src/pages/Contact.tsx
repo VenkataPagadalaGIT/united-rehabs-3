@@ -75,6 +75,7 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead pageSlug="contact" fallbackTitle="Contact Us" fallbackDescription="Contact United Rehabs for questions about addiction statistics, data corrections, or partnership inquiries." keywords="contact united rehabs, addiction data support" />
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4 py-12">
