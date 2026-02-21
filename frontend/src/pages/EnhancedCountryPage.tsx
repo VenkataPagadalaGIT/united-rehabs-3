@@ -5,6 +5,7 @@ import { Footer } from "@/components/listing/Footer";
 import { mockNavItems, mockFooterLinks } from "@/data/mockData";
 import { countriesApi, statisticsApi, substanceStatisticsApi } from "@/lib/api";
 import { getCountryBySlug, isValidCountrySlug } from "@/data/countryConfig";
+import { SEOHead, countryStatsSEO } from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
