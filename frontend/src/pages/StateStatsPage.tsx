@@ -37,11 +37,7 @@ const StateStatsPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead 
-        pageSlug={slug || ""} 
-        fallbackTitle={`${state.name} Addiction Statistics${selectedYear ? ` (${selectedYear})` : ''}`}
-        fallbackDescription={`Comprehensive addiction statistics for ${state.name}${selectedYear ? ` - ${selectedYear} data` : ''}`}
-      />
+      <SEOHead {...stateStatsSEO(state.name, stateKey, selectedYear)} />
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4">
