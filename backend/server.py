@@ -653,13 +653,13 @@ async def get_articles(
     if state_id:
         query["state_id"] = state_id
     
-    cursor = db.articles.find(query).sort("created_at", -1).skip(skip).limit(limit)
+    cursor = db.articles.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
     results = await cursor.to_list(length=limit)
     return [Article(**r) for r in results]
 
 @api_router.get("/articles/by-slug/{content_type}/{slug}")
 async def get_article_by_slug(content_type: str, slug: str):
-    result = await db.articles.find_one({"content_type": content_type, "slug": slug})
+    result = await db.articles.find_one({"content_type": content_type, "slug": slug}, {"_id": 0})
     if not result:
         raise HTTPException(status_code=404, detail="Article not found")
     
