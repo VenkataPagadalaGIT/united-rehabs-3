@@ -11,6 +11,8 @@ import { mockNavItems, mockFooterLinks } from "@/data/mockData";
 import { homepageApi, HomepageData } from "@/lib/api";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { SEOHead } from "@/components/SEOHead";
+
 const Index = () => {
   const { t } = useTranslation();
   
