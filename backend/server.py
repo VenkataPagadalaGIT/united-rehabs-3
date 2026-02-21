@@ -1958,7 +1958,7 @@ async def generate_robots_txt():
     """Generate dynamic robots.txt"""
     from fastapi.responses import Response
     
-    base_url = "https://unitedrehabs.com"
+    base_url = os.environ.get('APP_URL', 'https://unitedrehabs.com').rstrip('/')
     
     # Get noindex folder rules
     noindex_rules = await db.seo_folder_rules.find(
