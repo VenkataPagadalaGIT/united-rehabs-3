@@ -281,6 +281,7 @@ const EnhancedCountryPage = () => {
 
   return (
     <div className="min-h-screen bg-background" data-testid="country-page">
+      <SEOHead {...countryStatsSEO(countryConfig?.name || "", countrySlug, urlYear)} />
       <Header navItems={mockNavItems} />
 
       {/* Hero Section */}
