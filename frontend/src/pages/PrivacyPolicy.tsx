@@ -1,3 +1,4 @@
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/listing/Header";
 import { Footer } from "@/components/listing/Footer";
 import { mockFooterLinks, mockNavItems } from "@/data/mockData";
@@ -10,6 +11,7 @@ export default function PrivacyPolicy() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead pageSlug="privacy-policy" fallbackTitle="Privacy Policy - GDPR, CCPA & Global Compliance" fallbackDescription="United Rehabs Privacy Policy. How we collect, use, and protect your data. GDPR, CCPA, LGPD compliant." keywords="privacy policy, GDPR, CCPA, data protection, united rehabs privacy" />
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4 py-12">

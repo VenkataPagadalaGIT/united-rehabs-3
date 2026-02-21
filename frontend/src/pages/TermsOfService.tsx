@@ -1,3 +1,4 @@
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/listing/Header";
 import { Footer } from "@/components/listing/Footer";
 import { mockFooterLinks, mockNavItems } from "@/data/mockData";
@@ -10,6 +11,7 @@ export default function TermsOfService() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead pageSlug="terms-of-service" fallbackTitle="Terms of Service" fallbackDescription="Terms of Service for United Rehabs. Rules governing use of our addiction statistics and data platform." keywords="terms of service, united rehabs terms, website terms" />
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4 py-12">

@@ -1,3 +1,4 @@
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/listing/Header";
 import { Footer } from "@/components/listing/Footer";
 import { mockFooterLinks, mockNavItems } from "@/data/mockData";
@@ -20,6 +21,7 @@ export default function DataMethodology() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead pageSlug="data-methodology" fallbackTitle="Data Methodology - How We Collect & Verify Statistics" fallbackDescription="How United Rehabs collects, verifies, and presents addiction statistics. Our data sources, validation process, and quality standards." keywords="data methodology, addiction data sources, WHO data, CDC data, SAMHSA methodology, data validation" />
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4 py-12">

@@ -1,3 +1,4 @@
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/listing/Header";
 import { Footer } from "@/components/listing/Footer";
 import { mockFooterLinks, mockNavItems } from "@/data/mockData";
@@ -9,6 +10,7 @@ export default function AffiliateDisclosure() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead pageSlug="affiliate-disclosure" fallbackTitle="Affiliate Disclosure" fallbackDescription="United Rehabs affiliate disclosure. Transparency about our relationships with treatment facilities and partners." keywords="affiliate disclosure, FTC disclosure, united rehabs partnerships" />
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4 py-12">

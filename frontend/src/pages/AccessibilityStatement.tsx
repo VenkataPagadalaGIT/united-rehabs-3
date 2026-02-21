@@ -1,3 +1,4 @@
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/listing/Header";
 import { Footer } from "@/components/listing/Footer";
 import { mockFooterLinks, mockNavItems } from "@/data/mockData";
@@ -11,6 +12,7 @@ export default function AccessibilityStatement() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead pageSlug="accessibility" fallbackTitle="Accessibility Statement" fallbackDescription="United Rehabs accessibility commitment. WCAG 2.1 AA compliance, assistive technology support, and accessibility features." keywords="accessibility, WCAG, screen reader support, united rehabs accessibility" />
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4 py-12">

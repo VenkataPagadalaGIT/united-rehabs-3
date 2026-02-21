@@ -1,3 +1,4 @@
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/listing/Header";
 import { Footer } from "@/components/listing/Footer";
 import { mockFooterLinks, mockNavItems } from "@/data/mockData";
@@ -36,6 +37,7 @@ export default function ComingSoon({ title, description }: ComingSoonProps) {
 
   return (
     <div className="min-h-screen bg-background" data-testid="coming-soon-page">
+      <SEOHead pageSlug="coming-soon" fallbackTitle="Coming Soon" fallbackDescription="This feature is coming soon to United Rehabs. Explore our addiction statistics for 195 countries in the meantime." keywords="coming soon, united rehabs features" />
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4 py-16 md:py-24">

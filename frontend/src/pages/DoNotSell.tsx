@@ -1,3 +1,4 @@
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/listing/Header";
 import { Footer } from "@/components/listing/Footer";
 import { mockFooterLinks, mockNavItems } from "@/data/mockData";
@@ -11,6 +12,7 @@ export default function DoNotSell() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead pageSlug="do-not-sell" fallbackTitle="Do Not Sell My Personal Information" fallbackDescription="Exercise your right to opt out of personal data sales. CCPA and privacy rights for United Rehabs users." keywords="do not sell, CCPA opt out, personal data, privacy rights" />
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4 py-12">

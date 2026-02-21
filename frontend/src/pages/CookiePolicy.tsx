@@ -1,3 +1,4 @@
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/listing/Header";
 import { Footer } from "@/components/listing/Footer";
 import { mockFooterLinks, mockNavItems } from "@/data/mockData";
@@ -10,6 +11,7 @@ export default function CookiePolicy() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead pageSlug="cookie-policy" fallbackTitle="Cookie Policy" fallbackDescription="United Rehabs Cookie Policy. Learn about the cookies we use and how to manage your preferences." keywords="cookie policy, cookies, tracking, united rehabs cookies" />
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4 py-12">

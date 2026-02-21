@@ -1,3 +1,4 @@
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/listing/Header";
 import { Footer } from "@/components/listing/Footer";
 import { mockFooterLinks, mockNavItems } from "@/data/mockData";
@@ -9,6 +10,7 @@ export default function LegalDisclaimer() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead pageSlug="legal-disclaimer" fallbackTitle="Legal Disclaimer" fallbackDescription="Legal disclaimer for United Rehabs. Important information about our data, medical disclaimers, and liability limitations." keywords="legal disclaimer, medical disclaimer, data disclaimer, united rehabs" />
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4 py-12">

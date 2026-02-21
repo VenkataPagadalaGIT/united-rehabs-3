@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/listing/Header";
 import { Footer } from "@/components/listing/Footer";
 import { mockNavItems, mockFooterLinks } from "@/data/mockData";
@@ -112,6 +113,7 @@ export default function ComparePage() {
 
   return (
     <div className="min-h-screen bg-background" data-testid="compare-page">
+      <SEOHead pageSlug="compare" fallbackTitle="Compare Addiction Statistics Across Countries" fallbackDescription="Compare addiction statistics across countries. Side-by-side data on overdose deaths, treatment rates, substance use prevalence for 195 countries." keywords="compare addiction statistics, country comparison, drug data comparison, global substance abuse comparison" />
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4 py-8">
