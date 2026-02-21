@@ -19,6 +19,12 @@ export default function AboutUs() {
 
   return (
     <div className="min-h-screen bg-background" data-testid="about-page">
+      <SEOHead
+        pageSlug="about"
+        fallbackTitle="About United Rehabs - Global Addiction Data Resource"
+        fallbackDescription="United Rehabs provides comprehensive addiction statistics for 195 countries. Data from WHO, CDC, SAMHSA, UNODC. Our mission, data sources, and standards."
+        keywords="about united rehabs, addiction data resource, global drug statistics, WHO data, CDC SAMHSA data, addiction research"
+      />
       <Header navItems={mockNavItems} />
       
       <main className="container mx-auto px-4 py-12">
