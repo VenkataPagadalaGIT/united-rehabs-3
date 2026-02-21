@@ -26,6 +26,12 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background" data-testid="homepage">
+      <SEOHead
+        fallbackTitle="Global Addiction Statistics & Data for 195 Countries"
+        fallbackDescription="Research-backed addiction statistics for 195 countries and all US states. Verified data from WHO, CDC, SAMHSA, UNODC. Overdose deaths, treatment rates, substance use trends."
+        keywords="addiction statistics, global drug data, substance abuse statistics, overdose deaths, treatment centers, recovery rates, WHO drug report, SAMHSA data, CDC WONDER"
+        pageSlug=""
+      />
       <Header navItems={mockNavItems} />
       
       <main>
