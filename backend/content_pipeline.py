@@ -115,19 +115,19 @@ async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
         if existing:
             context_parts.append(f"Already published articles (avoid duplicates): {json.dumps([a['title'] for a in existing])}")
 
-    prompt = f"""Generate 3 trending topic ideas for addiction/substance abuse news articles that would rank well on Google.
+    prompt = f"""Find 3 BREAKING NEWS stories from the LAST 4-10 HOURS about drugs, addiction, cartels, overdose deaths, drug policy, or substance abuse.
 
-Context from our database:
-{chr(10).join(context_parts) if context_parts else 'No context available'}
+{f'Focus area: {topic_hint}' if topic_hint else 'Search for the most important breaking drug/addiction news happening RIGHT NOW.'}
 
-{f'User suggested topic area: {topic_hint}' if topic_hint else 'Find topics that are currently trending or have high search volume.'}
+Already published (avoid duplicates): {json.dumps([a['title'] for a in existing]) if context_parts else '[]'}
 
-For each topic, provide:
-1. Title (SEO optimized, under 60 chars)
-2. Why it would rank (search intent)
-3. Key data points to include
-4. Target keywords
+For each story provide:
+1. Title (what actually happened, under 60 chars)
+2. What happened (1-2 sentences of the actual event)
+3. Source (where you found this news)
+4. Why it matters
 5. Related countries/states
+6. Target keywords
 
 Return as JSON array of objects with fields: title, search_intent, key_data_points, target_keywords, related_countries, related_states"""
 
