@@ -288,7 +288,7 @@ async def stage_qa(article: Dict, db=None) -> Dict:
 
 async def stage_launch(article: Dict, db=None) -> Dict:
     """Stage 4: Publish article and add to sitemap"""
-    if not db:
+    if db is None:
         return {"stage": "launch", "error": "No database connection"}
 
     article_data = {
