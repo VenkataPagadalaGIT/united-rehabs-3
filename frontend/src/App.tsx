@@ -105,10 +105,11 @@ const App = () => (
           {/* Country Comparison Tool */}
           <Route path="/compare" element={<ComparePage />} />
           
-          {/* Blog, News, Articles routes - Coming Soon */}
-          <Route path="/blog" element={<ComingSoon />} />
-          <Route path="/news" element={<ComingSoon />} />
-          <Route path="/article" element={<ComingSoon />} />
+          {/* News & Blog */}
+          <Route path="/news" element={<NewsPage />} />
+          <Route path="/news/:slug" element={<NewsArticlePage />} />
+          <Route path="/blog" element={<NewsPage />} />
+          <Route path="/article" element={<NewsPage />} />
           <Route path="/guide" element={<ComingSoon />} />
           <Route path="/shortcodes" element={<ShortcodeShowcase />} />
           <Route path="/:type/:slug" element={<ArticlePage />} />
