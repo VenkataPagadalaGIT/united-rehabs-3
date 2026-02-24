@@ -245,6 +245,15 @@ async def stage_qa(article: Dict, db=None) -> Dict:
     if "<h2" not in content.lower():
         warnings.append("No H2 headings in content")
 
+    # Check for duplicate internal links (each name should link only once)
+    import re as _re
+    link_hrefs = _re.findall(r'href="(/[^"]*-addiction-stats[^"]*)"', content)
+    seen_links = set()
+    for href in link_hrefs:
+        if href in seen_links:
+            issues.append(f"Duplicate internal link: {href} — each name should link only ONCE")
+        seen_links.add(href)
+
     # Validate internal links would resolve
     if db is not None:
         countries = article.get("related_countries", [])
