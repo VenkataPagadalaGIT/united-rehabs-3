@@ -1906,21 +1906,27 @@ async def generate_sitemap():
   </url>""")
     
     # Country pages - include year URLs for countries with multi-year data
+    # Batch query: get all country years at once instead of 195 individual queries
+    all_country_stats = await db.country_statistics.find({}, {"_id": 0, "country_code": 1, "year": 1}).to_list(length=2000)
+    country_year_map = {}
+    for cs in all_country_stats:
+        code = cs.get("country_code", "")
+        if code not in country_year_map:
+            country_year_map[code] = set()
+        country_year_map[code].add(cs.get("year"))
+    
     countries = await db.countries.find({"is_active": True}, {"_id": 0, "slug": 1, "country_code": 1}).to_list(length=200)
     for country in countries:
         slug = country.get("slug", "")
         code = country.get("country_code", "")
         if not slug:
             continue
-        # Base stats page
         xml_parts.append(f"""  <url>
     <loc>{base_url}/{slug}-addiction-stats</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>""")
-        # Check for multi-year data
-        country_years = await db.country_statistics.distinct("year", {"country_code": code})
-        for year in sorted(country_years, reverse=True):
+        for year in sorted(country_year_map.get(code, []), reverse=True):
             xml_parts.append(f"""  <url>
     <loc>{base_url}/{slug}-addiction-stats-{year}</loc>
     <changefreq>yearly</changefreq>
