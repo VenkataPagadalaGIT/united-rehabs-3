@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, Eye, Tag, ArrowRight } from "lucide-react";
 
-const API = import.meta.env.VITE_API_URL || process.env.REACT_APP_BACKEND_URL || "";
+const API = import.meta.env.REACT_APP_BACKEND_URL || "";
 
 async function fetchNews(tag?: string) {
   const params = new URLSearchParams({ content_type: "news", is_published: "true", limit: "50" });
