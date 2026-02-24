@@ -1851,10 +1851,19 @@ async def delete_page_seo(slug: str, user: User = Depends(require_admin)):
     return {"success": True, "message": "Page SEO deleted, now using folder/global defaults"}
 
 # --- Sitemap Generation ---
+# Sitemap cache - regenerate every 6 hours
+_sitemap_cache = {"xml": None, "generated_at": 0}
+
 @api_router.get("/seo/sitemap.xml")
 async def generate_sitemap():
-    """Generate dynamic sitemap.xml"""
+    """Generate dynamic sitemap.xml - cached for 6 hours"""
+    import time
     from fastapi.responses import Response
+    
+    # Return cached version if < 6 hours old
+    if _sitemap_cache["xml"] and (time.time() - _sitemap_cache["generated_at"]) < 21600:
+        return Response(content=_sitemap_cache["xml"], media_type="application/xml",
+                       headers={"Cache-Control": "public, max-age=21600"})
     
     base_url = os.environ.get('APP_URL', 'https://unitedrehabs.com').rstrip('/')
     
