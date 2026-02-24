@@ -1905,16 +1905,26 @@ async def generate_sitemap():
     <priority>0.6</priority>
   </url>""")
     
-    # Country pages - only base stats URL (no year variants, data is same for all years)
-    # No rehab pages in sitemap (Coming Soon = thin content)
-    countries = await db.countries.find({"is_active": True}, {"_id": 0, "slug": 1}).to_list(length=200)
+    # Country pages - include year URLs for countries with multi-year data
+    countries = await db.countries.find({"is_active": True}, {"_id": 0, "slug": 1, "country_code": 1}).to_list(length=200)
     for country in countries:
         slug = country.get("slug", "")
-        if slug:
-            xml_parts.append(f"""  <url>
+        code = country.get("country_code", "")
+        if not slug:
+            continue
+        # Base stats page
+        xml_parts.append(f"""  <url>
     <loc>{base_url}/{slug}-addiction-stats</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+  </url>""")
+        # Check for multi-year data
+        country_years = await db.country_statistics.distinct("year", {"country_code": code})
+        for year in sorted(country_years, reverse=True):
+            xml_parts.append(f"""  <url>
+    <loc>{base_url}/{slug}-addiction-stats-{year}</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
   </url>""")
     
     # Published articles
