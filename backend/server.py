@@ -705,6 +705,58 @@ async def delete_article(id: str, user: User = Depends(require_admin)):
         raise HTTPException(status_code=404, detail="Article not found")
     return {"message": "Deleted successfully"}
 
+@api_router.post("/articles/bulk")
+async def bulk_import_articles(articles: List[ArticleCreate], user: User = Depends(require_admin)):
+    """Bulk create/update news articles"""
+    created = 0
+    updated = 0
+    for data in articles:
+        existing = await db.articles.find_one({"slug": data.slug, "content_type": data.content_type})
+        article_data = data.dict()
+        if existing:
+            article_data["updated_at"] = datetime.utcnow()
+            if data.is_published and not existing.get("published_at"):
+                article_data["published_at"] = datetime.utcnow()
+            await db.articles.update_one({"id": existing["id"]}, {"$set": article_data})
+            updated += 1
+        else:
+            if data.is_published:
+                article_data["published_at"] = datetime.utcnow()
+            article = Article(**article_data)
+            await db.articles.insert_one(article.dict())
+            created += 1
+    return {"created": created, "updated": updated, "total": created + updated}
+
+@api_router.get("/articles/tags")
+async def get_article_tags():
+    """Get all unique tags across articles"""
+    tags = await db.articles.distinct("tags", {"is_published": True})
+    return [t for t in tags if t]
+
+@api_router.get("/news/{slug}")
+async def get_news_by_slug(slug: str):
+    """Get a news article by slug - public endpoint"""
+    result = await db.articles.find_one({"slug": slug, "content_type": "news", "is_published": True}, {"_id": 0})
+    if not result:
+        raise HTTPException(status_code=404, detail="Article not found")
+    await db.articles.update_one({"id": result["id"]}, {"$inc": {"views_count": 1}})
+    return Article(**result)
+
+# Sidebar links config (editable by admin)
+@api_router.get("/config/sidebar-links")
+async def get_sidebar_links():
+    config = await db.site_config.find_one({"key": "sidebar_links"}, {"_id": 0})
+    return config.get("links", []) if config else []
+
+@api_router.put("/config/sidebar-links")
+async def update_sidebar_links(links: List[Dict[str, str]], user: User = Depends(require_admin)):
+    await db.site_config.update_one(
+        {"key": "sidebar_links"},
+        {"$set": {"key": "sidebar_links", "links": links, "updated_at": datetime.utcnow()}},
+        upsert=True
+    )
+    return {"success": True}
+
 # ============================================
 # OPTIMIZED HOMEPAGE API (Single call for all data)
 # ============================================
