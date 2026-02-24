@@ -1956,7 +1956,12 @@ async def generate_sitemap():
     
     xml_parts.append('</urlset>')
     
-    return Response(content="\n".join(xml_parts), media_type="application/xml")
+    xml_content = "\n".join(xml_parts)
+    _sitemap_cache["xml"] = xml_content
+    _sitemap_cache["generated_at"] = time.time()
+    
+    return Response(content=xml_content, media_type="application/xml",
+                   headers={"Cache-Control": "public, max-age=21600"})
 
 # --- Robots.txt Generation ---
 @api_router.get("/seo/robots.txt")
