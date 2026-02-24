@@ -271,7 +271,7 @@ async def stage_qa(article: Dict, db=None) -> Dict:
                 warnings.append(f"No data for related_state: {sid}")
 
     # Check for duplicate slug
-    if db and article.get("slug"):
+    if db is not None and article.get("slug"):
         existing = await db.articles.find_one({"slug": article["slug"], "content_type": "news"})
         if existing:
             warnings.append(f"Slug already exists: {article['slug']} - will update existing")
