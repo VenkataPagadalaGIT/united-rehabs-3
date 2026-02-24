@@ -3179,50 +3179,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ============================================
-# CONTENT PIPELINE (AI-powered)
-# ============================================
-
-from content_pipeline import run_pipeline, stage_research, stage_write, stage_qa, stage_launch
-
-class PipelineRequest(BaseModel):
-    topic_hint: Optional[str] = None
-    auto_publish: bool = False
-
-@api_router.post("/content/pipeline")
-async def run_content_pipeline(req: PipelineRequest, user: User = Depends(require_admin)):
-    """Run full content pipeline: Research → Write → QA → Launch"""
-    result = await run_pipeline(topic_hint=req.topic_hint, auto_publish=req.auto_publish, db=db)
-    return result
-
-@api_router.post("/content/research")
-async def research_topics(topic_hint: Optional[str] = None, user: User = Depends(require_admin)):
-    """Stage 1 only: Research trending topics"""
-    return await stage_research(topic_hint, db)
-
-class WriteRequest(BaseModel):
-    topic: Dict
-
-@api_router.post("/content/write")
-async def write_article(req: WriteRequest, user: User = Depends(require_admin)):
-    """Stage 2 only: Write article from topic"""
-    return await stage_write(req.topic, db)
-
-class QARequest(BaseModel):
-    article: Dict
-
-@api_router.post("/content/qa")
-async def qa_article(req: QARequest, user: User = Depends(require_admin)):
-    """Stage 3 only: QA check article"""
-    return await stage_qa(req.article, db)
-
-@api_router.post("/content/launch")
-async def launch_article(req: QARequest, user: User = Depends(require_admin)):
-    """Stage 4 only: Publish article"""
-    return await stage_launch(req.article, db)
-
-
-
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
