@@ -799,6 +799,9 @@ async def get_homepage_data():
     _homepage_cache["data"] = result
     _homepage_cache["generated_at"] = time.time()
     return result
+
+# ============================================
+# TREATMENT CENTERS
 # ============================================
 
 @api_router.get("/treatment-centers")
