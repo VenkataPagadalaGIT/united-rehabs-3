@@ -2010,15 +2010,17 @@ async def generate_sitemap():
     <priority>0.5</priority>
   </url>""")
     
-    # Published articles
-    articles = await db.articles.find({"is_published": True}, {"slug": 1}).to_list(length=500)
+    # Published news articles
+    articles = await db.articles.find({"is_published": True}, {"_id": 0, "slug": 1, "content_type": 1}).to_list(length=500)
     for article in articles:
         slug = article.get("slug", "")
+        ctype = article.get("content_type", "news")
         if slug:
+            prefix = "news" if ctype == "news" else ctype
             xml_parts.append(f"""  <url>
-    <loc>{base_url}/articles/{slug}</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <loc>{base_url}/{prefix}/{slug}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>""")
     
     xml_parts.append('</urlset>')
