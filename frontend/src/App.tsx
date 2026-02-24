@@ -7,6 +7,8 @@ import { HelmetProvider } from "react-helmet-async";
 import './i18n';
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import NewsPage from "./pages/NewsPage";
+import NewsArticlePage from "./pages/NewsArticlePage";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CookiePolicy from "./pages/CookiePolicy";
