@@ -53,11 +53,13 @@ INTERNAL LINKING RULES (CRITICAL):
 - Do NOT force stats into the narrative — let data support the story
 
 CONTENT QUALITY RULES:
-- Do NOT make up facts — only use verifiable public information
+- Do NOT make up facts - only use verifiable public information
 - Every statistic must cite its source (CDC, WHO, DEA, SAMHSA, UNODC)
-- Tell the human story — who, what, when, where, why
+- Tell the human story - who, what, when, where, why
 - Provide unique analysis/angle that other news sites don't cover
 - Connect news to data naturally, don't force it
+- NEVER use em dashes. Use hyphens (-) only
+- NEVER use AI writing patterns (e.g., "In conclusion", "It's worth noting", "Let's dive in")
 
 OUTPUT FORMAT: Return valid JSON with these fields:
 {
