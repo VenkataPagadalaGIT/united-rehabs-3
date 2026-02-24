@@ -17,10 +17,22 @@ VALID_LINK_PATTERNS = []  # populated at runtime
 
 
 def _get_research_chat(session_id: str) -> LlmChat:
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).strftime("%B %d, %Y")
     chat = LlmChat(
         api_key=API_KEY,
         session_id=session_id,
-        system_message="You are an addiction data research analyst. Your job is to identify trending topics in addiction, substance abuse, and public health that would make high-ranking SEO content. Focus on data-driven topics with specific statistics."
+        system_message=f"""You are a breaking news researcher for an addiction data website. Today is {today}.
+
+Your job: Find REAL breaking news stories from the LAST 4-10 HOURS about drugs, addiction, cartels, overdose deaths, drug policy, or substance abuse.
+
+RULES:
+- Only suggest stories that are ACTUALLY happening right now - real events, real people, real places
+- These must be verifiable news events (arrests, raids, policy changes, death reports, seizures, court rulings)
+- Do NOT suggest evergreen topics or general analysis pieces
+- Do NOT make up events
+- Include the source where you found the news
+- If you cannot find breaking news from today, say so honestly"""
     )
     chat.with_model("gemini", "gemini-3-flash-preview")
     return chat
