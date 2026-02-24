@@ -638,6 +638,7 @@ async def get_articles(
     is_featured: Optional[bool] = None,
     category: Optional[str] = None,
     state_id: Optional[str] = None,
+    tag: Optional[str] = None,
     skip: int = 0,
     limit: int = 100
 ):
@@ -652,10 +653,13 @@ async def get_articles(
         query["category"] = category
     if state_id:
         query["state_id"] = state_id
+    if tag:
+        query["tags"] = tag
     
     cursor = db.articles.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
     results = await cursor.to_list(length=limit)
-    return [Article(**r) for r in results]
+    total = await db.articles.count_documents(query)
+    return {"items": [Article(**r) for r in results], "total": total}
 
 @api_router.get("/articles/by-slug/{content_type}/{slug}")
 async def get_article_by_slug(content_type: str, slug: str):
