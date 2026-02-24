@@ -1883,58 +1883,67 @@ async def generate_sitemap():
     <priority>{page['priority']}</priority>
   </url>""")
     
-    # State pages (51 states) - base + year-based URLs
-    states = await db.state_addiction_statistics.distinct("state_id")
-    years = [2025, 2024, 2023, 2022, 2021, 2020, 2019]
-    for state_id in states:
-        state = await db.state_addiction_statistics.find_one({"state_id": state_id}, {"state_name": 1})
-        if state:
-            slug = state.get("state_name", "").lower().replace(" ", "-")
-            # Base stats page
-            xml_parts.append(f"""  <url>
+    # State pages - only include years with actual data
+    states = await db.state_addiction_statistics.find({}, {"_id": 0, "state_id": 1, "state_name": 1, "year": 1}).to_list(length=500)
+    state_years = {}
+    for s in states:
+        name = s.get("state_name", "")
+        slug = name.lower().replace(" ", "-")
+        if slug not in state_years:
+            state_years[slug] = set()
+        state_years[slug].add(s.get("year"))
+    
+    for slug, available_years in state_years.items():
+        xml_parts.append(f"""  <url>
     <loc>{base_url}/{slug}-addiction-stats</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>""")
-            # Base rehabs page
-            xml_parts.append(f"""  <url>
+        xml_parts.append(f"""  <url>
     <loc>{base_url}/{slug}-addiction-rehabs</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>""")
-            # Year-based URLs
-            for year in years:
-                xml_parts.append(f"""  <url>
+        for year in sorted(available_years, reverse=True):
+            xml_parts.append(f"""  <url>
     <loc>{base_url}/{slug}-addiction-stats-{year}</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>""")
-                xml_parts.append(f"""  <url>
-    <loc>{base_url}/{slug}-addiction-rehabs-{year}</loc>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>""")
     
-    # Country pages (195 countries) - base + year-based URLs
-    countries = await db.countries.find({}, {"slug": 1}).to_list(length=200)
+    # Country pages - only include countries with actual data
+    country_stats = await db.country_statistics.find({}, {"_id": 0, "country_code": 1, "year": 1}).to_list(length=2000)
+    country_years = {}
+    for cs in country_stats:
+        code = cs.get("country_code", "")
+        if code not in country_years:
+            country_years[code] = set()
+        country_years[code].add(cs.get("year"))
+    
+    countries = await db.countries.find({}, {"_id": 0, "slug": 1, "country_code": 1}).to_list(length=200)
     for country in countries:
         slug = country.get("slug", "")
-        if slug:
+        code = country.get("country_code", "")
+        if not slug:
+            continue
+        # Only include if country has stats data
+        if code in country_years:
             xml_parts.append(f"""  <url>
     <loc>{base_url}/{slug}-addiction-stats</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>""")
-            xml_parts.append(f"""  <url>
-    <loc>{base_url}/{slug}-addiction-rehabs</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>""")
-            for year in years:
+            for year in sorted(country_years[code], reverse=True):
                 xml_parts.append(f"""  <url>
     <loc>{base_url}/{slug}-addiction-stats-{year}</loc>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
+  </url>""")
+        # Rehabs page (coming soon but valid route)
+        xml_parts.append(f"""  <url>
+    <loc>{base_url}/{slug}-addiction-rehabs</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
   </url>""")
     
     # Published articles
