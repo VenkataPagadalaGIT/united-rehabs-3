@@ -12,7 +12,7 @@ import { ALL_COUNTRIES } from "@/data/countryConfig";
 import { ALL_STATES } from "@/data/allStates";
 import { Helmet } from "react-helmet-async";
 
-const API = import.meta.env.VITE_API_URL || process.env.REACT_APP_BACKEND_URL || "";
+const API = import.meta.env.REACT_APP_BACKEND_URL || "";
 
 // Build lookup maps for contextual linking
 const countryMap = new Map(ALL_COUNTRIES.map(c => [c.name.toLowerCase(), c]));
