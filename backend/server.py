@@ -1948,6 +1948,7 @@ async def generate_sitemap():
         {"loc": "/privacy-policy", "priority": "0.3", "changefreq": "yearly"},
         {"loc": "/terms-of-service", "priority": "0.3", "changefreq": "yearly"},
         {"loc": "/compare", "priority": "0.8", "changefreq": "weekly"},
+        {"loc": "/news", "priority": "0.9", "changefreq": "daily"},
     ]
     
     for page in static_pages:
