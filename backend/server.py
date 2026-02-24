@@ -705,12 +705,18 @@ async def delete_article(id: str, user: User = Depends(require_admin)):
 # OPTIMIZED HOMEPAGE API (Single call for all data)
 # ============================================
 
+_homepage_cache = {"data": None, "generated_at": 0}
+
 @api_router.get("/homepage/data")
 async def get_homepage_data():
     """
     Single optimized API call that returns all homepage data.
-    Reduces multiple API calls to just ONE for maximum efficiency.
+    Cached for 1 hour - data changes infrequently.
     """
+    import time
+    if _homepage_cache["data"] and (time.time() - _homepage_cache["generated_at"]) < 3600:
+        return _homepage_cache["data"]
+    
     # Aggregate national statistics (sum of all states for latest year)
     pipeline_national = [
         {"$match": {"year": 2025}},
