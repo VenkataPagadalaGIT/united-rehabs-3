@@ -181,11 +181,14 @@ export const StatisticsTab = ({ stateId, stateName, stateSlug, urlYear }: Statis
 
   if (!currentStat) {
     return (
-      <Card data-testid="statistics-empty">
-        <CardContent className="py-8 text-center text-muted-foreground">
-          No statistics available for this state.
-        </CardContent>
-      </Card>
+      <>
+        <Helmet><meta name="robots" content="noindex" /></Helmet>
+        <Card data-testid="statistics-empty">
+          <CardContent className="py-8 text-center text-muted-foreground">
+            No statistics available for this state.
+          </CardContent>
+        </Card>
+      </>
     );
   }
 
