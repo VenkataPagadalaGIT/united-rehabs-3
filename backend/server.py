@@ -787,7 +787,7 @@ async def get_homepage_data():
         {"$sort": {"total_treatment_centers": -1}}
     ]).to_list(51)
     
-    return {
+    result = {
         "national_stats": national_stats[0] if national_stats else {},
         "top_states": top_states,
         "featured_centers": featured_centers,
