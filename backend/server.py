@@ -1906,15 +1906,6 @@ async def generate_sitemap():
     <priority>0.6</priority>
   </url>""")
     
-    # Country pages - only include countries with actual data
-    country_stats = await db.country_statistics.find({}, {"_id": 0, "country_code": 1, "year": 1}).to_list(length=2000)
-    country_years = {}
-    for cs in country_stats:
-        code = cs.get("country_code", "")
-        if code not in country_years:
-            country_years[code] = set()
-        country_years[code].add(cs.get("year"))
-    
     # Country pages - only base stats URL (no year variants, data is same for all years)
     # No rehab pages in sitemap (Coming Soon = thin content)
     countries = await db.countries.find({"is_active": True}, {"_id": 0, "slug": 1}).to_list(length=200)
