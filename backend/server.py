@@ -1915,10 +1915,11 @@ async def generate_sitemap():
             country_year_map[code] = set()
         country_year_map[code].add(cs.get("year"))
     
-    countries = await db.countries.find({"is_active": True}, {"_id": 0, "slug": 1, "country_code": 1}).to_list(length=200)
+    countries = await db.countries.find({"is_active": True}, {"_id": 0, "country_name": 1, "country_code": 1}).to_list(length=200)
     for country in countries:
-        slug = country.get("slug", "")
+        name = country.get("country_name", "")
         code = country.get("country_code", "")
+        slug = name.lower().replace(" ", "-")
         if not slug:
             continue
         xml_parts.append(f"""  <url>
