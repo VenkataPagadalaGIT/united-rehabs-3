@@ -1872,7 +1872,6 @@ async def generate_sitemap():
         {"loc": "/contact", "priority": "0.6", "changefreq": "monthly"},
         {"loc": "/privacy-policy", "priority": "0.3", "changefreq": "yearly"},
         {"loc": "/terms-of-service", "priority": "0.3", "changefreq": "yearly"},
-        {"loc": "/rehab-centers", "priority": "0.9", "changefreq": "daily"},
         {"loc": "/compare", "priority": "0.8", "changefreq": "weekly"},
     ]
     
