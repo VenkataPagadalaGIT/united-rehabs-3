@@ -631,7 +631,7 @@ async def delete_page_seo(id: str, user: User = Depends(require_admin)):
 # ARTICLES
 # ============================================
 
-@api_router.get("/articles", response_model=List[Article])
+@api_router.get("/articles")
 async def get_articles(
     content_type: Optional[str] = None,
     is_published: Optional[bool] = None,
