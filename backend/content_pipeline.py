@@ -69,7 +69,7 @@ async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
 
     # Get context from DB
     context_parts = []
-    if db:
+    if db is not None:
         # Get recent stats for context
         top_states = await db.state_addiction_statistics.find(
             {"year": 2025}, {"_id": 0, "state_name": 1, "overdose_deaths": 1, "total_affected": 1}
@@ -124,7 +124,7 @@ async def stage_write(topic: Dict, db=None) -> Dict:
 
     # Get relevant stats from DB for accuracy
     db_context = ""
-    if db:
+    if db is not None:
         countries = topic.get("related_countries", ["USA"])
         for code in countries[:3]:
             stats = await db.country_statistics.find_one(
@@ -229,7 +229,7 @@ async def stage_qa(article: Dict, db=None) -> Dict:
         warnings.append("No H2 headings in content")
 
     # Validate internal links would resolve
-    if db:
+    if db is not None:
         countries = article.get("related_countries", [])
         for code in countries:
             exists = await db.countries.find_one({"country_code": code}, {"_id": 0, "country_code": 1})
