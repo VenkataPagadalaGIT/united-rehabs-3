@@ -214,7 +214,16 @@ export default function NewsArticlePage() {
 
               {/* Content with contextual auto-links */}
               <div
-                className="prose prose-slate max-w-none"
+                className="prose prose-slate prose-lg max-w-none
+                  prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground
+                  prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-border
+                  prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
+                  prose-p:text-base prose-p:leading-[1.8] prose-p:mb-5 prose-p:text-muted-foreground
+                  prose-li:text-base prose-li:leading-[1.8] prose-li:text-muted-foreground
+                  prose-ul:my-4 prose-ol:my-4
+                  prose-strong:text-foreground
+                  prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+                  prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg"
                 dangerouslySetInnerHTML={{ __html: autoLinkedContent }}
                 data-testid="article-content"
               />
