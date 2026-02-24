@@ -795,9 +795,10 @@ async def get_homepage_data():
         "state_counts": state_counts,
         "data_year": 2025
     }
-
-# ============================================
-# TREATMENT CENTERS
+    
+    _homepage_cache["data"] = result
+    _homepage_cache["generated_at"] = time.time()
+    return result
 # ============================================
 
 @api_router.get("/treatment-centers")
