@@ -21,18 +21,26 @@ const stateMap = new Map(ALL_STATES.map(s => [s.name.toLowerCase(), s]));
 function contextualAutoLink(html: string): string {
   if (!html) return "";
   let result = html;
+  const linked = new Set<string>();
   
-  // Don't link inside existing <a> tags — simple regex approach
-  // Link country names to their stats pages
+  // RULE: Each name gets linked only ONCE (first occurrence)
+  // Don't link inside existing <a> tags
   ALL_COUNTRIES.forEach(c => {
-    const regex = new RegExp(`(?<!<a[^>]*>)\\b(${c.name})\\b(?![^<]*<\\/a>)`, "gi");
-    result = result.replace(regex, `<a href="/${c.slug}-addiction-stats" class="text-primary hover:underline font-medium" title="${c.name} Addiction Statistics">${c.name}</a>`);
+    if (linked.has(c.name.toLowerCase())) return;
+    const regex = new RegExp(`(?<!<a[^>]*>)\\b(${c.name})\\b(?![^<]*<\\/a>)`, "i");
+    if (regex.test(result)) {
+      result = result.replace(regex, `<a href="/${c.slug}-addiction-stats" class="text-primary hover:underline font-medium" title="${c.name} Addiction Statistics">${c.name}</a>`);
+      linked.add(c.name.toLowerCase());
+    }
   });
   
-  // Link US state names
   ALL_STATES.forEach(s => {
-    const regex = new RegExp(`(?<!<a[^>]*>)\\b(${s.name})\\b(?![^<]*<\\/a>)`, "gi");
-    result = result.replace(regex, `<a href="/${s.slug}-addiction-stats" class="text-primary hover:underline font-medium" title="${s.name} Addiction Statistics">${s.name}</a>`);
+    if (linked.has(s.name.toLowerCase())) return;
+    const regex = new RegExp(`(?<!<a[^>]*>)\\b(${s.name})\\b(?![^<]*<\\/a>)`, "i");
+    if (regex.test(result)) {
+      result = result.replace(regex, `<a href="/${s.slug}-addiction-stats" class="text-primary hover:underline font-medium" title="${s.name} Addiction Statistics">${s.name}</a>`);
+      linked.add(s.name.toLowerCase());
+    }
   });
   
   return result;
