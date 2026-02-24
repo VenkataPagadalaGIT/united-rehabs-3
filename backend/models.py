@@ -297,10 +297,15 @@ class ArticleCreate(BaseModel):
     tags: Optional[List[str]] = None
     meta_title: Optional[str] = None
     meta_description: Optional[str] = None
+    meta_keywords: Optional[str] = None
     is_featured: bool = False
     is_published: bool = False
     read_time: Optional[str] = None
     sort_order: int = 0
+    related_countries: Optional[List[str]] = None  # country codes e.g. ["USA","GBR"]
+    related_states: Optional[List[str]] = None  # state IDs e.g. ["CA","NY"]
+    sidebar_links: Optional[List[Dict[str, str]]] = None  # [{"label":"...","url":"..."}]
+    faq_items: Optional[List[Dict[str, str]]] = None  # [{"question":"...","answer":"..."}]
 
 class Article(ArticleCreate):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
