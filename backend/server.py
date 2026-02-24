@@ -1899,11 +1899,6 @@ async def generate_sitemap():
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>""")
-        xml_parts.append(f"""  <url>
-    <loc>{base_url}/{slug}-addiction-rehabs</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>""")
         for year in sorted(available_years, reverse=True):
             xml_parts.append(f"""  <url>
     <loc>{base_url}/{slug}-addiction-stats-{year}</loc>
