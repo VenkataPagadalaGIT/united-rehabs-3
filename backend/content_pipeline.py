@@ -58,7 +58,7 @@ OUTPUT FORMAT: Return valid JSON with these fields:
   "related_states": ["CA", "NY"]
 }"""
     )
-    chat.with_model("anthropic", "claude-sonnet-4-5-20250929")
+    chat.with_model("gemini", "gemini-2.5-pro")
     return chat
 
 
