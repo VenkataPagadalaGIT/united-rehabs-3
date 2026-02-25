@@ -278,11 +278,14 @@ async def stage_write(topic: Dict, db=None) -> Dict:
     session_id = f"write-{uuid.uuid4().hex[:8]}"
     chat = _get_writer_chat(session_id)
 
-    # CRITICAL: Fetch the actual source article so we write from REAL facts
+    # CRITICAL: Fetch MULTIPLE real sources for comprehensive, accurate coverage
     source_text = ""
     source_url = topic.get("link", "") or topic.get("source_url", "")
     if source_url:
         source_text = await _fetch_article_text(source_url)
+    
+    # Fetch 2-3 additional sources on same topic for cross-referencing
+    multi_sources = await _fetch_multiple_sources(topic.get("title", ""))
     
     # Get relevant stats from DB for accuracy
     db_context = ""
