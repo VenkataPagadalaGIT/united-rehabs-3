@@ -187,9 +187,15 @@ Return JSON array: [{{"title": "headline", "what_happened": "1-2 sentences", "so
         if json_match:
             topics = json.loads(json_match.group())
         else:
-            topics = [{"title": news_items[0]["title"], "what_happened": "", "related_countries": ["USA"], "related_states": [], "target_keywords": []}]
+            topics = [{"title": news_items[0]["title"], "what_happened": "", "source_url": news_items[0].get("link",""), "related_countries": ["USA"], "related_states": [], "target_keywords": []}]
     except:
-        topics = [{"title": news_items[0]["title"], "what_happened": "", "related_countries": ["USA"], "related_states": [], "target_keywords": []}]
+        topics = [{"title": news_items[0]["title"], "what_happened": "", "source_url": news_items[0].get("link",""), "related_countries": ["USA"], "related_states": [], "target_keywords": []}]
+
+    # Ensure each topic has a source_url from our lookup
+    for t in topics:
+        if not t.get("source_url"):
+            src = t.get("source_headline", "").lower().strip()
+            t["source_url"] = news_lookup.get(src, news_items[0].get("link", "") if news_items else "")
 
     return {"stage": "research", "topics": topics, "raw_news_count": len(news_items), "tier": tier, "session_id": session_id}
 
