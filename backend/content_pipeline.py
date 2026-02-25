@@ -217,15 +217,29 @@ Return JSON array: [{{"title": "headline", "what_happened": "1-2 sentences", "so
     except:
         topics = [{"title": news_items[0]["title"], "what_happened": "", "source_url": news_items[0].get("link",""), "related_countries": ["USA"], "related_states": [], "target_keywords": []}]
 
-    # Ensure each topic has a source_url from our lookup
-    yt_ids = list(youtube_videos.keys())
+    # Ensure each topic has a source_url and matching YouTube video
     for i, t in enumerate(topics):
         if not t.get("source_url"):
             src = t.get("source_headline", "").lower().strip()
             t["source_url"] = news_lookup.get(src, news_items[0].get("link", "") if news_items else "")
-        # Attach YouTube video
-        if yt_ids:
-            t["youtube_id"] = yt_ids[min(i, len(yt_ids)-1)]
+        # Search YouTube for THIS specific topic's headline
+        yt_id = None
+        try:
+            import aiohttp as _aio
+            topic_query = t.get("source_headline", t.get("title", "")).replace(" ", "+")
+            async with _aio.ClientSession() as yt_session:
+                async with yt_session.get(f"https://www.youtube.com/results?search_query={topic_query}", timeout=_aio.ClientTimeout(total=8), headers={"User-Agent": "Mozilla/5.0"}) as yt_resp:
+                    if yt_resp.status == 200:
+                        yt_html = await yt_resp.text()
+                        yt_ids = re.findall(r'"videoId":"([a-zA-Z0-9_-]{11})"', yt_html)
+                        if yt_ids:
+                            yt_id = yt_ids[0]
+        except:
+            pass
+        if not yt_id and youtube_videos:
+            yt_id = list(youtube_videos.keys())[0]
+        if yt_id:
+            t["youtube_id"] = yt_id
 
     return {"stage": "research", "topics": topics, "raw_news_count": len(news_items), "tier": tier, "session_id": session_id}
 
