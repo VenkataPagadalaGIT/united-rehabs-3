@@ -150,7 +150,10 @@ async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
     # Use Gemini to pick the best 3 stories for our site
     chat = _get_research_chat(session_id)
     
-    news_list = "\n".join([f"- {n['title']} ({n['date']})" for n in news_items[:15]])
+    news_list = "\n".join([f"- {n['title']} | URL: {n['link']} | {n['date']}" for n in news_items[:15]])
+    
+    # Build a lookup for matching titles to URLs
+    news_lookup = {n['title'].lower().strip(): n['link'] for n in news_items}
     
     # Get existing articles to avoid duplicates
     existing_titles = []
