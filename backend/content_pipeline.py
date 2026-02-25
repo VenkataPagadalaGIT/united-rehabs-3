@@ -250,6 +250,28 @@ async def _fetch_article_text(url: str) -> str:
         pass
     return ""
 
+async def _fetch_multiple_sources(topic_title: str) -> str:
+    """Search Google News for multiple sources on same story for comprehensive coverage"""
+    import aiohttp
+    sources = []
+    try:
+        query = topic_title.replace(" ", "+")
+        url = f"https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                if resp.status == 200:
+                    text = await resp.text()
+                    import re as _re
+                    items = _re.findall(r'<item>.*?<title>(.*?)</title>.*?<link>(.*?)</link>.*?</item>', text, _re.DOTALL)
+                    for title, link in items[:3]:
+                        article_text = await _fetch_article_text(link.strip())
+                        if article_text and len(article_text) > 200:
+                            sources.append(f"SOURCE: {title.strip()}\n{article_text[:1500]}")
+    except:
+        pass
+    return "\n\n---\n\n".join(sources) if sources else ""
+
+
 
 async def stage_write(topic: Dict, db=None) -> Dict:
     """Stage 2: Write article based on REAL source content"""
