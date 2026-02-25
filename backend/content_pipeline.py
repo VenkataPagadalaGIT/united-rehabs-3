@@ -192,27 +192,6 @@ Return JSON array: [{{"title": "headline", "what_happened": "1-2 sentences", "so
 
 
 async def stage_write(topic: Dict, db=None) -> Dict:
-
-Return as JSON array of objects with fields: title, search_intent, key_data_points, target_keywords, related_countries, related_states"""
-
-    msg = UserMessage(text=prompt)
-    response = await chat.send_message(msg)
-
-    # Parse response
-    try:
-        # Extract JSON from response
-        json_match = re.search(r'\[.*\]', response, re.DOTALL)
-        if json_match:
-            topics = json.loads(json_match.group())
-        else:
-            topics = [{"title": topic_hint or "Addiction Statistics Update", "search_intent": "informational", "key_data_points": [], "target_keywords": [], "related_countries": ["USA"], "related_states": []}]
-    except:
-        topics = [{"title": topic_hint or "Addiction Statistics Update", "search_intent": "informational", "key_data_points": [], "target_keywords": [], "related_countries": ["USA"], "related_states": []}]
-
-    return {"stage": "research", "topics": topics, "session_id": session_id}
-
-
-async def stage_write(topic: Dict, db=None) -> Dict:
     """Stage 2: Write article using Claude Sonnet 4.5"""
     session_id = f"write-{uuid.uuid4().hex[:8]}"
     chat = _get_writer_chat(session_id)
