@@ -322,6 +322,30 @@ Return ONLY valid JSON."""
     except Exception as e:
         return {"stage": "write", "error": f"JSON parse error: {str(e)}", "raw": response[:500]}
 
+    # Inject YouTube video after the first TOC/nav block if available
+    yt_id = topic.get("youtube_id", "")
+    if yt_id and article.get("content"):
+        video_html = f'<div style="margin: 2rem 0; border-radius: 12px; overflow: hidden;"><div style="position: relative; padding-bottom: 56.25%; height: 0;"><iframe src="https://www.youtube.com/embed/{yt_id}" title="Related video" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>'
+        content = article["content"]
+        # Insert after </nav> or after first </h2> or after first </p>
+        for marker in ['</nav>', '</h2>']:
+            pos = content.find(marker)
+            if pos > 0:
+                insert_at = pos + len(marker)
+                content = content[:insert_at] + '\n' + video_html + '\n' + content[insert_at:]
+                break
+        else:
+            # Fallback: insert after first paragraph
+            p_end = content.find('</p>')
+            if p_end > 0:
+                insert_at = p_end + 4
+                content = content[:insert_at] + '\n' + video_html + '\n' + content[insert_at:]
+        article["content"] = content
+
+    # Remove em dashes
+    if article.get("content"):
+        article["content"] = article["content"].replace("\u2014", " - ").replace("&mdash;", " - ")
+
     return {"stage": "write", "article": article, "session_id": session_id}
 
 
