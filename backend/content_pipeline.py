@@ -190,36 +190,8 @@ Return JSON array: [{{"title": "headline", "what_happened": "1-2 sentences", "so
 
     return {"stage": "research", "topics": topics, "raw_news_count": len(news_items), "tier": tier, "session_id": session_id}
 
-    # Get context from DB
-    context_parts = []
-    if db is not None:
-        # Get recent stats for context
-        top_states = await db.state_addiction_statistics.find(
-            {"year": 2025}, {"_id": 0, "state_name": 1, "overdose_deaths": 1, "total_affected": 1}
-        ).sort("overdose_deaths", -1).limit(5).to_list(5)
-        if top_states:
-            context_parts.append(f"Top US states by overdose deaths (2025): {json.dumps(top_states, default=str)}")
 
-        # Get existing articles to avoid duplicates
-        existing = await db.articles.find(
-            {"content_type": "news", "is_published": True}, {"_id": 0, "title": 1, "slug": 1}
-        ).to_list(50)
-        if existing:
-            context_parts.append(f"Already published articles (avoid duplicates): {json.dumps([a['title'] for a in existing])}")
-
-    prompt = f"""Find 3 BREAKING NEWS stories from the LAST 4-10 HOURS about drugs, addiction, cartels, overdose deaths, drug policy, or substance abuse.
-
-{f'Focus area: {topic_hint}' if topic_hint else 'Search for the most important breaking drug/addiction news happening RIGHT NOW.'}
-
-Already published (avoid duplicates): {json.dumps([a['title'] for a in existing]) if context_parts else '[]'}
-
-For each story provide:
-1. Title (what actually happened, under 60 chars)
-2. What happened (1-2 sentences of the actual event)
-3. Source (where you found this news)
-4. Why it matters
-5. Related countries/states
-6. Target keywords
+async def stage_write(topic: Dict, db=None) -> Dict:
 
 Return as JSON array of objects with fields: title, search_intent, key_data_points, target_keywords, related_countries, related_states"""
 
