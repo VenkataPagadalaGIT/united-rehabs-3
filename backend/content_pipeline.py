@@ -307,9 +307,14 @@ async def stage_write(topic: Dict, db=None) -> Dict:
                 db_context += f"\n{sid} (2025): {json.dumps(stats, default=str)}"
 
     source_context = f"""
-SOURCE ARTICLE TEXT (write ONLY from these facts - do NOT make up details):
-{source_text[:2500] if source_text else 'Source article could not be fetched. Use only the headline and what_happened field. Do NOT fabricate details.'}
-""" if source_text or True else ""
+PRIMARY SOURCE (write based on these facts):
+{source_text[:2500] if source_text else 'Primary source could not be fetched.'}
+
+ADDITIONAL SOURCES (cross-reference for accuracy):
+{multi_sources[:3000] if multi_sources else 'No additional sources.'}
+
+CRITICAL: Only write facts that appear in at LEAST one source above. If sources conflict, note the discrepancy. Do NOT invent details.
+"""
 
     prompt = f"""Write a news article for our addiction data website based on this REAL story:
 
