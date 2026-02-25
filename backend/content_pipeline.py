@@ -177,7 +177,7 @@ Pick stories that are:
 2. From the LAST 24 HOURS
 3. Newsworthy and would attract readers
 
-Return JSON array: [{{"title": "headline", "what_happened": "1-2 sentences", "source_headline": "original headline", "related_countries": ["USA"], "related_states": ["CA"], "target_keywords": ["keyword1"]}}]"""
+Return JSON array: [{{"title": "headline", "what_happened": "1-2 sentences", "source_headline": "original headline from list above", "source_url": "URL from list above", "related_countries": ["USA"], "related_states": ["CA"], "target_keywords": ["keyword1"]}}]"""
 
     msg = UserMessage(text=prompt)
     response = await chat.send_message(msg)
