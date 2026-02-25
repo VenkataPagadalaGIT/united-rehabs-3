@@ -191,11 +191,39 @@ Return JSON array: [{{"title": "headline", "what_happened": "1-2 sentences", "so
     return {"stage": "research", "topics": topics, "raw_news_count": len(news_items), "tier": tier, "session_id": session_id}
 
 
+async def _fetch_article_text(url: str) -> str:
+    """Fetch and extract text from a news article URL"""
+    import aiohttp
+    try:
+        async with aiohttp.ClientSession() as session:
+            headers = {"User-Agent": "Mozilla/5.0 (compatible; UnitedRehabs/1.0)"}
+            async with session.get(url, timeout=aiohttp.ClientTimeout(total=15), headers=headers) as resp:
+                if resp.status == 200:
+                    html = await resp.text()
+                    # Strip HTML tags, keep text
+                    import re as _re
+                    text = _re.sub(r'<script[^>]*>.*?</script>', '', html, flags=_re.DOTALL)
+                    text = _re.sub(r'<style[^>]*>.*?</style>', '', text, flags=_re.DOTALL)
+                    text = _re.sub(r'<[^>]+>', ' ', text)
+                    text = _re.sub(r'\s+', ' ', text).strip()
+                    # Return first 3000 chars (enough context)
+                    return text[:3000]
+    except:
+        pass
+    return ""
+
+
 async def stage_write(topic: Dict, db=None) -> Dict:
-    """Stage 2: Write article using Claude Sonnet 4.5"""
+    """Stage 2: Write article based on REAL source content"""
     session_id = f"write-{uuid.uuid4().hex[:8]}"
     chat = _get_writer_chat(session_id)
 
+    # CRITICAL: Fetch the actual source article so we write from REAL facts
+    source_text = ""
+    source_url = topic.get("link", "") or topic.get("source_url", "")
+    if source_url:
+        source_text = await _fetch_article_text(source_url)
+    
     # Get relevant stats from DB for accuracy
     db_context = ""
     if db is not None:
@@ -215,17 +243,22 @@ async def stage_write(topic: Dict, db=None) -> Dict:
             if stats:
                 db_context += f"\n{sid} (2025): {json.dumps(stats, default=str)}"
 
-    prompt = f"""Write a comprehensive, SEO-optimized news article on this topic:
+    source_context = f"""
+SOURCE ARTICLE TEXT (write ONLY from these facts - do NOT make up details):
+{source_text[:2500] if source_text else 'Source article could not be fetched. Use only the headline and what_happened field. Do NOT fabricate details.'}
+""" if source_text or True else ""
 
-TOPIC: {topic.get('title', '')}
-SEARCH INTENT: {topic.get('search_intent', 'informational')}
-KEY DATA POINTS TO INCLUDE: {json.dumps(topic.get('key_data_points', []))}
+    prompt = f"""Write a news article for our addiction data website based on this REAL story:
+
+HEADLINE: {topic.get('title', '')}
+WHAT HAPPENED: {topic.get('what_happened', '')}
+{source_context}
 TARGET KEYWORDS: {json.dumps(topic.get('target_keywords', []))}
 RELATED COUNTRIES: {json.dumps(topic.get('related_countries', []))}
 RELATED STATES: {json.dumps(topic.get('related_states', []))}
 
-DATABASE STATS (use these exact numbers for accuracy):
-{db_context if db_context else 'No database stats available - use publicly known data from WHO/CDC/SAMHSA'}
+DATABASE STATS (use if relevant):
+{db_context if db_context else 'No database stats available'}
 
 REQUIREMENTS:
 - 800-1200 words
