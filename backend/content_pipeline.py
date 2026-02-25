@@ -94,9 +94,101 @@ OUTPUT FORMAT: Return valid JSON with these fields:
 
 
 async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
-    """Stage 1: Research trending topics using Gemini"""
+    """Stage 1: Research REAL breaking news from last 24 hours using web search + Gemini analysis"""
+    import aiohttp
+    from datetime import datetime, timezone
+    
     session_id = f"research-{uuid.uuid4().hex[:8]}"
+    today = datetime.now(timezone.utc)
+    day_of_week = today.weekday()  # 0=Mon, 6=Sun
+    
+    # Mon-Thu: Tier 1 (USA, Canada, UK, Australia, Germany)
+    # Fri-Sun: Tier 2 & 3 (rest of world)
+    if day_of_week <= 3:  # Monday-Thursday
+        search_queries = [
+            "drug overdose arrest seizure USA today",
+            "fentanyl news United States Canada today",
+            "addiction policy law enforcement USA UK today",
+        ]
+        tier = "tier1"
+        focus = "USA, Canada, UK, Australia, Germany"
+    else:  # Friday-Sunday
+        search_queries = [
+            "drug cartel news Mexico Colombia Brazil today",
+            "drug trafficking seizure Asia Africa Europe today",
+            "addiction crisis developing countries today",
+        ]
+        tier = "tier2_3"
+        focus = "Mexico, Colombia, Brazil, India, Philippines, Nigeria, Southeast Asia, Europe"
+
+    if topic_hint:
+        search_queries = [f"{topic_hint} news today"]
+
+    # Use Google News RSS for real-time news
+    news_items = []
+    try:
+        async with aiohttp.ClientSession() as session:
+            for query in search_queries:
+                url = f"https://news.google.com/rss/search?q={query.replace(' ', '+')}&hl=en-US&gl=US&ceid=US:en"
+                try:
+                    async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                        if resp.status == 200:
+                            text = await resp.text()
+                            # Parse RSS items - extract titles and links
+                            import re as _re
+                            items = _re.findall(r'<item>.*?<title>(.*?)</title>.*?<link>(.*?)</link>.*?<pubDate>(.*?)</pubDate>.*?</item>', text, _re.DOTALL)
+                            for title, link, pub_date in items[:5]:
+                                news_items.append({"title": title.strip(), "link": link.strip(), "date": pub_date.strip()})
+                except:
+                    continue
+    except:
+        pass
+
+    if not news_items:
+        return {"stage": "research", "topics": [], "error": "No news found from web search", "tier": tier}
+
+    # Use Gemini to pick the best 3 stories for our site
     chat = _get_research_chat(session_id)
+    
+    news_list = "\n".join([f"- {n['title']} ({n['date']})" for n in news_items[:15]])
+    
+    # Get existing articles to avoid duplicates
+    existing_titles = []
+    if db is not None:
+        existing = await db.articles.find(
+            {"content_type": "news", "is_published": True}, {"_id": 0, "title": 1}
+        ).to_list(50)
+        existing_titles = [a['title'] for a in existing]
+
+    prompt = f"""From these REAL news headlines from the last 24 hours, pick the 3 best stories for our addiction data website.
+
+TODAY'S NEWS:
+{news_list}
+
+FOCUS: {focus} ({"Tier 1 countries Mon-Thu" if tier == "tier1" else "Tier 2/3 countries Fri-Sun"})
+
+ALREADY PUBLISHED (skip these): {json.dumps(existing_titles)}
+
+Pick stories that are:
+1. About drugs, addiction, cartels, overdoses, drug policy, or substance abuse
+2. From the LAST 24 HOURS
+3. Newsworthy and would attract readers
+
+Return JSON array: [{{"title": "headline", "what_happened": "1-2 sentences", "source_headline": "original headline", "related_countries": ["USA"], "related_states": ["CA"], "target_keywords": ["keyword1"]}}]"""
+
+    msg = UserMessage(text=prompt)
+    response = await chat.send_message(msg)
+
+    try:
+        json_match = re.search(r'\[.*\]', response, re.DOTALL)
+        if json_match:
+            topics = json.loads(json_match.group())
+        else:
+            topics = [{"title": news_items[0]["title"], "what_happened": "", "related_countries": ["USA"], "related_states": [], "target_keywords": []}]
+    except:
+        topics = [{"title": news_items[0]["title"], "what_happened": "", "related_countries": ["USA"], "related_states": [], "target_keywords": []}]
+
+    return {"stage": "research", "topics": topics, "raw_news_count": len(news_items), "tier": tier, "session_id": session_id}
 
     # Get context from DB
     context_parts = []
