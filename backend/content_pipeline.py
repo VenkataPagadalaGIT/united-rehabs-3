@@ -124,8 +124,10 @@ async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
     if topic_hint:
         search_queries = [f"{topic_hint} news today"]
 
-    # Use Google News RSS for real-time news
+    # Use Google News RSS for real-time news - ONLY last 24 hours
     news_items = []
+    from email.utils import parsedate_to_datetime
+    now = datetime.now(timezone.utc)
     try:
         async with aiohttp.ClientSession() as session:
             for query in search_queries:
@@ -134,11 +136,18 @@ async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
                     async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
                         if resp.status == 200:
                             text = await resp.text()
-                            # Parse RSS items - extract titles and links
                             import re as _re
                             items = _re.findall(r'<item>.*?<title>(.*?)</title>.*?<link>(.*?)</link>.*?<pubDate>(.*?)</pubDate>.*?</item>', text, _re.DOTALL)
-                            for title, link, pub_date in items[:5]:
-                                news_items.append({"title": title.strip(), "link": link.strip(), "date": pub_date.strip()})
+                            for title, link, pub_date in items[:10]:
+                                # STRICT: Only accept articles from last 24 hours
+                                try:
+                                    pub_dt = parsedate_to_datetime(pub_date.strip())
+                                    age_hours = (now - pub_dt).total_seconds() / 3600
+                                    if age_hours > 24:
+                                        continue
+                                except:
+                                    continue  # Skip if can't parse date
+                                news_items.append({"title": title.strip(), "link": link.strip(), "date": pub_date.strip(), "age_hours": round(age_hours, 1)})
                 except:
                     continue
     except:
