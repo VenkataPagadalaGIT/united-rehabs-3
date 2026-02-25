@@ -147,28 +147,29 @@ async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
     if not news_items:
         return {"stage": "research", "topics": [], "error": "No news found from web search", "tier": tier}
 
-    # Also search YouTube for related videos (free, no LLM cost)
+    # Search YouTube for a video matching the SPECIFIC story (not generic drug news)
     youtube_videos = {}
     try:
         async with aiohttp.ClientSession() as session:
-            for query in search_queries[:1]:  # Just first query to save time
-                yt_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}&sp=CAI%253D"  # Sort by upload date
-                try:
-                    async with session.get(yt_url, timeout=aiohttp.ClientTimeout(total=10), headers={"User-Agent": "Mozilla/5.0"}) as resp:
-                        if resp.status == 200:
-                            html = await resp.text()
-                            import re as _re
-                            # Extract video IDs from YouTube search results
-                            video_ids = _re.findall(r'"videoId":"([a-zA-Z0-9_-]{11})"', html)
-                            seen = set()
-                            for vid in video_ids:
-                                if vid not in seen:
-                                    seen.add(vid)
-                                    youtube_videos[vid] = f"https://www.youtube.com/embed/{vid}"
-                                if len(seen) >= 3:
-                                    break
-                except:
-                    pass
+            # Use the actual news headline for YouTube search
+            best_title = news_items[0]["title"] if news_items else search_queries[0]
+            yt_query = best_title.replace(" ", "+")
+            yt_url = f"https://www.youtube.com/results?search_query={yt_query}"
+            try:
+                async with session.get(yt_url, timeout=aiohttp.ClientTimeout(total=10), headers={"User-Agent": "Mozilla/5.0"}) as resp:
+                    if resp.status == 200:
+                        html = await resp.text()
+                        import re as _re
+                        video_ids = _re.findall(r'"videoId":"([a-zA-Z0-9_-]{11})"', html)
+                        seen = set()
+                        for vid in video_ids:
+                            if vid not in seen:
+                                seen.add(vid)
+                                youtube_videos[vid] = True
+                            if len(seen) >= 3:
+                                break
+            except:
+                pass
     except:
         pass
 
