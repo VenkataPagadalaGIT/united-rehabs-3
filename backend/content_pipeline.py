@@ -573,30 +573,31 @@ async def run_pipeline(topic_hint: Optional[str] = None, auto_publish: bool = Fa
         result["final_status"] = "failed_research"
         return result
 
-    # Use first topic
-    topic = research["topics"][0]
+    # Try each topic until one succeeds (has video + passes QA)
+    topics = research.get("topics", [])
+    for topic in topics:
+        # Stage 2: Write
+        write = await stage_write(topic, db)
+        result["stages"]["write"] = {k: v for k, v in write.items() if k != "article"}
 
-    # Stage 2: Write
-    write = await stage_write(topic, db)
-    result["stages"]["write"] = {k: v for k, v in write.items() if k != "article"}
+        if write.get("error"):
+            continue  # Try next topic
 
-    if write.get("error"):
-        result["final_status"] = "failed_write"
-        result["stages"]["write"]["error"] = write["error"]
-        return result
+        article = write["article"]
+        result["article_preview"] = {
+            "title": article.get("title"),
+            "slug": article.get("slug"),
+            "excerpt": article.get("excerpt"),
+            "tags": article.get("tags"),
+            "word_count": len(article.get("content", "").split()),
+        }
 
-    article = write["article"]
-    result["article_preview"] = {
-        "title": article.get("title"),
-        "slug": article.get("slug"),
-        "excerpt": article.get("excerpt"),
-        "tags": article.get("tags"),
-        "word_count": len(article.get("content", "").split()),
-    }
+        # Stage 3: QA
+        qa = await stage_qa(article, db)
+        result["stages"]["qa"] = qa
 
-    # Stage 3: QA
-    qa = await stage_qa(article, db)
-    result["stages"]["qa"] = qa
+        if not qa["passed"] and not auto_publish:
+            continue  # Try next topic
 
     if not qa["passed"]:
         result["final_status"] = "failed_qa"
