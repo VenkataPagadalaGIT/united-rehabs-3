@@ -106,17 +106,19 @@ async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
     # Fri-Sun: Tier 2 & 3 (rest of world)
     if day_of_week <= 3:  # Monday-Thursday
         search_queries = [
-            "drug overdose arrest seizure USA today",
-            "fentanyl news United States Canada today",
-            "addiction policy law enforcement USA UK today",
+            "fentanyl news today",
+            "drug overdose news today",
+            "addiction policy news today",
+            "drug cartel arrest news",
         ]
         tier = "tier1"
         focus = "USA, Canada, UK, Australia, Germany"
     else:  # Friday-Sunday
         search_queries = [
-            "drug cartel news Mexico Colombia Brazil today",
-            "drug trafficking seizure Asia Africa Europe today",
-            "addiction crisis developing countries today",
+            "drug cartel news Mexico Colombia",
+            "drug trafficking news Asia Africa",
+            "addiction crisis news Europe",
+            "drug policy news international",
         ]
         tier = "tier2_3"
         focus = "Mexico, Colombia, Brazil, India, Philippines, Nigeria, Southeast Asia, Europe"
