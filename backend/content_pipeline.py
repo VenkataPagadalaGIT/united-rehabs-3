@@ -76,7 +76,7 @@ CONTENT QUALITY RULES:
 OUTPUT FORMAT: Return valid JSON with these fields:
 {
   "title": "SEO title under 60 chars",
-  "slug": "url-friendly-slug",
+  "slug": "url-friendly-slug-NO-YEAR-in-slug",
   "excerpt": "155 char meta description",
   "content": "Full HTML article content",
   "meta_title": "SEO title under 60 chars",
