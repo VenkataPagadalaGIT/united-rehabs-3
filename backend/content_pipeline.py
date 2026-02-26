@@ -378,9 +378,12 @@ Return ONLY valid JSON."""
     except Exception as e:
         return {"stage": "write", "error": f"JSON parse error: {str(e)}", "raw": response[:500]}
 
-    # Inject YouTube video after the first TOC/nav block if available
+    # MANDATORY: YouTube video must be embedded
     yt_id = topic.get("youtube_id", "")
-    if yt_id and article.get("content"):
+    if not yt_id:
+        return {"stage": "write", "error": "No YouTube video found - article rejected (video is mandatory)"}
+    
+    if article.get("content"):
         video_html = f'<div style="margin: 2rem 0; border-radius: 12px; overflow: hidden;"><div style="position: relative; padding-bottom: 56.25%; height: 0;"><iframe src="https://www.youtube.com/embed/{yt_id}" title="Related video" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>'
         content = article["content"]
         # Insert after </nav> or after first </h2> or after first </p>
