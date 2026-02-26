@@ -143,7 +143,7 @@ async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
                                 try:
                                     pub_dt = parsedate_to_datetime(pub_date.strip())
                                     age_hours = (now - pub_dt).total_seconds() / 3600
-                                    if age_hours > 24:
+                                    if age_hours > 48:
                                         continue
                                 except:
                                     continue  # Skip if can't parse date
