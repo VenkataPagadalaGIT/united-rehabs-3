@@ -599,19 +599,14 @@ async def run_pipeline(topic_hint: Optional[str] = None, auto_publish: bool = Fa
         if not qa["passed"] and not auto_publish:
             continue  # Try next topic
 
-    if not qa["passed"]:
-        result["final_status"] = "failed_qa"
-        result["qa_issues"] = qa["issues"]
-        if not auto_publish:
+        # Stage 4: Launch
+        if qa["passed"] or auto_publish:
+            launch = await stage_launch(article, db)
+            result["stages"]["launch"] = launch
+            result["final_status"] = "published"
+            result["url"] = launch.get("url")
             return result
 
-    # Stage 4: Launch (only if QA passed or auto_publish forced)
-    if qa["passed"] or auto_publish:
-        launch = await stage_launch(article, db)
-        result["stages"]["launch"] = launch
-        result["final_status"] = "published"
-        result["url"] = launch.get("url")
-    else:
-        result["final_status"] = "blocked_by_qa"
-
+    # All topics failed
+    result["final_status"] = "failed_all_topics"
     return result
