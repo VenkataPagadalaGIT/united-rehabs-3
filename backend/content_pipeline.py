@@ -233,18 +233,28 @@ Return JSON array: [{{"title": "headline", "what_happened": "1-2 sentences", "so
         if not t.get("source_url"):
             src = t.get("source_headline", "").lower().strip()
             t["source_url"] = news_lookup.get(src, news_items[0].get("link", "") if news_items else "")
-        # Search YouTube for THIS specific topic's headline
+        # Search YouTube via RSS feed (more reliable than HTML scraping)
         yt_id = None
         try:
             import aiohttp as _aio
-            topic_query = t.get("source_headline", t.get("title", "")).replace(" ", "+")
+            topic_query = t.get("source_headline", t.get("title", "")).replace(" ", "+").replace("'", "")
+            yt_rss = f"https://www.youtube.com/results?search_query={topic_query}&sp=EgIIAQ%253D%253D"
             async with _aio.ClientSession() as yt_session:
-                async with yt_session.get(f"https://www.youtube.com/results?search_query={topic_query}", timeout=_aio.ClientTimeout(total=8), headers={"User-Agent": "Mozilla/5.0"}) as yt_resp:
-                    if yt_resp.status == 200:
-                        yt_html = await yt_resp.text()
-                        yt_ids = re.findall(r'"videoId":"([a-zA-Z0-9_-]{11})"', yt_html)
-                        if yt_ids:
-                            yt_id = yt_ids[0]
+                for attempt_query in [topic_query, topic_query.split("+")[0] + "+drug+news"]:
+                    try:
+                        async with yt_session.get(
+                            f"https://www.youtube.com/results?search_query={attempt_query}",
+                            timeout=_aio.ClientTimeout(total=10),
+                            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+                        ) as yt_resp:
+                            if yt_resp.status == 200:
+                                yt_html = await yt_resp.text()
+                                yt_ids = re.findall(r'"videoId":"([a-zA-Z0-9_-]{11})"', yt_html)
+                                if yt_ids:
+                                    yt_id = yt_ids[0]
+                                    break
+                    except:
+                        continue
         except:
             pass
         if not yt_id and youtube_videos:
