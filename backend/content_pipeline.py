@@ -141,14 +141,14 @@ async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
                             import re as _re
                             items = _re.findall(r'<item>.*?<title>(.*?)</title>.*?<link>(.*?)</link>.*?<pubDate>(.*?)</pubDate>.*?</item>', text, _re.DOTALL)
                             for title, link, pub_date in items[:10]:
-                                # STRICT: Only accept articles from last 24 hours
                                 try:
                                     pub_dt = parsedate_to_datetime(pub_date.strip())
                                     age_hours = (now - pub_dt).total_seconds() / 3600
-                                    if age_hours > 48:
+                                    # MUST be from 2026 and within 48 hours
+                                    if pub_dt.year < 2026 or age_hours > 48:
                                         continue
                                 except:
-                                    continue  # Skip if can't parse date
+                                    continue
                                 news_items.append({"title": title.strip(), "link": link.strip(), "date": pub_date.strip(), "age_hours": round(age_hours, 1)})
                 except:
                     continue
