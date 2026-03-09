@@ -14,6 +14,7 @@ from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime, timedelta
 import math
+import re as _re
 
 from models import (
     User, UserCreate, UserLogin, Token,
@@ -66,6 +67,13 @@ app = FastAPI(title="United Rehabs API", version="1.0.0")
 # Add rate limit exception handler
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# SECURITY: Global max limit cap to prevent memory exhaustion
+MAX_QUERY_LIMIT = 200
+
+def safe_limit(limit: int, default: int = 100) -> int:
+    """Enforce max query limit to prevent memory exhaustion attacks"""
+    return max(1, min(limit, MAX_QUERY_LIMIT))
 
 # Security Headers Middleware
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
@@ -245,8 +253,8 @@ async def get_statistics(
     if year:
         query["year"] = year
     
-    cursor = db.state_addiction_statistics.find(query).sort([("state_name", 1), ("year", -1)]).skip(skip).limit(limit)
-    results = await cursor.to_list(length=limit)
+    cursor = db.state_addiction_statistics.find(query).sort([("state_name", 1), ("year", -1)]).skip(skip).limit(safe_limit(limit))
+    results = await cursor.to_list(length=safe_limit(limit))
     return [StateAddictionStatistics(**r) for r in results]
 
 # Move this BEFORE /statistics/{id} to avoid route conflict
@@ -310,8 +318,8 @@ async def get_substance_statistics(
     if year:
         query["year"] = year
     
-    cursor = db.substance_statistics.find(query).sort([("state_name", 1), ("year", -1)]).skip(skip).limit(limit)
-    results = await cursor.to_list(length=limit)
+    cursor = db.substance_statistics.find(query).sort([("state_name", 1), ("year", -1)]).skip(skip).limit(safe_limit(limit))
+    results = await cursor.to_list(length=safe_limit(limit))
     return [SubstanceStatistics(**r) for r in results]
 
 @api_router.post("/substance-statistics", response_model=SubstanceStatistics)
@@ -360,8 +368,8 @@ async def get_resources(
     if is_nationwide is not None:
         query["is_nationwide"] = is_nationwide
     
-    cursor = db.free_resources.find(query).sort("sort_order", 1).skip(skip).limit(limit)
-    results = await cursor.to_list(length=limit)
+    cursor = db.free_resources.find(query).sort("sort_order", 1).skip(skip).limit(safe_limit(limit))
+    results = await cursor.to_list(length=safe_limit(limit))
     return [FreeResource(**r) for r in results]
 
 @api_router.post("/resources", response_model=FreeResource)
@@ -410,8 +418,8 @@ async def get_faqs(
     if is_active is not None:
         query["is_active"] = is_active
     
-    cursor = db.faqs.find(query).sort("sort_order", 1).skip(skip).limit(limit)
-    results = await cursor.to_list(length=limit)
+    cursor = db.faqs.find(query).sort("sort_order", 1).skip(skip).limit(safe_limit(limit))
+    results = await cursor.to_list(length=safe_limit(limit))
     return [FAQ(**r) for r in results]
 
 @api_router.post("/faqs", response_model=FAQ)
@@ -446,8 +454,8 @@ async def delete_faq(id: str, user: User = Depends(require_admin)):
 
 @api_router.get("/data-sources", response_model=List[DataSource])
 async def get_data_sources(skip: int = 0, limit: int = 100):
-    cursor = db.data_sources.find({}).skip(skip).limit(limit)
-    results = await cursor.to_list(length=limit)
+    cursor = db.data_sources.find({}).skip(skip).limit(safe_limit(limit))
+    results = await cursor.to_list(length=safe_limit(limit))
     return [DataSource(**r) for r in results]
 
 @api_router.post("/data-sources", response_model=DataSource)
@@ -490,8 +498,8 @@ async def get_guides(
     if is_active is not None:
         query["is_active"] = is_active
     
-    cursor = db.rehab_guides.find(query).sort("sort_order", 1).skip(skip).limit(limit)
-    results = await cursor.to_list(length=limit)
+    cursor = db.rehab_guides.find(query).sort("sort_order", 1).skip(skip).limit(safe_limit(limit))
+    results = await cursor.to_list(length=safe_limit(limit))
     return [RehabGuide(**r) for r in results]
 
 @api_router.post("/guides", response_model=RehabGuide)
@@ -540,8 +548,8 @@ async def get_page_content(
     if is_active is not None:
         query["is_active"] = is_active
     
-    cursor = db.page_content.find(query).sort("sort_order", 1).skip(skip).limit(limit)
-    results = await cursor.to_list(length=limit)
+    cursor = db.page_content.find(query).sort("sort_order", 1).skip(skip).limit(safe_limit(limit))
+    results = await cursor.to_list(length=safe_limit(limit))
     return [PageContent(**r) for r in results]
 
 @api_router.post("/page-content", response_model=PageContent)
@@ -590,8 +598,8 @@ async def get_page_seo(
     if is_active is not None:
         query["is_active"] = is_active
     
-    cursor = db.page_seo.find(query).skip(skip).limit(limit)
-    results = await cursor.to_list(length=limit)
+    cursor = db.page_seo.find(query).skip(skip).limit(safe_limit(limit))
+    results = await cursor.to_list(length=safe_limit(limit))
     return [PageSEO(**r) for r in results]
 
 @api_router.get("/page-seo/by-slug/{slug}")
@@ -656,8 +664,8 @@ async def get_articles(
     if tag:
         query["tags"] = tag
     
-    cursor = db.articles.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
-    results = await cursor.to_list(length=limit)
+    cursor = db.articles.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(safe_limit(limit))
+    results = await cursor.to_list(length=safe_limit(limit))
     total = await db.articles.count_documents(query)
     return {"items": [Article(**r) for r in results], "total": total}
 
@@ -886,14 +894,14 @@ async def get_treatment_centers(
     if state_id:
         query["state_id"] = state_id.upper()
     if city:
-        query["city"] = {"$regex": city, "$options": "i"}
+        query["city"] = {"$regex": _re.escape(city), "$options": "i"}
     if treatment_type:
         query["treatment_types"] = treatment_type
     if is_featured is not None:
         query["is_featured"] = is_featured
     
-    cursor = db.treatment_centers.find(query, {"_id": 0}).sort([("is_featured", -1), ("rating", -1)]).skip(skip).limit(limit)
-    results = await cursor.to_list(length=limit)
+    cursor = db.treatment_centers.find(query, {"_id": 0}).sort([("is_featured", -1), ("rating", -1)]).skip(skip).limit(safe_limit(limit))
+    results = await cursor.to_list(length=safe_limit(limit))
     total = await db.treatment_centers.count_documents(query)
     
     # Get filter options
@@ -928,13 +936,13 @@ async def search_treatment_centers_endpoint(
     query = {"is_active": True}
     
     if q:
-        query["name"] = {"$regex": q, "$options": "i"}
+        query["name"] = {"$regex": _re.escape(q), "$options": "i"}
     if country_code:
         query["country_code"] = country_code.upper()
     if state_id:
         query["state_id"] = state_id.upper()
     if city:
-        query["city"] = {"$regex": city, "$options": "i"}
+        query["city"] = {"$regex": _re.escape(city), "$options": "i"}
     if treatment_type:
         query["treatment_types"] = treatment_type
     if insurance:
@@ -944,8 +952,8 @@ async def search_treatment_centers_endpoint(
     if min_rating:
         query["rating"] = {"$gte": min_rating}
     
-    cursor = db.treatment_centers.find(query, {"_id": 0}).sort([("is_featured", -1), ("rating", -1)]).skip(skip).limit(limit)
-    results = await cursor.to_list(length=limit)
+    cursor = db.treatment_centers.find(query, {"_id": 0}).sort([("is_featured", -1), ("rating", -1)]).skip(skip).limit(safe_limit(limit))
+    results = await cursor.to_list(length=safe_limit(limit))
     total = await db.treatment_centers.count_documents(query)
     
     return {
@@ -1010,7 +1018,8 @@ async def research_state_data(request: ContentGenerationRequest, user: User = De
     except ImportError:
         raise HTTPException(status_code=500, detail="Content generator not available")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.exception("Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.post("/generate/content")
 async def generate_content(request: ContentWriteRequest, user: User = Depends(require_admin)):
@@ -1027,7 +1036,8 @@ async def generate_content(request: ContentWriteRequest, user: User = Depends(re
     except ImportError:
         raise HTTPException(status_code=500, detail="Content generator not available")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.exception("Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.post("/generate/qa")
 async def qa_review_content(request: QAReviewRequest, user: User = Depends(require_admin)):
@@ -1043,7 +1053,8 @@ async def qa_review_content(request: QAReviewRequest, user: User = Depends(requi
     except ImportError:
         raise HTTPException(status_code=500, detail="Content generator not available")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.exception("Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 # ============================================
 # FULL DATA PIPELINE
@@ -1075,7 +1086,8 @@ async def run_data_pipeline(request: PipelineRequest, user: User = Depends(requi
     except ImportError as e:
         raise HTTPException(status_code=500, detail=f"Pipeline not available: {e}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.exception("Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.get("/pipeline/status/{state_abbrev}")
 async def get_pipeline_status(state_abbrev: str):
@@ -1141,7 +1153,8 @@ async def validate_bulk_data(request: BulkValidateRequest, user: User = Depends(
             }
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logging.exception("Bad request error")
+        raise HTTPException(status_code=400, detail="Invalid request")
 
 @api_router.post("/bulk/import")
 async def import_bulk_data(request: BulkImportRequest, user: User = Depends(require_admin)):
@@ -1168,10 +1181,11 @@ async def import_bulk_data(request: BulkImportRequest, user: User = Depends(requ
             "message": f"Imported {result['imported']} new, updated {result['updated']}, skipped {result['skipped']}"
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logging.exception("Bad request error")
+        raise HTTPException(status_code=400, detail="Invalid request")
 
 @api_router.get("/bulk/export/{data_type}")
-async def export_bulk_data(data_type: str, state_id: Optional[str] = None, format: str = "csv"):
+async def export_bulk_data(data_type: str, state_id: Optional[str] = None, format: str = "csv", user: User = Depends(require_admin)):
     """Export data as CSV or JSON"""
     try:
         from bulk_import import BulkDataService
@@ -1188,7 +1202,8 @@ async def export_bulk_data(data_type: str, state_id: Optional[str] = None, forma
             "content": content
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logging.exception("Bad request error")
+        raise HTTPException(status_code=400, detail="Invalid request")
 
 @api_router.get("/bulk/template/{data_type}")
 async def get_import_template(data_type: str, format: str = "table"):
@@ -1230,7 +1245,8 @@ async def compare_data_sources(state_id: str, user: User = Depends(require_admin
         result = await service.get_data_comparison(state_id)
         return {"success": True, "comparison": result}
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logging.exception("Bad request error")
+        raise HTTPException(status_code=400, detail="Invalid request")
 
 # ============================================
 # COUNTRIES API (International Expansion)
@@ -1248,8 +1264,8 @@ async def get_countries(
     if region:
         query["region"] = region
     
-    cursor = db.countries.find(query, {"_id": 0}).sort("country_name", 1).skip(skip).limit(limit)
-    results = await cursor.to_list(length=limit)
+    cursor = db.countries.find(query, {"_id": 0}).sort("country_name", 1).skip(skip).limit(safe_limit(limit))
+    results = await cursor.to_list(length=safe_limit(limit))
     total = await db.countries.count_documents(query)
     
     return {
@@ -1300,8 +1316,8 @@ async def get_country_statistics(
     if year:
         query["year"] = year
     
-    cursor = db.country_statistics.find(query, {"_id": 0}).sort("year", -1).skip(skip).limit(limit)
-    results = await cursor.to_list(length=limit)
+    cursor = db.country_statistics.find(query, {"_id": 0}).sort("year", -1).skip(skip).limit(safe_limit(limit))
+    results = await cursor.to_list(length=safe_limit(limit))
     
     return {
         "statistics": results,
@@ -1321,14 +1337,14 @@ async def get_country_treatment_centers(
     """Get treatment centers in a country"""
     query = {"country_code": country_code.upper(), "is_active": True}
     if city:
-        query["city"] = {"$regex": city, "$options": "i"}
+        query["city"] = {"$regex": _re.escape(city), "$options": "i"}
     if treatment_type:
         query["treatment_types"] = treatment_type
     if is_featured is not None:
         query["is_featured"] = is_featured
     
-    cursor = db.treatment_centers.find(query, {"_id": 0}).sort("rating", -1).skip(skip).limit(limit)
-    results = await cursor.to_list(length=limit)
+    cursor = db.treatment_centers.find(query, {"_id": 0}).sort("rating", -1).skip(skip).limit(safe_limit(limit))
+    results = await cursor.to_list(length=safe_limit(limit))
     total = await db.treatment_centers.count_documents(query)
     
     return {
@@ -2181,7 +2197,8 @@ async def run_data_qa_audit(user: User = Depends(require_admin)):
         report = await qa.audit_all_country_data()
         return report
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.exception("Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.post("/qa/fix-discrepancies")
 async def fix_data_discrepancies(user: User = Depends(require_admin)):
@@ -2192,7 +2209,8 @@ async def fix_data_discrepancies(user: User = Depends(require_admin)):
         result = await qa.fix_discrepancies()
         return result
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.exception("Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.get("/qa/report/csv")
 async def get_qa_csv_report(user: User = Depends(require_admin)):
@@ -2207,7 +2225,8 @@ async def get_qa_csv_report(user: User = Depends(require_admin)):
             headers={"Content-Disposition": "attachment; filename=data_qa_report.csv"}
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.exception("Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.post("/qa/validate")
 async def validate_data_entry(data: DataValidationRequest, user: User = Depends(require_admin)):
@@ -2319,7 +2338,8 @@ async def check_data_refresh_status(user: User = Depends(require_admin)):
         system = DataRefreshSystem(db)
         return await system.check_for_updates()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.exception("Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.get("/qa/refresh/report")
 async def get_refresh_report(user: User = Depends(require_admin)):
@@ -2329,7 +2349,8 @@ async def get_refresh_report(user: User = Depends(require_admin)):
         system = DataRefreshSystem(db)
         return await system.generate_refresh_report()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.exception("Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.post("/qa/refresh")
 async def trigger_data_refresh(force: bool = False, user: User = Depends(require_admin)):
@@ -2346,7 +2367,8 @@ async def trigger_data_refresh(force: bool = False, user: User = Depends(require
         from quarterly_data_refresh import handle_data_refresh_request
         return await handle_data_refresh_request(db, force=force)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.exception("Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.get("/qa/schedule")
 async def get_refresh_schedule():
@@ -3181,12 +3203,14 @@ async def launch_article_content(req: QARequest, user: User = Depends(require_ad
 # Include the router in the main app
 app.include_router(api_router)
 
+# SECURITY: Never use wildcard '*' with allow_credentials=True
+_cors_origins = os.environ.get('CORS_ORIGINS', 'http://localhost:3000,http://localhost:5173')
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=[o.strip() for o in _cors_origins.split(',') if o.strip() and o.strip() != '*'],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
 @app.on_event("shutdown")

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import './i18n';
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import NewsPage from "./pages/NewsPage";
@@ -49,7 +50,6 @@ import SERPValidationAdmin from "./pages/admin/SERPValidationAdmin";
 import ComparePage from "./pages/ComparePage";
 import { CrisisHotlineBanner } from "./components/CrisisHotlineBanner";
 import { CookieConsentBanner } from "./components/CookieConsentBanner";
-import { DisclaimerConsent } from "./components/DisclaimerConsent";
 import { isValidCountrySlug } from "./data/countryConfig";
 import { isValidStateSlug } from "./data/stateConfig";
 
@@ -84,6 +84,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <ErrorBoundary>
       <BrowserRouter>
         <CrisisHotlineBanner />
         <Routes>
@@ -145,8 +146,8 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
         <CookieConsentBanner />
-        <DisclaimerConsent />
       </BrowserRouter>
+      </ErrorBoundary>
     </TooltipProvider>
   </QueryClientProvider>
   </HelmetProvider>

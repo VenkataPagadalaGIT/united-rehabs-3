@@ -19,7 +19,7 @@ class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     email: str
     password_hash: str
-    role: str = "admin"  # admin, editor, viewer
+    role: str = "viewer"  # admin, editor, viewer — new users default to viewer
     is_active: bool = True
     mfa_enabled: bool = False
     mfa_secret: Optional[str] = None

@@ -10,12 +10,14 @@ export const sanitizeHtml = (dirty: string): string => {
       'strong', 'em', 'b', 'i', 'u', 'a', 'p', 'br', 'ul', 'ol', 'li',
       'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'pre',
       'img', 'figure', 'figcaption', 'video', 'iframe', 'source',
-      'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr', 'span', 'div'
+      'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr', 'span', 'div',
+      'nav', 'section', 'article', 'aside', 'sup', 'sub', 'mark', 'details', 'summary',
     ],
     ALLOWED_ATTR: [
       'href', 'target', 'rel', 'src', 'alt', 'title', 'class', 'id',
       'width', 'height', 'allow', 'allowfullscreen', 'frameborder',
-      'loading', 'poster', 'controls', 'autoplay', 'muted', 'loop'
+      'loading', 'poster', 'controls', 'autoplay', 'muted', 'loop',
+      'style', 'itemscope', 'itemtype', 'itemprop',
     ],
     ALLOW_DATA_ATTR: false,
     ADD_ATTR: ['target', 'rel'],

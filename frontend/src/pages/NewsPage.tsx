@@ -76,13 +76,14 @@ function getYouTubeId(article: any): string | null {
   return match ? match[1] : null;
 }
 
-function ArticleImage({ article, className }: { article: any; className?: string }) {
+function ArticleImage({ article, className, eager }: { article: any; className?: string; eager?: boolean }) {
+  const loadProp = eager ? undefined : "lazy" as const;
   if (article.featured_image_url) {
-    return <img src={article.featured_image_url} alt={article.title} className={className} />;
+    return <img src={article.featured_image_url} alt={article.title} className={className} loading={loadProp} />;
   }
   const ytId = getYouTubeId(article);
   if (ytId) {
-    return <img src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`} alt={article.title} className={className} />;
+    return <img src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`} alt={article.title} className={className} loading={loadProp} />;
   }
   return <PlaceholderThumb article={article} className={className} />;
 }
@@ -111,7 +112,7 @@ function HeroArticle({ article }: { article: any }) {
         </div>
         {/* Right: featured image / YouTube thumbnail / gradient placeholder */}
         <div className="flex flex-col justify-center">
-          <ArticleImage article={article} className="w-full h-64 object-cover rounded-lg" />
+          <ArticleImage article={article} className="w-full h-64 object-cover rounded-lg" eager />
         </div>
       </div>
     </Link>
@@ -275,7 +276,7 @@ export default function NewsPage() {
           {isLoading ? (
             <div className="space-y-6">
               <Skeleton className="h-64 rounded-xl" />
-              <div className="grid grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[1, 2, 3].map((i) => <Skeleton key={i} className="h-48 rounded-xl" />)}
               </div>
             </div>
@@ -333,10 +334,11 @@ export default function NewsPage() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-10 pt-8 border-t border-border" data-testid="news-pagination">
+            <nav className="flex items-center justify-center gap-2 mt-10 pt-8 border-t border-border" data-testid="news-pagination" aria-label="Pagination">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
+                aria-label="Previous page"
                 className="inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-border bg-card text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors"
               >
                 <ChevronLeft className="h-4 w-4" /> Previous
@@ -345,6 +347,8 @@ export default function NewsPage() {
                 <button
                   key={p}
                   onClick={() => setPage(p)}
+                  aria-label={`Page ${p}`}
+                  aria-current={p === page ? "page" : undefined}
                   className={`w-9 h-9 rounded-lg border text-sm font-medium transition-colors ${
                     p === page
                       ? "bg-primary text-primary-foreground border-primary"
@@ -357,11 +361,12 @@ export default function NewsPage() {
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
+                aria-label="Next page"
                 className="inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-border bg-card text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors"
               >
                 Next <ChevronRight className="h-4 w-4" />
               </button>
-            </div>
+            </nav>
           )}
 
           {/* Results count */}

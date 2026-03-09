@@ -12,6 +12,7 @@ import { ALL_COUNTRIES } from "@/data/countryConfig";
 import { ALL_STATES } from "@/data/allStates";
 import { Helmet } from "react-helmet-async";
 import { useState, useRef, useEffect, useCallback } from "react";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const API = import.meta.env.REACT_APP_BACKEND_URL || "";
 
@@ -189,6 +190,7 @@ function ArticleToolbar({ title, url, content, readTime }: { title: string; url:
         {hasTTS && (
           <button
             onClick={() => { if (!showPlayer) setShowPlayer(true); togglePlay(); }}
+            aria-label={isPlaying ? (isPaused ? "Resume audio" : "Pause audio") : "Listen to article"}
             className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
           >
             {isPlaying && !isPaused ? <Pause className="h-4 w-4" /> : <Headphones className="h-4 w-4" />}
@@ -224,7 +226,7 @@ function ArticleToolbar({ title, url, content, readTime }: { title: string; url:
       {/* TTS Progress Bar (shown when playing) */}
       {showPlayer && (
         <div className="flex items-center gap-3 mt-3 pt-3 border-t border-border">
-          <button onClick={togglePlay} className="shrink-0 w-8 h-8 rounded-full border-2 border-foreground flex items-center justify-center hover:bg-muted transition-colors">
+          <button onClick={togglePlay} aria-label={isPlaying && !isPaused ? "Pause" : "Play"} className="shrink-0 w-8 h-8 rounded-full border-2 border-foreground flex items-center justify-center hover:bg-muted transition-colors">
             {isPlaying && !isPaused ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 ml-0.5" />}
           </button>
           <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
@@ -234,7 +236,7 @@ function ArticleToolbar({ title, url, content, readTime }: { title: string; url:
             {ttsDuration || `${String(estimatedMinutes).padStart(2, "0")}:00`}
           </span>
           {isPlaying && (
-            <button onClick={stopSpeech} className="text-muted-foreground hover:text-foreground transition-colors">
+            <button onClick={stopSpeech} aria-label="Stop audio" className="text-muted-foreground hover:text-foreground transition-colors">
               <Square className="h-3.5 w-3.5" />
             </button>
           )}
@@ -464,7 +466,7 @@ export default function NewsArticlePage() {
                   prose-strong:text-foreground
                   prose-a:text-primary prose-a:no-underline hover:prose-a:underline
                   prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg"
-                dangerouslySetInnerHTML={{ __html: autoLinkedContent }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(autoLinkedContent) }}
                 data-testid="article-content"
               />
 

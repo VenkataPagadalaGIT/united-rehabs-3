@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { cmsApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -185,7 +186,7 @@ export default function CMSAdmin() {
                     ) : isPreview ? (
                       <div
                         className="prose prose-sm max-w-none p-4 bg-muted/50 rounded-lg min-h-96 overflow-auto"
-                        dangerouslySetInnerHTML={{ __html: currentContent }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(currentContent) }}
                       />
                     ) : (
                       <Textarea

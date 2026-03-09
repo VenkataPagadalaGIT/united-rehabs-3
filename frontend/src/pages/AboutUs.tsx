@@ -7,6 +7,7 @@ import { Shield, Users, Target, BarChart3, Globe, Database, FileText, TrendingUp
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEOHead } from "@/components/SEOHead";
 import { Link } from "react-router-dom";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 export default function AboutUs() {
   const { data: pageContent, isLoading } = useQuery({
@@ -42,7 +43,7 @@ export default function AboutUs() {
               </h1>
               <div 
                 className="prose prose-slate max-w-none"
-                dangerouslySetInnerHTML={{ __html: pageContent?.content || "" }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(pageContent?.content || "") }}
               />
             </div>
           ) : (
