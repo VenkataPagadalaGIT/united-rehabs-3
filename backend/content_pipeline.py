@@ -8,12 +8,111 @@ import uuid
 import re
 from datetime import datetime, timezone
 from typing import List, Dict, Optional
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+try:
+    from emergentintegrations.llm.chat import LlmChat, UserMessage
+except ImportError:
+    LlmChat = None
+    UserMessage = None
+    print("Warning: emergentintegrations not installed. Content pipeline AI features disabled.")
 
 API_KEY = os.environ.get("EMERGENT_LLM_KEY", "")
 
 # All valid state/country slugs for internal link validation
 VALID_LINK_PATTERNS = []  # populated at runtime
+
+# ============================================
+# INTERNATIONAL CRISIS HELPLINES (Rule 5)
+# ============================================
+CRISIS_HELPLINES = {
+    "USA": {"name": "SAMHSA National Helpline", "number": "1-800-662-4357", "extra": "988 Suicide & Crisis Lifeline: call or text 988"},
+    "GBR": {"name": "Frank Drug Helpline", "number": "0300 123 6600", "extra": "Samaritans: 116 123"},
+    "CAN": {"name": "Canada Crisis Services", "number": "1-833-456-4566", "extra": "Text HOME to 686868"},
+    "AUS": {"name": "Lifeline Australia", "number": "13 11 14", "extra": "DirectLine (alcohol/drugs): 1800 888 236"},
+    "DEU": {"name": "Telefonseelsorge", "number": "0800 111 0 111", "extra": "Drug emergency: 112"},
+    "MEX": {"name": "SAPTEL Mexico", "number": "55 5259-8121", "extra": "CONADIC: 800-911-2000"},
+    "COL": {"name": "Linea 106 Colombia", "number": "106", "extra": "Ministerio de Salud"},
+    "BRA": {"name": "CVV Brazil", "number": "188", "extra": "CAPS (Centro de Atencao Psicossocial)"},
+    "IND": {"name": "Vandrevala Foundation", "number": "+91 9999 666 555", "extra": "iCall: 9152987821"},
+    "PHL": {"name": "NCMH Crisis Hotline", "number": "0917-899-8727", "extra": "DOH Mental Health: 1553"},
+    "NGA": {"name": "SURPIN Nigeria", "number": "+234 8062106493", "extra": "NDLEA Helpline"},
+    "ZAF": {"name": "SADAG South Africa", "number": "0800 12 13 14", "extra": "Substance Abuse Helpline: 0800 12 13 14"},
+    "FRA": {"name": "Drogues Info Service", "number": "0 800 23 13 13", "extra": "SOS Amitie: 09 72 39 40 50"},
+    "ESP": {"name": "Telefono de la Esperanza", "number": "717 003 717", "extra": "FAD: 900 16 15 15"},
+    "NLD": {"name": "Trimbos-instituut", "number": "0900-1995", "extra": "113 Suicide Prevention: 0900-0113"},
+    "ITA": {"name": "Telefono Amico", "number": "02 2327 2327", "extra": "Droga? No Grazie: 800 186 070"},
+}
+
+def _get_helplines_for_countries(country_codes: List[str]) -> str:
+    """Build helpline text block for the given country codes"""
+    lines = []
+    has_usa = "USA" in country_codes
+    for code in country_codes:
+        info = CRISIS_HELPLINES.get(code)
+        if info:
+            lines.append(f"- {info['name']}: {info['number']}" + (f" ({info['extra']})" if info.get('extra') else ""))
+    if not has_usa:
+        usa = CRISIS_HELPLINES["USA"]
+        lines.append(f"- {usa['name']}: {usa['number']} ({usa['extra']})")
+    return "\n".join(lines) if lines else "- SAMHSA National Helpline: 1-800-662-4357\n- 988 Suicide & Crisis Lifeline: call or text 988"
+
+
+# ============================================
+# FUZZY DUPLICATE DETECTION (Rule 1)
+# ============================================
+def _jaccard_similarity(title_a: str, title_b: str) -> float:
+    """Word-level Jaccard similarity between two titles"""
+    words_a = set(title_a.lower().split())
+    words_b = set(title_b.lower().split())
+    if not words_a or not words_b:
+        return 0.0
+    intersection = words_a & words_b
+    union = words_a | words_b
+    return len(intersection) / len(union)
+
+def _is_duplicate(new_title: str, existing_titles: List[str], threshold: float = 0.6) -> bool:
+    """Check if new_title is too similar to any existing title (>60% word overlap)"""
+    for existing in existing_titles:
+        if _jaccard_similarity(new_title, existing) > threshold:
+            return True
+    return False
+
+
+# ============================================
+# FEATURED IMAGE (Rule 2)
+# ============================================
+CATEGORY_IMAGES = {
+    "fentanyl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1200&h=630&fit=crop",
+    "overdose": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1200&h=630&fit=crop",
+    "cartel": "https://images.unsplash.com/photo-1589578527966-fdac0f44566c?w=1200&h=630&fit=crop",
+    "policy": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&h=630&fit=crop",
+    "recovery": "https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=1200&h=630&fit=crop",
+    "treatment": "https://images.unsplash.com/photo-1551190822-a9ce113ac100?w=1200&h=630&fit=crop",
+    "alcohol": "https://images.unsplash.com/photo-1569924160399-96f3afdd4753?w=1200&h=630&fit=crop",
+    "opioid": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1200&h=630&fit=crop",
+    "seizure": "https://images.unsplash.com/photo-1589578527966-fdac0f44566c?w=1200&h=630&fit=crop",
+    "default": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1200&h=630&fit=crop",
+}
+
+async def _fetch_featured_image(title: str, tags: List[str]) -> str:
+    """Fetch a relevant featured image from Unsplash or use category fallback"""
+    import aiohttp
+    # Try Unsplash search (free, no API key for source URLs)
+    query = " ".join(tags[:2]) if tags else title.split()[:3]
+    search_query = "+".join(query) if isinstance(query, list) else query.replace(" ", "+")
+    try:
+        async with aiohttp.ClientSession() as session:
+            url = f"https://source.unsplash.com/1200x630/?{search_query},health,medical"
+            async with session.get(url, timeout=aiohttp.ClientTimeout(total=8), allow_redirects=True) as resp:
+                if resp.status == 200 and "unsplash" in str(resp.url):
+                    return str(resp.url)
+    except:
+        pass
+    # Fallback to category images
+    title_lower = title.lower()
+    for keyword, img_url in CATEGORY_IMAGES.items():
+        if keyword in title_lower:
+            return img_url
+    return CATEGORY_IMAGES["default"]
 
 
 def _get_research_chat(session_id: str) -> LlmChat:
@@ -55,7 +154,7 @@ WRITING RULES:
 - Include a Table of Contents at the top
 - Include a "Further Reading and Sources" section at the end with real URLs
 - Include 3-4 FAQ items optimized for Google FAQ rich snippets
-- End with crisis helpline note (988 and SAMHSA 1-800-662-4357)
+- End with crisis helpline section using the EXACT helplines provided in the prompt (localized to article's countries)
 
 INTERNAL LINKING RULES (CRITICAL):
 - Each country/state name should appear as a link ONLY ONCE (first mention only)
@@ -158,31 +257,85 @@ async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
     if not news_items:
         return {"stage": "research", "topics": [], "error": "No news found from web search", "tier": tier}
 
-    # Search YouTube for a video matching the SPECIFIC story (not generic drug news)
-    youtube_videos = {}
-    try:
-        async with aiohttp.ClientSession() as session:
-            # Use the actual news headline for YouTube search
-            best_title = news_items[0]["title"] if news_items else search_queries[0]
-            yt_query = best_title.replace(" ", "+")
-            yt_url = f"https://www.youtube.com/results?search_query={yt_query}"
+    # Known major news YouTube channels — prioritize these for credibility + views
+    TRUSTED_CHANNELS = [
+        "BBC News", "CNN", "CNBC", "Fox News", "ABC News", "CBS News", "NBC News",
+        "Reuters", "Al Jazeera", "Sky News", "FRANCE 24", "DW News", "WION",
+        "The Guardian", "Vice News", "The Telegraph", "Channel 4 News",
+        "PBS NewsHour", "Associated Press", "Bloomberg", "MSNBC",
+    ]
+    TRUSTED_LOWER = [c.lower() for c in TRUSTED_CHANNELS]
+
+    async def _find_trending_video(query: str, prefer_channels: bool = True) -> tuple:
+        """Search YouTube + Google for trending video from major media channels.
+        Returns (video_id, channel_name) or (None, None).
+        Strategy: 1) YouTube with trusted channel preference, 2) Google video search, 3) fallback.
+        Uses httpx (installed) with aiohttp as fallback.
+        """
+        import httpx
+        ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        yt_query = query.replace(" ", "+").replace("'", "")
+        last_seen = []
+        last_channels = []
+
+        async with httpx.AsyncClient(timeout=15, headers={"User-Agent": ua}, follow_redirects=True) as client:
+            # --- Strategy 1: YouTube search (multiple query variations) ---
+            search_queries = [
+                yt_query,                                                           # exact headline
+                "+".join(yt_query.split("+")[:4]) + "+news",                       # shorter + news
+            ]
+            for sq in search_queries:
+                for sp_filter in ["", "EgIQAQ%3D%3D"]:  # no filter, then Video type only
+                    try:
+                        url = f"https://www.youtube.com/results?search_query={sq}"
+                        if sp_filter:
+                            url += f"&sp={sp_filter}"
+                        resp = await client.get(url)
+                        if resp.status_code == 200:
+                            html = resp.text
+                            video_ids = re.findall(r'"videoId":"([a-zA-Z0-9_-]{11})"', html)
+                            channel_names = re.findall(r'"ownerText":\{"runs":\[\{"text":"([^"]+)"', html)
+
+                            seen = []
+                            for vid in video_ids:
+                                if vid not in seen:
+                                    seen.append(vid)
+                                if len(seen) >= 10:
+                                    break
+
+                            last_seen = seen
+                            last_channels = channel_names
+
+                            if prefer_channels and channel_names:
+                                # Pick video from a trusted news channel
+                                for i, vid in enumerate(seen):
+                                    if i < len(channel_names):
+                                        ch = channel_names[i].lower()
+                                        for trusted in TRUSTED_LOWER:
+                                            if trusted in ch or ch in trusted:
+                                                return (vid, channel_names[i])
+                    except:
+                        continue
+
+            # --- Strategy 2: Google video search (trending videos across web) ---
             try:
-                async with session.get(yt_url, timeout=aiohttp.ClientTimeout(total=10), headers={"User-Agent": "Mozilla/5.0"}) as resp:
-                    if resp.status == 200:
-                        html = await resp.text()
-                        import re as _re
-                        video_ids = _re.findall(r'"videoId":"([a-zA-Z0-9_-]{11})"', html)
-                        seen = set()
-                        for vid in video_ids:
-                            if vid not in seen:
-                                seen.add(vid)
-                                youtube_videos[vid] = True
-                            if len(seen) >= 3:
-                                break
+                google_url = f"https://www.google.com/search?q={yt_query}&tbm=vid&tbs=qdr:w"
+                resp = await client.get(google_url)
+                if resp.status_code == 200:
+                    yt_matches = re.findall(r'youtube\.com/watch\?v=([a-zA-Z0-9_-]{11})', resp.text)
+                    if yt_matches:
+                        return (yt_matches[0], "Google Trending")
             except:
                 pass
-    except:
-        pass
+
+        # --- Fallback: first YouTube result (most relevant) ---
+        if last_seen:
+            ch = last_channels[0] if last_channels else "Unknown"
+            return (last_seen[0], ch)
+
+        return (None, None)
+
+    youtube_videos = {}
 
     # Use Gemini to pick the best 3 stories for our site
     chat = _get_research_chat(session_id)
@@ -233,34 +386,24 @@ Return JSON array: [{{"title": "headline", "what_happened": "1-2 sentences", "so
         if not t.get("source_url"):
             src = t.get("source_headline", "").lower().strip()
             t["source_url"] = news_lookup.get(src, news_items[0].get("link", "") if news_items else "")
-        # Search YouTube via RSS feed (more reliable than HTML scraping)
-        yt_id = None
-        try:
-            import aiohttp as _aio
-            topic_query = t.get("source_headline", t.get("title", "")).replace(" ", "+").replace("'", "")
-            yt_rss = f"https://www.youtube.com/results?search_query={topic_query}&sp=EgIIAQ%253D%253D"
-            async with _aio.ClientSession() as yt_session:
-                for attempt_query in [topic_query, topic_query.split("+")[0] + "+drug+news"]:
-                    try:
-                        async with yt_session.get(
-                            f"https://www.youtube.com/results?search_query={attempt_query}",
-                            timeout=_aio.ClientTimeout(total=10),
-                            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
-                        ) as yt_resp:
-                            if yt_resp.status == 200:
-                                yt_html = await yt_resp.text()
-                                yt_ids = re.findall(r'"videoId":"([a-zA-Z0-9_-]{11})"', yt_html)
-                                if yt_ids:
-                                    yt_id = yt_ids[0]
-                                    break
-                    except:
-                        continue
-        except:
-            pass
+        # Find trending video from major media channels (Google + YouTube + news channels)
+        topic_headline = t.get("source_headline", t.get("title", ""))
+        yt_id, yt_channel = await _find_trending_video(topic_headline, prefer_channels=True)
+
+        # Fallback: try shorter query if exact headline didn't work
+        if not yt_id:
+            short_query = " ".join(topic_headline.split()[:5]) + " news"
+            yt_id, yt_channel = await _find_trending_video(short_query, prefer_channels=True)
+
+        # Last resort: use any video from initial broad search
         if not yt_id and youtube_videos:
             yt_id = list(youtube_videos.keys())[0]
+            yt_channel = "Fallback"
+
         if yt_id:
             t["youtube_id"] = yt_id
+            t["youtube_channel"] = yt_channel or "Unknown"
+            print(f"[Pipeline] Topic '{topic_headline[:50]}' → YouTube: {yt_id} from {yt_channel}")
 
     return {"stage": "research", "topics": topics, "raw_news_count": len(news_items), "tier": tier, "session_id": session_id}
 
@@ -352,17 +495,24 @@ ADDITIONAL SOURCES (cross-reference for accuracy):
 CRITICAL: Only write facts that appear in at LEAST one source above. If sources conflict, note the discrepancy. Do NOT invent details.
 """
 
+    # Build localized crisis helplines for this article's countries
+    related_countries = topic.get('related_countries', ['USA'])
+    helplines_text = _get_helplines_for_countries(related_countries)
+
     prompt = f"""Write a news article for our addiction data website based on this REAL story:
 
 HEADLINE: {topic.get('title', '')}
 WHAT HAPPENED: {topic.get('what_happened', '')}
 {source_context}
 TARGET KEYWORDS: {json.dumps(topic.get('target_keywords', []))}
-RELATED COUNTRIES: {json.dumps(topic.get('related_countries', []))}
+RELATED COUNTRIES: {json.dumps(related_countries)}
 RELATED STATES: {json.dumps(topic.get('related_states', []))}
 
 DATABASE STATS (use if relevant):
 {db_context if db_context else 'No database stats available'}
+
+CRISIS HELPLINES (include these EXACT numbers at the end):
+{helplines_text}
 
 REQUIREMENTS:
 - 800-1200 words
@@ -372,6 +522,7 @@ REQUIREMENTS:
 - Include "Data Sources" section with real sources (CDC, WHO, SAMHSA, UNODC, EMCDDA)
 - Every statistic must cite its source
 - Content must be factual and citable by AI systems
+- End with "If You Need Help" section using the EXACT crisis helplines above
 
 Return ONLY valid JSON."""
 
@@ -392,11 +543,10 @@ Return ONLY valid JSON."""
     yt_id = topic.get("youtube_id", "")
     if not yt_id:
         return {"stage": "write", "error": "No YouTube video found - article rejected (video is mandatory)"}
-    
+
     if article.get("content"):
         video_html = f'<div style="margin: 2rem 0; border-radius: 12px; overflow: hidden;"><div style="position: relative; padding-bottom: 56.25%; height: 0;"><iframe src="https://www.youtube.com/embed/{yt_id}" title="Related video" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>'
         content = article["content"]
-        # Insert after </nav> or after first </h2> or after first </p>
         for marker in ['</nav>', '</h2>']:
             pos = content.find(marker)
             if pos > 0:
@@ -404,7 +554,6 @@ Return ONLY valid JSON."""
                 content = content[:insert_at] + '\n' + video_html + '\n' + content[insert_at:]
                 break
         else:
-            # Fallback: insert after first paragraph
             p_end = content.find('</p>')
             if p_end > 0:
                 insert_at = p_end + 4
@@ -414,6 +563,13 @@ Return ONLY valid JSON."""
     # Remove em dashes
     if article.get("content"):
         article["content"] = article["content"].replace("\u2014", " - ").replace("&mdash;", " - ")
+
+    # Fetch featured image (Rule 2)
+    featured_image = await _fetch_featured_image(
+        article.get("title", ""),
+        article.get("tags", [])
+    )
+    article["featured_image_url"] = featured_image
 
     return {"stage": "write", "article": article, "session_id": session_id}
 
@@ -495,6 +651,20 @@ async def stage_qa(article: Dict, db=None) -> Dict:
         if existing:
             warnings.append(f"Slug already exists: {article['slug']} - will update existing")
 
+    # Fuzzy duplicate detection (Rule 1) - check title similarity against recent articles
+    if db is not None:
+        recent_articles = await db.articles.find(
+            {"content_type": "news", "is_published": True},
+            {"_id": 0, "title": 1}
+        ).sort("created_at", -1).to_list(50)
+        existing_titles = [a["title"] for a in recent_articles if a.get("title")]
+        if _is_duplicate(article.get("title", ""), existing_titles):
+            issues.append(f"Fuzzy duplicate detected: title is >60% similar to an existing article")
+
+    # Missing featured image
+    if not article.get("featured_image_url"):
+        warnings.append("No featured image - social sharing will use default OG image")
+
     passed = len(issues) == 0
     return {
         "stage": "qa",
@@ -525,9 +695,12 @@ async def stage_launch(article: Dict, db=None) -> Dict:
         "related_states": article.get("related_states", []),
         "faq_items": article.get("faq_items", []),
         "read_time": article.get("read_time", "5 min read"),
+        "featured_image_url": article.get("featured_image_url", ""),
+        "youtube_video_id": topic.get("youtube_id", ""),
         "is_published": True,
         "is_featured": False,
         "sort_order": 0,
+        "share_count": 0,
     }
 
     # Check if exists (update) or new (create)

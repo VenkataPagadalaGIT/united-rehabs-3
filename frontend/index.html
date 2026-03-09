@@ -4,28 +4,67 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>United Rehabs - Global Addiction Statistics & Data</title>
-    
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QXZLSZGM9P"></script>
+
+    <!-- Google Analytics - only on production -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-QXZLSZGM9P');
+      if (window.location.hostname === 'unitedrehabs.com' || window.location.hostname === 'www.unitedrehabs.com') {
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-QXZLSZGM9P';
+        document.head.appendChild(s);
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-QXZLSZGM9P');
+      }
     </script>
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    
+
     <!-- Premium Typography - Inter (like Stripe, Linear, Vercel) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <meta name="description" content="" data-rh="true" />
+
+    <!-- Default SEO meta tags (overridden by React Helmet on client-side render) -->
+    <meta name="description" content="Comprehensive addiction statistics and data for 195 countries. Verified data from WHO, CDC, SAMHSA and official health ministries worldwide." data-rh="true" />
     <meta name="author" content="United Rehabs" />
     <meta name="publisher" content="United Rehabs" />
     <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://unitedrehabs.com/" />
+
+    <!-- Open Graph defaults for crawlers that don't execute JS -->
+    <meta property="og:title" content="United Rehabs - Global Addiction Statistics & Data" />
+    <meta property="og:description" content="Comprehensive addiction statistics and data for 195 countries. Verified data from WHO, CDC, SAMHSA and official health ministries worldwide." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://unitedrehabs.com/" />
+    <meta property="og:site_name" content="United Rehabs" />
+    <meta property="og:image" content="https://unitedrehabs.com/og-image.png" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Card defaults -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="United Rehabs - Global Addiction Statistics & Data" />
+    <meta name="twitter:description" content="Comprehensive addiction statistics and data for 195 countries." />
+    <meta name="twitter:image" content="https://unitedrehabs.com/og-image.png" />
+    <meta name="twitter:site" content="@UnitedRehabs" />
+
+    <!-- JSON-LD for crawlers -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "United Rehabs",
+      "url": "https://unitedrehabs.com",
+      "description": "Comprehensive addiction statistics and data for 195 countries.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "United Rehabs",
+        "url": "https://unitedrehabs.com"
+      }
+    }
+    </script>
   </head>
 
   <body>

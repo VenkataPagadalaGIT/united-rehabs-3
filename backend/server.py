@@ -729,9 +729,19 @@ async def bulk_import_articles(articles: List[ArticleCreate], user: User = Depen
 
 @api_router.get("/articles/tags")
 async def get_article_tags():
-    """Get all unique tags across articles"""
-    tags = await db.articles.distinct("tags", {"is_published": True})
-    return [t for t in tags if t]
+    """Get all unique tags across articles, deduplicated case-insensitively"""
+    raw_tags = await db.articles.distinct("tags", {"is_published": True})
+    # Deduplicate: keep Title Case version when duplicates exist
+    seen: dict[str, str] = {}
+    for tag in raw_tags:
+        if not tag:
+            continue
+        key = tag.lower().strip()
+        if key not in seen:
+            seen[key] = tag
+        elif tag[0].isupper() and not seen[key][0].isupper():
+            seen[key] = tag  # prefer Title Case
+    return sorted(seen.values())
 
 @api_router.get("/news/{slug}")
 async def get_news_by_slug(slug: str):
@@ -1931,8 +1941,8 @@ async def generate_sitemap():
         return Response(content=_sitemap_cache["xml"], media_type="application/xml",
                        headers={"Cache-Control": "public, max-age=21600"})
     
-    base_url = os.environ.get('APP_URL', 'https://unitedrehabs.com').rstrip('/')
-    
+    base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
+
     # Start XML
     xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>']
     xml_parts.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
@@ -2038,8 +2048,8 @@ async def generate_robots_txt():
     """Generate dynamic robots.txt"""
     from fastapi.responses import Response
     
-    base_url = os.environ.get('APP_URL', 'https://unitedrehabs.com').rstrip('/')
-    
+    base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
+
     # Get noindex folder rules
     noindex_rules = await db.seo_folder_rules.find(
         {"is_active": True, "robots": {"$regex": "noindex", "$options": "i"}},
@@ -2054,8 +2064,8 @@ async def generate_robots_txt():
         "Allow: /",
         "",
         "# Admin and API paths",
-        "Disallow: /admin",
-        "Disallow: /admin/",
+        "Disallow: /you-are-the-admin",
+        "Disallow: /you-are-the-admin/",
         "Disallow: /api/",
         "",
     ]

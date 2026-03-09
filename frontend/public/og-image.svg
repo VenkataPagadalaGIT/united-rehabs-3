@@ -1,0 +1,7 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#1a1a2e"/>
+  <rect x="0" y="0" width="1200" height="6" fill="#e74c3c"/>
+  <text x="600" y="260" text-anchor="middle" fill="#ffffff" font-family="Inter, system-ui, sans-serif" font-size="64" font-weight="700">United Rehabs</text>
+  <text x="600" y="340" text-anchor="middle" fill="#94a3b8" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="400">Global Addiction Statistics &amp; Data</text>
+  <text x="600" y="400" text-anchor="middle" fill="#64748b" font-family="Inter, system-ui, sans-serif" font-size="22">195 Countries · Verified Sources · WHO · CDC · SAMHSA</text>
+</svg>

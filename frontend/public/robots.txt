@@ -1,6 +1,6 @@
 # robots.txt for United Rehabs
 # Allow all crawlers to index public pages
-# Block admin pages from indexing
+# Block admin and API routes from indexing
 
 User-agent: *
 Allow: /
@@ -9,5 +9,9 @@ Allow: /
 Disallow: /you-are-the-admin
 Disallow: /you-are-the-admin/
 
-# Sitemap location
+# Block API routes
+Disallow: /api/
+
+# Sitemap locations
 Sitemap: https://unitedrehabs.com/sitemap.xml
+Sitemap: https://unitedrehabs.com/api/seo/sitemap.xml
