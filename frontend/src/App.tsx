@@ -50,6 +50,7 @@ import SERPValidationAdmin from "./pages/admin/SERPValidationAdmin";
 import ComparePage from "./pages/ComparePage";
 import DrugLawsHubPage from "./pages/DrugLawsHubPage";
 import StateLawsPage from "./pages/StateLawsPage";
+import CountyDrugLawsPage from "./pages/CountyDrugLawsPage";
 import { CrisisHotlineBanner } from "./components/CrisisHotlineBanner";
 import { CookieConsentBanner } from "./components/CookieConsentBanner";
 import { isValidCountrySlug } from "./data/countryConfig";
@@ -106,9 +107,10 @@ const App = () => (
           {/* Treatment Centers - Coming Soon */}
           <Route path="/rehab-centers" element={<ComingSoon />} />
           
-          {/* Drug Laws Hub + Individual State Law Pages */}
+          {/* Drug Laws Hub + State + County Law Pages */}
           <Route path="/drug-laws" element={<DrugLawsHubPage />} />
           <Route path="/drug-laws/:slug" element={<StateLawsPage />} />
+          <Route path="/drug-laws/:state/:county" element={<CountyDrugLawsPage />} />
 
           {/* Country Comparison Tool */}
           <Route path="/compare" element={<ComparePage />} />

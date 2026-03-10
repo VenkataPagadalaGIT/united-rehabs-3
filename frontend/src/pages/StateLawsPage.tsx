@@ -452,6 +452,16 @@ const StateLawsPage = () => {
     retry: false,
   });
 
+  // Fetch counties for this state
+  const { data: counties = [] } = useQuery<{ county_name: string; county_slug: string; population?: number }[]>({
+    queryKey: ["county-laws-list", stateConfig?.abbreviation],
+    queryFn: async () => {
+      const res = await api.get(`/api/county-laws/${stateConfig!.abbreviation}`);
+      return res.data;
+    },
+    enabled: !!stateConfig,
+  });
+
   if (!stateConfig) return <Navigate to="/" replace />;
 
   const stateName = stateConfig.name;
@@ -698,6 +708,32 @@ const StateLawsPage = () => {
           )}
         </div>
       </main>
+
+      {/* County Drug Laws Section */}
+      {counties.length > 0 && (
+        <section className="container mx-auto px-4 py-10 border-t">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+              <MapPin className="h-6 w-6 text-primary" />
+              {stateName} Drug Laws by County
+            </h2>
+            <p className="text-muted-foreground mb-6 text-sm">
+              View county-specific enforcement, drug courts, treatment resources, and local legal aid.
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+              {counties.map(c => (
+                <Link
+                  key={c.county_slug}
+                  to={`/drug-laws/${stateKey}/${c.county_slug}`}
+                  className="px-3 py-2 rounded-lg border bg-card hover:border-primary text-sm text-foreground hover:text-primary transition-colors"
+                >
+                  {c.county_name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <Footer linkGroups={mockFooterLinks} />
       <BackToTop />

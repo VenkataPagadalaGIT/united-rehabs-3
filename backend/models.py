@@ -564,6 +564,58 @@ class StateDrugLaw(StateDrugLawCreate):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
+
+# ============================================
+# COUNTY DRUG LAW MODELS
+# ============================================
+
+class CountyDrugLawCreate(BaseModel):
+    state_id: str  # "CA"
+    state_name: str  # "California"
+    county_name: str  # "Los Angeles County"
+    county_slug: str  # "los-angeles"
+    fips_code: Optional[str] = None  # "06037"
+    population: Optional[int] = None
+
+    # County-specific content (HTML)
+    overview: Optional[str] = None  # County-specific enforcement overview
+    local_enforcement: Optional[str] = None  # DA policies, enforcement priorities
+    drug_courts: Optional[str] = None  # County drug court programs
+    treatment_resources: Optional[str] = None  # Local treatment centers, programs
+    diversion_programs: Optional[str] = None  # County-specific diversion
+    legal_resources: Optional[str] = None  # County legal aid, public defenders
+    local_statistics: Optional[str] = None  # County overdose/arrest data
+    notable_local_laws: Optional[str] = None  # Municipal ordinances
+
+    # Key facts
+    key_facts: Optional[List[str]] = None  # 3-5 county-specific bullet points
+
+    # Local contacts
+    da_office_url: Optional[str] = None
+    public_defender_url: Optional[str] = None
+    drug_court_url: Optional[str] = None
+    treatment_hotline: Optional[str] = None
+
+    # FAQ: [{question, answer}]
+    faqs: Optional[List[dict]] = None
+
+    # Sources: [{title, url, description}]
+    sources: Optional[List[dict]] = None
+
+    # SEO
+    meta_title: Optional[str] = None
+    meta_description: Optional[str] = None
+
+    # Status
+    status: str = "draft"
+    confidence_score: Optional[str] = None
+
+class CountyDrugLaw(CountyDrugLawCreate):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
 # ============================================
 # API RESPONSE MODELS
 # ============================================

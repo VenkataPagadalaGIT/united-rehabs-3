@@ -2029,6 +2029,14 @@ async def sitemap_states():
             xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats-{year}</loc><priority>0.6</priority><changefreq>yearly</changefreq></url>')
         # Drug law page for this state
         xml_parts.append(f'  <url><loc>{base_url}/drug-laws/{slug}</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>')
+
+    # County drug law pages
+    async for county in db.county_drug_laws.find({"status": "published"}, {"state_id": 1, "state_name": 1, "county_slug": 1}):
+        state_slug = county.get("state_name", "").lower().replace(" ", "-")
+        county_slug = county.get("county_slug", "")
+        if state_slug and county_slug:
+            xml_parts.append(f'  <url><loc>{base_url}/drug-laws/{state_slug}/{county_slug}</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>')
+
     xml_parts.append('</urlset>')
     xml = "\n".join(xml_parts)
     cache["xml"] = xml
@@ -3318,6 +3326,31 @@ async def bulk_create_state_laws(laws: List[StateDrugLawCreate], user: User = De
     # Clear sitemap cache
     _sitemap_caches.clear()
     return {"results": results, "total": len(results)}
+
+
+# ============================================
+# COUNTY DRUG LAWS
+# ============================================
+
+@api_router.get("/county-laws/{state_id}")
+async def get_county_laws_for_state(state_id: str):
+    """Get all county drug laws for a state"""
+    counties = await db.county_drug_laws.find(
+        {"state_id": state_id.upper(), "status": "published"},
+        {"_id": 0}
+    ).sort("county_name", 1).to_list(length=200)
+    return counties
+
+@api_router.get("/county-laws/{state_id}/{county_slug}")
+async def get_county_law(state_id: str, county_slug: str):
+    """Get drug laws for a specific county"""
+    law = await db.county_drug_laws.find_one(
+        {"state_id": state_id.upper(), "county_slug": county_slug, "status": "published"},
+        {"_id": 0}
+    )
+    if not law:
+        raise HTTPException(status_code=404, detail="County not found")
+    return law
 
 
 # ============================================
