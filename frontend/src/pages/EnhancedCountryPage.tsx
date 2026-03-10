@@ -6,6 +6,7 @@ import { mockNavItems, mockFooterLinks } from "@/data/mockData";
 import { countriesApi, statisticsApi, substanceStatisticsApi } from "@/lib/api";
 import { getCountryBySlug, isValidCountrySlug } from "@/data/countryConfig";
 import { SEOHead, countryStatsSEO } from "@/components/SEOHead";
+import { ArticleToolbar } from "@/components/ArticleToolbar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -306,6 +307,12 @@ const EnhancedCountryPage = () => {
               : `Comprehensive addiction statistics and treatment resources for ${countryConfig?.name}. Data sourced from ${dataSource}.`
             }
           </p>
+
+          <ArticleToolbar
+            title={`${countryConfig?.name} Addiction Statistics${urlYear ? ` (${urlYear})` : ""}`}
+            url={`https://unitedrehabs.com/${countrySlug}-addiction-stats${urlYear ? `-${urlYear}` : ""}`}
+            content={`Addiction statistics for ${countryConfig?.name}. Data sourced from ${dataSource}.`}
+          />
 
           {/* Year Selector */}
           <div className="mt-6 flex items-center gap-4">

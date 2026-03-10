@@ -1,6 +1,7 @@
 import { useParams, Navigate } from "react-router-dom";
 import StateStatsPage from "./StateStatsPage";
 import StateRehabsPage from "./StateRehabsPage";
+import StateLawsPage from "./StateLawsPage";
 import NotFound from "./NotFound";
 import { isValidStateSlug } from "@/data/stateConfig";
 
@@ -14,6 +15,14 @@ const StatePage = () => {
   // Year-based URLs: /state-addiction-rehabs-2025, /state-addiction-stats-2024
   const yearMatch = slug.match(/-(\d{4})$/);
   const baseSlug = yearMatch ? slug.replace(/-\d{4}$/, "") : slug;
+
+  // Drug law pages
+  if (baseSlug.endsWith("-drug-laws")) {
+    const stateKey = baseSlug.replace(/-drug-laws$/, "");
+    if (isValidStateSlug(stateKey)) {
+      return <StateLawsPage />;
+    }
+  }
 
   // Stats pages
   if (baseSlug.endsWith("-addiction-stats")) {

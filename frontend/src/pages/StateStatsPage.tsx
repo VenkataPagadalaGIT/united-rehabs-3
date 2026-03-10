@@ -9,6 +9,7 @@ import { SEOHead, stateStatsSEO } from "@/components/SEOHead";
 import { mockNavItems, mockFooterLinks } from "@/data/mockData";
 import { getStateBySlug, toState } from "@/data/stateConfig";
 import { Calendar } from "lucide-react";
+import { ArticleToolbar } from "@/components/ArticleToolbar";
 
 const AVAILABLE_YEARS = [2025, 2024, 2023, 2022, 2021, 2020, 2019];
 
@@ -43,7 +44,13 @@ const StateStatsPage = () => {
       <main className="container mx-auto px-4">
         <Breadcrumb items={breadcrumbItems} />
         <PageHero state={state} />
-        
+
+        <ArticleToolbar
+          title={`${state.name} Addiction Statistics${selectedYear ? ` (${selectedYear})` : ""}`}
+          url={`https://unitedrehabs.com/${stateKey}-addiction-stats${selectedYear ? `-${selectedYear}` : ""}`}
+          content={stateConfig.description || ""}
+        />
+
         <div className="py-8">
           <StatisticsTab stateId={stateConfig.abbreviation} stateName={state.name} stateSlug={stateKey} urlYear={selectedYear} />
         </div>
@@ -84,6 +91,10 @@ const StateStatsPage = () => {
           <div className="mt-4 flex flex-wrap gap-3 text-sm">
             <Link to={`/${stateKey}-addiction-rehabs`} className="text-primary hover:underline">
               {state.name} Treatment Centers
+            </Link>
+            <span className="text-muted-foreground">|</span>
+            <Link to={`/${stateKey}-drug-laws`} className="text-primary hover:underline">
+              {state.name} Drug Laws
             </Link>
             <span className="text-muted-foreground">|</span>
             <Link to="/compare" className="text-primary hover:underline">

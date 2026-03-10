@@ -497,6 +497,77 @@ class PaginatedResponse(BaseModel):
     page_size: int
     total_pages: int
 
+# ============================================
+# STATE DRUG LAWS
+# ============================================
+
+class LawSource(BaseModel):
+    name: str  # "Connecticut General Statutes"
+    section: Optional[str] = None  # "§ 21a-279"
+    url: Optional[str] = None  # Official legislature URL
+    accessed_date: Optional[str] = None  # "2026-03-10"
+
+class StateDrugLawCreate(BaseModel):
+    state_id: str  # "CT"
+    state_name: str  # "Connecticut"
+
+    # Key takeaways (feeds AI Overviews & featured snippets)
+    key_takeaways: Optional[List[str]] = None  # 5-7 bullet points
+
+    # Content sections (HTML)
+    overview: Optional[str] = None
+    possession_penalties: Optional[str] = None
+    dui_dwi_laws: Optional[str] = None
+    marijuana_status: Optional[str] = None  # legal, medical, decriminalized, illegal
+    marijuana_details: Optional[str] = None
+    good_samaritan_law: Optional[str] = None  # yes/no + details
+    good_samaritan_exists: bool = False
+    naloxone_access: Optional[str] = None
+    drug_courts: Optional[str] = None
+    mandatory_minimums: Optional[str] = None
+    recent_changes: Optional[str] = None  # 2025-2026 legislation
+    treatment_alternatives: Optional[str] = None  # Diversion programs, Prop 36-type
+
+    # Penalty table rows: [{offense, substance, amount, classification, jail_time, fine}]
+    penalty_table: Optional[List[dict]] = None
+
+    # Drug schedule classification: [{schedule, description, examples}]
+    drug_schedules: Optional[List[dict]] = None
+
+    # FAQ schema (PAA-matching questions): [{question, answer}]
+    faqs: Optional[List[dict]] = None
+
+    # Citations
+    sources: Optional[List[LawSource]] = None
+
+    # Attorney referral
+    state_bar_url: Optional[str] = None
+    state_bar_name: Optional[str] = None
+    legal_aid_url: Optional[str] = None
+
+    # SEO
+    meta_title: Optional[str] = None
+    meta_description: Optional[str] = None
+    meta_keywords: Optional[str] = None
+
+    # Author E-E-A-T
+    reviewed_by: Optional[str] = None  # "John Smith, J.D."
+    reviewer_credentials: Optional[str] = None  # "Licensed Attorney, CA Bar #12345"
+
+    # Status
+    status: str = "draft"  # draft, published
+    last_verified_date: Optional[str] = None
+    confidence_score: Optional[str] = None  # high, medium, low
+
+class StateDrugLaw(StateDrugLawCreate):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+# ============================================
+# API RESPONSE MODELS
+# ============================================
+
 class DashboardCounts(BaseModel):
     statistics_count: int
     substance_count: int

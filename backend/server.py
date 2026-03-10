@@ -30,7 +30,8 @@ from models import (
     PaginatedResponse, DashboardCounts,
     Country, CountryCreate, CountryStatistics, CountryStatisticsCreate,
     TreatmentCenter, TreatmentCenterCreate,
-    CMSPage, CMSPageCreate, AuditLogEntry
+    CMSPage, CMSPageCreate, AuditLogEntry,
+    StateDrugLaw, StateDrugLawCreate, LawSource
 )
 from pydantic import BaseModel
 from auth import verify_password, get_password_hash, create_access_token, decode_token
@@ -1942,121 +1943,200 @@ async def delete_page_seo(slug: str, user: User = Depends(require_admin)):
         raise HTTPException(status_code=404, detail="Page SEO not found")
     return {"success": True, "message": "Page SEO deleted, now using folder/global defaults"}
 
-# --- Sitemap Generation ---
-# Sitemap cache - regenerate every 6 hours
-_sitemap_cache = {"xml": None, "generated_at": 0}
+# --- Sitemap Index System ---
+# Split into sub-sitemaps for better SEO + Google News format
+import time as _time
+
+_sitemap_caches = {}
+
+def _cache_key(name: str) -> dict:
+    if name not in _sitemap_caches:
+        _sitemap_caches[name] = {"xml": None, "generated_at": 0}
+    return _sitemap_caches[name]
 
 @api_router.get("/seo/sitemap.xml")
-async def generate_sitemap():
-    """Generate dynamic sitemap.xml - cached for 6 hours"""
-    import time
+async def sitemap_index():
+    """Sitemap index pointing to sub-sitemaps"""
     from fastapi.responses import Response
-    
-    # Return cached version if < 6 hours old
-    if _sitemap_cache["xml"] and (time.time() - _sitemap_cache["generated_at"]) < 21600:
-        return Response(content=_sitemap_cache["xml"], media_type="application/xml",
-                       headers={"Cache-Control": "public, max-age=21600"})
-    
     base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
+    xml = f"""<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap><loc>{base_url}/api/seo/sitemap-static.xml</loc></sitemap>
+  <sitemap><loc>{base_url}/api/seo/sitemap-states.xml</loc></sitemap>
+  <sitemap><loc>{base_url}/api/seo/sitemap-countries.xml</loc></sitemap>
+  <sitemap><loc>{base_url}/api/seo/sitemap-news.xml</loc></sitemap>
+  <sitemap><loc>{base_url}/api/seo/sitemap-articles.xml</loc></sitemap>
+</sitemapindex>"""
+    return Response(content=xml, media_type="application/xml", headers={"Cache-Control": "public, max-age=86400"})
 
-    # Start XML
-    xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>']
-    xml_parts.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
-    
-    # Get folder rules for priority/changefreq
-    folder_rules = await db.seo_folder_rules.find({"is_active": True, "include_in_sitemap": True}, {"_id": 0}).to_list(length=100)
-    
-    # Static pages
-    static_pages = [
-        {"loc": "/", "priority": "1.0", "changefreq": "daily"},
-        {"loc": "/about", "priority": "0.7", "changefreq": "monthly"},
-        {"loc": "/contact", "priority": "0.6", "changefreq": "monthly"},
-        {"loc": "/privacy-policy", "priority": "0.3", "changefreq": "yearly"},
-        {"loc": "/terms-of-service", "priority": "0.3", "changefreq": "yearly"},
-        {"loc": "/compare", "priority": "0.8", "changefreq": "weekly"},
-        {"loc": "/news", "priority": "0.9", "changefreq": "daily"},
+@api_router.get("/seo/sitemap-static.xml")
+async def sitemap_static():
+    """Static pages sitemap"""
+    from fastapi.responses import Response
+    cache = _cache_key("static")
+    if cache["xml"] and (_time.time() - cache["generated_at"]) < 86400:
+        return Response(content=cache["xml"], media_type="application/xml")
+
+    base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
+    pages = [
+        ("/", "1.0", "daily"),
+        ("/news", "0.9", "hourly"),
+        ("/compare", "0.8", "weekly"),
+        ("/about", "0.7", "monthly"),
+        ("/contact", "0.6", "monthly"),
+        ("/data-methodology", "0.5", "monthly"),
+        ("/privacy-policy", "0.3", "yearly"),
+        ("/terms-of-service", "0.3", "yearly"),
+        ("/cookie-policy", "0.3", "yearly"),
+        ("/accessibility", "0.3", "yearly"),
+        ("/legal-disclaimer", "0.3", "yearly"),
     ]
-    
-    for page in static_pages:
-        xml_parts.append(f"""  <url>
-    <loc>{base_url}{page['loc']}</loc>
-    <changefreq>{page['changefreq']}</changefreq>
-    <priority>{page['priority']}</priority>
-  </url>""")
-    
-    # State pages - only include years with actual data
-    states = await db.state_addiction_statistics.find({}, {"_id": 0, "state_id": 1, "state_name": 1, "year": 1}).to_list(length=500)
+    xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for loc, pri, freq in pages:
+        xml_parts.append(f'  <url><loc>{base_url}{loc}</loc><priority>{pri}</priority><changefreq>{freq}</changefreq></url>')
+    xml_parts.append('</urlset>')
+    xml = "\n".join(xml_parts)
+    cache["xml"] = xml
+    cache["generated_at"] = _time.time()
+    return Response(content=xml, media_type="application/xml", headers={"Cache-Control": "public, max-age=86400"})
+
+@api_router.get("/seo/sitemap-states.xml")
+async def sitemap_states():
+    """US States sitemap"""
+    from fastapi.responses import Response
+    cache = _cache_key("states")
+    if cache["xml"] and (_time.time() - cache["generated_at"]) < 21600:
+        return Response(content=cache["xml"], media_type="application/xml")
+
+    base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
+    states = await db.state_addiction_statistics.find({}, {"_id": 0, "state_name": 1, "year": 1}).to_list(length=500)
     state_years = {}
     for s in states:
-        name = s.get("state_name", "")
-        slug = name.lower().replace(" ", "-")
-        if slug not in state_years:
-            state_years[slug] = set()
-        state_years[slug].add(s.get("year"))
-    
-    for slug, available_years in state_years.items():
-        xml_parts.append(f"""  <url>
-    <loc>{base_url}/{slug}-addiction-stats</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>""")
-        for year in sorted(available_years, reverse=True):
-            xml_parts.append(f"""  <url>
-    <loc>{base_url}/{slug}-addiction-stats-{year}</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>""")
-    
-    # Country pages - include year URLs for countries with multi-year data
-    # Batch query: get all country years at once instead of 195 individual queries
-    all_country_stats = await db.country_statistics.find({}, {"_id": 0, "country_code": 1, "year": 1}).to_list(length=2000)
+        slug = s.get("state_name", "").lower().replace(" ", "-")
+        if slug:
+            state_years.setdefault(slug, set()).add(s.get("year"))
+
+    xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    # Get states that have law pages
+    law_states = set()
+    async for law in db.state_drug_laws.find({"status": "published"}, {"state_id": 1}):
+        law_states.add(law.get("state_id", "").lower())
+
+    for slug, years in state_years.items():
+        xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>')
+        for year in sorted(years, reverse=True):
+            xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats-{year}</loc><priority>0.6</priority><changefreq>yearly</changefreq></url>')
+        # Drug law page for this state
+        xml_parts.append(f'  <url><loc>{base_url}/{slug}-drug-laws</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>')
+    xml_parts.append('</urlset>')
+    xml = "\n".join(xml_parts)
+    cache["xml"] = xml
+    cache["generated_at"] = _time.time()
+    return Response(content=xml, media_type="application/xml", headers={"Cache-Control": "public, max-age=21600"})
+
+@api_router.get("/seo/sitemap-countries.xml")
+async def sitemap_countries():
+    """Countries sitemap"""
+    from fastapi.responses import Response
+    cache = _cache_key("countries")
+    if cache["xml"] and (_time.time() - cache["generated_at"]) < 21600:
+        return Response(content=cache["xml"], media_type="application/xml")
+
+    base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
+    all_stats = await db.country_statistics.find({}, {"_id": 0, "country_code": 1, "year": 1}).to_list(length=2000)
     country_year_map = {}
-    for cs in all_country_stats:
+    for cs in all_stats:
         code = cs.get("country_code", "")
-        if code not in country_year_map:
-            country_year_map[code] = set()
-        country_year_map[code].add(cs.get("year"))
-    
+        if code:
+            country_year_map.setdefault(code, set()).add(cs.get("year"))
+
     countries = await db.countries.find({"is_active": True}, {"_id": 0, "country_name": 1, "country_code": 1}).to_list(length=200)
+    xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for country in countries:
-        name = country.get("country_name", "")
+        slug = country.get("country_name", "").lower().replace(" ", "-")
         code = country.get("country_code", "")
-        slug = name.lower().replace(" ", "-")
         if not slug:
             continue
-        xml_parts.append(f"""  <url>
-    <loc>{base_url}/{slug}-addiction-stats</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>""")
+        xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>')
         for year in sorted(country_year_map.get(code, []), reverse=True):
-            xml_parts.append(f"""  <url>
-    <loc>{base_url}/{slug}-addiction-stats-{year}</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-  </url>""")
-    
-    # Published news articles
-    articles = await db.articles.find({"is_published": True}, {"_id": 0, "slug": 1, "content_type": 1}).to_list(length=500)
-    for article in articles:
-        slug = article.get("slug", "")
-        ctype = article.get("content_type", "news")
-        if slug:
-            prefix = "news" if ctype == "news" else ctype
-            xml_parts.append(f"""  <url>
-    <loc>{base_url}/{prefix}/{slug}</loc>
+            xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats-{year}</loc><priority>0.5</priority><changefreq>yearly</changefreq></url>')
+    xml_parts.append('</urlset>')
+    xml = "\n".join(xml_parts)
+    cache["xml"] = xml
+    cache["generated_at"] = _time.time()
+    return Response(content=xml, media_type="application/xml", headers={"Cache-Control": "public, max-age=21600"})
+
+@api_router.get("/seo/sitemap-news.xml")
+async def sitemap_news():
+    """Google News sitemap for news articles"""
+    from fastapi.responses import Response
+    cache = _cache_key("news")
+    if cache["xml"] and (_time.time() - cache["generated_at"]) < 3600:
+        return Response(content=cache["xml"], media_type="application/xml")
+
+    base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
+    articles = await db.articles.find(
+        {"content_type": "news", "is_published": True},
+        {"_id": 0, "slug": 1, "title": 1, "tags": 1, "published_at": 1}
+    ).sort("published_at", -1).to_list(length=1000)
+
+    xml_parts = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">'
+    ]
+    for a in articles:
+        slug = a.get("slug", "")
+        if not slug:
+            continue
+        title = (a.get("title", "") or "").replace("&", "&amp;").replace("<", "&lt;").replace('"', "&quot;")
+        pub_date = ""
+        if a.get("published_at"):
+            try:
+                pub_date = a["published_at"].strftime("%Y-%m-%dT%H:%M:%SZ") if hasattr(a["published_at"], "strftime") else str(a["published_at"])[:19] + "Z"
+            except:
+                pub_date = ""
+        keywords = ", ".join((a.get("tags") or [])[:5])
+        xml_parts.append(f"""  <url>
+    <loc>{base_url}/news/{slug}</loc>
+    <news:news>
+      <news:publication><news:name>United Rehabs</news:name><news:language>en</news:language></news:publication>
+      <news:publication_date>{pub_date}</news:publication_date>
+      <news:title>{title}</news:title>{f"<news:keywords>{keywords}</news:keywords>" if keywords else ""}
+    </news:news>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>""")
-    
     xml_parts.append('</urlset>')
-    
-    xml_content = "\n".join(xml_parts)
-    _sitemap_cache["xml"] = xml_content
-    _sitemap_cache["generated_at"] = time.time()
-    
-    return Response(content=xml_content, media_type="application/xml",
-                   headers={"Cache-Control": "public, max-age=21600"})
+    xml = "\n".join(xml_parts)
+    cache["xml"] = xml
+    cache["generated_at"] = _time.time()
+    return Response(content=xml, media_type="application/xml", headers={"Cache-Control": "public, max-age=3600"})
+
+@api_router.get("/seo/sitemap-articles.xml")
+async def sitemap_articles():
+    """Non-news articles sitemap (blogs, guides)"""
+    from fastapi.responses import Response
+    cache = _cache_key("articles")
+    if cache["xml"] and (_time.time() - cache["generated_at"]) < 21600:
+        return Response(content=cache["xml"], media_type="application/xml")
+
+    base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
+    articles = await db.articles.find(
+        {"content_type": {"$ne": "news"}, "is_published": True},
+        {"_id": 0, "slug": 1, "content_type": 1}
+    ).to_list(length=500)
+
+    xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for a in articles:
+        slug = a.get("slug", "")
+        ctype = a.get("content_type", "blog")
+        if slug:
+            xml_parts.append(f'  <url><loc>{base_url}/{ctype}/{slug}</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>')
+    xml_parts.append('</urlset>')
+    xml = "\n".join(xml_parts)
+    cache["xml"] = xml
+    cache["generated_at"] = _time.time()
+    return Response(content=xml, media_type="application/xml", headers={"Cache-Control": "public, max-age=21600"})
 
 # --- Robots.txt Generation ---
 @api_router.get("/seo/robots.txt")
@@ -3159,6 +3239,87 @@ async def get_verification_reports(limit: int = 10):
 
 
 # ============================================
+# STATE DRUG LAWS
+# ============================================
+
+@api_router.get("/state-laws")
+async def get_all_state_laws(status: Optional[str] = None):
+    """Get all state drug law pages"""
+    query = {}
+    if status:
+        query["status"] = status
+    laws = await db.state_drug_laws.find(query, {"_id": 0}).sort("state_name", 1).to_list(length=60)
+    return laws
+
+@api_router.get("/state-laws/{state_id}")
+async def get_state_law(state_id: str):
+    """Get drug laws for a specific state"""
+    law = await db.state_drug_laws.find_one({"state_id": state_id.upper(), "status": "published"}, {"_id": 0})
+    if not law:
+        raise HTTPException(status_code=404, detail="State law page not found")
+    return law
+
+@api_router.post("/state-laws")
+async def create_state_law(law: StateDrugLawCreate, user: User = Depends(require_admin)):
+    """Create a state drug law page"""
+    existing = await db.state_drug_laws.find_one({"state_id": law.state_id.upper()})
+    law_data = law.dict()
+    law_data["state_id"] = law_data["state_id"].upper()
+
+    if existing:
+        law_data["updated_at"] = datetime.utcnow()
+        await db.state_drug_laws.update_one({"state_id": law_data["state_id"]}, {"$set": law_data})
+        return {"message": f"Updated {law_data['state_name']}", "state_id": law_data["state_id"]}
+    else:
+        law_data["id"] = str(uuid.uuid4())
+        law_data["created_at"] = datetime.utcnow()
+        law_data["updated_at"] = datetime.utcnow()
+        await db.state_drug_laws.insert_one(law_data)
+        return {"message": f"Created {law_data['state_name']}", "id": law_data["id"]}
+
+@api_router.put("/state-laws/{state_id}")
+async def update_state_law(state_id: str, law: StateDrugLawCreate, user: User = Depends(require_admin)):
+    """Update a state drug law page"""
+    law_data = law.dict()
+    law_data["state_id"] = state_id.upper()
+    law_data["updated_at"] = datetime.utcnow()
+    result = await db.state_drug_laws.update_one({"state_id": state_id.upper()}, {"$set": law_data})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="State not found")
+    return {"message": f"Updated {law_data.get('state_name', state_id)}"}
+
+@api_router.delete("/state-laws/{state_id}")
+async def delete_state_law(state_id: str, user: User = Depends(require_admin)):
+    """Delete a state drug law page"""
+    result = await db.state_drug_laws.delete_one({"state_id": state_id.upper()})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="State not found")
+    return {"message": f"Deleted {state_id.upper()}"}
+
+@api_router.post("/state-laws/bulk")
+async def bulk_create_state_laws(laws: List[StateDrugLawCreate], user: User = Depends(require_admin)):
+    """Bulk create/update state drug law pages"""
+    results = []
+    for law in laws:
+        law_data = law.dict()
+        law_data["state_id"] = law_data["state_id"].upper()
+        existing = await db.state_drug_laws.find_one({"state_id": law_data["state_id"]})
+        if existing:
+            law_data["updated_at"] = datetime.utcnow()
+            await db.state_drug_laws.update_one({"state_id": law_data["state_id"]}, {"$set": law_data})
+            results.append({"state_id": law_data["state_id"], "action": "updated"})
+        else:
+            law_data["id"] = str(uuid.uuid4())
+            law_data["created_at"] = datetime.utcnow()
+            law_data["updated_at"] = datetime.utcnow()
+            await db.state_drug_laws.insert_one(law_data)
+            results.append({"state_id": law_data["state_id"], "action": "created"})
+    # Clear sitemap cache
+    _sitemap_caches.clear()
+    return {"results": results, "total": len(results)}
+
+
+# ============================================
 # CONTENT PIPELINE (AI-powered)
 # ============================================
 
@@ -3213,6 +3374,107 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
+# ============================================
+# AUTO NEWS SCHEDULER — runs every 3 hours
+# ============================================
+import asyncio
+
+_scheduler_task = None
+NEWS_INTERVAL_HOURS = int(os.environ.get("NEWS_INTERVAL_HOURS", "3"))
+NEWS_AUTO_ENABLED = os.environ.get("NEWS_AUTO_ENABLED", "true").lower() == "true"
+
+async def _auto_news_loop():
+    """Background loop: generate & publish trending news every N hours"""
+    await asyncio.sleep(30)  # Wait 30s for app startup
+    while True:
+        if not NEWS_AUTO_ENABLED:
+            await asyncio.sleep(3600)
+            continue
+        try:
+            logger.info(f"[AutoNews] Starting automated pipeline run...")
+            result = await run_pipeline(topic_hint=None, auto_publish=True, db=db)
+            status = result.get("final_status", "unknown")
+            url = result.get("url", "")
+            # Log to DB for admin dashboard visibility
+            await db.auto_news_log.insert_one({
+                "id": str(uuid.uuid4()),
+                "status": status,
+                "url": url,
+                "article_title": result.get("article_preview", {}).get("title", ""),
+                "tier": result.get("stages", {}).get("research", {}).get("tier", ""),
+                "focus": result.get("stages", {}).get("research", {}).get("focus", ""),
+                "stages": {k: {"passed": v.get("passed"), "error": v.get("error")} for k, v in result.get("stages", {}).items()},
+                "created_at": datetime.utcnow(),
+            })
+            if status == "published":
+                logger.info(f"[AutoNews] Published: {url}")
+            else:
+                logger.warning(f"[AutoNews] Status: {status}")
+        except Exception as e:
+            logger.error(f"[AutoNews] Pipeline error: {e}")
+            await db.auto_news_log.insert_one({
+                "id": str(uuid.uuid4()),
+                "status": "error",
+                "error": str(e),
+                "created_at": datetime.utcnow(),
+            })
+        # Wait for next cycle
+        await asyncio.sleep(NEWS_INTERVAL_HOURS * 3600)
+
+@app.on_event("startup")
+async def start_news_scheduler():
+    global _scheduler_task
+    if NEWS_AUTO_ENABLED:
+        _scheduler_task = asyncio.create_task(_auto_news_loop())
+        logger.info(f"[AutoNews] Scheduler started — every {NEWS_INTERVAL_HOURS} hours")
+
+# Admin endpoints to control the scheduler
+@api_router.get("/content/auto-news/status")
+async def auto_news_status(user: User = Depends(require_admin)):
+    """Check auto-news scheduler status and recent runs"""
+    recent = await db.auto_news_log.find().sort("created_at", -1).to_list(10)
+    for r in recent:
+        r.pop("_id", None)
+    return {
+        "enabled": NEWS_AUTO_ENABLED,
+        "interval_hours": NEWS_INTERVAL_HOURS,
+        "scheduler_running": _scheduler_task is not None and not _scheduler_task.done(),
+        "recent_runs": recent,
+    }
+
+@api_router.post("/content/auto-news/trigger")
+async def trigger_auto_news(user: User = Depends(require_admin)):
+    """Manually trigger an auto-news run right now"""
+    result = await run_pipeline(topic_hint=None, auto_publish=True, db=db)
+    await db.auto_news_log.insert_one({
+        "id": str(uuid.uuid4()),
+        "status": result.get("final_status", "unknown"),
+        "url": result.get("url", ""),
+        "article_title": result.get("article_preview", {}).get("title", ""),
+        "trigger": "manual",
+        "created_at": datetime.utcnow(),
+    })
+    return result
+
+@api_router.get("/content/auto-news/coverage")
+async def auto_news_coverage(user: User = Depends(require_admin)):
+    """Show which states/countries have been covered and when"""
+    logs = await db.auto_news_log.find(
+        {"status": "published"},
+        {"_id": 0, "article_title": 1, "tier": 1, "focus": 1, "created_at": 1, "url": 1}
+    ).sort("created_at", -1).to_list(100)
+    return {"coverage": logs, "total_published": len(logs)}
+
+@api_router.post("/content/auto-news/toggle")
+async def toggle_auto_news(user: User = Depends(require_admin)):
+    """Toggle auto-news on/off"""
+    global NEWS_AUTO_ENABLED
+    NEWS_AUTO_ENABLED = not NEWS_AUTO_ENABLED
+    return {"enabled": NEWS_AUTO_ENABLED}
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
+    global _scheduler_task
+    if _scheduler_task:
+        _scheduler_task.cancel()
     client.close()

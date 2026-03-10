@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/listing/Header";
 import { Footer } from "@/components/listing/Footer";
 import { SEOHead } from "@/components/SEOHead";
@@ -267,8 +268,12 @@ function DenseGrid({ articles }: { articles: any[] }) {
 const VISIBLE_TAGS_COUNT = 12;
 
 export default function NewsPage() {
+  const location = useLocation();
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [showAllTags, setShowAllTags] = useState(false);
+  // Canonical: /blog and /article should point to /news to avoid duplicate content
+  const canonicalUrl = "https://unitedrehabs.com/news";
+  const isAlternateRoute = location.pathname === "/blog" || location.pathname === "/article";
 
   const {
     data,
@@ -328,6 +333,11 @@ export default function NewsPage() {
         fallbackDescription="Latest addiction news, drug crisis reports, and substance use data analysis. Trending statistics from WHO, CDC, SAMHSA covering 195 countries."
         keywords="addiction news, drug crisis 2025, overdose statistics, fentanyl crisis, substance abuse report, opioid epidemic data"
       />
+      {isAlternateRoute && (
+        <Helmet>
+          <link rel="canonical" href={canonicalUrl} />
+        </Helmet>
+      )}
       <Header navItems={mockNavItems} />
 
       <main className="container mx-auto px-4 py-8">

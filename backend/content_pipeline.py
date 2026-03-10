@@ -42,6 +42,32 @@ CRISIS_HELPLINES = {
     "ITA": {"name": "Telefono Amico", "number": "02 2327 2327", "extra": "Droga? No Grazie: 800 186 070"},
 }
 
+# Day-of-week tier rotation
+TIER_SCHEDULE = {
+    0: {"tier": "T1", "label": "USA National", "queries": ["fentanyl news today", "drug overdose deaths today", "DEA drug raid news", "opioid crisis news today"], "focus": "USA"},
+    1: {"tier": "T1-states", "label": "USA States Rotation", "queries": ["drug overdose news {state}", "addiction crisis {state} news", "fentanyl {state} news"], "focus": "USA States"},
+    2: {"tier": "T2", "label": "North America", "queries": ["Mexico cartel news today", "Canada opioid crisis news", "US Mexico border drug news", "fentanyl trafficking news"], "focus": "Mexico, Canada, USA"},
+    3: {"tier": "T1", "label": "USA Policy", "queries": ["drug policy news today", "FDA opioid news", "naloxone news today", "addiction legislation news"], "focus": "USA"},
+    4: {"tier": "T2", "label": "Europe & UK", "queries": ["UK drug deaths news", "Europe drug crisis news", "Netherlands drug news", "Germany addiction news"], "focus": "UK, Germany, France, Netherlands, Spain"},
+    5: {"tier": "T3", "label": "Latin America & Asia", "queries": ["Colombia drug trafficking news", "Brazil drug crisis news", "Philippines drug news", "India drug abuse news"], "focus": "Colombia, Brazil, Philippines, India"},
+    6: {"tier": "T4", "label": "Africa & Global", "queries": ["Nigeria drug trafficking news", "South Africa drug crisis", "Australia drug news", "drug trafficking news Africa"], "focus": "Nigeria, South Africa, Australia, global"},
+}
+
+# All 50 US states for rotation
+US_STATES = [
+    "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut",
+    "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa",
+    "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan",
+    "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire",
+    "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio",
+    "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+    "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia",
+    "Wisconsin", "Wyoming"
+]
+
+DAILY_ARTICLE_CAP = 4
+NEWS_SEARCH_WINDOW_HOURS = 12
+
 def _get_helplines_for_countries(country_codes: List[str]) -> str:
     """Build helpline text block for the given country codes"""
     lines = []
@@ -115,6 +141,54 @@ async def _fetch_featured_image(title: str, tags: List[str]) -> str:
     return CATEGORY_IMAGES["default"]
 
 
+# ============================================
+# HUMAN WRITING ENFORCEMENT
+# ============================================
+BANNED_PHRASES = [
+    "it's worth noting", "it is worth noting", "it's important to note",
+    "it is important to note", "in conclusion", "let's dive in",
+    "let's take a look", "let's explore", "this raises questions",
+    "in the wake of", "amid growing concerns", "sheds light on",
+    "a growing body of evidence", "navigating the complexities",
+    "at the end of the day", "moving forward", "it remains to be seen",
+    "only time will tell", "the landscape of", "a nuanced approach",
+    "a multifaceted issue", "in today's world", "in recent years",
+    "it goes without saying", "needless to say", "as we all know",
+    "the fact of the matter", "when all is said and done",
+    "a double-edged sword", "a paradigm shift", "the elephant in the room",
+    "game changer", "deep dive", "unpack", "leverage", "robust",
+    "holistic approach", "synergy", "ecosystem", "stakeholders",
+    "at the forefront", "cutting-edge", "groundbreaking",
+]
+
+def _clean_ai_patterns(content: str) -> str:
+    """Remove AI writing patterns and enforce human style"""
+    if not content:
+        return content
+
+    # Remove em dashes
+    content = content.replace("\u2014", " - ").replace("\u2013", "-").replace("&mdash;", " - ").replace("&ndash;", "-")
+
+    # Remove banned phrases (case-insensitive)
+    for phrase in BANNED_PHRASES:
+        content = re.sub(re.escape(phrase), "", content, flags=re.IGNORECASE)
+
+    # Clean up double spaces left by removals
+    content = re.sub(r'  +', ' ', content)
+    content = re.sub(r'\. \.', '.', content)
+    content = re.sub(r'^\s*,\s*', '', content, flags=re.MULTILINE)
+
+    # Replace "stated" / "noted" / "expressed" with "said"
+    for word in ["stated", "noted", "expressed", "emphasized", "highlighted", "underscored"]:
+        content = re.sub(rf'\b{word}\b', 'said', content, flags=re.IGNORECASE)
+
+    return content.strip()
+
+
+import logging
+logger = logging.getLogger(__name__)
+
+
 def _get_research_chat(session_id: str) -> LlmChat:
     from datetime import datetime, timezone
     today = datetime.now(timezone.utc).strftime("%B %d, %Y")
@@ -172,6 +246,18 @@ CONTENT QUALITY RULES:
 - NEVER use em dashes. Use hyphens (-) only
 - NEVER use AI writing patterns (e.g., "In conclusion", "It's worth noting", "Let's dive in")
 
+HUMAN WRITING STYLE (CRITICAL - violating these will get the article rejected):
+- Write like a beat reporter at a local newspaper, not an AI
+- Start with the hard news: who did what, where, when. First sentence must have a real fact.
+- Short paragraphs. 2-3 sentences max. Vary sentence length.
+- Use "said" not "stated" or "noted" or "expressed" or "emphasized"
+- NEVER use em dashes (—). Use hyphens (-) or commas instead.
+- NEVER start a sentence with "This" referring to the whole situation
+- NEVER use these phrases: "it's worth noting", "in conclusion", "let's dive in", "amid growing concerns", "sheds light on", "in the wake of", "moving forward", "it remains to be seen", "a growing body of evidence", "navigating the complexities", "at the end of the day", "deep dive", "unpack", "holistic approach", "stakeholders", "paradigm shift", "game changer", "groundbreaking"
+- Use active voice: "DEA seized 500kg" not "500kg was seized"
+- Include one unexpected detail or human angle
+- No hedging. Don't say "may potentially" — say what happened.
+
 OUTPUT FORMAT: Return valid JSON with these fields:
 {
   "title": "SEO title under 60 chars",
@@ -196,31 +282,46 @@ async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
     """Stage 1: Research REAL breaking news from last 24 hours using web search + Gemini analysis"""
     import aiohttp
     from datetime import datetime, timezone
-    
+
     session_id = f"research-{uuid.uuid4().hex[:8]}"
     today = datetime.now(timezone.utc)
     day_of_week = today.weekday()  # 0=Mon, 6=Sun
-    
-    # Mon-Thu: Tier 1 (USA, Canada, UK, Australia, Germany)
-    # Fri-Sun: Tier 2 & 3 (rest of world)
-    if day_of_week <= 3:  # Monday-Thursday
-        search_queries = [
-            "fentanyl news today",
-            "drug overdose news today",
-            "addiction policy news today",
-            "drug cartel arrest news",
-        ]
-        tier = "tier1"
-        focus = "USA, Canada, UK, Australia, Germany"
-    else:  # Friday-Sunday
-        search_queries = [
-            "drug cartel news Mexico Colombia",
-            "drug trafficking news Asia Africa",
-            "addiction crisis news Europe",
-            "drug policy news international",
-        ]
-        tier = "tier2_3"
-        focus = "Mexico, Colombia, Brazil, India, Philippines, Nigeria, Southeast Asia, Europe"
+
+    # Tier rotation by day of week
+    schedule = TIER_SCHEDULE.get(day_of_week, TIER_SCHEDULE[0])
+    search_queries = schedule["queries"]
+    tier = schedule["tier"]
+    focus = schedule["focus"]
+
+    # State rotation on Tuesdays
+    if tier == "T1-states" and db is not None:
+        # Find least-recently covered states
+        covered = await db.auto_news_log.find(
+            {"status": "published", "tier": "T1-states"},
+            {"_id": 0, "focus_states": 1, "created_at": 1}
+        ).sort("created_at", -1).to_list(50)
+        recently_covered = set()
+        for log in covered:
+            for s in (log.get("focus_states") or []):
+                recently_covered.add(s)
+        uncovered = [s for s in US_STATES if s not in recently_covered]
+        if not uncovered:
+            uncovered = US_STATES  # Reset rotation
+        target_states = uncovered[:5]
+        search_queries = [q.replace("{state}", s) for q in search_queries for s in target_states]
+        focus = ", ".join(target_states)
+    else:
+        search_queries = [q for q in search_queries if "{state}" not in q]
+
+    # Check daily article cap
+    if db is not None:
+        today_start = datetime(today.year, today.month, today.day, tzinfo=timezone.utc)
+        today_count = await db.articles.count_documents({
+            "content_type": "news", "is_published": True,
+            "published_at": {"$gte": today_start}
+        })
+        if today_count >= DAILY_ARTICLE_CAP:
+            return {"stage": "research", "topics": [], "skipped": True, "reason": f"Daily cap reached ({today_count}/{DAILY_ARTICLE_CAP})", "tier": tier}
 
     if topic_hint:
         search_queries = [f"{topic_hint} news today"]
@@ -243,8 +344,8 @@ async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
                                 try:
                                     pub_dt = parsedate_to_datetime(pub_date.strip())
                                     age_hours = (now - pub_dt).total_seconds() / 3600
-                                    # MUST be from 2026 and within 48 hours
-                                    if pub_dt.year < 2026 or age_hours > 48:
+                                    # MUST be from 2026 and within search window
+                                    if pub_dt.year < 2026 or age_hours > NEWS_SEARCH_WINDOW_HOURS:
                                         continue
                                 except:
                                     continue
@@ -266,6 +367,12 @@ async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
     ]
     TRUSTED_LOWER = [c.lower() for c in TRUSTED_CHANNELS]
 
+    BLOCKED_CHANNELS = [
+        "real life narcos", "true crime daily", "crime watch", "mugshot",
+        "arrest compilation", "police activity", "body cam", "dash cam",
+    ]
+    BLOCKED_LOWER = [c.lower() for c in BLOCKED_CHANNELS]
+
     async def _find_trending_video(query: str, prefer_channels: bool = True) -> tuple:
         """Search YouTube + Google for trending video from major media channels.
         Returns (video_id, channel_name) or (None, None).
@@ -280,11 +387,11 @@ async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
 
         async with httpx.AsyncClient(timeout=15, headers={"User-Agent": ua}, follow_redirects=True) as client:
             # --- Strategy 1: YouTube search (multiple query variations) ---
-            search_queries = [
+            search_queries_yt = [
                 yt_query,                                                           # exact headline
                 "+".join(yt_query.split("+")[:4]) + "+news",                       # shorter + news
             ]
-            for sq in search_queries:
+            for sq in search_queries_yt:
                 for sp_filter in ["", "EgIQAQ%3D%3D"]:  # no filter, then Video type only
                     try:
                         url = f"https://www.youtube.com/results?search_query={sq}"
@@ -311,6 +418,9 @@ async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
                                 for i, vid in enumerate(seen):
                                     if i < len(channel_names):
                                         ch = channel_names[i].lower()
+                                        # Skip blocked channels
+                                        if any(blocked in ch for blocked in BLOCKED_LOWER):
+                                            continue
                                         for trusted in TRUSTED_LOWER:
                                             if trusted in ch or ch in trusted:
                                                 return (vid, channel_names[i])
@@ -328,10 +438,14 @@ async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
             except:
                 pass
 
-        # --- Fallback: first YouTube result (most relevant) ---
+        # --- Fallback: first YouTube result (most relevant), skip blocked ---
         if last_seen:
-            ch = last_channels[0] if last_channels else "Unknown"
-            return (last_seen[0], ch)
+            for i, vid in enumerate(last_seen):
+                channel_name = last_channels[i] if i < len(last_channels) else "Unknown"
+                ch_lower = (channel_name or "").lower()
+                if any(blocked in ch_lower for blocked in BLOCKED_LOWER):
+                    continue
+                return (vid, channel_name)
 
         return (None, None)
 
@@ -339,12 +453,12 @@ async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
 
     # Use Gemini to pick the best 3 stories for our site
     chat = _get_research_chat(session_id)
-    
+
     news_list = "\n".join([f"- {n['title']} | URL: {n['link']} | {n['date']}" for n in news_items[:15]])
-    
+
     # Build a lookup for matching titles to URLs
     news_lookup = {n['title'].lower().strip(): n['link'] for n in news_items}
-    
+
     # Get existing articles to avoid duplicates
     existing_titles = []
     if db is not None:
@@ -358,7 +472,7 @@ async def stage_research(topic_hint: Optional[str] = None, db=None) -> Dict:
 TODAY'S NEWS:
 {news_list}
 
-FOCUS: {focus} ({"Tier 1 countries Mon-Thu" if tier == "tier1" else "Tier 2/3 countries Fri-Sun"})
+FOCUS: {focus} ({schedule["label"]})
 
 ALREADY PUBLISHED (skip these): {json.dumps(existing_titles)}
 
@@ -380,6 +494,18 @@ Return JSON array: [{{"title": "headline", "what_happened": "1-2 sentences", "so
             topics = [{"title": news_items[0]["title"], "what_happened": "", "source_url": news_items[0].get("link",""), "related_countries": ["USA"], "related_states": [], "target_keywords": []}]
     except:
         topics = [{"title": news_items[0]["title"], "what_happened": "", "source_url": news_items[0].get("link",""), "related_countries": ["USA"], "related_states": [], "target_keywords": []}]
+
+    # Same-run dedup: remove topics that are too similar to each other
+    deduped = []
+    for t in topics:
+        is_dup = False
+        for d in deduped:
+            if _jaccard_similarity(t.get("title", ""), d.get("title", "")) > 0.5:
+                is_dup = True
+                break
+        if not is_dup:
+            deduped.append(t)
+    topics = deduped
 
     # Ensure each topic has a source_url and matching YouTube video
     for i, t in enumerate(topics):
@@ -462,10 +588,10 @@ async def stage_write(topic: Dict, db=None) -> Dict:
     source_url = topic.get("link", "") or topic.get("source_url", "")
     if source_url:
         source_text = await _fetch_article_text(source_url)
-    
+
     # Fetch 2-3 additional sources on same topic for cross-referencing
     multi_sources = await _fetch_multiple_sources(topic.get("title", ""))
-    
+
     # Get relevant stats from DB for accuracy
     db_context = ""
     if db is not None:
@@ -539,12 +665,17 @@ Return ONLY valid JSON."""
     except Exception as e:
         return {"stage": "write", "error": f"JSON parse error: {str(e)}", "raw": response[:500]}
 
-    # MANDATORY: YouTube video must be embedded
-    yt_id = topic.get("youtube_id", "")
-    if not yt_id:
-        return {"stage": "write", "error": "No YouTube video found - article rejected (video is mandatory)"}
-
+    # Enforce human writing style
     if article.get("content"):
+        article["content"] = _clean_ai_patterns(article["content"])
+    if article.get("title"):
+        article["title"] = _clean_ai_patterns(article["title"])
+    if article.get("excerpt"):
+        article["excerpt"] = _clean_ai_patterns(article["excerpt"])
+
+    # Video is preferred but not mandatory - use stock image fallback
+    yt_id = topic.get("youtube_id", "")
+    if yt_id and article.get("content"):
         video_html = f'<div style="margin: 2rem 0; border-radius: 12px; overflow: hidden;"><div style="position: relative; padding-bottom: 56.25%; height: 0;"><iframe src="https://www.youtube.com/embed/{yt_id}" title="Related video" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>'
         content = article["content"]
         for marker in ['</nav>', '</h2>']:
@@ -559,10 +690,7 @@ Return ONLY valid JSON."""
                 insert_at = p_end + 4
                 content = content[:insert_at] + '\n' + video_html + '\n' + content[insert_at:]
         article["content"] = content
-
-    # Remove em dashes
-    if article.get("content"):
-        article["content"] = article["content"].replace("\u2014", " - ").replace("&mdash;", " - ")
+    # If no video, article still publishes with featured image only
 
     # Fetch featured image (Rule 2)
     featured_image = await _fetch_featured_image(
@@ -696,7 +824,7 @@ async def stage_launch(article: Dict, db=None) -> Dict:
         "faq_items": article.get("faq_items", []),
         "read_time": article.get("read_time", "5 min read"),
         "featured_image_url": article.get("featured_image_url", ""),
-        "youtube_video_id": topic.get("youtube_id", ""),
+        "youtube_video_id": article.get("youtube_id", ""),
         "is_published": True,
         "is_featured": False,
         "sort_order": 0,
@@ -721,9 +849,19 @@ async def stage_launch(article: Dict, db=None) -> Dict:
         action = "created"
 
     # Clear sitemap cache so new article appears
-    from server import _sitemap_cache
-    _sitemap_cache["xml"] = None
-    _sitemap_cache["generated_at"] = 0
+    from server import _sitemap_caches
+    _sitemap_caches.clear()  # Clear all sub-sitemap caches
+
+    # Ping Google to re-crawl sitemap
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=10) as ping_client:
+            sitemap_url = "https://unitedrehabs.com/api/seo/sitemap.xml"
+            await ping_client.get(f"https://www.google.com/ping?sitemap={sitemap_url}")
+            await ping_client.get(f"https://www.bing.com/ping?sitemap={sitemap_url}")
+            logger.info(f"[Pipeline] Pinged Google & Bing sitemaps")
+    except Exception as e:
+        logger.warning(f"[Pipeline] Sitemap ping failed: {e}")
 
     return {
         "stage": "launch",

@@ -64,7 +64,8 @@ const LocationPage = () => {
     .replace(/-addiction-rehabs$/, "")
     .replace(/-addiction-rehab-centers$/, "")
     .replace(/-addiction-stats$/, "")
-    .replace(/-addiction-free-resources$/, "");
+    .replace(/-addiction-free-resources$/, "")
+    .replace(/-drug-laws$/, "");
   
   // US States take priority over countries with same name
   if (isValidStateSlug(slug)) {

@@ -8,6 +8,7 @@ import { Footer } from "@/components/listing/Footer";
 import { SEOHead, stateRehabsSEO } from "@/components/SEOHead";
 import { mockNavItems, mockFooterLinks } from "@/data/mockData";
 import { getStateBySlug, toState } from "@/data/stateConfig";
+import { ArticleToolbar } from "@/components/ArticleToolbar";
 
 const StateRehabsPage = () => {
   const { slug } = useParams();
@@ -34,7 +35,13 @@ const StateRehabsPage = () => {
       <main className="container mx-auto px-4">
         <Breadcrumb items={breadcrumbItems} />
         <PageHero state={state} />
-        
+
+        <ArticleToolbar
+          title={`${state.name} Addiction Treatment & Rehab Centers`}
+          url={`https://unitedrehabs.com/${stateKey}-addiction-rehabs`}
+          content={stateConfig.description || ""}
+        />
+
         <div className="py-8">
           <StateTabs
             stateId={stateConfig.abbreviation}
