@@ -437,7 +437,9 @@ const BackToTop = () => {
 // ----- Main Page -----
 const StateLawsPage = () => {
   const { slug } = useParams();
-  const stateKey = (slug || "").replace(/-\d{4}$/, "").replace(/-drug-laws$/, "");
+  // Support both /drug-laws/:slug (new) and /:slug-drug-laws (legacy)
+  const rawSlug = slug || "";
+  const stateKey = rawSlug.replace(/-\d{4}$/, "").replace(/-drug-laws$/, "");
   const stateConfig = getStateBySlug(stateKey);
 
   const { data: law, isLoading, error } = useQuery<StateDrugLaw>({
@@ -453,12 +455,13 @@ const StateLawsPage = () => {
   if (!stateConfig) return <Navigate to="/" replace />;
 
   const stateName = stateConfig.name;
-  const pageSlug = `${stateKey}-drug-laws`;
+  const pageSlug = `drug-laws/${stateKey}`;
 
   const breadcrumbItems = [
     { label: "United States", href: "/united-states" },
+    { label: "Drug Laws", href: "/drug-laws" },
     { label: stateName, href: `/${stateKey}-addiction-stats` },
-    { label: "Drug Laws & Penalties", href: `/${pageSlug}` },
+    { label: "Drug Laws & Penalties", href: `/drug-laws/${stateKey}` },
   ];
 
   const faqJsonLd = law?.faqs?.length ? {

@@ -48,6 +48,8 @@ import BulkImportAdmin from "./pages/admin/BulkImportAdmin";
 import CMSAdmin from "./pages/admin/CMSAdmin";
 import SERPValidationAdmin from "./pages/admin/SERPValidationAdmin";
 import ComparePage from "./pages/ComparePage";
+import DrugLawsHubPage from "./pages/DrugLawsHubPage";
+import StateLawsPage from "./pages/StateLawsPage";
 import { CrisisHotlineBanner } from "./components/CrisisHotlineBanner";
 import { CookieConsentBanner } from "./components/CookieConsentBanner";
 import { isValidCountrySlug } from "./data/countryConfig";
@@ -104,6 +106,10 @@ const App = () => (
           {/* Treatment Centers - Coming Soon */}
           <Route path="/rehab-centers" element={<ComingSoon />} />
           
+          {/* Drug Laws Hub + Individual State Law Pages */}
+          <Route path="/drug-laws" element={<DrugLawsHubPage />} />
+          <Route path="/drug-laws/:slug" element={<StateLawsPage />} />
+
           {/* Country Comparison Tool */}
           <Route path="/compare" element={<ComparePage />} />
           

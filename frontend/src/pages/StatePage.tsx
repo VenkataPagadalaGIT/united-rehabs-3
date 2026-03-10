@@ -1,7 +1,6 @@
 import { useParams, Navigate } from "react-router-dom";
 import StateStatsPage from "./StateStatsPage";
 import StateRehabsPage from "./StateRehabsPage";
-import StateLawsPage from "./StateLawsPage";
 import NotFound from "./NotFound";
 import { isValidStateSlug } from "@/data/stateConfig";
 
@@ -16,11 +15,11 @@ const StatePage = () => {
   const yearMatch = slug.match(/-(\d{4})$/);
   const baseSlug = yearMatch ? slug.replace(/-\d{4}$/, "") : slug;
 
-  // Drug law pages
+  // Drug law pages — redirect old URLs to new /drug-laws/:state pattern
   if (baseSlug.endsWith("-drug-laws")) {
     const stateKey = baseSlug.replace(/-drug-laws$/, "");
     if (isValidStateSlug(stateKey)) {
-      return <StateLawsPage />;
+      return <Navigate to={`/drug-laws/${stateKey}`} replace />;
     }
   }
 

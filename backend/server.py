@@ -1981,6 +1981,7 @@ async def sitemap_static():
     pages = [
         ("/", "1.0", "daily"),
         ("/news", "0.9", "hourly"),
+        ("/drug-laws", "0.9", "weekly"),
         ("/compare", "0.8", "weekly"),
         ("/about", "0.7", "monthly"),
         ("/contact", "0.6", "monthly"),
@@ -2027,7 +2028,7 @@ async def sitemap_states():
         for year in sorted(years, reverse=True):
             xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats-{year}</loc><priority>0.6</priority><changefreq>yearly</changefreq></url>')
         # Drug law page for this state
-        xml_parts.append(f'  <url><loc>{base_url}/{slug}-drug-laws</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>')
+        xml_parts.append(f'  <url><loc>{base_url}/drug-laws/{slug}</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>')
     xml_parts.append('</urlset>')
     xml = "\n".join(xml_parts)
     cache["xml"] = xml

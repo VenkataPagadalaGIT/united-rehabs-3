@@ -93,7 +93,7 @@ const StateStatsPage = () => {
               {state.name} Treatment Centers
             </Link>
             <span className="text-muted-foreground">|</span>
-            <Link to={`/${stateKey}-drug-laws`} className="text-primary hover:underline">
+            <Link to={`/drug-laws/${stateKey}`} className="text-primary hover:underline">
               {state.name} Drug Laws
             </Link>
             <span className="text-muted-foreground">|</span>

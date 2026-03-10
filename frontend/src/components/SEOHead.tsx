@@ -163,13 +163,13 @@ export function stateLawsSEO(stateName: string, stateSlug: string) {
     fallbackTitle: `${stateName} Drug Laws - Possession, Penalties & Legal Resources`,
     fallbackDescription: `${stateName} drug laws: possession penalties, marijuana status, DUI/DWI laws, Good Samaritan protections, drug courts, and legal resources. Updated for 2026.`,
     keywords: `${stateName} drug laws, ${stateName} drug possession penalties, ${stateName} marijuana laws, ${stateName} DUI laws, ${stateName} Good Samaritan law, ${stateName} drug courts`,
-    pageSlug: `${stateSlug}-drug-laws`,
+    pageSlug: `drug-laws/${stateSlug}`,
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "Article",
       name: `${stateName} Drug Laws & Penalties`,
       description: `Overview of drug-related laws and penalties in ${stateName}`,
-      url: `${BASE_URL}/${stateSlug}-drug-laws`,
+      url: `${BASE_URL}/drug-laws/${stateSlug}`,
       publisher: { "@type": "Organization", name: SITE_NAME, url: BASE_URL },
     },
   };
