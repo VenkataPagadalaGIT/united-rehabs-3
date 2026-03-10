@@ -279,7 +279,7 @@ const SourceCitations = ({ sources, stateBarUrl, stateBarName, legalAidUrl }: {
               ) : (
                 <span className="font-medium text-gray-800">{displayName}</span>
               )}
-              {desc && <span className="text-gray-500 ml-1">— {desc}</span>}
+              {desc && <span className="text-gray-500 ml-1">({desc})</span>}
               {src.accessed_date && <span className="text-gray-400 ml-1">(Accessed {src.accessed_date})</span>}
             </li>
           );
