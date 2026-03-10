@@ -20,7 +20,7 @@ import { sanitizeHtml } from "@/lib/sanitize";
 const BASE_URL = "https://unitedrehabs.com";
 
 // ----- Types -----
-interface LawSource { name: string; section: string; url: string; accessed_date: string; }
+interface LawSource { name?: string; title?: string; section?: string; description?: string; url: string; accessed_date?: string; }
 interface PenaltyRow { offense: string; substance?: string; amount?: string; classification: string; jail_time: string; fine: string; }
 interface DrugSchedule { schedule: string; description: string; examples: string; }
 interface FAQ { question: string; answer: string; }
@@ -266,19 +266,24 @@ const SourceCitations = ({ sources, stateBarUrl, stateBarName, legalAidUrl }: {
       Sources & Citations
     </h2>
     {sources?.length > 0 && (
-      <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600 mb-6">
-        {sources.map((src, i) => (
-          <li key={i}>
-            <span className="font-medium text-gray-800">{src.name}</span>
-            {src.section && <span className="text-gray-500"> — {src.section}</span>}
-            {src.url && (
-              <a href={src.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline ml-1 inline-flex items-center gap-1">
-                View source <ExternalLink className="h-3 w-3" />
-              </a>
-            )}
-            {src.accessed_date && <span className="text-gray-400 ml-1">(Accessed {src.accessed_date})</span>}
-          </li>
-        ))}
+      <ol className="list-decimal list-inside space-y-3 text-sm text-gray-600 mb-6">
+        {sources.map((src, i) => {
+          const displayName = src.title || src.name || src.url?.replace(/^https?:\/\/(www\.)?/, "").split("/")[0] || "Source";
+          const desc = src.description || src.section || "";
+          return (
+            <li key={i} className="leading-relaxed">
+              {src.url ? (
+                <a href={src.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium inline-flex items-center gap-1">
+                  {displayName} <ExternalLink className="h-3 w-3" />
+                </a>
+              ) : (
+                <span className="font-medium text-gray-800">{displayName}</span>
+              )}
+              {desc && <span className="text-gray-500 ml-1">— {desc}</span>}
+              {src.accessed_date && <span className="text-gray-400 ml-1">(Accessed {src.accessed_date})</span>}
+            </li>
+          );
+        })}
       </ol>
     )}
     <div className="flex flex-wrap gap-3">
