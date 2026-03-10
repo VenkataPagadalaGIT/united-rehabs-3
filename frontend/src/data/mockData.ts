@@ -342,9 +342,10 @@ export const mockStatisticsCards: StatisticsCard[] = [
 export const mockNavItems: NavItem[] = [
   { id: "nav1", label: "Locations", hasDropdown: true, order: 1 },
   { id: "nav2", label: "Compare", hasDropdown: false, href: "/compare", order: 2 },
-  { id: "nav4", label: "Blog", hasDropdown: false, href: "/blog", order: 3 },
-  { id: "nav5", label: "About", hasDropdown: false, href: "/about", order: 4 },
-  { id: "nav6", label: "Contact", hasDropdown: false, href: "/contact", order: 5 },
+  { id: "nav3", label: "Drug Laws", hasDropdown: false, href: "/california-drug-laws", order: 3 },
+  { id: "nav4", label: "Blog", hasDropdown: false, href: "/blog", order: 4 },
+  { id: "nav5", label: "About", hasDropdown: false, href: "/about", order: 5 },
+  { id: "nav6", label: "Contact", hasDropdown: false, href: "/contact", order: 6 },
 ];
 
 export const mockFooterLinks: FooterLinkGroup[] = [
@@ -354,6 +355,13 @@ export const mockFooterLinks: FooterLinkGroup[] = [
     { label: "Texas", href: "/texas-addiction-stats" },
     { label: "New York", href: "/new-york-addiction-stats" },
     { label: "Arizona", href: "/arizona-addiction-stats" },
+  ]},
+  { title: "Drug Laws", links: [
+    { label: "California Drug Laws", href: "/california-drug-laws" },
+    { label: "Florida Drug Laws", href: "/florida-drug-laws" },
+    { label: "Texas Drug Laws", href: "/texas-drug-laws" },
+    { label: "New York Drug Laws", href: "/new-york-drug-laws" },
+    { label: "Ohio Drug Laws", href: "/ohio-drug-laws" },
   ]},
   { title: "Global Data", links: [
     { label: "United States", href: "/united-states-addiction-stats" },

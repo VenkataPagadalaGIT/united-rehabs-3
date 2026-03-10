@@ -240,6 +240,10 @@ export function Footer({ linkGroups }: FooterProps) {
               Compare Countries
             </ScrollLink>
             <span className="text-sidebar-foreground/30">|</span>
+            <ScrollLink to="/california-drug-laws" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
+              State Drug Laws
+            </ScrollLink>
+            <span className="text-sidebar-foreground/30">|</span>
             <ScrollLink to="/data-methodology" className="text-sidebar-foreground/70 hover:text-primary transition-colors text-sm">
               Data Methodology
             </ScrollLink>
