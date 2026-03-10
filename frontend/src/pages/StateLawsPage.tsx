@@ -15,6 +15,7 @@ import {
   Leaf, Syringe, Car, Building2, HelpCircle, ArrowUp, UserCheck
 } from "lucide-react";
 import { ArticleToolbar } from "@/components/ArticleToolbar";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const BASE_URL = "https://unitedrehabs.com";
 
@@ -204,15 +205,23 @@ const PenaltyTable = ({ rows, stateName }: { rows: PenaltyRow[]; stateName: stri
 
 const LawSection = ({ id, icon: Icon, title, content }: { id: string; icon: React.ElementType; title: string; content: string }) => {
   if (!content) return null;
+  const hasHtml = /<[a-z][\s\S]*>/i.test(content);
   return (
     <section id={id} className="scroll-mt-20 mb-10">
       <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
         <Icon className="h-5 w-5 text-primary" />
         {title}
       </h2>
-      <div className="prose prose-gray max-w-none text-gray-700 leading-relaxed whitespace-pre-line">
-        {content}
-      </div>
+      {hasHtml ? (
+        <div
+          className="prose prose-gray max-w-none text-gray-700 leading-relaxed prose-p:mb-3 prose-ul:my-2 prose-li:my-0 prose-strong:text-gray-900"
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
+        />
+      ) : (
+        <div className="prose prose-gray max-w-none text-gray-700 leading-relaxed whitespace-pre-line">
+          {content}
+        </div>
+      )}
     </section>
   );
 };
@@ -620,7 +629,9 @@ const StateLawsPage = () => {
                       }`}>Status: {law.marijuana_status}</div>
                     )}
                     {law.marijuana_details && (
-                      <div className="prose prose-gray max-w-none text-gray-700 leading-relaxed whitespace-pre-line">{law.marijuana_details}</div>
+                      /<[a-z][\s\S]*>/i.test(law.marijuana_details)
+                        ? <div className="prose prose-gray max-w-none text-gray-700 leading-relaxed prose-p:mb-3 prose-strong:text-gray-900" dangerouslySetInnerHTML={{ __html: sanitizeHtml(law.marijuana_details) }} />
+                        : <div className="prose prose-gray max-w-none text-gray-700 leading-relaxed whitespace-pre-line">{law.marijuana_details}</div>
                     )}
                   </section>
                 )}
@@ -635,7 +646,10 @@ const StateLawsPage = () => {
                         law.good_samaritan_exists ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
                       }`}>{law.good_samaritan_exists ? "Yes - Active" : "Not Enacted"}</span>
                     </h2>
-                    <div className="prose prose-gray max-w-none text-gray-700 leading-relaxed whitespace-pre-line">{law.good_samaritan_law}</div>
+                    {/<[a-z][\s\S]*>/i.test(law.good_samaritan_law)
+                      ? <div className="prose prose-gray max-w-none text-gray-700 leading-relaxed prose-p:mb-3 prose-strong:text-gray-900" dangerouslySetInnerHTML={{ __html: sanitizeHtml(law.good_samaritan_law) }} />
+                      : <div className="prose prose-gray max-w-none text-gray-700 leading-relaxed whitespace-pre-line">{law.good_samaritan_law}</div>
+                    }
                   </section>
                 )}
 
