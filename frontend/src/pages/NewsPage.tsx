@@ -354,56 +354,90 @@ export default function NewsPage() {
 
           {/* Tags Filter */}
           {tags.length > 0 && (() => {
-            const seen = new Map<string, string>();
-            (tags as string[]).forEach((tag) => {
-              const key = tag.toLowerCase().replace(/-/g, " ");
-              if (!seen.has(key)) {
-                seen.set(key, tag);
-              } else {
-                const existing = seen.get(key)!;
-                if (tag[0] === tag[0].toUpperCase() && existing[0] !== existing[0].toUpperCase()) {
-                  seen.set(key, tag);
-                }
-              }
-            });
-            const uniqueTags = Array.from(seen.values());
-            const visibleTags = showAllTags ? uniqueTags : uniqueTags.slice(0, VISIBLE_TAGS_COUNT);
-            const hiddenCount = uniqueTags.length - VISIBLE_TAGS_COUNT;
+            // Group tags by category for organized display
+            const tagList = tags as { slug: string; label: string; category: string; color: string }[];
+            const CATEGORY_ORDER = ["Substances", "Issues", "Actions", "Agencies", "Regions", "Actors", "Other"];
+            const grouped = CATEGORY_ORDER.reduce((acc, cat) => {
+              const items = tagList.filter(t => t.category === cat);
+              if (items.length > 0) acc.push({ category: cat, items });
+              return acc;
+            }, [] as { category: string; items: typeof tagList }[]);
+
+            // Flat list for collapsed view (show top tags first)
+            const flatTags = CATEGORY_ORDER.flatMap(cat => tagList.filter(t => t.category === cat));
+            const visibleTags = showAllTags ? flatTags : flatTags.slice(0, VISIBLE_TAGS_COUNT);
+            const hiddenCount = flatTags.length - VISIBLE_TAGS_COUNT;
 
             return (
               <div className="mb-6 pb-4 border-b border-border" data-testid="news-tags-filter">
-                <div className="flex flex-wrap gap-2">
-                  <Badge
-                    variant={activeTag === null ? "default" : "outline"}
-                    className="cursor-pointer"
-                    onClick={() => handleTagChange(null)}
-                  >
-                    All
-                  </Badge>
-                  {visibleTags.map((tag: string) => (
+                {showAllTags ? (
+                  // Expanded: show by category
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge
+                        variant={activeTag === null ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => handleTagChange(null)}
+                      >
+                        All
+                      </Badge>
+                      <button
+                        onClick={() => setShowAllTags(false)}
+                        className="text-xs text-muted-foreground hover:text-primary ml-2"
+                      >
+                        Collapse <ChevronUp className="h-3 w-3 inline" />
+                      </button>
+                    </div>
+                    {grouped.map(({ category, items }) => (
+                      <div key={category}>
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mr-2">{category}</span>
+                        <div className="inline-flex flex-wrap gap-1.5 mt-1">
+                          {items.map(tag => (
+                            <Badge
+                              key={tag.slug}
+                              variant={activeTag === tag.slug ? "default" : "outline"}
+                              className="cursor-pointer text-xs"
+                              onClick={() => handleTagChange(tag.slug)}
+                              data-testid={`tag-${tag.slug}`}
+                            >
+                              {tag.label}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  // Collapsed: flat list
+                  <div className="flex flex-wrap gap-2">
                     <Badge
-                      key={tag}
-                      variant={activeTag === tag ? "default" : "outline"}
+                      variant={activeTag === null ? "default" : "outline"}
                       className="cursor-pointer"
-                      onClick={() => handleTagChange(tag)}
-                      data-testid={`tag-${tag}`}
+                      onClick={() => handleTagChange(null)}
                     >
-                      {tag.replace(/-/g, " ")}
+                      All
                     </Badge>
-                  ))}
-                  {hiddenCount > 0 && (
-                    <button
-                      onClick={() => setShowAllTags(!showAllTags)}
-                      className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-medium text-muted-foreground hover:text-primary border border-dashed border-border hover:border-primary transition-colors"
-                    >
-                      {showAllTags ? (
-                        <>Show less <ChevronUp className="h-3 w-3" /></>
-                      ) : (
-                        <>+{hiddenCount} more <ChevronDown className="h-3 w-3" /></>
-                      )}
-                    </button>
-                  )}
-                </div>
+                    {visibleTags.map(tag => (
+                      <Badge
+                        key={tag.slug}
+                        variant={activeTag === tag.slug ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => handleTagChange(tag.slug)}
+                        data-testid={`tag-${tag.slug}`}
+                      >
+                        {tag.label}
+                      </Badge>
+                    ))}
+                    {hiddenCount > 0 && (
+                      <button
+                        onClick={() => setShowAllTags(true)}
+                        className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-medium text-muted-foreground hover:text-primary border border-dashed border-border hover:border-primary transition-colors"
+                      >
+                        +{hiddenCount} more <ChevronDown className="h-3 w-3" />
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })()}

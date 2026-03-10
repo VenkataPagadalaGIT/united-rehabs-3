@@ -738,19 +738,30 @@ async def bulk_import_articles(articles: List[ArticleCreate], user: User = Depen
 
 @api_router.get("/articles/tags")
 async def get_article_tags():
-    """Get all unique tags across articles, deduplicated case-insensitively"""
+    """Get all unique tags with taxonomy labels and categories"""
     raw_tags = await db.articles.distinct("tags", {"is_published": True})
-    # Deduplicate: keep Title Case version when duplicates exist
-    seen: dict[str, str] = {}
-    for tag in raw_tags:
+    # Build taxonomy lookup
+    taxonomy = {}
+    async for t in db.tag_taxonomy.find({}, {"_id": 0}):
+        taxonomy[t["slug"]] = t
+
+    result = []
+    seen = set()
+    for tag in sorted(raw_tags):
         if not tag:
             continue
-        key = tag.lower().strip()
-        if key not in seen:
-            seen[key] = tag
-        elif tag[0].isupper() and not seen[key][0].isupper():
-            seen[key] = tag  # prefer Title Case
-    return sorted(seen.values())
+        slug = tag.lower().strip()
+        if slug in seen:
+            continue
+        seen.add(slug)
+        info = taxonomy.get(slug, {})
+        result.append({
+            "slug": slug,
+            "label": info.get("label", slug.replace("-", " ").title()),
+            "category": info.get("category", "Other"),
+            "color": info.get("color", "#6B7280"),
+        })
+    return result
 
 @api_router.get("/news/{slug}")
 async def get_news_by_slug(slug: str):
