@@ -3405,6 +3405,45 @@ async def get_county_law(state_id: str, county_slug: str):
 
 
 # ============================================
+# DATABASE SYNC (local → production)
+# ============================================
+
+SYNCABLE_COLLECTIONS = {
+    "state_drug_laws", "county_drug_laws", "articles", "tag_taxonomy",
+    "state_addiction_statistics", "substance_statistics", "faqs",
+    "free_resources", "page_seo", "countries", "country_statistics",
+    "treatment_centers", "site_config", "seo_global",
+}
+
+@api_router.post("/sync/{collection}")
+async def sync_collection(collection: str, docs: List[dict], replace: bool = False, user: User = Depends(require_admin)):
+    """Generic bulk upsert for syncing local → production.
+    Pass replace=true on first batch to clear the collection first.
+    Subsequent batches append."""
+    if collection not in SYNCABLE_COLLECTIONS:
+        raise HTTPException(status_code=400, detail=f"Collection '{collection}' not syncable")
+
+    coll = db[collection]
+    if replace:
+        await coll.delete_many({})
+    if docs:
+        clean = [{k: v for k, v in d.items() if k != "_id"} for d in docs]
+        await coll.insert_many(clean)
+
+    _sitemap_caches.clear()
+    count = await coll.count_documents({})
+    return {"collection": collection, "inserted": len(docs), "total": count}
+
+@api_router.get("/sync/status")
+async def sync_status(user: User = Depends(require_admin)):
+    """Get document counts for all syncable collections."""
+    counts = {}
+    for name in sorted(SYNCABLE_COLLECTIONS):
+        counts[name] = await db[name].count_documents({})
+    return counts
+
+
+# ============================================
 # CONTENT PIPELINE (AI-powered)
 # ============================================
 
