@@ -3356,6 +3356,23 @@ async def delete_state_law(state_id: str, user: User = Depends(require_admin)):
         raise HTTPException(status_code=404, detail="State not found")
     return {"message": f"Deleted {state_id.upper()}"}
 
+
+@api_router.post("/state-laws/bulk-sync")
+async def bulk_sync_state_laws(laws: List[Dict], user: User = Depends(require_admin)):
+    """Bulk sync state drug laws - raw insert/update bypassing model validation"""
+    created = 0
+    updated = 0
+    for law in laws:
+        law.pop("_id", None)
+        existing = await db.state_drug_laws.find_one({"state_id": law.get("state_id", "").upper()})
+        if existing:
+            await db.state_drug_laws.update_one({"state_id": law["state_id"].upper()}, {"$set": law})
+            updated += 1
+        else:
+            await db.state_drug_laws.insert_one(law)
+            created += 1
+    return {"created": created, "updated": updated, "total": created + updated}
+
 @api_router.post("/state-laws/bulk")
 async def bulk_create_state_laws(laws: List[StateDrugLawCreate], user: User = Depends(require_admin)):
     """Bulk create/update state drug law pages"""
