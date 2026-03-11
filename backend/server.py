@@ -1970,13 +1970,14 @@ async def sitemap_index():
     """Sitemap index pointing to sub-sitemaps"""
     from fastapi.responses import Response
     base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
+    today = datetime.utcnow().strftime("%Y-%m-%d")
     xml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap><loc>{base_url}/api/seo/sitemap-static.xml</loc></sitemap>
-  <sitemap><loc>{base_url}/api/seo/sitemap-states.xml</loc></sitemap>
-  <sitemap><loc>{base_url}/api/seo/sitemap-countries.xml</loc></sitemap>
-  <sitemap><loc>{base_url}/api/seo/sitemap-news.xml</loc></sitemap>
-  <sitemap><loc>{base_url}/api/seo/sitemap-articles.xml</loc></sitemap>
+  <sitemap><loc>{base_url}/api/seo/sitemap-static.xml</loc><lastmod>{today}</lastmod></sitemap>
+  <sitemap><loc>{base_url}/api/seo/sitemap-states.xml</loc><lastmod>{today}</lastmod></sitemap>
+  <sitemap><loc>{base_url}/api/seo/sitemap-countries.xml</loc><lastmod>{today}</lastmod></sitemap>
+  <sitemap><loc>{base_url}/api/seo/sitemap-news.xml</loc><lastmod>{today}</lastmod></sitemap>
+  <sitemap><loc>{base_url}/api/seo/sitemap-articles.xml</loc><lastmod>{today}</lastmod></sitemap>
 </sitemapindex>"""
     return Response(content=xml, media_type="application/xml", headers={"Cache-Control": "public, max-age=86400"})
 
@@ -2004,8 +2005,9 @@ async def sitemap_static():
         ("/legal-disclaimer", "0.3", "yearly"),
     ]
     xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    today = datetime.utcnow().strftime("%Y-%m-%d")
     for loc, pri, freq in pages:
-        xml_parts.append(f'  <url><loc>{base_url}{loc}</loc><priority>{pri}</priority><changefreq>{freq}</changefreq></url>')
+        xml_parts.append(f'  <url><loc>{base_url}{loc}</loc><lastmod>{today}</lastmod><priority>{pri}</priority><changefreq>{freq}</changefreq></url>')
     xml_parts.append('</urlset>')
     xml = "\n".join(xml_parts)
     cache["xml"] = xml
@@ -2028,25 +2030,40 @@ async def sitemap_states():
         if slug:
             state_years.setdefault(slug, set()).add(s.get("year"))
 
+    today = datetime.utcnow().strftime("%Y-%m-%d")
     xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
-    # Get states that have law pages
+    # Get states that have law pages and their updated_at dates
     law_states = set()
-    async for law in db.state_drug_laws.find({"status": "published"}, {"state_id": 1}):
-        law_states.add(law.get("state_id", "").lower())
+    state_law_dates = {}
+    async for law in db.state_drug_laws.find({"status": "published"}, {"state_id": 1, "updated_at": 1}):
+        state_id = law.get("state_id", "").lower()
+        law_states.add(state_id)
+        if law.get("updated_at"):
+            try:
+                state_law_dates[state_id] = law["updated_at"].strftime("%Y-%m-%d") if hasattr(law["updated_at"], "strftime") else str(law["updated_at"])[:10]
+            except:
+                state_law_dates[state_id] = today
 
     for slug, years in state_years.items():
-        xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>')
+        xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats</loc><lastmod>{today}</lastmod><priority>0.8</priority><changefreq>weekly</changefreq></url>')
         for year in sorted(years, reverse=True):
-            xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats-{year}</loc><priority>0.6</priority><changefreq>yearly</changefreq></url>')
+            xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats-{year}</loc><lastmod>{today}</lastmod><priority>0.6</priority><changefreq>yearly</changefreq></url>')
         # Drug law page for this state
-        xml_parts.append(f'  <url><loc>{base_url}/drug-laws/{slug}</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>')
+        law_date = state_law_dates.get(slug, today)
+        xml_parts.append(f'  <url><loc>{base_url}/drug-laws/{slug}</loc><lastmod>{law_date}</lastmod><priority>0.7</priority><changefreq>monthly</changefreq></url>')
 
     # County drug law pages
-    async for county in db.county_drug_laws.find({"status": "published"}, {"state_id": 1, "state_name": 1, "county_slug": 1}):
+    async for county in db.county_drug_laws.find({"status": "published"}, {"state_id": 1, "state_name": 1, "county_slug": 1, "updated_at": 1}):
         state_slug = county.get("state_name", "").lower().replace(" ", "-")
         county_slug = county.get("county_slug", "")
         if state_slug and county_slug:
-            xml_parts.append(f'  <url><loc>{base_url}/drug-laws/{state_slug}/{county_slug}</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>')
+            county_date = today
+            if county.get("updated_at"):
+                try:
+                    county_date = county["updated_at"].strftime("%Y-%m-%d") if hasattr(county["updated_at"], "strftime") else str(county["updated_at"])[:10]
+                except:
+                    county_date = today
+            xml_parts.append(f'  <url><loc>{base_url}/drug-laws/{state_slug}/{county_slug}</loc><lastmod>{county_date}</lastmod><priority>0.6</priority><changefreq>monthly</changefreq></url>')
 
     xml_parts.append('</urlset>')
     xml = "\n".join(xml_parts)
@@ -2071,15 +2088,16 @@ async def sitemap_countries():
             country_year_map.setdefault(code, set()).add(cs.get("year"))
 
     countries = await db.countries.find({"is_active": True}, {"_id": 0, "country_name": 1, "country_code": 1}).to_list(length=200)
+    today = datetime.utcnow().strftime("%Y-%m-%d")
     xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for country in countries:
         slug = country.get("country_name", "").lower().replace(" ", "-")
         code = country.get("country_code", "")
         if not slug:
             continue
-        xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>')
+        xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats</loc><lastmod>{today}</lastmod><priority>0.7</priority><changefreq>weekly</changefreq></url>')
         for year in sorted(country_year_map.get(code, []), reverse=True):
-            xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats-{year}</loc><priority>0.5</priority><changefreq>yearly</changefreq></url>')
+            xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats-{year}</loc><lastmod>{today}</lastmod><priority>0.5</priority><changefreq>yearly</changefreq></url>')
     xml_parts.append('</urlset>')
     xml = "\n".join(xml_parts)
     cache["xml"] = xml
@@ -2097,7 +2115,7 @@ async def sitemap_news():
     base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
     articles = await db.articles.find(
         {"content_type": "news", "is_published": True},
-        {"_id": 0, "slug": 1, "title": 1, "tags": 1, "published_at": 1}
+        {"_id": 0, "slug": 1, "title": 1, "tags": 1, "published_at": 1, "updated_at": 1}
     ).sort("published_at", -1).to_list(length=1000)
 
     xml_parts = [
@@ -2115,13 +2133,25 @@ async def sitemap_news():
                 pub_date = a["published_at"].strftime("%Y-%m-%dT%H:%M:%SZ") if hasattr(a["published_at"], "strftime") else str(a["published_at"])[:19] + "Z"
             except:
                 pub_date = ""
+        # lastmod: prefer updated_at, fall back to published_at
+        lastmod_date = ""
+        for date_field in ["updated_at", "published_at"]:
+            if a.get(date_field):
+                try:
+                    lastmod_date = a[date_field].strftime("%Y-%m-%d") if hasattr(a[date_field], "strftime") else str(a[date_field])[:10]
+                    break
+                except:
+                    pass
         keywords = ", ".join((a.get("tags") or [])[:5])
+        keywords_escaped = keywords.replace("&", "&amp;").replace("<", "&lt;")
+        lastmod_tag = f"\n    <lastmod>{lastmod_date}</lastmod>" if lastmod_date else ""
         xml_parts.append(f"""  <url>
-    <loc>{base_url}/news/{slug}</loc>
+    <loc>{base_url}/news/{slug}</loc>{lastmod_tag}
     <news:news>
       <news:publication><news:name>United Rehabs</news:name><news:language>en</news:language></news:publication>
       <news:publication_date>{pub_date}</news:publication_date>
-      <news:title>{title}</news:title>{f"<news:keywords>{keywords}</news:keywords>" if keywords else ""}
+      <news:title>{title}</news:title>
+      {f"<news:keywords>{keywords_escaped}</news:keywords>" if keywords_escaped else ""}
     </news:news>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -2143,15 +2173,25 @@ async def sitemap_articles():
     base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
     articles = await db.articles.find(
         {"content_type": {"$ne": "news"}, "is_published": True},
-        {"_id": 0, "slug": 1, "content_type": 1}
+        {"_id": 0, "slug": 1, "content_type": 1, "updated_at": 1, "published_at": 1}
     ).to_list(length=500)
 
+    today = datetime.utcnow().strftime("%Y-%m-%d")
     xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for a in articles:
         slug = a.get("slug", "")
         ctype = a.get("content_type", "blog")
         if slug:
-            xml_parts.append(f'  <url><loc>{base_url}/{ctype}/{slug}</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>')
+            # lastmod: prefer updated_at, fall back to published_at, then today
+            article_date = today
+            for date_field in ["updated_at", "published_at"]:
+                if a.get(date_field):
+                    try:
+                        article_date = a[date_field].strftime("%Y-%m-%d") if hasattr(a[date_field], "strftime") else str(a[date_field])[:10]
+                        break
+                    except:
+                        pass
+            xml_parts.append(f'  <url><loc>{base_url}/{ctype}/{slug}</loc><lastmod>{article_date}</lastmod><priority>0.7</priority><changefreq>weekly</changefreq></url>')
     xml_parts.append('</urlset>')
     xml = "\n".join(xml_parts)
     cache["xml"] = xml

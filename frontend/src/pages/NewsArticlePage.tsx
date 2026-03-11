@@ -14,6 +14,7 @@ import { Helmet } from "react-helmet-async";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { ArticleToolbar } from "@/components/ArticleToolbar";
+import { JumpToSection, extractTocFromHtml, extractSummaryBox } from "@/components/JumpToSection";
 
 const API = import.meta.env.REACT_APP_BACKEND_URL || "";
 
@@ -135,7 +136,9 @@ export default function NewsArticlePage() {
     description: article.meta_description || article.excerpt || "",
     datePublished: article.published_at,
     dateModified: article.updated_at,
-    author: { "@type": "Organization", name: article.author_name || "United Rehabs" },
+    author: (article.author_name && article.author_name !== "United Rehabs" && article.author_name !== "United Rehabs Data Team")
+      ? { "@type": "Person", name: article.author_name }
+      : { "@type": "Organization", name: article.author_name || "United Rehabs" },
     publisher: { "@type": "Organization", name: "United Rehabs", url: "https://unitedrehabs.com" },
     mainEntityOfPage: `https://unitedrehabs.com/news/${article.slug}`,
     ...(article.featured_image_url ? { image: article.featured_image_url } : {}),
@@ -164,6 +167,8 @@ export default function NewsArticlePage() {
   }).filter(Boolean);
 
   const autoLinkedContent = contextualAutoLink(article.content || "");
+  const { summaryHtml, contentWithoutSummary } = extractSummaryBox(autoLinkedContent);
+  const { tocItems, contentWithoutToc } = extractTocFromHtml(contentWithoutSummary);
 
   return (
     <div className="min-h-screen bg-background" data-testid="news-article-page">
@@ -241,8 +246,23 @@ export default function NewsArticlePage() {
                 readTime={article.read_time}
               />
 
-              {/* Featured Image */}
-              {article.featured_image_url && (
+              {/* Key Takeaways Summary Box */}
+              {summaryHtml && (
+                <div
+                  className="bg-muted/30 border rounded-xl p-5 mb-6 prose prose-slate max-w-none
+                    prose-h3:text-lg prose-h3:font-bold prose-h3:mb-3 prose-h3:flex prose-h3:items-center prose-h3:gap-2
+                    prose-li:text-sm prose-li:leading-relaxed prose-li:text-muted-foreground prose-li:my-1
+                    prose-ul:my-2 prose-strong:text-foreground"
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(summaryHtml) }}
+                />
+              )}
+
+              {/* Jump to Section TOC */}
+              {tocItems.length > 0 && <JumpToSection items={tocItems} />}
+
+              {/* Featured Image — skip if it's a YouTube thumbnail and content has the video embed */}
+              {article.featured_image_url &&
+                !(article.featured_image_url.includes("img.youtube.com") && article.content?.includes("youtube.com/embed")) && (
                 <img
                   src={article.featured_image_url}
                   alt={article.title}
@@ -250,7 +270,7 @@ export default function NewsArticlePage() {
                 />
               )}
 
-              {/* Content with contextual auto-links */}
+              {/* Content with contextual auto-links (TOC removed from HTML) */}
               <div
                 className="prose prose-slate prose-lg max-w-none
                   prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground
@@ -262,7 +282,7 @@ export default function NewsArticlePage() {
                   prose-strong:text-foreground
                   prose-a:text-primary prose-a:no-underline hover:prose-a:underline
                   prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg"
-                dangerouslySetInnerHTML={{ __html: sanitizeHtml(autoLinkedContent) }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(contentWithoutToc) }}
                 data-testid="article-content"
               />
 

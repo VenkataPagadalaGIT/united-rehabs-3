@@ -482,10 +482,8 @@ const StateLawsPage = () => {
   const pageSlug = `drug-laws/${stateKey}`;
 
   const breadcrumbItems = [
-    { label: "United States", href: "/united-states" },
     { label: "Drug Laws", href: "/drug-laws" },
-    { label: stateName, href: `/${stateKey}-addiction-stats` },
-    { label: "Drug Laws & Penalties", href: `/drug-laws/${stateKey}` },
+    { label: `${stateName} Drug Laws`, href: `/drug-laws/${stateKey}` },
   ];
 
   const faqJsonLd = law?.faqs?.length ? {
@@ -510,9 +508,11 @@ const StateLawsPage = () => {
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org", "@type": "BreadcrumbList",
-    itemListElement: breadcrumbItems.map((item, i) => ({
-      "@type": "ListItem", position: i + 1, name: item.label, item: `${BASE_URL}${item.href}`,
-    })),
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: BASE_URL },
+      { "@type": "ListItem", position: 2, name: "Drug Laws", item: `${BASE_URL}/drug-laws` },
+      { "@type": "ListItem", position: 3, name: `${stateName} Drug Laws`, item: `${BASE_URL}/drug-laws/${stateKey}` },
+    ],
   };
 
   const seoProps = {
@@ -520,6 +520,7 @@ const StateLawsPage = () => {
     fallbackDescription: law?.meta_description || `${stateName} drug laws: possession penalties, marijuana status, DUI/DWI laws, Good Samaritan protections, drug courts, and free legal resources. Updated 2026.`,
     keywords: `${stateName} drug laws, ${stateName} drug possession penalties, ${stateName} marijuana laws, ${stateName} DUI laws, ${stateName} drug courts`,
     pageSlug,
+    ogImage: `${BASE_URL}/og-drug-laws.png`,
     jsonLd: articleJsonLd,
   };
 
@@ -709,7 +710,7 @@ const StateLawsPage = () => {
           {law && (
             <nav className="py-6 border-t lg:hidden" aria-label="Related pages">
               <h3 className="text-sm font-bold text-gray-900 mb-3">More {stateName} Resources</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Link to={`/${stateKey}-addiction-stats`}
                   className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg text-sm text-gray-700 border border-gray-200">
                   <FileText className="h-4 w-4 text-primary" /> Addiction Statistics
@@ -721,6 +722,10 @@ const StateLawsPage = () => {
                 <Link to="/compare"
                   className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg text-sm text-gray-700 border border-gray-200">
                   <Scale className="h-4 w-4 text-primary" /> Compare States
+                </Link>
+                <Link to="/news"
+                  className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg text-sm text-gray-700 border border-gray-200">
+                  <FileText className="h-4 w-4 text-primary" /> Latest News
                 </Link>
               </div>
             </nav>

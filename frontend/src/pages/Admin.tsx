@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import {
@@ -89,6 +90,9 @@ const Admin = () => {
 
   return (
     <SidebarProvider>
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="min-h-screen flex w-full">
         <Sidebar>
           <SidebarContent>

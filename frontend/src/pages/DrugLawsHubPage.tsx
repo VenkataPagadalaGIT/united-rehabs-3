@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/listing/Header";
 import { Breadcrumb } from "@/components/listing/Breadcrumb";
 import { Footer } from "@/components/listing/Footer";
@@ -29,9 +30,16 @@ export default function DrugLawsHubPage() {
   })).filter(g => g.states.length > 0);
 
   const breadcrumbItems = [
-    { label: "United States", href: "/united-states" },
     { label: "Drug Laws by State", href: "/drug-laws" },
   ];
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org", "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://unitedrehabs.com" },
+      { "@type": "ListItem", position: 2, name: "Drug Laws", item: "https://unitedrehabs.com/drug-laws" },
+    ],
+  };
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -50,8 +58,12 @@ export default function DrugLawsHubPage() {
         fallbackDescription="Browse drug laws for all 50 US states. Find possession penalties, marijuana status, DUI/DWI laws, Good Samaritan protections, drug courts, and treatment alternatives."
         keywords="drug laws by state, state drug laws, drug possession penalties, marijuana laws by state, DUI laws, drug courts, Good Samaritan law"
         pageSlug="drug-laws"
+        ogImage="https://unitedrehabs.com/og-drug-laws.png"
         jsonLd={jsonLd}
       />
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbJsonLd)}</script>
+      </Helmet>
       <Header navItems={mockNavItems} />
 
       <main className="container mx-auto px-4">

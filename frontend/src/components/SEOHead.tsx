@@ -120,6 +120,7 @@ export function stateStatsSEO(stateName: string, stateSlug: string, year?: numbe
       description: `Comprehensive addiction and substance use disorder statistics for ${stateName}${yearStr}`,
       url: `${BASE_URL}/${stateSlug}-addiction-stats${year ? `-${year}` : ""}`,
       publisher: { "@type": "Organization", name: SITE_NAME, url: BASE_URL },
+      creator: { "@type": "Organization", name: SITE_NAME, url: BASE_URL },
       temporalCoverage: year ? String(year) : "2019/2025",
       spatialCoverage: { "@type": "Place", name: `${stateName}, United States` },
       isAccessibleForFree: true,
@@ -151,9 +152,11 @@ export function countryStatsSEO(countryName: string, countrySlug: string, year?:
       description: `Addiction and substance use disorder data for ${countryName}${yearStr}`,
       url: `${BASE_URL}/${countrySlug}-addiction-stats${year ? `-${year}` : ""}`,
       publisher: { "@type": "Organization", name: SITE_NAME, url: BASE_URL },
+      creator: { "@type": "Organization", name: SITE_NAME, url: BASE_URL },
       temporalCoverage: year ? String(year) : "2019/2025",
       spatialCoverage: { "@type": "Place", name: countryName },
       isAccessibleForFree: true,
+      license: "https://creativecommons.org/licenses/by/4.0/",
     },
   };
 }

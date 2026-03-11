@@ -129,9 +129,8 @@ export default function CountyDrugLawsPage() {
   const pageSlug = `drug-laws/${stateSlug}/${countySlug}`;
 
   const breadcrumbItems = [
-    { label: "United States", href: "/united-states" },
     { label: "Drug Laws", href: "/drug-laws" },
-    { label: stateName, href: `/drug-laws/${stateSlug}` },
+    { label: `${stateName} Drug Laws`, href: `/drug-laws/${stateSlug}` },
     { label: countyName, href: `/${pageSlug}` },
   ];
 
@@ -153,6 +152,16 @@ export default function CountyDrugLawsPage() {
     spatialCoverage: { "@type": "Place", name: `${countyName}, ${stateName}, United States` },
   };
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org", "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: BASE_URL },
+      { "@type": "ListItem", position: 2, name: "Drug Laws", item: `${BASE_URL}/drug-laws` },
+      { "@type": "ListItem", position: 3, name: `${stateName} Drug Laws`, item: `${BASE_URL}/drug-laws/${stateSlug}` },
+      { "@type": "ListItem", position: 4, name: countyName, item: `${BASE_URL}/${pageSlug}` },
+    ],
+  };
+
   const otherCounties = siblingCounties.filter(c => c.county_slug !== countySlug).slice(0, 10);
 
   return (
@@ -162,13 +171,13 @@ export default function CountyDrugLawsPage() {
         fallbackDescription={county.meta_description || `${countyName}, ${stateName} drug laws: local enforcement, drug courts, treatment resources, diversion programs, and legal aid.`}
         keywords={`${countyName} drug laws, ${countyName} drug court, ${countyName} drug penalties, ${countyName} treatment, ${stateName} drug laws`}
         pageSlug={pageSlug}
+        ogImage="https://unitedrehabs.com/og-drug-laws.png"
         jsonLd={articleJsonLd}
       />
-      {faqJsonLd && (
-        <Helmet>
-          <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
-        </Helmet>
-      )}
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbJsonLd)}</script>
+        {faqJsonLd && <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>}
+      </Helmet>
       <Header navItems={mockNavItems} />
 
       <main className="container mx-auto px-4">

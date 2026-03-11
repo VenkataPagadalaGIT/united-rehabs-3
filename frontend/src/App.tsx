@@ -40,6 +40,7 @@ import ArticlesAdmin from "./pages/admin/ArticlesAdmin";
 import ArticlesListPage from "./pages/ArticlesListPage";
 import ArticlePage from "./pages/ArticlePage";
 import ShortcodeShowcase from "./pages/ShortcodeShowcase";
+import ComponentLibraryPage from "./pages/ComponentLibraryPage";
 import URLsAdmin from "./pages/admin/URLsAdmin";
 import SecurityAdmin from "./pages/admin/SecurityAdmin";
 import ContentGeneratorAdmin from "./pages/admin/ContentGeneratorAdmin";
@@ -122,6 +123,7 @@ const App = () => (
           <Route path="/article" element={<NewsPage />} />
           <Route path="/guide" element={<ComingSoon />} />
           <Route path="/shortcodes" element={<ShortcodeShowcase />} />
+          <Route path="/component-library" element={<ComponentLibraryPage />} />
           <Route path="/:type/:slug" element={<ArticlePage />} />
           
           {/* SEO-Optimized Location Pages (States + Countries) */}
