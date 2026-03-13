@@ -3506,14 +3506,23 @@ async def launch_article_content(req: QARequest, user: User = Depends(require_ad
 app.include_router(api_router)
 
 # SECURITY: Never use wildcard '*' with allow_credentials=True
-_cors_origins = os.environ.get('CORS_ORIGINS', 'http://localhost:3000,http://localhost:5173')
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=[o.strip() for o in _cors_origins.split(',') if o.strip() and o.strip() != '*'],
-    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "Accept"],
-)
+_cors_origins = os.environ.get('CORS_ORIGINS', '*')
+if _cors_origins.strip() == '*':
+    app.add_middleware(
+        CORSMiddleware,
+        allow_credentials=False,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_credentials=True,
+        allow_origins=[o.strip() for o in _cors_origins.split(',') if o.strip()],
+        allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "Accept"],
+    )
 
 # ============================================
 # AUTO NEWS SCHEDULER — runs every 3 hours
@@ -3568,6 +3577,24 @@ async def start_news_scheduler():
     if NEWS_AUTO_ENABLED:
         _scheduler_task = asyncio.create_task(_auto_news_loop())
         logger.info(f"[AutoNews] Scheduler started — every {NEWS_INTERVAL_HOURS} hours")
+
+@app.on_event("startup")
+async def seed_state_laws_if_empty():
+    """Auto-seed state drug laws on first deploy to production"""
+    count = await db.state_drug_laws.count_documents({})
+    if count < 50:
+        logger.info(f"[Seed] Only {count}/50 state laws found. Running seed script...")
+        try:
+            import subprocess
+            result = subprocess.run(
+                ["python3", "scripts/generate_all_state_laws.py"],
+                cwd="/app/backend",
+                capture_output=True, text=True, timeout=120
+            )
+            new_count = await db.state_drug_laws.count_documents({})
+            logger.info(f"[Seed] State laws seeded: {new_count}/50")
+        except Exception as e:
+            logger.error(f"[Seed] Failed to seed state laws: {e}")
 
 # Admin endpoints to control the scheduler
 @api_router.get("/content/auto-news/status")
