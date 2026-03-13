@@ -808,6 +808,17 @@ async def stage_launch(article: Dict, db=None) -> Dict:
     if db is None:
         return {"stage": "launch", "error": "No database connection"}
 
+    # DEDUP CHECK: reject if similar title already exists in DB
+    title_prefix = article.get("title", "")[:40].lower()
+    if title_prefix:
+        existing = await db.articles.find(
+            {"content_type": "news", "is_published": True},
+            {"_id": 0, "title": 1, "slug": 1}
+        ).to_list(200)
+        for ex in existing:
+            if ex.get("title", "")[:40].lower() == title_prefix:
+                return {"stage": "launch", "error": f"Duplicate: similar article already exists ({ex.get('slug')})"}
+
     article_data = {
         "title": article.get("title", ""),
         "slug": article.get("slug", ""),
