@@ -47,6 +47,7 @@ import ContentGeneratorAdmin from "./pages/admin/ContentGeneratorAdmin";
 import DataCoverageAdmin from "./pages/admin/DataCoverageAdmin";
 import BulkImportAdmin from "./pages/admin/BulkImportAdmin";
 import CMSAdmin from "./pages/admin/CMSAdmin";
+import UnifiedCMS from "./pages/admin/UnifiedCMS";
 import SERPValidationAdmin from "./pages/admin/SERPValidationAdmin";
 import ComparePage from "./pages/ComparePage";
 import DrugLawsHubPage from "./pages/DrugLawsHubPage";
@@ -151,6 +152,7 @@ const App = () => (
             <Route path="data-coverage" element={<DataCoverageAdmin />} />
             <Route path="bulk-import" element={<BulkImportAdmin />} />
             <Route path="cms" element={<CMSAdmin />} />
+            <Route path="manage" element={<UnifiedCMS />} />
           </Route>
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

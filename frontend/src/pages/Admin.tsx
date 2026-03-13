@@ -36,10 +36,12 @@ import {
   Upload,
   Globe,
   CheckCircle,
+  LayoutDashboard,
 } from "lucide-react";
 
 const menuItems = [
   { title: "Dashboard", url: "/you-are-the-admin", icon: Home },
+  { title: "Content Manager", url: "/you-are-the-admin/manage", icon: LayoutDashboard },
   { title: "AI Generator", url: "/you-are-the-admin/content-generator", icon: Brain },
   { title: "SERP Validation", url: "/you-are-the-admin/serp-validation", icon: CheckCircle },
   { title: "Bulk Import", url: "/you-are-the-admin/bulk-import", icon: Upload },

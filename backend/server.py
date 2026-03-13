@@ -1,5 +1,6 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, Header, BackgroundTasks, Request
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Header, BackgroundTasks, Request, UploadFile, File
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -3502,8 +3503,57 @@ async def launch_article_content(req: QARequest, user: User = Depends(require_ad
     """Stage 4 only: Publish article"""
     return await stage_launch(req.article, db)
 
+# ============================================
+# IMAGE UPLOAD
+# ============================================
+UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+@api_router.post("/upload/image")
+async def upload_image(file: UploadFile = File(...), user: User = Depends(require_admin)):
+    """Upload an image and return its URL"""
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Only image files allowed")
+    
+    ext = file.filename.split(".")[-1] if file.filename else "jpg"
+    filename = f"{uuid.uuid4().hex[:12]}.{ext}"
+    filepath = os.path.join(UPLOAD_DIR, filename)
+    
+    content = await file.read()
+    if len(content) > 5 * 1024 * 1024:  # 5MB limit
+        raise HTTPException(status_code=400, detail="File too large (max 5MB)")
+    
+    with open(filepath, "wb") as f:
+        f.write(content)
+    
+    return {"url": f"/api/uploads/{filename}", "filename": filename}
+
+# ============================================
+# SEO TEMPLATES (page-type level bulk SEO)
+# ============================================
+@api_router.get("/seo/templates")
+async def get_seo_templates():
+    """Get SEO templates for each page type"""
+    templates = await db.seo_templates.find({}, {"_id": 0}).to_list(20)
+    return templates
+
+@api_router.put("/seo/templates/{page_type}")
+async def update_seo_template(page_type: str, template: Dict, user: User = Depends(require_admin)):
+    """Set SEO template for a page type (state, country, news, drug-laws)"""
+    template["page_type"] = page_type
+    template["updated_at"] = datetime.utcnow()
+    await db.seo_templates.update_one(
+        {"page_type": page_type},
+        {"$set": template},
+        upsert=True
+    )
+    return {"success": True}
+
 # Include the router in the main app
 app.include_router(api_router)
+
+# Serve uploaded images
+app.mount("/api/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 # SECURITY: Never use wildcard '*' with allow_credentials=True
 _cors_origins = os.environ.get('CORS_ORIGINS', '*')
