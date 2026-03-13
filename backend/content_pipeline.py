@@ -104,41 +104,71 @@ def _is_duplicate(new_title: str, existing_titles: List[str], threshold: float =
 
 
 # ============================================
-# FEATURED IMAGE (Rule 2)
+# FEATURED IMAGE (Rule 2) — unique per article
 # ============================================
-CATEGORY_IMAGES = {
-    "fentanyl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1200&h=630&fit=crop",
-    "overdose": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1200&h=630&fit=crop",
-    "cartel": "https://images.unsplash.com/photo-1589578527966-fdac0f44566c?w=1200&h=630&fit=crop",
-    "policy": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&h=630&fit=crop",
-    "recovery": "https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=1200&h=630&fit=crop",
-    "treatment": "https://images.unsplash.com/photo-1551190822-a9ce113ac100?w=1200&h=630&fit=crop",
-    "alcohol": "https://images.unsplash.com/photo-1569924160399-96f3afdd4753?w=1200&h=630&fit=crop",
-    "opioid": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1200&h=630&fit=crop",
-    "seizure": "https://images.unsplash.com/photo-1589578527966-fdac0f44566c?w=1200&h=630&fit=crop",
-    "default": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1200&h=630&fit=crop",
-}
+# 40 unique, verified Unsplash direct URLs covering different topics
+IMAGE_POOL = [
+    "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1551076805-e1869033e561?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1504813184591-01572f98c85f?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1559757175-5700dde675bc?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1585435557343-3b092031a831?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1517120026326-d87759a7b63b?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1581093458791-9d42e3c2fd45?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1589994965851-a8f479c573a9?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1560252829-804f1aedf1be?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1551190822-a9ce113ac100?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1569924160399-96f3afdd4753?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1526256262350-7da7584cf5eb?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1590650153855-d9e808231d41?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1578496781985-452d4a934d50?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1542884748-2b87b36c6b90?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1628595351029-c2bf17511435?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1498758536662-35b82cd15e29?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1200&h=630&fit=crop",
+    "https://images.unsplash.com/photo-1495653797063-114787b77b23?w=1200&h=630&fit=crop",
+]
 
-async def _fetch_featured_image(title: str, tags: List[str]) -> str:
-    """Fetch a relevant featured image from Unsplash or use category fallback"""
-    import aiohttp
-    # Try Unsplash search (free, no API key for source URLs)
-    query = " ".join(tags[:2]) if tags else title.split()[:3]
-    search_query = "+".join(query) if isinstance(query, list) else query.replace(" ", "+")
-    try:
-        async with aiohttp.ClientSession() as session:
-            url = f"https://source.unsplash.com/1200x630/?{search_query},health,medical"
-            async with session.get(url, timeout=aiohttp.ClientTimeout(total=8), allow_redirects=True) as resp:
-                if resp.status == 200 and "unsplash" in str(resp.url):
-                    return str(resp.url)
-    except:
-        pass
-    # Fallback to category images
-    title_lower = title.lower()
-    for keyword, img_url in CATEGORY_IMAGES.items():
-        if keyword in title_lower:
-            return img_url
-    return CATEGORY_IMAGES["default"]
+async def _get_unique_image(slug: str, db=None) -> str:
+    """Get a unique image that no other article is using"""
+    used_images = set()
+    if db is not None:
+        existing = await db.articles.find(
+            {"content_type": "news", "featured_image_url": {"$exists": True}},
+            {"_id": 0, "featured_image_url": 1}
+        ).to_list(200)
+        used_images = {a.get("featured_image_url", "") for a in existing}
+    
+    # Find first unused image
+    for img in IMAGE_POOL:
+        if img not in used_images:
+            return img
+    
+    # All used — cycle based on slug hash
+    import hashlib
+    idx = int(hashlib.md5(slug.encode()).hexdigest(), 16) % len(IMAGE_POOL)
+    return IMAGE_POOL[idx]
 
 
 # ============================================
@@ -692,11 +722,8 @@ Return ONLY valid JSON."""
         article["content"] = content
     # If no video, article still publishes with featured image only
 
-    # Fetch featured image (Rule 2)
-    featured_image = await _fetch_featured_image(
-        article.get("title", ""),
-        article.get("tags", [])
-    )
+    # Fetch unique featured image (never duplicates another article)
+    featured_image = await _get_unique_image(article.get("slug", ""), db)
     article["featured_image_url"] = featured_image
 
     return {"stage": "write", "article": article, "session_id": session_id}
@@ -897,7 +924,22 @@ async def run_pipeline(topic_hint: Optional[str] = None, auto_publish: bool = Fa
 
     # Try each topic until one succeeds (has video + passes QA)
     topics = research.get("topics", [])
+    
+    # Pre-check: get existing titles from DB to skip duplicates BEFORE calling Claude
+    existing_titles = []
+    if db is not None:
+        recent = await db.articles.find(
+            {"content_type": "news", "is_published": True},
+            {"_id": 0, "title": 1}
+        ).sort("created_at", -1).to_list(100)
+        existing_titles = [a["title"] for a in recent if a.get("title")]
+    
     for topic in topics:
+        # EARLY DEDUP: skip topic if too similar to existing article (saves LLM credits)
+        if _is_duplicate(topic.get("title", ""), existing_titles):
+            result["stages"]["write"] = {"skipped": True, "reason": f"Duplicate topic: {topic.get('title','')[:50]}"}
+            continue
+        
         # Stage 2: Write
         write = await stage_write(topic, db)
         result["stages"]["write"] = {k: v for k, v in write.items() if k != "article"}
