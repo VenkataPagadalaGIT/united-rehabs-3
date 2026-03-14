@@ -1,12 +1,16 @@
-# United Rehabs robots.txt
 User-agent: *
 Allow: /
+Allow: /api/seo/
+
 Disallow: /you-are-the-admin
 Disallow: /you-are-the-admin/
-Disallow: /api/
+Disallow: /api/auth/
+Disallow: /api/articles
+Disallow: /api/statistics
+Disallow: /api/treatment-centers
+Disallow: /api/homepage/
+Disallow: /api/content/
+Disallow: /api/upload/
+Disallow: /api/config/
 
 Sitemap: https://unitedrehabs.com/api/seo/sitemap.xml
-
-# LLM access
-# llms.txt: https://unitedrehabs.com/llms.txt
-# llms-full.txt: https://unitedrehabs.com/llms-full.txt
