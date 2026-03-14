@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Allow: /api/seo/
+Allow: /api/ai-bots/
 
 Disallow: /you-are-the-admin
 Disallow: /you-are-the-admin/
@@ -13,4 +14,4 @@ Disallow: /api/content/
 Disallow: /api/upload/
 Disallow: /api/config/
 
-Sitemap: https://unitedrehabs.com/api/seo/sitemap.xml
+Sitemap: https://unitedrehabs.com/sitemap.xml

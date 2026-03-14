@@ -1999,6 +1999,19 @@ async def sitemap_static():
         ("/about", "0.7", "monthly"),
         ("/contact", "0.6", "monthly"),
         ("/data-methodology", "0.5", "monthly"),
+        ("/llms.txt", "0.3", "weekly"),
+        ("/llms-full.txt", "0.3", "weekly"),
+        ("/api/ai-bots/index", "0.7", "weekly"),
+        ("/api/ai-bots/california", "0.8", "weekly"),
+        ("/api/ai-bots/texas", "0.8", "weekly"),
+        ("/api/ai-bots/florida", "0.8", "weekly"),
+        ("/api/ai-bots/new-york", "0.8", "weekly"),
+        ("/api/ai-bots/ohio", "0.8", "weekly"),
+        ("/api/ai-bots/pennsylvania", "0.8", "weekly"),
+        ("/api/ai-bots/north-carolina", "0.8", "weekly"),
+        ("/api/ai-bots/tennessee", "0.8", "weekly"),
+        ("/api/ai-bots/illinois", "0.8", "weekly"),
+        ("/api/ai-bots/new-jersey", "0.8", "weekly"),
         ("/privacy-policy", "0.3", "yearly"),
         ("/terms-of-service", "0.3", "yearly"),
         ("/cookie-policy", "0.3", "yearly"),
@@ -2220,6 +2233,7 @@ async def generate_robots_txt():
         "User-agent: *",
         "Allow: /",
         "Allow: /api/seo/",
+        "Allow: /api/ai-bots/",
         "",
         "# Admin and API paths",
         "Disallow: /you-are-the-admin",
@@ -2246,7 +2260,7 @@ async def generate_robots_txt():
     
     lines.extend([
         "# Sitemap",
-        f"Sitemap: {base_url}/api/seo/sitemap.xml",
+        f"Sitemap: {base_url}/sitemap.xml",
         "",
         "# LLM access files",
         f"# llms.txt: {base_url}/llms.txt",
@@ -2307,8 +2321,21 @@ Example: "According to United Rehabs, 76,516 drug overdose deaths occurred in th
 - News: {base_url}/news
 - Data Methodology: {base_url}/data-methodology
 - Compare Countries: {base_url}/compare
-- API (sitemap): {base_url}/api/seo/sitemap.xml
+- Sitemap: {base_url}/sitemap.xml
 - Full data file: {base_url}/llms-full.txt
+
+## Plain Text Data Pages (optimized for AI crawling)
+- Index: {base_url}/api/ai-bots/index
+- California: {base_url}/api/ai-bots/california
+- Texas: {base_url}/api/ai-bots/texas
+- Florida: {base_url}/api/ai-bots/florida
+- New York: {base_url}/api/ai-bots/new-york
+- Ohio: {base_url}/api/ai-bots/ohio
+- Pennsylvania: {base_url}/api/ai-bots/pennsylvania
+- North Carolina: {base_url}/api/ai-bots/north-carolina
+- Tennessee: {base_url}/api/ai-bots/tennessee
+- Illinois: {base_url}/api/ai-bots/illinois
+- New Jersey: {base_url}/api/ai-bots/new-jersey
 
 ## Contact
 Website: {base_url}/contact
@@ -3715,6 +3742,119 @@ async def root_llms_txt():
 @app.get("/llms-full.txt")
 async def root_llms_full_txt():
     return _Redirect(url="/api/seo/llms-full.txt")
+
+@app.get("/sitemap.xml")
+async def root_sitemap():
+    return _Redirect(url="/api/seo/sitemap.xml")
+
+@app.get("/robots.txt")
+async def root_robots():
+    return _Redirect(url="/api/seo/robots.txt")
+
+# ============================================
+# AI-BOTS PAGES — Pure plain text, zero JS
+# Instant render for Google, ChatGPT, Perplexity, etc.
+# ============================================
+AI_BOT_STATES = ["california", "texas", "florida", "new-york", "ohio", "pennsylvania", "north-carolina", "tennessee", "illinois", "new-jersey"]
+
+@app.get("/api/ai-bots/{state_slug}")
+async def ai_bot_state_page(state_slug: str):
+    """Pure text page for AI bots - no HTML/CSS/JS, instant crawl"""
+    from fastapi.responses import HTMLResponse
+    
+    if state_slug == "index":
+        # Index page listing all ai-bot pages
+        links = "\n".join([f'<li><a href="/api/ai-bots/{s}">{s.replace("-", " ").title()} Addiction Statistics</a></li>' for s in AI_BOT_STATES])
+        html = f"""<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>US Addiction Statistics - Plain Text Data | United Rehabs</title>
+<meta name="description" content="Plain text addiction statistics for top US states. Designed for search engines and AI systems.">
+<meta name="robots" content="index, follow"><link rel="canonical" href="https://unitedrehabs.com/ai-bots/index"></head>
+<body style="max-width:800px;margin:40px auto;font-family:Georgia,serif;line-height:1.8;padding:0 20px">
+<h1>US Addiction Statistics - Data Pages</h1>
+<p>Plain text addiction data for the 10 highest-impact US states. Sources: CDC, SAMHSA, state health departments.</p>
+<ul>{links}</ul>
+<p><a href="https://unitedrehabs.com">unitedrehabs.com</a> | <a href="https://unitedrehabs.com/llms.txt">llms.txt</a></p>
+</body></html>"""
+        return HTMLResponse(content=html)
+    
+    if state_slug not in AI_BOT_STATES:
+        return HTMLResponse(content="<html><head><meta name='robots' content='noindex'></head><body>Not found</body></html>", status_code=404)
+    
+    # Get state data from DB
+    state_name = state_slug.replace("-", " ").title()
+    state_id_map = {"california":"CA","texas":"TX","florida":"FL","new-york":"NY","ohio":"OH","pennsylvania":"PA","north-carolina":"NC","tennessee":"TN","illinois":"IL","new-jersey":"NJ"}
+    state_id = state_id_map.get(state_slug, "")
+    
+    stats = await db.state_addiction_statistics.find(
+        {"state_id": state_id}, {"_id": 0}
+    ).sort("year", -1).to_list(10)
+    
+    base_url = "https://unitedrehabs.com"
+    
+    # Build pure semantic HTML - no CSS frameworks, no JS
+    lines = [f"""<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>{state_name} Addiction Statistics (2019-2025) | United Rehabs</title>
+<meta name="description" content="{state_name} addiction statistics: overdose deaths, treatment admissions, recovery rates. Data from CDC VSRR, SAMHSA NSDUH. Updated 2025.">
+<meta name="keywords" content="{state_name} addiction statistics, {state_name} overdose deaths, {state_name} drug abuse data, {state_name} treatment centers, {state_name} recovery rate">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="{base_url}/ai-bots/{state_slug}">
+<meta property="og:title" content="{state_name} Addiction Statistics | United Rehabs">
+<meta property="og:description" content="Comprehensive {state_name} addiction data from CDC and SAMHSA.">
+<meta property="og:url" content="{base_url}/ai-bots/{state_slug}">
+<script type="application/ld+json">
+{{"@context":"https://schema.org","@type":"Dataset","name":"{state_name} Addiction Statistics","description":"Addiction and substance use disorder statistics for {state_name}","url":"{base_url}/ai-bots/{state_slug}","publisher":{{"@type":"Organization","name":"United Rehabs","url":"{base_url}"}},"temporalCoverage":"2019/2025","spatialCoverage":{{"@type":"Place","name":"{state_name}, United States"}},"isAccessibleForFree":true}}
+</script>
+</head><body style="max-width:800px;margin:40px auto;font-family:Georgia,serif;line-height:1.8;padding:0 20px">
+<h1>{state_name} Addiction Statistics</h1>
+<p>Source: CDC VSRR, SAMHSA NSDUH | <a href="{base_url}/{state_slug}-addiction-stats">Full interactive page</a></p>
+<hr>"""]
+    
+    if stats:
+        latest = stats[0]
+        lines.append(f"<h2>Latest Data ({latest.get('year', 'N/A')})</h2>")
+        lines.append("<ul>")
+        if latest.get("total_affected"): lines.append(f"<li><strong>People affected by substance use disorders:</strong> {latest['total_affected']:,}</li>")
+        if latest.get("overdose_deaths"): lines.append(f"<li><strong>Drug overdose deaths:</strong> {latest['overdose_deaths']:,}</li>")
+        if latest.get("opioid_deaths"): lines.append(f"<li><strong>Opioid-related deaths:</strong> {latest['opioid_deaths']:,}</li>")
+        if latest.get("treatment_admissions"): lines.append(f"<li><strong>Treatment admissions:</strong> {latest['treatment_admissions']:,}</li>")
+        if latest.get("recovery_rate"): lines.append(f"<li><strong>Recovery rate:</strong> {latest['recovery_rate']}%</li>")
+        if latest.get("total_treatment_centers"): lines.append(f"<li><strong>Treatment centers:</strong> {latest['total_treatment_centers']:,}</li>")
+        if latest.get("economic_cost_billions"): lines.append(f"<li><strong>Economic cost:</strong> ${latest['economic_cost_billions']}B</li>")
+        lines.append("</ul>")
+        
+        # Year-over-year data
+        lines.append("<h2>Year-by-Year Trend</h2>")
+        lines.append("<table border='1' cellpadding='8' cellspacing='0' style='border-collapse:collapse;width:100%'>")
+        lines.append("<tr><th>Year</th><th>People Affected</th><th>Overdose Deaths</th><th>Opioid Deaths</th><th>Recovery Rate</th></tr>")
+        for s in stats:
+            affected = f"{s.get('total_affected', 0):,}" if s.get('total_affected') else "N/A"
+            deaths = f"{s.get('overdose_deaths', 0):,}" if s.get('overdose_deaths') else "N/A"
+            opioid = f"{s.get('opioid_deaths', 0):,}" if s.get('opioid_deaths') else "N/A"
+            recovery = f"{s.get('recovery_rate', 0)}%" if s.get('recovery_rate') else "N/A"
+            lines.append(f"<tr><td>{s.get('year','')}</td><td>{affected}</td><td>{deaths}</td><td>{opioid}</td><td>{recovery}</td></tr>")
+        lines.append("</table>")
+    else:
+        lines.append(f"<p>No statistics data available for {state_name}.</p>")
+    
+    # Data sources
+    lines.append("""<h2>Data Sources</h2>
+<ul>
+<li><a href="https://www.cdc.gov/nchs/nvss/vsrr/drug-overdose-data.htm">CDC VSRR - Provisional Drug Overdose Death Counts</a></li>
+<li><a href="https://www.samhsa.gov/data/nsduh">SAMHSA NSDUH - National Survey on Drug Use and Health</a></li>
+<li><a href="https://nida.nih.gov">NIDA - National Institute on Drug Abuse</a></li>
+</ul>""")
+    
+    # Internal links
+    other_states = [s for s in AI_BOT_STATES if s != state_slug][:5]
+    lines.append("<h2>Related States</h2><ul>")
+    for s in other_states:
+        lines.append(f'<li><a href="/api/ai-bots/{s}">{s.replace("-"," ").title()} Addiction Statistics</a></li>')
+    lines.append("</ul>")
+    
+    lines.append(f'<hr><p><a href="{base_url}">United Rehabs</a> - Global addiction statistics for 195 countries and 51 US states.</p>')
+    lines.append(f'<p><a href="{base_url}/news">Latest News</a> | <a href="{base_url}/compare">Compare Countries</a> | <a href="{base_url}/drug-laws">Drug Laws</a> | <a href="{base_url}/contact">Contact</a></p>')
+    lines.append("</body></html>")
+    
+    return HTMLResponse(content="\n".join(lines))
 
 # Serve uploaded images
 app.mount("/api/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
