@@ -1,17 +1,12 @@
-# robots.txt for United Rehabs
-# Allow all crawlers to index public pages
-# Block admin and API routes from indexing
-
+# United Rehabs robots.txt
 User-agent: *
 Allow: /
-
-# Block admin pages
 Disallow: /you-are-the-admin
 Disallow: /you-are-the-admin/
-
-# Block API routes
 Disallow: /api/
 
-# Sitemap locations
-Sitemap: https://unitedrehabs.com/sitemap.xml
 Sitemap: https://unitedrehabs.com/api/seo/sitemap.xml
+
+# LLM access
+# llms.txt: https://unitedrehabs.com/llms.txt
+# llms-full.txt: https://unitedrehabs.com/llms-full.txt
