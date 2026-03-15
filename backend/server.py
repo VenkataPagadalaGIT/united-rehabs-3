@@ -2021,7 +2021,7 @@ async def sitemap_static():
     xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     today = datetime.utcnow().strftime("%Y-%m-%d")
     for loc, pri, freq in pages:
-        xml_parts.append(f'  <url><loc>{base_url}{loc}</loc><lastmod>{today}</lastmod><priority>{pri}</priority><changefreq>{freq}</changefreq></url>')
+        xml_parts.append(f'  <url><loc>{base_url}{loc}</loc><lastmod>{today}</lastmod></url>')
     xml_parts.append('</urlset>')
     xml = "\n".join(xml_parts)
     cache["xml"] = xml
@@ -2059,12 +2059,12 @@ async def sitemap_states():
                 state_law_dates[state_id] = today
 
     for slug, years in state_years.items():
-        xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats</loc><lastmod>{today}</lastmod><priority>0.8</priority><changefreq>weekly</changefreq></url>')
+        xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats</loc><lastmod>{today}</lastmod></url>')
         for year in sorted(years, reverse=True):
-            xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats-{year}</loc><lastmod>{today}</lastmod><priority>0.6</priority><changefreq>yearly</changefreq></url>')
+            xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats-{year}</loc><lastmod>{today}</lastmod></url>')
         # Drug law page for this state
         law_date = state_law_dates.get(slug, today)
-        xml_parts.append(f'  <url><loc>{base_url}/drug-laws/{slug}</loc><lastmod>{law_date}</lastmod><priority>0.7</priority><changefreq>monthly</changefreq></url>')
+        xml_parts.append(f'  <url><loc>{base_url}/drug-laws/{slug}</loc><lastmod>{law_date}</lastmod></url>')
 
     # County drug law pages
     async for county in db.county_drug_laws.find({"status": "published"}, {"state_id": 1, "state_name": 1, "county_slug": 1, "updated_at": 1}):
@@ -2077,7 +2077,7 @@ async def sitemap_states():
                     county_date = county["updated_at"].strftime("%Y-%m-%d") if hasattr(county["updated_at"], "strftime") else str(county["updated_at"])[:10]
                 except:
                     county_date = today
-            xml_parts.append(f'  <url><loc>{base_url}/drug-laws/{state_slug}/{county_slug}</loc><lastmod>{county_date}</lastmod><priority>0.6</priority><changefreq>monthly</changefreq></url>')
+            xml_parts.append(f'  <url><loc>{base_url}/drug-laws/{state_slug}/{county_slug}</loc><lastmod>{county_date}</lastmod></url>')
 
     xml_parts.append('</urlset>')
     xml = "\n".join(xml_parts)
@@ -2109,9 +2109,9 @@ async def sitemap_countries():
         code = country.get("country_code", "")
         if not slug:
             continue
-        xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats</loc><lastmod>{today}</lastmod><priority>0.7</priority><changefreq>weekly</changefreq></url>')
+        xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats</loc><lastmod>{today}</lastmod></url>')
         for year in sorted(country_year_map.get(code, []), reverse=True):
-            xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats-{year}</loc><lastmod>{today}</lastmod><priority>0.5</priority><changefreq>yearly</changefreq></url>')
+            xml_parts.append(f'  <url><loc>{base_url}/{slug}-addiction-stats-{year}</loc><lastmod>{today}</lastmod></url>')
     xml_parts.append('</urlset>')
     xml = "\n".join(xml_parts)
     cache["xml"] = xml
@@ -2167,8 +2167,8 @@ async def sitemap_news():
       <news:title>{title}</news:title>
       {f"<news:keywords>{keywords_escaped}</news:keywords>" if keywords_escaped else ""}
     </news:news>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    
+    
   </url>""")
     xml_parts.append('</urlset>')
     xml = "\n".join(xml_parts)
@@ -2205,7 +2205,7 @@ async def sitemap_articles():
                         break
                     except:
                         pass
-            xml_parts.append(f'  <url><loc>{base_url}/{ctype}/{slug}</loc><lastmod>{article_date}</lastmod><priority>0.7</priority><changefreq>weekly</changefreq></url>')
+            xml_parts.append(f'  <url><loc>{base_url}/{ctype}/{slug}</loc><lastmod>{article_date}</lastmod></url>')
     xml_parts.append('</urlset>')
     xml = "\n".join(xml_parts)
     cache["xml"] = xml
@@ -3745,11 +3745,43 @@ async def root_llms_full_txt():
 
 @app.get("/sitemap.xml")
 async def root_sitemap():
-    return _Redirect(url="/api/seo/sitemap.xml")
+    """Serve sitemap index directly at /sitemap.xml (Google standard)"""
+    from fastapi.responses import Response
+    import time as _time
+    base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    xml = f"""<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap><loc>{base_url}/api/seo/sitemap-static.xml</loc><lastmod>{today}</lastmod></sitemap>
+  <sitemap><loc>{base_url}/api/seo/sitemap-states.xml</loc><lastmod>{today}</lastmod></sitemap>
+  <sitemap><loc>{base_url}/api/seo/sitemap-countries.xml</loc><lastmod>{today}</lastmod></sitemap>
+  <sitemap><loc>{base_url}/api/seo/sitemap-news.xml</loc><lastmod>{today}</lastmod></sitemap>
+</sitemapindex>"""
+    return Response(content=xml, media_type="application/xml")
 
 @app.get("/robots.txt")
 async def root_robots():
-    return _Redirect(url="/api/seo/robots.txt")
+    """Serve robots.txt directly at root"""
+    from fastapi.responses import Response
+    base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
+    content = f"""User-agent: *
+Allow: /
+Allow: /api/seo/
+Allow: /api/ai-bots/
+
+Disallow: /you-are-the-admin
+Disallow: /you-are-the-admin/
+Disallow: /api/auth/
+Disallow: /api/articles
+Disallow: /api/statistics
+Disallow: /api/treatment-centers
+Disallow: /api/homepage/
+Disallow: /api/content/
+Disallow: /api/upload/
+Disallow: /api/config/
+
+Sitemap: {base_url}/sitemap.xml"""
+    return Response(content=content, media_type="text/plain")
 
 # ============================================
 # AI-BOTS PAGES — Pure plain text, zero JS
