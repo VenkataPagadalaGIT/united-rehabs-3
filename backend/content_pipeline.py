@@ -95,12 +95,37 @@ def _jaccard_similarity(title_a: str, title_b: str) -> float:
     union = words_a | words_b
     return len(intersection) / len(union)
 
-def _is_duplicate(new_title: str, existing_titles: List[str], threshold: float = 0.6) -> bool:
-    """Check if new_title is too similar to any existing title (>60% word overlap)"""
+def _is_duplicate(new_title: str, existing_titles: List[str], threshold: float = 0.5) -> bool:
+    """Check if new_title is too similar to any existing title (>50% word overlap)"""
+    new_lower = new_title.lower()
     for existing in existing_titles:
+        # Exact prefix match (first 35 chars)
+        if new_lower[:35] == existing.lower()[:35]:
+            return True
+        # Fuzzy word overlap
         if _jaccard_similarity(new_title, existing) > threshold:
             return True
     return False
+
+async def _get_existing_titles(db) -> List[str]:
+    """Get all existing article titles from DB"""
+    if db is None:
+        return []
+    recent = await db.articles.find(
+        {"content_type": "news"},
+        {"_id": 0, "title": 1}
+    ).to_list(500)
+    return [a["title"] for a in recent if a.get("title")]
+
+async def _get_used_images(db) -> set:
+    """Get all images currently used by articles"""
+    if db is None:
+        return set()
+    articles = await db.articles.find(
+        {"content_type": "news", "featured_image_url": {"$exists": True}},
+        {"_id": 0, "featured_image_url": 1}
+    ).to_list(500)
+    return {a.get("featured_image_url", "") for a in articles if a.get("featured_image_url")}
 
 
 # ============================================
@@ -151,24 +176,18 @@ IMAGE_POOL = [
 ]
 
 async def _get_unique_image(slug: str, db=None) -> str:
-    """Get a unique image that no other article is using"""
-    used_images = set()
-    if db is not None:
-        existing = await db.articles.find(
-            {"content_type": "news", "featured_image_url": {"$exists": True}},
-            {"_id": 0, "featured_image_url": 1}
-        ).to_list(200)
-        used_images = {a.get("featured_image_url", "") for a in existing}
+    """Get a unique image that NO other article is using. NEVER returns a duplicate."""
+    used = await _get_used_images(db) if db is not None else set()
     
     # Find first unused image
     for img in IMAGE_POOL:
-        if img not in used_images:
+        if img not in used:
             return img
     
-    # All used — cycle based on slug hash
-    import hashlib
-    idx = int(hashlib.md5(slug.encode()).hexdigest(), 16) % len(IMAGE_POOL)
-    return IMAGE_POOL[idx]
+    # All 40 used — append timestamp to make unique via Unsplash params
+    import hashlib, time
+    base = IMAGE_POOL[int(hashlib.md5(slug.encode()).hexdigest(), 16) % len(IMAGE_POOL)]
+    return f"{base}&t={int(time.time())}"
 
 
 # ============================================
@@ -831,20 +850,24 @@ async def stage_qa(article: Dict, db=None) -> Dict:
 
 
 async def stage_launch(article: Dict, db=None) -> Dict:
-    """Stage 4: Publish article and add to sitemap"""
+    """Stage 4: Publish article and add to sitemap. HARD BLOCKS duplicates."""
     if db is None:
         return {"stage": "launch", "error": "No database connection"}
 
-    # DEDUP CHECK: reject if similar title already exists in DB
-    title_prefix = article.get("title", "")[:40].lower()
-    if title_prefix:
-        existing = await db.articles.find(
-            {"content_type": "news", "is_published": True},
-            {"_id": 0, "title": 1, "slug": 1}
-        ).to_list(200)
-        for ex in existing:
-            if ex.get("title", "")[:40].lower() == title_prefix:
-                return {"stage": "launch", "error": f"Duplicate: similar article already exists ({ex.get('slug')})"}
+    # HARD BLOCK: Check title duplicate (50% similarity OR same first 35 chars)
+    existing_titles = await _get_existing_titles(db)
+    if _is_duplicate(article.get("title", ""), existing_titles):
+        return {"stage": "launch", "error": f"BLOCKED: Duplicate title detected. Similar article already exists."}
+
+    # HARD BLOCK: Check slug duplicate
+    existing_slug = await db.articles.find_one({"slug": article.get("slug"), "content_type": "news"})
+    if existing_slug:
+        return {"stage": "launch", "error": f"BLOCKED: Slug '{article.get('slug')}' already exists."}
+
+    # HARD BLOCK: Ensure image is unique
+    used_images = await _get_used_images(db)
+    if article.get("featured_image_url") in used_images:
+        article["featured_image_url"] = await _get_unique_image(article.get("slug", ""), db)
 
     article_data = {
         "title": article.get("title", ""),
