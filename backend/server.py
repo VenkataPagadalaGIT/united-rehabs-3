@@ -3780,7 +3780,7 @@ Disallow: /api/content/
 Disallow: /api/upload/
 Disallow: /api/config/
 
-Sitemap: {base_url}/sitemap.xml"""
+Sitemap: {base_url}/api/seo/sitemap.xml"""
     return Response(content=content, media_type="text/plain")
 
 # ============================================
