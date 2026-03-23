@@ -199,7 +199,35 @@ export default function NewsArticlePage() {
             <span className="text-foreground truncate">{article.title}</span>
           </nav>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr_260px] gap-6">
+            {/* LEFT SIDEBAR - Sticky TOC */}
+            <aside className="hidden lg:block">
+              <div className="sticky top-20">
+                {tocItems.length > 0 && (
+                  <div className="bg-card border rounded-lg p-4">
+                    <h3 className="font-bold text-xs uppercase tracking-wide text-muted-foreground mb-3">Contents</h3>
+                    <nav className="space-y-0.5 max-h-[60vh] overflow-y-auto">
+                      {tocItems.map((item: any) => (
+                        <a
+                          key={item.id}
+                          href={`#${item.id}`}
+                          className="block text-xs py-1.5 px-2 rounded text-muted-foreground hover:text-primary hover:bg-muted/50 transition-colors"
+                        >
+                          {item.text}
+                        </a>
+                      ))}
+                    </nav>
+                  </div>
+                )}
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  className="mt-3 flex items-center gap-1 text-xs text-muted-foreground hover:text-primary w-full justify-center py-2 border rounded-lg"
+                >
+                  Back to top
+                </button>
+              </div>
+            </aside>
+
             {/* Main Content */}
             <article>
               {/* Header */}
@@ -310,8 +338,23 @@ export default function NewsArticlePage() {
               </div>
             </article>
 
-            {/* Sidebar */}
-            <aside className="space-y-6">
+            {/* Right Sidebar */}
+            <aside className="space-y-4">
+              {/* Get Help */}
+              <div className="bg-card rounded-lg border p-4">
+                <h3 className="font-bold text-sm mb-3">Get Help</h3>
+                <ul className="space-y-2.5 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">&#9742;</span>
+                    <div><div className="font-medium">Crisis Hotlines</div><div className="text-xs text-muted-foreground">988 (Suicide & Crisis)<br/>1-800-662-4357 (SAMHSA)</div></div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">&#9993;</span>
+                    <div><div className="font-medium">Contact</div><Link to="/contact" className="text-xs text-primary hover:underline">Use the contact form</Link></div>
+                  </li>
+                </ul>
+              </div>
+
               {/* Admin-editable sidebar links */}
               {sidebarLinks.length > 0 && (
                 <div className="bg-card rounded-xl border p-5" data-testid="sidebar-links">
