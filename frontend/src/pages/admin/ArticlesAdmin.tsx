@@ -142,7 +142,8 @@ export default function ArticlesAdmin() {
       .replace(/(^-|-$)/g, "");
   };
 
-  const filteredArticles = articles?.filter(
+  const articlesList = articles?.items || articles || [];
+  const filteredArticles = articlesList?.filter(
     (a: Article) => filterType === "all" || a.content_type === filterType
   );
 
