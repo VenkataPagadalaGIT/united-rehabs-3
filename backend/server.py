@@ -1978,6 +1978,7 @@ async def sitemap_index():
   <sitemap><loc>{base_url}/api/seo/sitemap-states.xml</loc><lastmod>{today}</lastmod></sitemap>
   <sitemap><loc>{base_url}/api/seo/sitemap-countries.xml</loc><lastmod>{today}</lastmod></sitemap>
   <sitemap><loc>{base_url}/api/seo/sitemap-news.xml</loc><lastmod>{today}</lastmod></sitemap>
+  <sitemap><loc>{base_url}/api/seo/sitemap-drugs.xml</loc><lastmod>{today}</lastmod></sitemap>
   <sitemap><loc>{base_url}/api/seo/sitemap-articles.xml</loc><lastmod>{today}</lastmod></sitemap>
 </sitemapindex>"""
     return Response(content=xml, media_type="application/xml", headers={"Cache-Control": "public, max-age=86400"})
@@ -2175,6 +2176,38 @@ async def sitemap_news():
     cache["xml"] = xml
     cache["generated_at"] = _time.time()
     return Response(content=xml, media_type="application/xml", headers={"Cache-Control": "public, max-age=3600"})
+
+@api_router.get("/seo/sitemap-drugs.xml")
+async def sitemap_drugs():
+    """Drug guides sitemap - only pages with actual content"""
+    from fastapi.responses import Response
+    base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    
+    xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    
+    # Only index page always included
+    xml_parts.append(f'  <url><loc>{base_url}/drugs</loc><lastmod>{today}</lastmod></url>')
+    
+    # Individual drug pages - ONLY if they have content (>100 chars)
+    guides = await db.drug_guides.find({"content": {"$exists": True}}, {"_id": 0, "slug": 1, "content": 1, "updated_at": 1}).to_list(500)
+    for g in guides:
+        if g.get("content") and len(g["content"]) > 100:
+            lastmod = today
+            if g.get("updated_at") and hasattr(g["updated_at"], "strftime"):
+                lastmod = g["updated_at"].strftime("%Y-%m-%d")
+            xml_parts.append(f'  <url><loc>{base_url}/drugs/{g["slug"]}</loc><lastmod>{lastmod}</lastmod></url>')
+    
+    # Category pages - only if they have guides
+    categories_with_content = await db.drug_guides.distinct("category", {"content": {"$exists": True}})
+    for cat in categories_with_content:
+        if cat:
+            xml_parts.append(f'  <url><loc>{base_url}/drugs/category/{cat}</loc><lastmod>{today}</lastmod></url>')
+    
+    xml_parts.append('</urlset>')
+    return Response(content="\n".join(xml_parts), media_type="application/xml", headers={"Cache-Control": "public, max-age=21600"})
+
+
 
 @api_router.get("/seo/sitemap-articles.xml")
 async def sitemap_articles():
@@ -3794,6 +3827,7 @@ async def root_sitemap():
   <sitemap><loc>{base_url}/api/seo/sitemap-states.xml</loc><lastmod>{today}</lastmod></sitemap>
   <sitemap><loc>{base_url}/api/seo/sitemap-countries.xml</loc><lastmod>{today}</lastmod></sitemap>
   <sitemap><loc>{base_url}/api/seo/sitemap-news.xml</loc><lastmod>{today}</lastmod></sitemap>
+  <sitemap><loc>{base_url}/api/seo/sitemap-drugs.xml</loc><lastmod>{today}</lastmod></sitemap>
 </sitemapindex>"""
     return Response(content=xml, media_type="application/xml")
 

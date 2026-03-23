@@ -52,6 +52,8 @@ import SERPValidationAdmin from "./pages/admin/SERPValidationAdmin";
 import ComparePage from "./pages/ComparePage";
 import DrugLawsHubPage from "./pages/DrugLawsHubPage";
 import DrugsIndexPage from "./pages/DrugsIndexPage";
+import DrugGuidePage from "./pages/DrugGuidePage";
+import DrugCategoryPage from "./pages/DrugCategoryPage";
 import StateLawsPage from "./pages/StateLawsPage";
 import CountyDrugLawsPage from "./pages/CountyDrugLawsPage";
 import { CrisisHotlineBanner } from "./components/CrisisHotlineBanner";
@@ -115,7 +117,8 @@ const App = () => (
           <Route path="/drug-laws/:slug" element={<StateLawsPage />} />
           <Route path="/drug-laws/:state/:county" element={<CountyDrugLawsPage />} />
           <Route path="/drugs" element={<DrugsIndexPage />} />
-          <Route path="/drugs/:slug" element={<DrugsIndexPage />} />
+          <Route path="/drugs/category/:category" element={<DrugCategoryPage />} />
+          <Route path="/drugs/:slug" element={<DrugGuidePage />} />
 
           {/* Country Comparison Tool */}
           <Route path="/compare" element={<ComparePage />} />

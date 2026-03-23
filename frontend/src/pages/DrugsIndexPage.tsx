@@ -128,7 +128,7 @@ export default function DrugsIndexPage() {
               {CATEGORIES.map((cat) => (
                 <Link
                   key={cat.slug}
-                  to={`/drugs?category=${cat.slug}`}
+                  to={`/drugs/category/${cat.slug}`}
                   className="text-primary hover:underline text-sm py-1"
                 >
                   {cat.name}
