@@ -144,12 +144,12 @@ export default function DrugsIndexPage() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-1.5">
                 {POPULAR_DRUGS.slice(0, 40).map((name) => {
                   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-                  const dbDrug = drugs.find((d: any) => d.name?.toLowerCase() === name.toLowerCase());
+                  const hasPage = drugs.some((d: any) => d.slug === slug || d.name?.toLowerCase() === name.toLowerCase());
                   return (
                     <Link
                       key={name}
                       to={`/drugs/${slug}`}
-                      className="text-primary hover:underline text-sm py-0.5"
+                      className={`hover:underline text-sm py-0.5 ${hasPage ? "text-primary font-medium" : "text-muted-foreground"}`}
                     >
                       {name}
                     </Link>
@@ -176,7 +176,7 @@ export default function DrugsIndexPage() {
                       <Link
                         key={drug.slug}
                         to={`/drugs/${drug.slug}`}
-                        className="text-primary hover:underline text-sm py-0.5"
+                        className={`hover:underline text-sm py-0.5 ${drug.hasPage ? "text-primary font-medium" : "text-muted-foreground"}`}
                       >
                         {drug.name}
                       </Link>
