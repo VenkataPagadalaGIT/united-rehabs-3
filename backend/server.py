@@ -3802,6 +3802,39 @@ async def bulk_import_drug_guides(guides: List[Dict], user: User = Depends(requi
 
 
 # Include the router in the main app
+
+# ============================================
+# CONTACT FORM / LEADS
+# ============================================
+class ContactSubmission(BaseModel):
+    name: str
+    email: str
+    subject: Optional[str] = None
+    message: str
+
+@api_router.post("/contact")
+async def submit_contact(data: ContactSubmission):
+    """Store contact form submission as a lead"""
+    lead = {
+        "id": str(uuid.uuid4()),
+        "name": data.name,
+        "email": data.email,
+        "subject": data.subject or "General Inquiry",
+        "message": data.message,
+        "status": "new",
+        "created_at": datetime.utcnow(),
+    }
+    await db.contact_leads.insert_one(lead)
+    return {"success": True, "message": "Thank you. We'll get back to you soon."}
+
+@api_router.get("/contact/leads")
+async def get_contact_leads(user: User = Depends(require_admin), skip: int = 0, limit: int = 50):
+    """Admin: view all contact submissions"""
+    leads = await db.contact_leads.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.contact_leads.count_documents({})
+    return {"items": leads, "total": total}
+
+
 app.include_router(api_router)
 
 # Root-level llms.txt for AI models (must be at / not /api/)

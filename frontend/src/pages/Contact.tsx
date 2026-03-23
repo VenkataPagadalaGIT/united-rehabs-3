@@ -62,8 +62,24 @@ export default function Contact() {
 
     setIsSubmitting(true);
 
-    // Simulate form submission (replace with actual API call)
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const API = import.meta.env.REACT_APP_BACKEND_URL || "";
+      const res = await fetch(`${API}/api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to submit");
+    } catch {
+      toast({ title: "Error", description: "Failed to send. Please try again." });
+      setIsSubmitting(false);
+      return;
+    }
 
     setIsSubmitting(false);
     setIsSubmitted(true);
