@@ -343,6 +343,7 @@ export const mockNavItems: NavItem[] = [
   { id: "nav1", label: "Locations", hasDropdown: true, order: 1 },
   { id: "nav2", label: "Compare", hasDropdown: false, href: "/compare", order: 2 },
   { id: "nav3", label: "Drug Laws", hasDropdown: false, href: "/drug-laws", order: 3 },
+  { id: "nav3b", label: "Drug Guide", hasDropdown: false, href: "/drugs", order: 3 },
   { id: "nav4", label: "News", hasDropdown: false, href: "/news", order: 4 },
   { id: "nav5", label: "About", hasDropdown: false, href: "/about", order: 5 },
   { id: "nav6", label: "Contact", hasDropdown: false, href: "/contact", order: 6 },

@@ -3730,6 +3730,44 @@ async def update_seo_template(page_type: str, template: Dict, user: User = Depen
     )
     return {"success": True}
 
+
+# ============================================
+# DRUG GUIDES API
+# ============================================
+@api_router.get("/drug-guides")
+async def list_drug_guides(limit: int = 500, category: Optional[str] = None):
+    query = {}
+    if category:
+        query["category"] = category
+    guides = await db.drug_guides.find(query, {"_id": 0}).sort("name", 1).to_list(limit)
+    return guides
+
+@api_router.get("/drug-guides/{slug}")
+async def get_drug_guide(slug: str):
+    guide = await db.drug_guides.find_one({"slug": slug}, {"_id": 0})
+    if not guide:
+        raise HTTPException(status_code=404, detail="Drug guide not found")
+    return guide
+
+@api_router.post("/drug-guides/bulk")
+async def bulk_import_drug_guides(guides: List[Dict], user: User = Depends(require_admin)):
+    created = 0
+    updated = 0
+    for g in guides:
+        g.pop("_id", None)
+        existing = await db.drug_guides.find_one({"slug": g.get("slug", "")})
+        if existing:
+            await db.drug_guides.update_one({"slug": g["slug"]}, {"$set": g})
+            updated += 1
+        else:
+            if "id" not in g:
+                g["id"] = str(uuid.uuid4())
+            g["created_at"] = datetime.utcnow()
+            await db.drug_guides.insert_one(g)
+            created += 1
+    return {"created": created, "updated": updated, "total": created + updated}
+
+
 # Include the router in the main app
 app.include_router(api_router)
 
