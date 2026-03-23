@@ -272,16 +272,17 @@ export default function NewsArticlePage() {
 
               {/* Content with contextual auto-links (TOC removed from HTML) */}
               <div
-                className="prose prose-slate prose-lg max-w-none
+                className="prose prose-slate max-w-none
                   prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground
-                  prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-border
-                  prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
-                  prose-p:text-base prose-p:leading-[1.8] prose-p:mb-5 prose-p:text-muted-foreground
-                  prose-li:text-base prose-li:leading-[1.8] prose-li:text-muted-foreground
-                  prose-ul:my-4 prose-ol:my-4
-                  prose-strong:text-foreground
+                  prose-h2:text-lg prose-h2:mt-8 prose-h2:mb-3 prose-h2:pb-1.5 prose-h2:border-b prose-h2:border-border/50
+                  prose-h3:text-base prose-h3:mt-6 prose-h3:mb-2 prose-h3:font-semibold
+                  prose-p:text-[15px] prose-p:leading-[1.75] prose-p:mb-4 prose-p:text-muted-foreground
+                  prose-li:text-[15px] prose-li:leading-[1.75] prose-li:text-muted-foreground prose-li:my-0.5
+                  prose-ul:my-3 prose-ol:my-3
+                  prose-strong:text-foreground prose-strong:font-semibold
                   prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-                  prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg"
+                  prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg
+                  prose-img:rounded-lg prose-img:my-4"
                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(contentWithoutToc) }}
                 data-testid="article-content"
               />
