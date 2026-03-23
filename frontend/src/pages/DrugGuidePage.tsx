@@ -8,8 +8,54 @@ import { SEOHead } from "@/components/SEOHead";
 import { mockNavItems, mockFooterLinks } from "@/data/mockData";
 import { Helmet } from "react-helmet-async";
 import { AlertTriangle, ArrowLeft, ArrowUp, Clock, Phone, Mail, MessageSquare, ChevronUp, ChevronDown } from "lucide-react";
+import { ALL_COUNTRIES } from "@/data/countryConfig";
+import { ALL_STATES } from "@/data/allStates";
 
 const API = import.meta.env.REACT_APP_BACKEND_URL || "";
+
+// Auto-link drug names, countries, states in content (each name once)
+function autoLinkContent(html: string, currentSlug: string): string {
+  if (!html) return "";
+  let result = html;
+  const linked = new Set<string>();
+  
+  const DRUGS: Record<string, string> = {
+    "cychlorphine":"cychlorphine","fentanyl":"fentanyl","heroin":"heroin","cocaine":"cocaine",
+    "methamphetamine":"methamphetamine","oxycodone":"oxycodone","morphine":"morphine",
+    "naloxone":"naloxone","buprenorphine":"buprenorphine","methadone":"methadone",
+    "carfentanil":"carfentanil","xylazine":"xylazine","nitazenes":"nitazenes","ketamine":"ketamine",
+  };
+  
+  // Drug names (skip current drug)
+  Object.entries(DRUGS).forEach(([name, slug]) => {
+    if (slug === currentSlug || linked.has(name)) return;
+    const regex = new RegExp(`(?<!<a[^>]*>)\\b(${name})\\b(?![^<]*<\\/a>)`, "i");
+    if (regex.test(result)) {
+      result = result.replace(regex, `<a href="/drugs/${slug}" class="text-primary hover:underline font-medium">$1</a>`);
+      linked.add(name);
+    }
+  });
+  
+  ALL_COUNTRIES.forEach(c => {
+    if (linked.has(c.name.toLowerCase())) return;
+    const regex = new RegExp(`(?<!<a[^>]*>)\\b(${c.name})\\b(?![^<]*<\\/a>)`, "i");
+    if (regex.test(result)) {
+      result = result.replace(regex, `<a href="/${c.slug}-addiction-stats" class="text-primary hover:underline font-medium">${c.name}</a>`);
+      linked.add(c.name.toLowerCase());
+    }
+  });
+  
+  ALL_STATES.forEach(s => {
+    if (linked.has(s.name.toLowerCase())) return;
+    const regex = new RegExp(`(?<!<a[^>]*>)\\b(${s.name})\\b(?![^<]*<\\/a>)`, "i");
+    if (regex.test(result)) {
+      result = result.replace(regex, `<a href="/${s.slug}-addiction-stats" class="text-primary hover:underline font-medium">${s.name}</a>`);
+      linked.add(s.name.toLowerCase());
+    }
+  });
+  
+  return result;
+}
 
 // Extract H2 headings from HTML for TOC
 function extractHeadings(html: string): Array<{id: string; text: string}> {
@@ -65,7 +111,7 @@ export default function DrugGuidePage() {
   const hasContent = guide && guide.content && guide.content.length > 100;
   const drugName = guide?.name || slug?.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()) || "";
 
-  const processedContent = hasContent ? injectVideoAfterTable(addHeadingIds(guide.content), guide.youtube_id || "lIaMNB-Zo6A") : "";
+  const processedContent = hasContent ? autoLinkContent(injectVideoAfterTable(addHeadingIds(guide.content), guide.youtube_id), slug || "") : "";
   const headings = hasContent ? extractHeadings(processedContent) : [];
 
   // Track active section on scroll

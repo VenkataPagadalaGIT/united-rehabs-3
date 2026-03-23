@@ -22,14 +22,58 @@ const API = import.meta.env.REACT_APP_BACKEND_URL || "";
 const countryMap = new Map(ALL_COUNTRIES.map(c => [c.name.toLowerCase(), c]));
 const stateMap = new Map(ALL_STATES.map(s => [s.name.toLowerCase(), s]));
 
+// Drug names that should auto-link to /drugs/{slug} when guide exists
+// This list is static for performance; add new drugs here when guides are created
+const DRUG_LINK_MAP: Record<string, string> = {
+  "cychlorphine": "cychlorphine",
+  "fentanyl": "fentanyl",
+  "heroin": "heroin",
+  "cocaine": "cocaine",
+  "methamphetamine": "methamphetamine",
+  "oxycodone": "oxycodone",
+  "hydrocodone": "hydrocodone",
+  "morphine": "morphine",
+  "tramadol": "tramadol",
+  "kratom": "kratom",
+  "xanax": "xanax",
+  "adderall": "adderall",
+  "ketamine": "ketamine",
+  "naloxone": "naloxone",
+  "naltrexone": "naltrexone",
+  "buprenorphine": "buprenorphine",
+  "methadone": "methadone",
+  "carfentanil": "carfentanil",
+  "xylazine": "xylazine",
+  "nitazenes": "nitazenes",
+  "gabapentin": "gabapentin",
+  "mdma": "mdma",
+  "psilocybin": "psilocybin",
+  "lsd": "lsd",
+};
 
-function contextualAutoLink(html: string): string {
+
+function contextualAutoLink(html: string, drugGuides: string[] = []): string {
   if (!html) return "";
   let result = html;
   const linked = new Set<string>();
   
   // RULE: Each name gets linked only ONCE (first occurrence)
   // Don't link inside existing <a> tags
+
+  // 1. Drug names -> /drugs/{slug} (highest priority)
+  const activeDrugs = drugGuides.length > 0 ? drugGuides : Object.keys(DRUG_LINK_MAP);
+  activeDrugs.forEach(name => {
+    const key = name.toLowerCase();
+    if (linked.has(key)) return;
+    const slug = DRUG_LINK_MAP[key] || key.replace(/\s+/g, "-");
+    const regex = new RegExp(`(?<!<a[^>]*>)\\b(${name})\\b(?![^<]*<\\/a>)`, "i");
+    if (regex.test(result)) {
+      result = result.replace(regex, `<a href="/drugs/${slug}" class="text-primary hover:underline font-medium" title="${name} Drug Guide">$1</a>`);
+      linked.add(key);
+    }
+  });
+
+  // 2. Country names -> /country-addiction-stats
   ALL_COUNTRIES.forEach(c => {
     if (linked.has(c.name.toLowerCase())) return;
     const regex = new RegExp(`(?<!<a[^>]*>)\\b(${c.name})\\b(?![^<]*<\\/a>)`, "i");
@@ -39,6 +83,7 @@ function contextualAutoLink(html: string): string {
     }
   });
   
+  // 3. US State names -> /state-addiction-stats
   ALL_STATES.forEach(s => {
     if (linked.has(s.name.toLowerCase())) return;
     const regex = new RegExp(`(?<!<a[^>]*>)\\b(${s.name})\\b(?![^<]*<\\/a>)`, "i");
