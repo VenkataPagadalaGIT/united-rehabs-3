@@ -8,6 +8,7 @@ import { SEOHead } from "@/components/SEOHead";
 import { mockNavItems, mockFooterLinks } from "@/data/mockData";
 import { Helmet } from "react-helmet-async";
 import { AlertTriangle, ArrowLeft, ArrowUp, Clock, Phone, Mail, MessageSquare, ChevronUp, ChevronDown } from "lucide-react";
+import { ArticleToolbar } from "@/components/ArticleToolbar";
 import { ALL_COUNTRIES } from "@/data/countryConfig";
 import { ALL_STATES } from "@/data/allStates";
 
@@ -222,6 +223,14 @@ export default function DrugGuidePage() {
                     Category: <Link to={`/drugs/category/${guide.category}`} className="text-primary hover:underline">{guide.category}</Link>
                   </p>
                 )}
+
+                {/* Share Toolbar */}
+                <ArticleToolbar
+                  title={guide.name}
+                  url={`https://unitedrehabs.com/drugs/${slug}`}
+                  content={guide.content || ""}
+                  readTime={guide.read_time || "5 min"}
+                />
 
                 {/* Key Takeaways */}
                 {guide.key_takeaways?.length > 0 && (
