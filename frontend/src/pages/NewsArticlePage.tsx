@@ -213,7 +213,28 @@ export default function NewsArticlePage() {
 
   const autoLinkedContent = contextualAutoLink(article.content || "");
   const { summaryHtml, contentWithoutSummary } = extractSummaryBox(autoLinkedContent);
-  const { tocItems, contentWithoutToc } = extractTocFromHtml(contentWithoutSummary);
+  const { tocItems: formalTocItems, contentWithoutToc } = extractTocFromHtml(contentWithoutSummary);
+  
+  // Extract H2 headings directly from content for sidebar TOC (works even without formal TOC block)
+  const h2Headings: Array<{id: string; text: string}> = [];
+  const h2Regex = /<h2[^>]*(?:id="([^"]*)")?[^>]*>(.*?)<\/h2>/gi;
+  let h2Match;
+  let h2Idx = 0;
+  const finalContent = contentWithoutToc.replace(/<h2([^>]*)>/gi, (match, attrs) => {
+    if (/id="/.test(attrs)) return match;
+    return `<h2${attrs} id="section-${h2Idx++}">`;
+  });
+  h2Idx = 0;
+  while ((h2Match = h2Regex.exec(finalContent)) !== null) {
+    const text = h2Match[2].replace(/<[^>]+>/g, "").trim();
+    const id = h2Match[1] || `section-${h2Idx}`;
+    h2Headings.push({ id, text });
+    h2Idx++;
+  }
+  
+  // Use formal TOC if available, otherwise use extracted H2 headings
+  const sidebarItems = formalTocItems.length > 0 ? formalTocItems.map(t => ({ id: t.href.replace("#",""), text: t.label })) : h2Headings;
+  const tocItems = formalTocItems;
 
   return (
     <div className="min-h-screen bg-background" data-testid="news-article-page">
@@ -244,15 +265,15 @@ export default function NewsArticlePage() {
             <span className="text-foreground truncate">{article.title}</span>
           </nav>
 
-          <div className={`grid grid-cols-1 gap-6 ${tocItems.length > 0 ? "lg:grid-cols-[220px_1fr_260px]" : "lg:grid-cols-[1fr_260px]"}`}>
+          <div className={`grid grid-cols-1 gap-6 ${sidebarItems.length > 0 ? "lg:grid-cols-[220px_1fr_260px]" : "lg:grid-cols-[1fr_260px]"}`}>
             {/* LEFT SIDEBAR - Sticky TOC */}
             <aside className="hidden lg:block">
-              {tocItems.length > 0 && (
+              {sidebarItems.length > 0 && (
               <div className="sticky top-20">
                 <div className="bg-card border rounded-lg p-4">
                     <h3 className="font-bold text-xs uppercase tracking-wide text-muted-foreground mb-3">Contents</h3>
                     <nav className="space-y-0.5 max-h-[60vh] overflow-y-auto">
-                      {tocItems.map((item: any) => (
+                      {sidebarItems.map((item: any) => (
                         <a
                           key={item.id}
                           href={`#${item.id}`}
@@ -356,7 +377,7 @@ export default function NewsArticlePage() {
                   prose-a:text-primary prose-a:no-underline hover:prose-a:underline
                   prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg
                   prose-img:rounded-lg prose-img:my-4"
-                dangerouslySetInnerHTML={{ __html: sanitizeHtml(contentWithoutToc) }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(finalContent) }}
                 data-testid="article-content"
               />
 
