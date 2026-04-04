@@ -244,12 +244,12 @@ export default function NewsArticlePage() {
             <span className="text-foreground truncate">{article.title}</span>
           </nav>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr_260px] gap-6">
+          <div className={`grid grid-cols-1 gap-6 ${tocItems.length > 0 ? "lg:grid-cols-[220px_1fr_260px]" : "lg:grid-cols-[1fr_260px]"}`}>
             {/* LEFT SIDEBAR - Sticky TOC */}
             <aside className="hidden lg:block">
+              {tocItems.length > 0 && (
               <div className="sticky top-20">
-                {tocItems.length > 0 && (
-                  <div className="bg-card border rounded-lg p-4">
+                <div className="bg-card border rounded-lg p-4">
                     <h3 className="font-bold text-xs uppercase tracking-wide text-muted-foreground mb-3">Contents</h3>
                     <nav className="space-y-0.5 max-h-[60vh] overflow-y-auto">
                       {tocItems.map((item: any) => (
@@ -263,7 +263,6 @@ export default function NewsArticlePage() {
                       ))}
                     </nav>
                   </div>
-                )}
                 <button
                   onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                   className="mt-3 flex items-center gap-1 text-xs text-muted-foreground hover:text-primary w-full justify-center py-2 border rounded-lg"
@@ -271,6 +270,7 @@ export default function NewsArticlePage() {
                   Back to top
                 </button>
               </div>
+              )}
             </aside>
 
             {/* Main Content */}
