@@ -144,10 +144,19 @@ def validate_content(data: Dict, content_type: str) -> Dict:
             if found_patterns:
                 issues.append(f"AI_PATTERN: Contains AI writing patterns: {', '.join(found_patterns[:3])}")
         
-        # YouTube video
-        has_video = bool(re.search(r'youtube\.com/embed/[a-zA-Z0-9_-]+', content))
-        if rules.get("must_have_youtube") and not has_video:
+        # YouTube video - must exist AND be a working video
+        yt_ids = re.findall(r'youtube\.com/embed/([a-zA-Z0-9_-]+)', content)
+        if rules.get("must_have_youtube") and not yt_ids:
             issues.append("VIDEO: No YouTube video embedded in content")
+        elif yt_ids:
+            import requests as _req
+            for vid in yt_ids:
+                try:
+                    r = _req.get(f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={vid}&format=json", timeout=5)
+                    if r.status_code != 200:
+                        issues.append(f"VIDEO: YouTube video '{vid}' is dead/unavailable")
+                except:
+                    warnings.append(f"VIDEO: Could not verify YouTube video '{vid}'")
         
         # Duplicate internal links
         if rules.get("max_internal_link_per_name"):
@@ -166,6 +175,8 @@ def validate_content(data: Dict, content_type: str) -> Dict:
             issues.append("IMAGE: Missing featured_image_url")
         elif rules.get("no_local_uploads") and "/api/uploads/" in img:
             issues.append("IMAGE: Uses /api/uploads/ - won't work on production. Use Unsplash URL")
+        elif "wikipedia.org" in img:
+            issues.append("IMAGE: Wikipedia blocks hotlinking (403). Use PubChem: pubchem.ncbi.nlm.nih.gov/image/imgsrv.fcgi?cid=CID&t=l")
         elif rules.get("image_domains"):
             valid = any(domain in img for domain in rules["image_domains"])
             if not valid:
