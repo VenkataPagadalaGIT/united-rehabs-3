@@ -77,9 +77,13 @@ export const SEOHead = ({
       <meta name="description" content={description} />
       {keywords && <meta name="keywords" content={keywords} />}
       <link rel="canonical" href={canonicalUrl} />
-      <meta name="robots" content={noIndex ? "noindex, nofollow" : "index, follow"} />
+      <meta name="robots" content={noIndex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
       <meta name="author" content={SITE_NAME} />
       <meta name="publisher" content={SITE_NAME} />
+
+      {/* Google Discover optimization */}
+      <link rel="alternate" type="application/rss+xml" title={`${SITE_NAME} News`} href={`${BASE_URL}/api/seo/rss.xml`} />
+      <link rel="hub" href="https://pubsubhubbub.appspot.com/" />
 
       {/* Open Graph */}
       <meta property="og:title" content={title} />

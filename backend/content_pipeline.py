@@ -928,19 +928,19 @@ async def stage_launch(article: Dict, db=None) -> Dict:
         action = "created"
 
     # Clear sitemap cache so new article appears
-    from server import _sitemap_caches
-    _sitemap_caches.clear()  # Clear all sub-sitemap caches
-
-    # Ping Google to re-crawl sitemap
     try:
-        import httpx
-        async with httpx.AsyncClient(timeout=10) as ping_client:
-            sitemap_url = "https://unitedrehabs.com/api/seo/sitemap.xml"
-            await ping_client.get(f"https://www.google.com/ping?sitemap={sitemap_url}")
-            await ping_client.get(f"https://www.bing.com/ping?sitemap={sitemap_url}")
-            logger.info(f"[Pipeline] Pinged Google & Bing sitemaps")
+        from server import _sitemap_caches
+        _sitemap_caches.clear()
+    except:
+        pass
+
+    # Ping Google, Bing, and WebSub hub for instant discovery
+    try:
+        from server import ping_websub
+        await ping_websub()
+        logger.info("[Pipeline] Pinged Google, Bing & WebSub")
     except Exception as e:
-        logger.warning(f"[Pipeline] Sitemap ping failed: {e}")
+        logger.warning(f"[Pipeline] Ping failed: {e}")
 
     return {
         "stage": "launch",

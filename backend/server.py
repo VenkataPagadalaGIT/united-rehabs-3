@@ -1981,7 +1981,19 @@ async def sitemap_index():
     """Sitemap index pointing to sub-sitemaps"""
     from fastapi.responses import Response
     base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
-    today = datetime.utcnow().strftime("%Y-%m-%d")
+    now = datetime.utcnow()
+    today = now.strftime("%Y-%m-%d")
+    
+    # Monthly news sitemaps (last 12 months)
+    monthly = []
+    for i in range(12):
+        m = now.month - i
+        y = now.year
+        while m <= 0:
+            m += 12
+            y -= 1
+        monthly.append(f'  <sitemap><loc>{base_url}/api/seo/sitemap-news-{y}-{m:02d}.xml</loc><lastmod>{today}</lastmod></sitemap>')
+    
     xml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap><loc>{base_url}/api/seo/sitemap-static.xml</loc><lastmod>{today}</lastmod></sitemap>
@@ -1989,7 +2001,7 @@ async def sitemap_index():
   <sitemap><loc>{base_url}/api/seo/sitemap-countries.xml</loc><lastmod>{today}</lastmod></sitemap>
   <sitemap><loc>{base_url}/api/seo/sitemap-news.xml</loc><lastmod>{today}</lastmod></sitemap>
   <sitemap><loc>{base_url}/api/seo/sitemap-drugs.xml</loc><lastmod>{today}</lastmod></sitemap>
-  <sitemap><loc>{base_url}/api/seo/sitemap-articles.xml</loc><lastmod>{today}</lastmod></sitemap>
+{chr(10).join(monthly)}
 </sitemapindex>"""
     return Response(content=xml, media_type="application/xml", headers={"Cache-Control": "public, max-age=86400"})
 
@@ -3866,6 +3878,148 @@ async def get_contact_leads(user: User = Depends(require_admin), skip: int = 0, 
     return {"items": leads, "total": total}
 
 
+
+# ============================================
+# RSS FEED (Google Discover + News)
+# ============================================
+@api_router.get("/seo/rss.xml")
+async def rss_feed():
+    """RSS 2.0 feed for Google Discover and news readers"""
+    from fastapi.responses import Response
+    base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
+    
+    articles = await db.articles.find(
+        {"content_type": "news", "is_published": True},
+        {"_id": 0, "title": 1, "slug": 1, "excerpt": 1, "published_at": 1, "updated_at": 1, "featured_image_url": 1, "tags": 1, "author_name": 1}
+    ).sort("published_at", -1).limit(50).to_list(50)
+    
+    items = []
+    for a in articles:
+        pub_date = a.get("published_at", a.get("updated_at", ""))
+        if hasattr(pub_date, "strftime"):
+            pub_date = pub_date.strftime("%a, %d %b %Y %H:%M:%S +0000")
+        else:
+            pub_date = str(pub_date)
+        
+        title = (a.get("title", "") or "").replace("&", "&amp;").replace("<", "&lt;")
+        desc = (a.get("excerpt", "") or "").replace("&", "&amp;").replace("<", "&lt;")
+        img = a.get("featured_image_url", "")
+        
+        item = f"""    <item>
+      <title>{title}</title>
+      <link>{base_url}/news/{a.get('slug', '')}</link>
+      <guid isPermaLink="true">{base_url}/news/{a.get('slug', '')}</guid>
+      <description>{desc}</description>
+      <pubDate>{pub_date}</pubDate>
+      <author>{a.get('author_name', 'United Rehabs Data Team')}</author>"""
+        
+        if img:
+            item += f'\n      <enclosure url="{img}" type="image/jpeg" />'
+        
+        for tag in (a.get("tags") or [])[:5]:
+            item += f'\n      <category>{tag}</category>'
+        
+        item += "\n    </item>"
+        items.append(item)
+    
+    rss = f"""<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>United Rehabs - Addiction News &amp; Data</title>
+    <link>{base_url}/news</link>
+    <description>Latest addiction news, drug crisis data, and substance use statistics from United Rehabs.</description>
+    <language>en-us</language>
+    <atom:link href="{base_url}/api/seo/rss.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://pubsubhubbub.appspot.com/" rel="hub" />
+    <image>
+      <url>{base_url}/og-image.png</url>
+      <title>United Rehabs</title>
+      <link>{base_url}</link>
+    </image>
+{chr(10).join(items)}
+  </channel>
+</rss>"""
+    
+    return Response(content=rss, media_type="application/rss+xml", headers={"Cache-Control": "public, max-age=1800"})
+
+
+# ============================================
+# MONTHLY SITEMAPS
+# ============================================
+@api_router.get("/seo/sitemap-news-{year}-{month}.xml")
+async def sitemap_news_monthly(year: int, month: int):
+    """Monthly news sitemap - fresh content gets higher crawl priority"""
+    from fastapi.responses import Response
+    base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
+    
+    start = datetime(year, month, 1)
+    if month == 12:
+        end = datetime(year + 1, 1, 1)
+    else:
+        end = datetime(year, month + 1, 1)
+    
+    articles = await db.articles.find(
+        {"content_type": "news", "is_published": True, "published_at": {"$gte": start, "$lt": end}},
+        {"_id": 0, "slug": 1, "published_at": 1, "updated_at": 1, "title": 1, "tags": 1}
+    ).sort("published_at", -1).to_list(1000)
+    
+    xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>',
+                 '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">']
+    
+    for a in articles:
+        slug = a.get("slug", "")
+        lastmod = ""
+        for df in ["updated_at", "published_at"]:
+            if a.get(df) and hasattr(a[df], "strftime"):
+                lastmod = a[df].strftime("%Y-%m-%d")
+                break
+        pub_date = a.get("published_at", "")
+        if hasattr(pub_date, "strftime"):
+            pub_date = pub_date.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+        title = (a.get("title", "") or "").replace("&", "&amp;").replace("<", "&lt;")
+        keywords = ", ".join((a.get("tags") or [])[:5]).replace("&", "&amp;")
+        
+        xml_parts.append(f"""  <url>
+    <loc>{base_url}/news/{slug}</loc>
+    <lastmod>{lastmod}</lastmod>
+    <news:news>
+      <news:publication><news:name>United Rehabs</news:name><news:language>en</news:language></news:publication>
+      <news:publication_date>{pub_date}</news:publication_date>
+      <news:title>{title}</news:title>
+      <news:keywords>{keywords}</news:keywords>
+    </news:news>
+  </url>""")
+    
+    xml_parts.append('</urlset>')
+    return Response(content="\n".join(xml_parts), media_type="application/xml")
+
+
+# ============================================
+# WEBSUB PING (notify Google instantly on publish)
+# ============================================
+async def ping_websub():
+    """Ping Google's WebSub hub when new content is published"""
+    import aiohttp
+    base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
+    try:
+        async with aiohttp.ClientSession() as session:
+            # Ping WebSub hub
+            await session.post("https://pubsubhubbub.appspot.com/", data={
+                "hub.mode": "publish",
+                "hub.url": f"{base_url}/api/seo/rss.xml"
+            }, timeout=aiohttp.ClientTimeout(total=10))
+            
+            # Also ping Google sitemap
+            await session.get(f"https://www.google.com/ping?sitemap={base_url}/api/seo/sitemap.xml",
+                            timeout=aiohttp.ClientTimeout(total=10))
+            
+            # Ping Bing
+            await session.get(f"https://www.bing.com/ping?sitemap={base_url}/api/seo/sitemap.xml",
+                            timeout=aiohttp.ClientTimeout(total=10))
+    except:
+        pass
+
+
 app.include_router(api_router)
 
 # Root-level llms.txt for AI models (must be at / not /api/)
@@ -3880,11 +4034,22 @@ async def root_llms_full_txt():
 
 @app.get("/sitemap.xml")
 async def root_sitemap():
-    """Serve sitemap index directly at /sitemap.xml (Google standard)"""
+    """Serve sitemap index with monthly news sitemaps"""
     from fastapi.responses import Response
-    import time as _time
     base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
     today = datetime.utcnow().strftime("%Y-%m-%d")
+    now = datetime.utcnow()
+    
+    # Build monthly sitemap entries for news (last 12 months)
+    monthly_sitemaps = []
+    for i in range(12):
+        month = now.month - i
+        year = now.year
+        while month <= 0:
+            month += 12
+            year -= 1
+        monthly_sitemaps.append(f'  <sitemap><loc>{base_url}/api/seo/sitemap-news-{year}-{month:02d}.xml</loc><lastmod>{today}</lastmod></sitemap>')
+    
     xml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap><loc>{base_url}/api/seo/sitemap-static.xml</loc><lastmod>{today}</lastmod></sitemap>
@@ -3892,6 +4057,7 @@ async def root_sitemap():
   <sitemap><loc>{base_url}/api/seo/sitemap-countries.xml</loc><lastmod>{today}</lastmod></sitemap>
   <sitemap><loc>{base_url}/api/seo/sitemap-news.xml</loc><lastmod>{today}</lastmod></sitemap>
   <sitemap><loc>{base_url}/api/seo/sitemap-drugs.xml</loc><lastmod>{today}</lastmod></sitemap>
+{chr(10).join(monthly_sitemaps)}
 </sitemapindex>"""
     return Response(content=xml, media_type="application/xml")
 
