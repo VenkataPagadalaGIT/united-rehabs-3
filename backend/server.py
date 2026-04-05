@@ -717,10 +717,17 @@ async def delete_article(id: str, user: User = Depends(require_admin)):
 
 @api_router.post("/articles/bulk")
 async def bulk_import_articles(articles: List[ArticleCreate], user: User = Depends(require_admin)):
-    """Bulk create/update news articles"""
+    """Bulk create/update news articles. Validates content before saving."""
     created = 0
     updated = 0
+    rejected = []
     for data in articles:
+        # Validate before saving
+        validation = validate_content(data.dict(), "news")
+        if not validation["passed"]:
+            rejected.append({"slug": data.slug, "issues": validation["issues"], "score": validation["score"]})
+            continue
+        
         existing = await db.articles.find_one({"slug": data.slug, "content_type": data.content_type})
         article_data = data.dict()
         if existing:
@@ -735,7 +742,10 @@ async def bulk_import_articles(articles: List[ArticleCreate], user: User = Depen
             article = Article(**article_data)
             await db.articles.insert_one(article.dict())
             created += 1
-    return {"created": created, "updated": updated, "total": created + updated}
+    result = {"created": created, "updated": updated, "total": created + updated}
+    if rejected:
+        result["rejected"] = rejected
+    return result
 
 @api_router.get("/articles/tags")
 async def get_article_tags():
@@ -3763,6 +3773,27 @@ async def update_seo_template(page_type: str, template: Dict, user: User = Depen
     )
     return {"success": True}
 
+
+# ============================================
+# CONTENT VALIDATION API
+# ============================================
+from content_validator import validate_content, get_rules
+
+@api_router.post("/content/validate")
+async def validate_content_endpoint(data: Dict):
+    """Pre-check content before publishing. Returns pass/fail with issues."""
+    content_type = data.pop("_type", "news")  # news, drug_guide, drug_laws
+    return validate_content(data, content_type)
+
+@api_router.get("/content/rules")
+async def get_content_rules(content_type: str = "news"):
+    """Get content standards for a page type"""
+    return get_rules(content_type)
+
+@api_router.get("/content/rules/all")
+async def get_all_content_rules():
+    """Get all content standards"""
+    return {t: get_rules(t) for t in ["news", "drug_guide", "drug_laws"]}
 
 # ============================================
 # DRUG GUIDES API
