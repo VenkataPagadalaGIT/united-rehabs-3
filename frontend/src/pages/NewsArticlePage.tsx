@@ -351,8 +351,8 @@ export default function NewsArticlePage() {
                 />
               )}
 
-              {/* Jump to Section TOC */}
-              {tocItems.length > 0 && <JumpToSection items={tocItems} />}
+              {/* Jump to Section TOC - only show if left sidebar TOC is NOT present */}
+              {tocItems.length > 0 && sidebarItems.length === 0 && <JumpToSection items={tocItems} />}
 
               {/* Featured Image — skip if it's a YouTube thumbnail and content has the video embed */}
               {article.featured_image_url &&
