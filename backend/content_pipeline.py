@@ -802,8 +802,26 @@ async def stage_qa(article: Dict, db=None) -> Dict:
     seen_links = set()
     for href in link_hrefs:
         if href in seen_links:
-            issues.append(f"Duplicate internal link: {href} — each name should link only ONCE")
+            issues.append(f"Duplicate internal link: {href} - each name should link only ONCE")
         seen_links.add(href)
+
+    # IMAGE VALIDATION - no broken images allowed
+    featured_img = article.get("featured_image_url", "")
+    if not featured_img:
+        issues.append("Missing featured_image_url")
+    elif "/api/uploads/" in featured_img:
+        issues.append("featured_image_url uses local /api/uploads/ path - won't work on production")
+    elif "unsplash.com" not in featured_img and "upload.wikimedia" not in featured_img and "pubchem" not in featured_img:
+        warnings.append(f"featured_image_url is not from Unsplash/Wikipedia/PubChem: {featured_img[:60]}")
+
+    # YOUTUBE VIDEO VALIDATION
+    yt_match = _re.findall(r'youtube\.com/embed/([a-zA-Z0-9_-]+)', content)
+    if not yt_match:
+        warnings.append("No YouTube video embedded in content")
+    
+    # EM DASH CHECK
+    if "\u2014" in content or "&mdash;" in content:
+        issues.append("Content contains em dashes - use hyphens (-) only")
 
     # Validate internal links would resolve
     if db is not None:
