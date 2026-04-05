@@ -9,6 +9,7 @@ import { mockNavItems, mockFooterLinks } from "@/data/mockData";
 import { Helmet } from "react-helmet-async";
 import { AlertTriangle, ArrowLeft, ArrowUp, Clock, Phone, Mail, MessageSquare, ChevronUp, ChevronDown } from "lucide-react";
 import { ArticleToolbar } from "@/components/ArticleToolbar";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { ALL_COUNTRIES } from "@/data/countryConfig";
 import { ALL_STATES } from "@/data/allStates";
 
@@ -258,7 +259,7 @@ export default function DrugGuidePage() {
                     prose-strong:text-foreground
                     prose-a:text-primary hover:prose-a:underline
                     prose-table:text-sm prose-th:text-left prose-th:p-2 prose-th:bg-muted/50 prose-td:p-2 prose-td:border-t"
-                  dangerouslySetInnerHTML={{ __html: processedContent }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(processedContent) }}
                 />
 
                 {/* FAQ */}

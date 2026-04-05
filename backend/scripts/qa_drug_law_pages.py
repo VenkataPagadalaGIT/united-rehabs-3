@@ -1,3 +1,4 @@
+import ast
 #!/usr/bin/env python3
 """
 QA & Auto-Fix Tool for State Drug Law Pages
@@ -115,7 +116,7 @@ def fix_dict_literals_in_li(text):
     def replace_dict_li(m):
         raw = m.group(1)
         try:
-            d = eval(raw)  # Safe here — we control the data
+            d = ast.literal_eval(raw)  # Safe here — we control the data
             if isinstance(d, dict):
                 # Year-based
                 if "year" in d:
@@ -148,7 +149,7 @@ def fix_dict_literals_standalone(text):
     def replace_dict(m):
         raw = m.group(0)
         try:
-            d = eval(raw)
+            d = ast.literal_eval(raw)
             if isinstance(d, dict):
                 parts = []
                 for k, v in d.items():

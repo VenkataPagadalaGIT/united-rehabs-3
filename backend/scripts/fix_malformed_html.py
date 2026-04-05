@@ -108,7 +108,7 @@ def fix_li_dict_patterns(html):
     def replace_li_dict(match):
         dict_str = match.group(1)
         try:
-            d = ast.literal_eval(dict_str)
+            d = ast.literal_ast.literal_eval(dict_str)
             return f"<li>{format_dict_as_text(d)}</li>"
         except (ValueError, SyntaxError):
             # Try to handle truncated or malformed dicts
@@ -125,7 +125,7 @@ def fix_li_multiline_dict_patterns(html):
     def replace_match(match):
         dict_str = match.group(1)
         try:
-            d = ast.literal_eval(dict_str)
+            d = ast.literal_ast.literal_eval(dict_str)
             return f"<li>{format_dict_as_text(d)}</li>"
         except (ValueError, SyntaxError):
             return match.group(0)

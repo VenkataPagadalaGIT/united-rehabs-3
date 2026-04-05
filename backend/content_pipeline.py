@@ -186,7 +186,7 @@ async def _get_unique_image(slug: str, db=None) -> str:
     
     # All 40 used — append timestamp to make unique via Unsplash params
     import hashlib, time
-    base = IMAGE_POOL[int(hashlib.md5(slug.encode()).hexdigest(), 16) % len(IMAGE_POOL)]
+    base = IMAGE_POOL[int(hashlib.sha256(slug.encode()).hexdigest(), 16) % len(IMAGE_POOL)]
     return f"{base}&t={int(time.time())}"
 
 
@@ -929,16 +929,20 @@ async def stage_launch(article: Dict, db=None) -> Dict:
 
     # Clear sitemap cache so new article appears
     try:
-        from server import _sitemap_caches
-        _sitemap_caches.clear()
-    except:
+        import importlib
+        _server = importlib.import_module("server")
+        if hasattr(_server, "_sitemap_caches"):
+            _server._sitemap_caches.clear()
+    except Exception:
         pass
 
     # Ping Google, Bing, and WebSub hub for instant discovery
     try:
-        from server import ping_websub
-        await ping_websub()
-        logger.info("[Pipeline] Pinged Google, Bing & WebSub")
+        import importlib
+        _server = importlib.import_module("server")
+        if hasattr(_server, "ping_websub"):
+            await _server.ping_websub()
+            logger.info("[Pipeline] Pinged Google, Bing & WebSub")
     except Exception as e:
         logger.warning(f"[Pipeline] Ping failed: {e}")
 

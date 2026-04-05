@@ -1,6 +1,7 @@
 import { useParams, Navigate, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Helmet } from "react-helmet-async";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { Header } from "@/components/listing/Header";
 import { Breadcrumb } from "@/components/listing/Breadcrumb";
 import { Footer } from "@/components/listing/Footer";
@@ -56,7 +57,7 @@ function ContentSection({ icon: Icon, title, content, id }: {
       </h2>
       <div
         className="prose prose-slate max-w-none prose-p:text-muted-foreground prose-li:text-muted-foreground prose-strong:text-foreground"
-        dangerouslySetInnerHTML={{ __html: content }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
       />
     </section>
   );
