@@ -1993,16 +1993,20 @@ async def sitemap_index():
     today = now.strftime("%Y-%m-%d")
     
     # Monthly news sitemaps - ONLY months that have articles
-    months_with_articles = await db.articles.aggregate([
-        {"$match": {"content_type": "news", "is_published": True, "published_at": {"$exists": True}}},
-        {"$group": {"_id": {"$dateToString": {"format": "%Y-%m", "date": "$published_at"}}}},
-        {"$sort": {"_id": -1}}
-    ]).to_list(50)
+    all_articles = await db.articles.find(
+        {"content_type": "news", "is_published": True, "published_at": {"$exists": True}},
+        {"_id": 0, "published_at": 1}
+    ).to_list(1000)
+    
+    months_set = set()
+    for a in all_articles:
+        pa = a.get("published_at")
+        if pa and hasattr(pa, "strftime"):
+            months_set.add(pa.strftime("%Y-%m"))
     
     monthly = []
-    for m in months_with_articles:
-        ym = m["_id"]
-        monthly.append(f'  <sitemap><loc>{base_url}/api/seo/sitemap-news-{ym.replace("-", "-")}.xml</loc><lastmod>{today}</lastmod></sitemap>')
+    for ym in sorted(months_set, reverse=True):
+        monthly.append(f'  <sitemap><loc>{base_url}/api/seo/sitemap-news-{ym}.xml</loc><lastmod>{today}</lastmod></sitemap>')
     
     xml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -4078,15 +4082,19 @@ async def root_sitemap():
     today = datetime.utcnow().strftime("%Y-%m-%d")
     
     # Only include months that have published articles
-    months_with_articles = await db.articles.aggregate([
-        {"$match": {"content_type": "news", "is_published": True, "published_at": {"$exists": True}}},
-        {"$group": {"_id": {"$dateToString": {"format": "%Y-%m", "date": "$published_at"}}}},
-        {"$sort": {"_id": -1}}
-    ]).to_list(50)
+    all_articles = await db.articles.find(
+        {"content_type": "news", "is_published": True, "published_at": {"$exists": True}},
+        {"_id": 0, "published_at": 1}
+    ).to_list(1000)
+    
+    months_set = set()
+    for a in all_articles:
+        pa = a.get("published_at")
+        if pa and hasattr(pa, "strftime"):
+            months_set.add(pa.strftime("%Y-%m"))
     
     monthly = []
-    for m in months_with_articles:
-        ym = m["_id"]
+    for ym in sorted(months_set, reverse=True):
         monthly.append(f'  <sitemap><loc>{base_url}/api/seo/sitemap-news-{ym}.xml</loc><lastmod>{today}</lastmod></sitemap>')
     
     xml = f"""<?xml version="1.0" encoding="UTF-8"?>
