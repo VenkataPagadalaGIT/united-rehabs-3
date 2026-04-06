@@ -745,6 +745,14 @@ async def bulk_import_articles(articles: List[ArticleCreate], user: User = Depen
     result = {"created": created, "updated": updated, "total": created + updated}
     if rejected:
         result["rejected"] = rejected
+    
+    # Clear sitemap cache + ping search engines
+    _sitemap_caches.clear()
+    try:
+        await ping_websub()
+    except Exception:
+        pass
+    
     return result
 
 @api_router.get("/articles/tags")
@@ -3870,6 +3878,7 @@ async def bulk_import_drug_guides(guides: List[Dict], user: User = Depends(requi
             g["created_at"] = datetime.utcnow()
             await db.drug_guides.insert_one(g)
             created += 1
+    _sitemap_caches.clear()
     return {"created": created, "updated": updated, "total": created + updated}
 
 
