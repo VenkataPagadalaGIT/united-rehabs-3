@@ -2003,6 +2003,7 @@ async def sitemap_index():
   <sitemap><loc>{base_url}/api/seo/sitemap-countries.xml</loc><lastmod>{today}</lastmod></sitemap>
   <sitemap><loc>{base_url}/api/seo/sitemap-news.xml</loc><lastmod>{today}</lastmod></sitemap>
   <sitemap><loc>{base_url}/api/seo/sitemap-drugs.xml</loc><lastmod>{today}</lastmod></sitemap>
+  <sitemap><loc>{base_url}/api/seo/sitemap-druglaws.xml</loc><lastmod>{today}</lastmod></sitemap>
 {chr(10).join(monthly)}
 </sitemapindex>"""
     return Response(content=xml, media_type="application/xml", headers={"Cache-Control": "public, max-age=86400"})
@@ -2210,10 +2211,10 @@ async def sitemap_drugs():
     
     xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     
-    # Only index page always included
+    # Drugs index
     xml_parts.append(f'  <url><loc>{base_url}/drugs</loc><lastmod>{today}</lastmod></url>')
     
-    # Individual drug pages - ONLY if they have content (>100 chars)
+    # Individual drug pages with content
     guides = await db.drug_guides.find({"content": {"$exists": True}}, {"_id": 0, "slug": 1, "content": 1, "updated_at": 1}).to_list(500)
     for g in guides:
         if g.get("content") and len(g["content"]) > 100:
@@ -2222,11 +2223,37 @@ async def sitemap_drugs():
                 lastmod = g["updated_at"].strftime("%Y-%m-%d")
             xml_parts.append(f'  <url><loc>{base_url}/drugs/{g["slug"]}</loc><lastmod>{lastmod}</lastmod></url>')
     
-    # Category pages - only if they have guides
+    # Categories with content
     categories_with_content = await db.drug_guides.distinct("category", {"content": {"$exists": True}})
     for cat in categories_with_content:
         if cat:
             xml_parts.append(f'  <url><loc>{base_url}/drugs/category/{cat}</loc><lastmod>{today}</lastmod></url>')
+    
+    xml_parts.append('</urlset>')
+    return Response(content="\n".join(xml_parts), media_type="application/xml", headers={"Cache-Control": "public, max-age=21600"})
+
+
+@api_router.get("/seo/sitemap-druglaws.xml")
+async def sitemap_druglaws():
+    """State drug laws sitemap - all published state law pages"""
+    from fastapi.responses import Response
+    base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    
+    xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    
+    # Drug laws hub
+    xml_parts.append(f'  <url><loc>{base_url}/drug-laws</loc><lastmod>{today}</lastmod></url>')
+    
+    # Individual state law pages
+    laws = await db.state_drug_laws.find({"status": "published"}, {"_id": 0, "state_name": 1, "updated_at": 1}).to_list(60)
+    for law in laws:
+        slug = law.get("state_name", "").lower().replace(" ", "-")
+        if slug:
+            lastmod = today
+            if law.get("updated_at") and hasattr(law["updated_at"], "strftime"):
+                lastmod = law["updated_at"].strftime("%Y-%m-%d")
+            xml_parts.append(f'  <url><loc>{base_url}/drug-laws/{slug}</loc><lastmod>{lastmod}</lastmod></url>')
     
     xml_parts.append('</urlset>')
     return Response(content="\n".join(xml_parts), media_type="application/xml", headers={"Cache-Control": "public, max-age=21600"})
@@ -4060,6 +4087,7 @@ async def root_sitemap():
   <sitemap><loc>{base_url}/api/seo/sitemap-countries.xml</loc><lastmod>{today}</lastmod></sitemap>
   <sitemap><loc>{base_url}/api/seo/sitemap-news.xml</loc><lastmod>{today}</lastmod></sitemap>
   <sitemap><loc>{base_url}/api/seo/sitemap-drugs.xml</loc><lastmod>{today}</lastmod></sitemap>
+  <sitemap><loc>{base_url}/api/seo/sitemap-druglaws.xml</loc><lastmod>{today}</lastmod></sitemap>
 {chr(10).join(monthly)}
 </sitemapindex>"""
     return Response(content=xml, media_type="application/xml")
