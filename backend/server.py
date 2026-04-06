@@ -1984,15 +1984,17 @@ async def sitemap_index():
     now = datetime.utcnow()
     today = now.strftime("%Y-%m-%d")
     
-    # Monthly news sitemaps (last 12 months)
+    # Monthly news sitemaps - ONLY months that have articles
+    months_with_articles = await db.articles.aggregate([
+        {"$match": {"content_type": "news", "is_published": True, "published_at": {"$exists": True}}},
+        {"$group": {"_id": {"$dateToString": {"format": "%Y-%m", "date": "$published_at"}}}},
+        {"$sort": {"_id": -1}}
+    ]).to_list(50)
+    
     monthly = []
-    for i in range(12):
-        m = now.month - i
-        y = now.year
-        while m <= 0:
-            m += 12
-            y -= 1
-        monthly.append(f'  <sitemap><loc>{base_url}/api/seo/sitemap-news-{y}-{m:02d}.xml</loc><lastmod>{today}</lastmod></sitemap>')
+    for m in months_with_articles:
+        ym = m["_id"]
+        monthly.append(f'  <sitemap><loc>{base_url}/api/seo/sitemap-news-{ym.replace("-", "-")}.xml</loc><lastmod>{today}</lastmod></sitemap>')
     
     xml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -4034,21 +4036,22 @@ async def root_llms_full_txt():
 
 @app.get("/sitemap.xml")
 async def root_sitemap():
-    """Serve sitemap index with monthly news sitemaps"""
+    """Serve sitemap index - only months with articles"""
     from fastapi.responses import Response
     base_url = os.environ.get('SITEMAP_URL', os.environ.get('APP_URL', 'https://unitedrehabs.com')).rstrip('/')
     today = datetime.utcnow().strftime("%Y-%m-%d")
-    now = datetime.utcnow()
     
-    # Build monthly sitemap entries for news (last 12 months)
-    monthly_sitemaps = []
-    for i in range(12):
-        month = now.month - i
-        year = now.year
-        while month <= 0:
-            month += 12
-            year -= 1
-        monthly_sitemaps.append(f'  <sitemap><loc>{base_url}/api/seo/sitemap-news-{year}-{month:02d}.xml</loc><lastmod>{today}</lastmod></sitemap>')
+    # Only include months that have published articles
+    months_with_articles = await db.articles.aggregate([
+        {"$match": {"content_type": "news", "is_published": True, "published_at": {"$exists": True}}},
+        {"$group": {"_id": {"$dateToString": {"format": "%Y-%m", "date": "$published_at"}}}},
+        {"$sort": {"_id": -1}}
+    ]).to_list(50)
+    
+    monthly = []
+    for m in months_with_articles:
+        ym = m["_id"]
+        monthly.append(f'  <sitemap><loc>{base_url}/api/seo/sitemap-news-{ym}.xml</loc><lastmod>{today}</lastmod></sitemap>')
     
     xml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -4057,7 +4060,7 @@ async def root_sitemap():
   <sitemap><loc>{base_url}/api/seo/sitemap-countries.xml</loc><lastmod>{today}</lastmod></sitemap>
   <sitemap><loc>{base_url}/api/seo/sitemap-news.xml</loc><lastmod>{today}</lastmod></sitemap>
   <sitemap><loc>{base_url}/api/seo/sitemap-drugs.xml</loc><lastmod>{today}</lastmod></sitemap>
-{chr(10).join(monthly_sitemaps)}
+{chr(10).join(monthly)}
 </sitemapindex>"""
     return Response(content=xml, media_type="application/xml")
 
